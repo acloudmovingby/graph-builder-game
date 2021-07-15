@@ -8,10 +8,24 @@ let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
-
+let clearButtonHover = false;
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
+
+function refreshState() {
+  nodes = [];
+  edgeMode = false;
+  edgeStart = null;
+  edgeCount = 0;
+  edgeCount = 0;
+  nodeHover = null;
+  stillInNode = false;
+
+  document.getElementById("node-count").innerHTML = nodes.length;
+  document.getElementById("edge-count").innerHTML = edgeCount;
+  document.getElementById("adjacency-list").innerHTML = "";
+}
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
@@ -24,6 +38,11 @@ function canvasClick(event) {
   let canvasBounds = canvas.getBoundingClientRect();
   let x = event.x - canvasBounds.left;
   let y = event.y - canvasBounds.top;
+
+  if (clearButtonHover) {
+    refreshState();
+    return;
+  }
 
   let nodeClicked = nodeAtPoint(x, y, nodes);
 
@@ -91,6 +110,16 @@ function draw() {
       );
     }
 
+    // clear/reset message
+    ctx.font = "1rem Arial";
+    ctx.textAlign = "start";
+    ctx.fillStyle = clearButtonHover ? "black" : "#909090";
+    ctx.fillText(
+      "clear",
+      35,
+      35
+    );
+
     //edge mode, draw edge from edgeStart to mouse cursor
     if (edgeMode) {
       ctx.lineWidth = 8;
@@ -153,20 +182,13 @@ function draw() {
           ctx.fill();
         }
       }
-      // prevent overflow, don't increment indefinitely
+      // to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
       }
     }
 
-    // reset message
-    ctx.font = "1rem Arial";
-    ctx.fillStyle = "#404040";
-    ctx.fillText(
-      "clear",
-      35,
-      35
-    );
+    
 
     // message box text
     /*
@@ -227,6 +249,15 @@ function mouseMove(event) {
   nodeHover = nodeAtPoint(mouseX, mouseY, nodes);
   if (!nodeHover) {
     stillInNode = false;
+  }
+
+  // hover over clear button
+  if (mouseX > 0 && mouseX < 80 && mouseY > 0 && mouseY < 80) {
+    clearButtonHover = true;
+  } else {
+    if (clearButtonHover) {
+      clearButtonHover = false;
+    }
   }
 }
 
