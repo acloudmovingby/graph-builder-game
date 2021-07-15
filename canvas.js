@@ -1,11 +1,18 @@
 let canvas = document.getElementById("canvas");
+const infoPaneWidth = 400; // this MUST match the width of the info-pane set out in css
 let nodes = [];
 let edgeMode = false;
 let edgeStart = null;
+let edgeCount = 0;
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
+const messageState = {
+  message: "",
+  display: false,
+  startTime: 0,
+};
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
@@ -31,6 +38,7 @@ function canvasClick(event) {
     node.appendChild(document.createTextNode(nodes.length + ": "));
     document.getElementById("adjacency-list").appendChild(node);
     stillInNode = true;
+    document.getElementById("node-count").innerHTML = nodes.length;
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
@@ -54,9 +62,13 @@ function canvasClick(event) {
           }
         }
         edgeStart = nodeClicked;
+        edgeCount++;
+        document.getElementById("edge-count").innerHTML = edgeCount;
         items[startIx].appendChild(document.createTextNode(" " + clickedIx));
         items[clickedIx].appendChild(document.createTextNode(comma + startIx));
+        
       }
+      
     }
     edgeStart = nodeClicked;
   } else {
@@ -69,7 +81,7 @@ function canvasClick(event) {
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
-    ctx.canvas.width = window.innerWidth - 400;
+    ctx.canvas.width = window.innerWidth - infoPaneWidth;
     ctx.canvas.height = window.innerHeight;
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
@@ -79,10 +91,20 @@ function draw() {
       ctx.fillStyle = "gray";
       ctx.textAlign = "center";
       ctx.fillText(
-        "To start, try clicking in a few places",
+        "Welcome! To start, try clicking somewhere",
         ctx.canvas.width / 2,
         ctx.canvas.height / 2
       );
+    }
+
+    //draw temp edge
+    if (edgeMode) {
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = "#ffdc7a";
+      ctx.moveTo(edgeStart.x, edgeStart.y);
+      ctx.lineTo(mouseX, mouseY);
+      ctx.closePath();
+      ctx.stroke();
     }
 
     // draw edges
@@ -96,16 +118,6 @@ function draw() {
       ctx.closePath();
       ctx.stroke();
     });
-
-    //draw temp edge
-    if (edgeMode) {
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "#ffdc7a";
-      ctx.moveTo(edgeStart.x, edgeStart.y);
-      ctx.lineTo(mouseX, mouseY);
-      ctx.closePath();
-      ctx.stroke();
-    }
 
     // draw nodes
     for (let i = 0; i < nodes.length; i++) {
@@ -152,6 +164,27 @@ function draw() {
         nodes[i].counter += 1;
       }
     }
+    // message box text
+    /*
+    let boxX = (ctx.canvas.width - infoPaneWidth) / 2;
+    let boxY = ctx.canvas.height - 100;
+    let boxWidth = 300;
+    let boxHeight = 35;
+    ctx.fillStyle = "white";
+    ctx.fillRect(
+      boxX,
+      boxY,
+      boxWidth,
+      boxHeight
+    );
+    ctx.font = "15px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      "Not allowed",
+      boxX + boxWidth/2,
+      boxY + boxHeight/2
+    );*/
   }
   window.requestAnimationFrame(draw);
 }
@@ -186,7 +219,6 @@ function mouseMove(event) {
   let canvasBounds = canvas.getBoundingClientRect();
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
-
 
   nodeHover = nodeAtPoint(mouseX, mouseY, nodes);
   if (!nodeHover) {
