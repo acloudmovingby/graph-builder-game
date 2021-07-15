@@ -1,11 +1,11 @@
-var canvas = document.getElementById("canvas");
-var nodes = [];
-var edgeMode = false;
-var edgeStart = null;
-var mouseX = 0;
-var mouseY = 0;
-var nodeHover = null;
-var stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
+let canvas = document.getElementById("canvas");
+let nodes = [];
+let edgeMode = false;
+let edgeStart = null;
+let mouseX = 0;
+let mouseY = 0;
+let nodeHover = null;
+let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
@@ -13,6 +13,7 @@ const nodeRadius = 15;
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
   canvas.addEventListener("mousemove", mouseMove, false);
+  canvas.addEventListener("mouseleave", mouseLeave, false);
   window.requestAnimationFrame(draw);
 }
 
@@ -97,7 +98,6 @@ function draw() {
     });
 
     //draw temp edge
-
     if (edgeMode) {
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
@@ -122,10 +122,10 @@ function draw() {
         ctx.fillStyle = "#32BFE3";
       }
 
-      var oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
-      var dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
-      var dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
-      var radius = Math.max(
+      let oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
+      let dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
+      let dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
+      let radius = Math.max(
         1,
         25 * oscillator * dampener * dampener2 + nodeRadius
       );
@@ -166,10 +166,10 @@ function Node(index, counter, x, y) {
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
 function nodeAtPoint(x, y, nodes) {
-  for (var i = 0; i < nodes.length; i++) {
-    var dx = x - nodes[i].x;
-    var dy = y - nodes[i].y;
-    var distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+  for (let i = 0; i < nodes.length; i++) {
+    let dx = x - nodes[i].x;
+    let dy = y - nodes[i].y;
+    let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     if (distFromCent < nodeRadius * 2) {
       return nodes[i];
     }
@@ -177,10 +177,16 @@ function nodeAtPoint(x, y, nodes) {
   return null;
 }
 
+function mouseLeave(event) {
+  edgeMode = false;
+  edgeStart = null;
+}
+
 function mouseMove(event) {
   let canvasBounds = canvas.getBoundingClientRect();
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
+
 
   nodeHover = nodeAtPoint(mouseX, mouseY, nodes);
   if (!nodeHover) {
