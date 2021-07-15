@@ -8,11 +8,7 @@ let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
-const messageState = {
-  message: "",
-  display: false,
-  startTime: 0,
-};
+
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
@@ -95,7 +91,7 @@ function draw() {
       );
     }
 
-    //draw temp edge
+    //edge mode, draw edge from edgeStart to mouse cursor
     if (edgeMode) {
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
@@ -162,6 +158,16 @@ function draw() {
         nodes[i].counter += 1;
       }
     }
+
+    // reset message
+    ctx.font = "1rem Arial";
+    ctx.fillStyle = "#404040";
+    ctx.fillText(
+      "clear",
+      35,
+      35
+    );
+
     // message box text
     /*
     let boxX = (ctx.canvas.width - infoPaneWidth) / 2;

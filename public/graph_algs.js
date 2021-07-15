@@ -1,8 +1,12 @@
-let graph1 = [[]];
+let graph1 = [[1],[0]];
 let graph2 = [[]];
+
+console.log(`edges: ${edges(graph1)}`);
+/*
 let map = new Map();
 let result = checkMapping(graph1, graph2, map);
 console.log(`checkMapping: ${result}`);
+*/
 
 function checkMapping(g1, g2, map) {
   let mapCorrect = true;
@@ -42,9 +46,19 @@ function getEdges(nodes) {
     marked.add(nodes[i]);
     for (let j = 0; j < nodes[i].length; j++) {
       if (!marked.has(nodes[i][j])) {
-        edges.push(i, j);
+        edges.push([i, j]);
       }
     }
   }
   return edges;
+}
+
+function edges() {
+  let edges = [];
+  graph1.forEach((source,i) {
+    source.forEach((target,j) {
+      edges.push([i,j]);
+    })
+  });
+  return graph1;
 }
