@@ -62,7 +62,6 @@ function canvasClick(event) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
-      // update adjacency list on webpage
       let adjList = document.getElementById("adjacency-list");
       if (adjList.hasChildNodes()) {
         let items = adjList.childNodes;
@@ -84,6 +83,8 @@ function canvasClick(event) {
       }
     }
     edgeStart = nodeClicked;
+
+    document.getElementById("iso-1").innerHTML = isCycleGraph() ? "Cycle graph" : "";
   } else {
     // cancel edge mode
     edgeMode = false;
@@ -273,4 +274,9 @@ function getEdges(nodes) {
     }
   }
   return edges;
+}
+
+function isCycleGraph(nodes) {
+  return nodes.filter((n) => n.neighbors.length===1)
+  .length === nodes.length;
 }
