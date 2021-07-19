@@ -1,64 +1,52 @@
-let graph1 = [[1],[0]];
-let graph2 = [[]];
-
-console.log(`edges: ${edges(graph1)}`);
-/*
-let map = new Map();
-let result = checkMapping(graph1, graph2, map);
-console.log(`checkMapping: ${result}`);
-*/
-
-function checkMapping(g1, g2, map) {
-  let mapCorrect = true;
-  let edges = getEdges(g1);
-  edges.forEach((e) => {
-    // get equivalents in g2
-    // check that the first node in g2 has the other node as an edge
-    let g2_source = map.get(e[0]);
-    let g2_target = map.get(e[1]);
-    mapCorrect += g2[g2_source].includes(g2_target);
-  });
-  return mapCorrect;
-}
-
-// takes two adjacency lists (arrays of arrays). This function assumes these are undirected graphs
-function isomorphic(g1, g2) {
-  let isomorphic = bruteForce(g1, g2);
-
+function isomorphism(g1, g2) {
   if (g1.length !== g2.length) {
     return false;
+  } else {
+    let perm = Array.from({length:g1.length}).map(x => -1);
+    let used = Array.from({length:g1.length}).map(x => false);
+    let level = g1.length - 1;
+    return bruteForce(level, used, perm, g1, g2);
   }
-  // first, cycle through all possible mappings
+}
+
+function bruteForce(level, used, perm, g1, g2) {
+  let result = false;
+
+  if (level === -1) {
+    console.log(`level: ${level}, perm=${perm}`);
+    result = checkEdges(perm, g1, g2);
+    console.log(`result = ${result}`);
+  } else {
+    let i = 0;
+    while (i < g1.length && result === false) {
+      if (used[i] === false) {
+        used[i] = true;
+        perm[level] = i;
+        result = bruteForce(level - 1, used, perm, g1, g2);
+        used[i] = false;
+      }
+      i = i + 1;
+    }
+  }
+  return result;
+}
+
+// g1 and g2 are adjacency lists assumed to be the same length and are valid representations of bidirectional graphs
+// perm is a mapping from nodes in g1 to g2. This function checks whether this mapping is a correct isomorphism between the two graphs
+function checkEdges(perm, g1, g2) {
   for (let i = 0; i < g1.length; i++) {
-    for (let j = 0; j < g2.length; j++) {}
+    for (let j=0; j<g1[i].length; j++) {
+      let g1_target = g1[i][j];
+      let g2_source = perm[i];
+      let g2_target = perm[g1_target];
+      let g2_all_targets = g2[g2_source];
+      if (!g2_all_targets.includes(g2_target)) {
+        return false;
+      }
+    }
   }
   return true;
 }
 
-function permute(nodes) {
-  let s = "";
-}
 
-function getEdges(nodes) {
-  let edges = [];
-  let marked = new Set();
-  for (let i = 0; i < nodes.length; i++) {
-    marked.add(nodes[i]);
-    for (let j = 0; j < nodes[i].length; j++) {
-      if (!marked.has(nodes[i][j])) {
-        edges.push([i, j]);
-      }
-    }
-  }
-  return edges;
-}
-
-function edges() {
-  let edges = [];
-  graph1.forEach((source,i) {
-    source.forEach((target,j) {
-      edges.push([i,j]);
-    })
-  });
-  return graph1;
-}
+module.exports = checkEdges;
