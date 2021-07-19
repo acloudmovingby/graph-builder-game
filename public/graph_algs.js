@@ -4,6 +4,8 @@ function isomorphism(g1, g2) {
   } else {
     let perm = Array.from({ length: g1.length }).map((x) => -1);
     let used = Array.from({ length: g1.length }).map((x) => false);
+    console.log(perm);
+    console.log(used);
     let level = g1.length - 1;
     return bruteForce(level, used, perm, g1, g2);
   }
