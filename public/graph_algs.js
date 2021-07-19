@@ -2,8 +2,8 @@ function isomorphism(g1, g2) {
   if (g1.length !== g2.length) {
     return false;
   } else {
-    let perm = Array.from({length:g1.length}).map(x => -1);
-    let used = Array.from({length:g1.length}).map(x => false);
+    let perm = Array.from({ length: g1.length }).map((x) => -1);
+    let used = Array.from({ length: g1.length }).map((x) => false);
     let level = g1.length - 1;
     return bruteForce(level, used, perm, g1, g2);
   }
@@ -13,9 +13,7 @@ function bruteForce(level, used, perm, g1, g2) {
   let result = false;
 
   if (level === -1) {
-    console.log(`level: ${level}, perm=${perm}`);
     result = checkEdges(perm, g1, g2);
-    console.log(`result = ${result}`);
   } else {
     let i = 0;
     while (i < g1.length && result === false) {
@@ -35,7 +33,7 @@ function bruteForce(level, used, perm, g1, g2) {
 // perm is a mapping from nodes in g1 to g2. This function checks whether this mapping is a correct isomorphism between the two graphs
 function checkEdges(perm, g1, g2) {
   for (let i = 0; i < g1.length; i++) {
-    for (let j=0; j<g1[i].length; j++) {
+    for (let j = 0; j < g1[i].length; j++) {
       let g1_target = g1[i][j];
       let g2_source = perm[i];
       let g2_target = perm[g1_target];
