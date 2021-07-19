@@ -48,5 +48,5 @@ function checkEdges(perm, g1, g2) {
   return true;
 }
 
-
-module.exports = checkEdges;
+exports.checkEdges = checkEdges;
+exports.isomorphism = isomorphism;
