@@ -1,3 +1,5 @@
+// THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
+// This is based on the algorithm(s) described in the link above.
 function isomorphism(g1, g2) {
   if (g1.length !== g2.length) {
     return false;

@@ -25,6 +25,7 @@ function refreshState() {
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
   document.getElementById("adjacency-list").innerHTML = "";
+  setCommentary();
 }
 
 if (canvas.getContext) {
@@ -54,6 +55,7 @@ function canvasClick(event) {
     document.getElementById("adjacency-list").appendChild(node);
     stillInNode = true;
     document.getElementById("node-count").innerHTML = nodes.length;
+    setCommentary();
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
@@ -62,6 +64,7 @@ function canvasClick(event) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
+      
       let adjList = document.getElementById("adjacency-list");
       if (adjList.hasChildNodes()) {
         let items = adjList.childNodes;
@@ -80,11 +83,10 @@ function canvasClick(event) {
         document.getElementById("edge-count").innerHTML = edgeCount;
         items[startIx].appendChild(document.createTextNode(" " + clickedIx));
         items[clickedIx].appendChild(document.createTextNode(" " + startIx));
+        setCommentary();
       }
     }
     edgeStart = nodeClicked;
-
-    document.getElementById("iso-1").innerHTML = isCycleGraph() ? "Cycle graph" : "";
   } else {
     // cancel edge mode
     edgeMode = false;
@@ -115,11 +117,7 @@ function draw() {
     ctx.font = "1rem Arial";
     ctx.textAlign = "start";
     ctx.fillStyle = clearButtonHover ? "black" : "#909090";
-    ctx.fillText(
-      "clear",
-      35,
-      35
-    );
+    ctx.fillText("clear", 35, 35);
 
     //edge mode, draw edge from edgeStart to mouse cursor
     if (edgeMode) {
@@ -188,8 +186,6 @@ function draw() {
         nodes[i].counter += 1;
       }
     }
-
-    
 
     // message box text
     /*
@@ -276,7 +272,96 @@ function getEdges(nodes) {
   return edges;
 }
 
-function isCycleGraph(nodes) {
-  return nodes.filter((n) => n.neighbors.length===1)
-  .length === nodes.length;
+function setCommentary() {
+  let commentary = "Nice graph!";
+  if (nodes.length === 0) {
+    commentary = "...an empty void...";
+  } else if (nodes.length === 1) {
+    commentary = "A lone wolf.";
+  } else if (nodes.length > 3 && edgeCount === 0) {
+    commentary = "Yo get some edges in there. Things be lookin sparse.";
+  } else if (nodes.length > 3 && edgeCount < 3) {
+    commentary = "Still pretty sparse";
+  } else {
+    /*
+    let graph = convertToAdjList(nodes);
+    let square = [
+      [1, 3],
+      [0, 2],
+      [1, 3],
+      [0, 2],
+    ];
+    let isSquare = isomorphism(square, graph);
+    if (isSquare) {
+      commentary =
+        "Did you know that your graph is isomorphic to the permutaitons of a two digit binary number? This is also a cycle graph.";
+    }
+    */
+  }
+  document.getElementById("commentary").innerHTML =
+    "&#34;" + commentary + "&#34;";
+}
+
+function convertToAdjList(nodes) {
+  let adjList = [];
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j=0; j<nodes.length; j++) {
+    }
+    adjList.push(nodes[i].neighbors);
+  }
+  return adjList;
+}
+
+// THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
+// This is based on the algorithm(s) described in the link above.
+function isomorphism(g1, g2) {
+  if (g1.length !== g2.length) {
+    return false;
+  } else {
+    let perm = Array.from({ length: g1.length }).map((x) => -1);
+    let used = Array.from({ length: g1.length }).map((x) => false);
+    let level = g1.length - 1;
+    return bruteForce(level, used, perm, g1, g2);
+  }
+}
+
+function bruteForce(level, used, perm, g1, g2) {
+  let result = false;
+
+  if (level === -1) {
+    result = checkEdges(perm, g1, g2);
+  } else {
+    let i = 0;
+    while (i < g1.length && result === false) {
+      if (used[i] === false) {
+        used[i] = true;
+        perm[level] = i;
+        result = bruteForce(level - 1, used, perm, g1, g2);
+        used[i] = false;
+      }
+      i = i + 1;
+    }
+  }
+  return result;
+}
+
+// g1 and g2 are adjacency lists assumed to be the same length and are valid representations of bidirectional graphs
+// perm is a mapping from nodes in g1 to g2. This function checks whether this mapping is a correct isomorphism between the two graphs
+function checkEdges(perm, g1, g2) {
+  for (let i = 0; i < g1.length; i++) {
+    for (let j = 0; j < g1[i].length; j++) {
+      let g1_target = g1[i][j];
+      let g2_source = perm[i];
+      let g2_target = perm[g1_target];
+      let g2_all_targets = g2[g2_source];
+      if (!g2_all_targets.includes(g2_target)) {
+        return false;
+      }
+    }
+    if (g1[i].length !== g2[perm[i]].length) {
+      // just delete this if block and then the algorithm returns true if g1 is a subgraph of g2!
+      return false;
+    }
+  }
+  return true;
 }
