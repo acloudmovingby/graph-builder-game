@@ -4,8 +4,6 @@ function isomorphism(g1, g2) {
   } else {
     let perm = Array.from({ length: g1.length }).map((x) => -1);
     let used = Array.from({ length: g1.length }).map((x) => false);
-    console.log(perm);
-    console.log(used);
     let level = g1.length - 1;
     return bruteForce(level, used, perm, g1, g2);
   }
@@ -43,6 +41,10 @@ function checkEdges(perm, g1, g2) {
       if (!g2_all_targets.includes(g2_target)) {
         return false;
       }
+    }
+    if (g1[i].length !== g2[perm[i]].length) {
+      // just delete this if block and then the algorithm returns true if g1 is a subgraph of g2!
+      return false;
     }
   }
   return true;
