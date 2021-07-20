@@ -51,7 +51,7 @@ function canvasClick(event) {
     // create new Node
     nodes.push(new Node(nodes.length, 0, x, y));
     let node = document.createElement("LI");
-    node.appendChild(document.createTextNode(nodes.length + ": "));
+    node.appendChild(document.createTextNode(nodes.length-1 + ": "));
     document.getElementById("adjacency-list").appendChild(node);
     stillInNode = true;
     document.getElementById("node-count").innerHTML = nodes.length;
