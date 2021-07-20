@@ -7,7 +7,7 @@ let edgeCount = 0;
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
-let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created. helps it so the hover effect doesn't happen immediately after adding node
+let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
 
 const timeInit = new Date().getSeconds();
@@ -26,72 +26,6 @@ function refreshState() {
   document.getElementById("edge-count").innerHTML = edgeCount;
   document.getElementById("adjacency-list").innerHTML = "";
   setCommentary();
-}
-
-if (canvas.getContext) {
-  canvas.addEventListener("mousedown", canvasClick, false);
-  canvas.addEventListener("mousemove", mouseMove, false);
-  canvas.addEventListener("mouseleave", mouseLeave, false);
-  window.requestAnimationFrame(draw);
-}
-
-function canvasClick(event) {
-  let canvasBounds = canvas.getBoundingClientRect();
-  let x = event.x - canvasBounds.left;
-  let y = event.y - canvasBounds.top;
-
-  if (clearButtonHover) {
-    refreshState();
-    return;
-  }
-
-  let nodeClicked = nodeAtPoint(x, y, nodes);
-
-  if (!edgeMode && !nodeClicked) {
-    // create new Node
-    nodes.push(new Node(nodes.length, 0, x, y));
-    let node = document.createElement("LI");
-    node.appendChild(document.createTextNode(nodes.length-1 + ": "));
-    document.getElementById("adjacency-list").appendChild(node);
-    stillInNode = true;
-    document.getElementById("node-count").innerHTML = nodes.length;
-    setCommentary();
-  } else if (!edgeMode) {
-    // start edge on the node clicked
-    edgeMode = true;
-    edgeStart = nodeClicked;
-  } else if (nodeClicked && nodeClicked != edgeStart) {
-    if (!edgeStart.neighbors.includes(nodeClicked)) {
-      edgeStart.neighbors.push(nodeClicked);
-      nodeClicked.neighbors.push(edgeStart);
-      
-      let adjList = document.getElementById("adjacency-list");
-      if (adjList.hasChildNodes()) {
-        let items = adjList.childNodes;
-        let startIx = 0;
-        let clickedIx = 0;
-        for (let i = 0; i < nodes.length; i++) {
-          if (nodes[i] === edgeStart) {
-            startIx = i;
-          }
-          if (nodes[i] === nodeClicked) {
-            clickedIx = i;
-          }
-        }
-        edgeStart = nodeClicked;
-        edgeCount++;
-        document.getElementById("edge-count").innerHTML = edgeCount;
-        items[startIx].appendChild(document.createTextNode(" " + clickedIx));
-        items[clickedIx].appendChild(document.createTextNode(" " + startIx));
-        setCommentary();
-      }
-    }
-    edgeStart = nodeClicked;
-  } else {
-    // cancel edge mode
-    edgeMode = false;
-    edgeStart = null;
-  }
 }
 
 function draw() {
@@ -212,6 +146,7 @@ function draw() {
   window.requestAnimationFrame(draw);
 }
 
+// for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in one object.
 function Node(index, counter, x, y) {
   this.index = index;
   this.counter = counter;
@@ -220,17 +155,82 @@ function Node(index, counter, x, y) {
   this.neighbors = [];
 }
 
+if (canvas.getContext) {
+  canvas.addEventListener("mousedown", canvasClick, false);
+  canvas.addEventListener("mousemove", mouseMove, false);
+  canvas.addEventListener("mouseleave", mouseLeave, false);
+  window.requestAnimationFrame(draw);
+}
+
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
 function nodeAtPoint(x, y, nodes) {
   for (let i = 0; i < nodes.length; i++) {
     let dx = x - nodes[i].x;
     let dy = y - nodes[i].y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    if (distFromCent < nodeRadius * 2) {
+    if (distFromCent < nodeRadius * 1.3) {
       return nodes[i];
     }
   }
   return null;
+}
+
+function canvasClick(event) {
+  let canvasBounds = canvas.getBoundingClientRect();
+  let x = event.x - canvasBounds.left;
+  let y = event.y - canvasBounds.top;
+
+  if (clearButtonHover) {
+    refreshState();
+    return;
+  }
+
+  let nodeClicked = nodeAtPoint(x, y, nodes);
+
+  if (!edgeMode && !nodeClicked) {
+    // create new Node
+    nodes.push(new Node(nodes.length, 0, x, y));
+    let node = document.createElement("LI");
+    node.appendChild(document.createTextNode(nodes.length - 1 + ": "));
+    //document.getElementById("adjacency-list").appendChild(node);
+    stillInNode = true;
+    document.getElementById("node-count").innerHTML = nodes.length;
+    setCommentary();
+  } else if (!edgeMode) {
+    // start edge on the node clicked
+    edgeMode = true;
+    edgeStart = nodeClicked;
+  } else if (nodeClicked && nodeClicked != edgeStart) {
+    if (!edgeStart.neighbors.includes(nodeClicked)) {
+      edgeStart.neighbors.push(nodeClicked);
+      nodeClicked.neighbors.push(edgeStart);
+      edgeStart = nodeClicked;
+      edgeCount++;
+      document.getElementById("edge-count").innerHTML = edgeCount;
+      setCommentary();
+      let adjList = document.getElementById("adjacency-list");
+      if (adjList && adjList.hasChildNodes()) {
+        let items = adjList.childNodes;
+        let startIx = 0;
+        let clickedIx = 0;
+        for (let i = 0; i < nodes.length; i++) {
+          if (nodes[i] === edgeStart) {
+            startIx = i;
+          }
+          if (nodes[i] === nodeClicked) {
+            clickedIx = i;
+          }
+        }
+        items[startIx].appendChild(document.createTextNode(" " + clickedIx));
+        items[clickedIx].appendChild(document.createTextNode(" " + startIx));
+      }
+    }
+    edgeStart = nodeClicked;
+  } else {
+    // cancel edge mode
+    edgeMode = false;
+    edgeStart = null;
+  }
 }
 
 function mouseLeave(event) {
@@ -273,15 +273,40 @@ function getEdges(nodes) {
 }
 
 function setCommentary() {
+  // often it's useful to ignore isolate nodes
+  let numConnected = nodes.filter(x => x.neighbors.length > 0).length;
+  console.log(`numConnected: ${numConnected}`);
+
+  // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
+  // warning: The sequence of some comments won't make sense if I later add deletion
+
   let commentary = "Nice graph!";
   if (nodes.length === 0) {
     commentary = "...an empty void...";
   } else if (nodes.length === 1) {
     commentary = "A lone wolf.";
-  } else if (nodes.length > 3 && edgeCount === 0) {
+  } else if (nodes.length === 2 && edgeCount === 0) {
+    commentary = "Two lone wolves!";
+  } else if (nodes.length === 2 && edgeCount === 1) {
+    commentary = "Awwww, they're connected! Cute.";
+  } else if (nodes.length === 3 && edgeCount === 1) {
+    commentary = "Classic third wheel situation.";
+  } else if (numConnected === 3 && edgeCount === 2) {
+    commentary = "So technically this is S3, a star graph, but it's a bit boring. \nYou can do better.";
+  } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
+  } else if (nodes.length >= 6 && edgeCount === 0) {
+    commentary = "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && edgeCount < 3) {
     commentary = "Still pretty sparse";
+  } else if (numConnected === 3 && edgeCount === 3) {
+    commentary = "You made a triangle!";
+  } else if (numConnected === 4 && edgeCount === 3) {
+    commentary = "Try making a cycle.";
+  } else if (numConnected +1 === nodes.length && nodes.length >  6) {
+    commentary = "So close...";
+  } else if (numConnected === nodes.length && nodes.length >  6) {
+    commentary = "WOOHOOO!! Feelin connected!!";
   } else {
     /*
     let graph = convertToAdjList(nodes);
@@ -305,8 +330,7 @@ function setCommentary() {
 function convertToAdjList(nodes) {
   let adjList = [];
   for (let i = 0; i < nodes.length; i++) {
-    for (let j=0; j<nodes.length; j++) {
-    }
+    for (let j = 0; j < nodes.length; j++) {}
     adjList.push(nodes[i].neighbors);
   }
   return adjList;
