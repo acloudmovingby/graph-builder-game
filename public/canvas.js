@@ -156,28 +156,6 @@ function draw() {
         nodes[i].counter += 1;
       }
     }
-
-    // message box text
-    /*
-    let boxX = (ctx.canvas.width - infoPaneWidth) / 2;
-    let boxY = ctx.canvas.height - 100;
-    let boxWidth = 300;
-    let boxHeight = 35;
-    ctx.fillStyle = "white";
-    ctx.fillRect(
-      boxX,
-      boxY,
-      boxWidth,
-      boxHeight
-    );
-    ctx.font = "15px Arial";
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      "Not allowed",
-      boxX + boxWidth/2,
-      boxY + boxHeight/2
-    );*/
   }
   window.requestAnimationFrame(draw);
 }
@@ -313,7 +291,7 @@ function setCommentary() {
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
-  // warning: The sequence of some comments won't make sense if I later add deletion
+  // The sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
   if (nodes.length === 0) {
     commentary = "...an empty void...";
@@ -372,9 +350,10 @@ function setCommentary() {
   } else if (
     numConnected === nodes.length &&
     numConnected === edgeCount &&
-    numConnected === nodes.filter((x) => x.neighbors.length === 2).length
+    numConnected === nodes.filter(x => x.neighbors.length === 2).length
   ) {
     let adjList = convertToAdjList(nodes);
+    // starts at first node, walks edges exactly n times. If it's a cycle graph, it should end up back at beginning
     let cur = 0;
     let prev = -1;
     for (let i=0; i<adjList.length; i++) {
@@ -413,7 +392,7 @@ function setCommentary() {
   } else if (nodes.length >= 70 && edgeCount > 30) {
     commentary = "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
   } else if (nodes.length >= 70) {
-    commentary = "So there's a MEGA EASTER EGG in this game. Hint: start making all the edges...";
+    commentary = "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
   } else if (nodes.length >= 60) {
     commentary = "Are the animations still smooth? I bet they are :) ";
   } else if (nodes.length >= 50) {
@@ -426,7 +405,6 @@ function setCommentary() {
     commentary = "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
   } else if (nodes.length >= 15) {
     commentary = "You're adding a lot of nodes.";
-
   }   else {
   }
   refreshEasterEggs();
