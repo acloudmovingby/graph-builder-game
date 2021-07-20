@@ -24,9 +24,46 @@ function refreshState() {
 
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
-  document.getElementById("adjacency-list").innerHTML = "";
+  //document.getElementById("adjacency-list").innerHTML = "";
   setCommentary();
+  refreshEasterEggs();
 }
+
+const easterEggState = {
+  visible: false,
+  eggs: {
+    K3: false,
+    K4: false,
+    K5: false,
+    K6: false,
+    C3: false,
+    C4: false,
+    C5: false,
+    C6: false,
+  },
+};
+
+function refreshEasterEggs() {
+  if (easterEggState.visible) {
+    let easterEggs = document.getElementById("easter-eggs");
+    let eggSlider = document.getElementById("egg-slider");
+    if (easterEggs && eggSlider) {
+      easterEggs.style.display = "block";
+      eggSlider.style.display = "block";
+    }
+    for (const [id, discovered] of Object.entries(easterEggState.eggs)) {
+      let htmlEgg = document.getElementById(id);
+      console.log("htmlEgg" + htmlEgg);
+      if (htmlEgg) {
+        htmlEgg.style.color = discovered ? "blue" : "black";
+        htmlEgg.style.fontWeight = discovered ? "bold" : "normal";
+        htmlEgg.innerHTML = discovered ? id : "?";
+      }
+    }
+  }
+}
+
+function initEasterEggs() {}
 
 function draw() {
   if (canvas.getContext) {
@@ -168,7 +205,7 @@ function nodeAtPoint(x, y, nodes) {
     let dx = x - nodes[i].x;
     let dy = y - nodes[i].y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    if (distFromCent < nodeRadius * 1.3) {
+    if (distFromCent < nodeRadius * 2) {
       return nodes[i];
     }
   }
@@ -273,13 +310,11 @@ function getEdges(nodes) {
 }
 
 function setCommentary() {
-  // often it's useful to ignore isolate nodes
-  let numConnected = nodes.filter(x => x.neighbors.length > 0).length;
-  console.log(`numConnected: ${numConnected}`);
+  // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
+  let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // warning: The sequence of some comments won't make sense if I later add deletion
-
   let commentary = "Nice graph!";
   if (nodes.length === 0) {
     commentary = "...an empty void...";
@@ -292,37 +327,93 @@ function setCommentary() {
   } else if (nodes.length === 3 && edgeCount === 1) {
     commentary = "Classic third wheel situation.";
   } else if (numConnected === 3 && edgeCount === 2) {
-    commentary = "So technically this is S3, a star graph, but it's a bit boring. \nYou can do better.";
+    commentary =
+      "So technically this is S3, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
   } else if (nodes.length >= 6 && edgeCount === 0) {
-    commentary = "So...to make an edge click on a node and then, without dragging, click on another node.";
+    commentary =
+      "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && edgeCount < 3) {
     commentary = "Still pretty sparse";
   } else if (numConnected === 3 && edgeCount === 3) {
-    commentary = "You made a triangle!";
+    commentary =
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (S3)!";
+    easterEggState.eggs.K3 = true;
+    easterEggState.eggs.C3 = true;
+    easterEggState.visible = true;
+    refreshEasterEggs();
   } else if (numConnected === 4 && edgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (numConnected +1 === nodes.length && nodes.length >  6) {
+  } else if (edgeCount === (nodes.length * (nodes.length - 1)) / 2) {
+    commentary = "Wow! A complete graph! ";
+    switch (nodes.length) {
+      case 4:
+        easterEggState.eggs.K4 = true;
+        commentary +=
+          "This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.";
+        easterEggState.visible = true;
+        break;
+      case 5:
+        easterEggState.eggs.K5 = true;
+        commentary +=
+          "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!...";
+        easterEggState.visible = true;
+        break;
+      case 6:
+        easterEggState.eggs.K6 = true;
+        commentary +=
+          " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
+        easterEggState.visible = true;
+        break;
+        case 7: 
+        commentary = "Well done. You made C7. You have a lot of time on your hands. But no eggs for you."
+        break;
+    }
+  } else if (
+    numConnected === nodes.length &&
+    numConnected === edgeCount &&
+    numConnected === nodes.filter((x) => x.neighbors.length === 2).length
+  ) {
+    let adjList = convertToAdjList(nodes);
+    let cur = 0;
+    let prev = -1;
+    for (let i=0; i<adjList.length; i++) {
+      if (adjList[cur][0] === prev) {
+        prev = cur;
+        cur = adjList[cur][1];
+      } else {
+        prev = cur;
+        cur = adjList[cur][0];
+      }
+    }
+    let isCycle = cur === 0 ? true : false;
+    commentary = isCycle
+      ? "Cool cycle graph!"
+      : "You got a couple of cycle graphs goin on.";
+      if (isCycle) {
+        switch (nodes.length) {
+          case 4: 
+          easterEggState.eggs.C4 = true;
+          easterEggState.visible = true;
+          break;
+          case 5: 
+          easterEggState.eggs.C5 = true;
+          easterEggState.visible = true;
+          break;
+          case 6: 
+          easterEggState.eggs.C6 = true;
+          easterEggState.visible = true;
+          break;
+        }
+      }
+  } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
-  } else if (numConnected === nodes.length && nodes.length >  6) {
+  } else if (numConnected === nodes.length && nodes.length > 6) {
     commentary = "WOOHOOO!! Feelin connected!!";
   } else {
-    /*
-    let graph = convertToAdjList(nodes);
-    let square = [
-      [1, 3],
-      [0, 2],
-      [1, 3],
-      [0, 2],
-    ];
-    let isSquare = isomorphism(square, graph);
-    if (isSquare) {
-      commentary =
-        "Did you know that your graph is isomorphic to the permutaitons of a two digit binary number? This is also a cycle graph.";
-    }
-    */
   }
+  refreshEasterEggs();
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }
@@ -330,8 +421,10 @@ function setCommentary() {
 function convertToAdjList(nodes) {
   let adjList = [];
   for (let i = 0; i < nodes.length; i++) {
-    for (let j = 0; j < nodes.length; j++) {}
-    adjList.push(nodes[i].neighbors);
+    adjList.push([]);
+    for (let j = 0; j < nodes[i].neighbors.length; j++) {
+      adjList[i].push(nodes[i].neighbors[j].index);
+    }
   }
   return adjList;
 }
