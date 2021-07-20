@@ -53,7 +53,6 @@ function refreshEasterEggs() {
     }
     for (const [id, discovered] of Object.entries(easterEggState.eggs)) {
       let htmlEgg = document.getElementById(id);
-      console.log("htmlEgg" + htmlEgg);
       if (htmlEgg) {
         htmlEgg.style.color = discovered ? "blue" : "black";
         htmlEgg.style.fontWeight = discovered ? "bold" : "normal";
@@ -331,10 +330,10 @@ function setCommentary() {
       "So technically this is S3, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
-  } else if (nodes.length >= 6 && edgeCount === 0) {
+  } else if (nodes.length >= 6 && nodes.length < 15  && edgeCount === 0) {
     commentary =
       "So...to make an edge click on a node and then, without dragging, click on another node.";
-  } else if (nodes.length > 3 && edgeCount < 3) {
+  } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
   } else if (numConnected === 3 && edgeCount === 3) {
     commentary =
@@ -411,7 +410,24 @@ function setCommentary() {
     commentary = "So close...";
   } else if (numConnected === nodes.length && nodes.length > 6) {
     commentary = "WOOHOOO!! Feelin connected!!";
-  } else {
+  } else if (nodes.length >= 70 && edgeCount > 30) {
+    commentary = "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
+  } else if (nodes.length >= 70) {
+    commentary = "So there's a MEGA EASTER EGG in this game. Hint: start making all the edges...";
+  } else if (nodes.length >= 60) {
+    commentary = "Are the animations still smooth? I bet they are :) ";
+  } else if (nodes.length >= 50) {
+    commentary = "Yeah it is.";
+  } else if (nodes.length >= 40) {
+    commentary = "Is your finger tired?";
+  } else if (nodes.length >= 30) {
+    commentary = "Make the screen blue with nodes for all I care..."
+  } else if (nodes.length >= 20) {
+    commentary = "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
+  } else if (nodes.length >= 15) {
+    commentary = "You're adding a lot of nodes.";
+
+  }   else {
   }
   refreshEasterEggs();
   document.getElementById("commentary").innerHTML =
