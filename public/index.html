@@ -11,19 +11,11 @@
     <div class="container">
       <canvas id="canvas"> </canvas>
       <div class="info-panel">
-        <div class="info-section">
-          <p class="header">Graph Info</p>
-          <div class="info-area">
-            <p class="info-name">Nodes:</p>
-            <p id="node-count">0</p>
-            <br />
-            <p class="info-name">Edges:</p>
-            <p id="edge-count">0</p>
-          </div>
-        </div>
+        
         <div id="easter-eggs" class="info-section">
-          <div id="egg-slider">
-            <p class="header">🎗️ 🎀 🐇 Easter Eggs 🐇 🎀 🎗️</p>
+          <div id="egg-slider" class="">
+            <p class="header eggs-header">Easter Eggs 🐇 🎀 🎗️ </p>
+            <p class="note">(ignoring unconnected nodes)</p>
             <div class="info-area">
               <p id="K3" class="egg">K3</p>
               <p id="K4" class="egg"></p>
@@ -44,7 +36,19 @@
               <p class="egg">?</p>
               <p class="egg">?</p>
               <p class="egg">?</p>
+              <br />
+              
             </div>
+          </div>
+        </div>
+        <div class="info-section">
+          <p class="header">Graph Info</p>
+          <div class="info-area">
+            <p class="info-name">Nodes:</p>
+            <p id="node-count">0</p>
+            <br />
+            <p class="info-name">Edges:</p>
+            <p id="edge-count">0</p>
           </div>
         </div>
 

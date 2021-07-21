@@ -315,7 +315,7 @@ function setCommentary() {
     commentary = "Still pretty sparse";
   } else if (numConnected === 3 && edgeCount === 3) {
     commentary =
-      "You made a triangle! This is also a complete graph (K3) and a cycle graph (S3)!";
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
     easterEggState.eggs.K3 = true;
     easterEggState.eggs.C3 = true;
     easterEggState.visible = true;
@@ -345,7 +345,7 @@ function setCommentary() {
         break;
       case 7:
         commentary =
-          "Well done. You made C7. You have a lot of time on your hands. But no eggs for you.";
+          "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
         break;
     }
   } else if (
@@ -385,14 +385,18 @@ function setCommentary() {
         case 4:
           easterEggState.eggs.C4 = true;
           easterEggState.visible = true;
+          commentary =
+          "You've made C4, the cycle graph with 4 nodes! Well done!";
           break;
         case 5:
           easterEggState.eggs.C5 = true;
           easterEggState.visible = true;
+          commentary = "Ah! Cycle graph C5! An excellent choice!";
           break;
         case 6:
           easterEggState.eggs.C6 = true;
           easterEggState.visible = true;
+          commentary = "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.";
           break;
       }
     }
