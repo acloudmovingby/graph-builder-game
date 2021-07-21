@@ -365,7 +365,7 @@ function setCommentary() {
         cur = adjList[cur][0];
       }
     }
-    let isCycle = cur === 0 ? true : false;
+    let isCycle = cur === 0;
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
