@@ -1,5 +1,5 @@
 let canvas = document.getElementById("canvas");
-const infoPaneWidth = 400; // this MUST match the width of the info-pane set out in css
+const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
 let nodes = [];
 let edgeMode = false;
 let edgeStart = null;
