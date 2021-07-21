@@ -308,7 +308,7 @@ function setCommentary() {
       "So technically this is S3, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
-  } else if (nodes.length >= 6 && nodes.length < 15  && edgeCount === 0) {
+  } else if (nodes.length >= 6 && nodes.length < 15 && edgeCount === 0) {
     commentary =
       "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
@@ -343,56 +343,69 @@ function setCommentary() {
           " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
         easterEggState.visible = true;
         break;
-        case 7: 
-        commentary = "Well done. You made C7. You have a lot of time on your hands. But no eggs for you."
+      case 7:
+        commentary =
+          "Well done. You made C7. You have a lot of time on your hands. But no eggs for you.";
         break;
     }
   } else if (
-    numConnected === nodes.length &&
+    numConnected >= 3 &&
     numConnected === edgeCount &&
-    numConnected === nodes.filter(x => x.neighbors.length === 2).length
+    numConnected === nodes.filter((node) => node.neighbors.length === 2).length
   ) {
     let adjList = convertToAdjList(nodes);
-    // starts at first node, walks edges exactly n times. If it's a cycle graph, it should end up back at beginning
-    let cur = 0;
-    let prev = -1;
-    for (let i=0; i<adjList.length; i++) {
-      if (adjList[cur][0] === prev) {
-        prev = cur;
-        cur = adjList[cur][1];
+    // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
+    let start = adjList.findIndex((n) => n.length > 0);
+    let cur = start;
+    let visited = Array.from({ length: adjList.length }).map((x) => false);
+    let isCycle = true;
+    for (let i = 0; i < numConnected; i++) {
+      visited[cur] = true;
+      let neighbor0 = adjList[cur][0];
+      let neighbor1 = adjList[cur][1];
+      if (visited[neighbor0] && !visited[neighbor1]) {
+        cur = neighbor1;
+      } else if (!visited[neighbor0] && visited[neighbor1]) {
+        cur = neighbor0;
+      } else if (!visited[neighbor0] && !visited[neighbor1]) {
+        cur = neighbor1;
+      } else if (neighbor0 === start || neighbor1 === start){
+        cur = start;
       } else {
-        prev = cur;
-        cur = adjList[cur][0];
+        isCycle = false;
+        break;
       }
     }
-    let isCycle = cur === 0;
+    isCycle = isCycle && cur === start;
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-      if (isCycle) {
-        switch (nodes.length) {
-          case 4: 
+    if (isCycle) {
+      switch (numConnected) {
+        case 4:
           easterEggState.eggs.C4 = true;
           easterEggState.visible = true;
           break;
-          case 5: 
+        case 5:
           easterEggState.eggs.C5 = true;
           easterEggState.visible = true;
           break;
-          case 6: 
+        case 6:
           easterEggState.eggs.C6 = true;
           easterEggState.visible = true;
           break;
-        }
       }
+    }
   } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
   } else if (numConnected === nodes.length && nodes.length > 6) {
     commentary = "WOOHOOO!! Feelin connected!!";
   } else if (nodes.length >= 70 && edgeCount > 30) {
-    commentary = "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
+    commentary =
+      "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
   } else if (nodes.length >= 70) {
-    commentary = "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
+    commentary =
+      "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
   } else if (nodes.length >= 60) {
     commentary = "Are the animations still smooth? I bet they are :) ";
   } else if (nodes.length >= 50) {
@@ -400,12 +413,13 @@ function setCommentary() {
   } else if (nodes.length >= 40) {
     commentary = "Is your finger tired?";
   } else if (nodes.length >= 30) {
-    commentary = "Make the screen blue with nodes for all I care..."
+    commentary = "Make the screen blue with nodes for all I care...";
   } else if (nodes.length >= 20) {
-    commentary = "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
+    commentary =
+      "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
   } else if (nodes.length >= 15) {
     commentary = "You're adding a lot of nodes.";
-  }   else {
+  } else {
   }
   refreshEasterEggs();
   document.getElementById("commentary").innerHTML =
