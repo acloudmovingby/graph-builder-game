@@ -39,23 +39,59 @@ function refreshState() {
 const easterEggState = {
   visible: false,
   eggs: [
-    new Egg("K3","K3",isK3),
-    new Egg("K4","K4",isK4),
-    new Egg("K5","K5",isK5),
-    new Egg("K6","K6",isK6),
-    new Egg("C3","C3",isC3),
-    new Egg("C4","C4",isC4),
-    new Egg("C5","C5",isC5),
-    new Egg("C6","C6",isC6),
-    new Egg("paw","🐾",isPaw),
+    new Egg(
+      "K3",
+      "K3",
+      completeGraphChecker(3),
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!"
+    ),
+    new Egg(
+      "K4",
+      "K4",
+      completeGraphChecker(4),
+      "Wow! A complete graph!! This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already."
+    ),
+    new Egg(
+      "K5",
+      "K5",
+      completeGraphChecker(5),
+      "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!..."
+    ),
+    new Egg(
+      "K6",
+      "K6",
+      completeGraphChecker(6),
+      "Wow! A complete graph!! This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'."
+    ),
+    new Egg(
+      "C3",
+      "C3",
+      cycleGraphChecker(3),
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!"
+    ),
+    new Egg(
+      "C4",
+      "C4",
+      cycleGraphChecker(4),
+      "You've made C4, the cycle graph with 4 nodes! Well done!"
+    ),
+    new Egg("C5", "C5", cycleGraphChecker(5), "Ah! Cycle graph C5! An excellent choice!"),
+    new Egg(
+      "C6",
+      "C6",
+      cycleGraphChecker(6),
+      "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know."
+    ),
+    new Egg("paw", "🐾", isPaw, "Rawr! I'm a paw graph!"),
   ],
 };
 
-function Egg(id,symbol,isSubGraphOf) {
+function Egg(id, symbol, isSubGraphOf, commentary) {
+  this.discovered = false;
   this.id = id;
   this.symbol = symbol;
-  this.discovered = false;
-  this.isSubGraphOf = isSubGraphOf; // takes nodes as argument and returns boolean
+  this.isSubGraphOf = isSubGraphOf; // function that takes nodes as argument and returns boolean
+  this.commentary = commentary ?? "default comment";
 }
 
 function isComplete(nodes) {
@@ -63,24 +99,20 @@ function isComplete(nodes) {
   return edgeCount === (numConnected * (numConnected - 1)) / 2;
 }
 
-function isK3(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 3 && edgeCount === 3;
+// The symbols K2,K3...Kn designate complete graphs of size n. This function generates an algorithm to test if a graph is a complete graph of size n.
+// this is somewhat abstract, but it cuts down on a lot of code repetition (you don't have to define different functions like isK3(..) isK4(...), etc.)
+function completeGraphChecker(n) {
+  return function(nodes) {
+    let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+    return numConnected === n && isComplete(nodes);
+  };
 }
 
-function isK4(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 4 && isComplete(nodes);
-}
-
-function isK5(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 5 && isComplete(nodes);
-}
-
-function isK6(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 6 && isComplete(nodes);
+function cycleGraphChecker(n) {
+  return function(nodes) {
+    let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+    return numConnected === n && isOnlyCycles(nodes) && isOneCycle(nodes);
+  }
 }
 
 function isOnlyCycles(nodes) {
@@ -90,26 +122,7 @@ function isOnlyCycles(nodes) {
     numConnected === edgeCount &&
     numConnected === nodes.filter((node) => node.neighbors.length === 2).length
   );
-}
-
-function isC3(nodes) {
-  return isK3(nodes);
-}
-
-function isC4(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 4 && isOnlyCycles(nodes) && isOneCycle(nodes);
-}
-
-function isC5(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 5 && isOnlyCycles(nodes) && isOneCycle(nodes);
-}
-
-function isC6(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 6 && isOnlyCycles(nodes) && isOneCycle(nodes);
-}
+  }
 
 function isOneCycle(nodes) {
   let adjList = convertToAdjList(nodes);
@@ -156,7 +169,7 @@ function refreshEasterEggs() {
       easterEggs.style.display = "block";
       eggSlider.style.display = "block";
     }
-    easterEggState.eggs.forEach(egg => {
+    easterEggState.eggs.forEach((egg) => {
       let htmlEgg = document.getElementById(egg.id);
       if (htmlEgg) {
         htmlEgg.style.color = egg.discovered ? "blue" : "black";
@@ -383,14 +396,25 @@ function getEdges(nodes) {
 }
 
 function setCommentary() {
+  let egg = easterEggState.eggs.find((egg) => {
+    return egg.isSubGraphOf(nodes);
+  });
+
+  if (egg) {
+    if (egg.id==="K3") {
+      easterEggState.eggs.find(egg=>egg.id==="C3").discovered = true;
+    }
+    let commentary = egg.commentary;
+    easterEggState.visible = true;
+    egg.discovered = true;
+    refreshEasterEggs();
+    document.getElementById("commentary").innerHTML =
+      "&#34;" + commentary + "&#34;";
+    return;
+  }
+
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-
-  easterEggState.eggs.forEach(egg => {
-    /*if (egg.id = "K3") {
-      egg.isSubgraphOf(nodes);
-    }*/
-  });
 
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // The sequence of some comments won't make sense if I later add deletion
@@ -415,67 +439,16 @@ function setCommentary() {
       "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
-  } else if (isK3(nodes)) {
-    commentary =
-      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
-    easterEggState.eggs.find(x=>x.id==="K3").discovered = true;
-    easterEggState.eggs.find(x=>x.id==="C3").discovered = true;
-    easterEggState.visible = true;
-    refreshEasterEggs();
-  } else if (isPaw(nodes)) {
-    commentary = "Rawr! I'm a paw graph!";
-    easterEggState.eggs.find(x=>x.id==="paw").discovered = true;
-    easterEggState.visible = true;
-    refreshEasterEggs();
   } else if (numConnected === 4 && edgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (edgeCount === (numConnected * (numConnected - 1)) / 2) {
-    commentary = "Wow! A complete graph! ";
-    if (isK4(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="K4").discovered = true;
-      commentary +=
-        "This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.";
-      easterEggState.visible = true;
-    }
-    if (isK5(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="K5").discovered = true;
-      commentary +=
-        "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!...";
-      easterEggState.visible = true;
-    }
-    if (isK6(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="K6").discovered = true;
-      commentary +=
-        " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
-      easterEggState.visible = true;
-    }
-    switch (numConnected) {
-      case 7:
-        commentary =
-          "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
-        break;
-    }
+  } else if (numConnected === 7 && isComplete(nodes)) {
+    commentary =
+      "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
   } else if (isOnlyCycles(nodes)) {
     let isCycle = isOneCycle(nodes);
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-    if (isC4(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="C4").discovered = true;
-      easterEggState.visible = true;
-      commentary = "You've made C4, the cycle graph with 4 nodes! Well done!";
-    }
-    if (isC5(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="C5").discovered = true;
-      easterEggState.visible = true;
-      commentary = "Ah! Cycle graph C5! An excellent choice!";
-    }
-    if (isC6(nodes)) {
-      easterEggState.eggs.find(x=>x.id==="C6").discovered = true;
-      easterEggState.visible = true;
-      commentary =
-        "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.";
-    }
   } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
   } else if (numConnected === nodes.length && nodes.length > 6) {
@@ -499,9 +472,7 @@ function setCommentary() {
       "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
   } else if (nodes.length >= 15) {
     commentary = "You're adding a lot of nodes.";
-  } else {
-  }
-  refreshEasterEggs();
+  } 
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }
