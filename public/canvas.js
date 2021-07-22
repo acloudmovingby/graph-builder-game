@@ -20,22 +20,6 @@ if (canvas.getContext) {
   window.requestAnimationFrame(draw);
 }
 
-function clearGraph() {
-  nodes = [];
-  edgeMode = false;
-  edgeStart = null;
-  edgeCount = 0;
-  edgeCount = 0;
-  nodeHover = null;
-  stillInNode = false;
-
-  document.getElementById("node-count").innerHTML = nodes.length;
-  document.getElementById("edge-count").innerHTML = edgeCount;
-  //document.getElementById("adjacency-list").innerHTML = "";
-  setCommentary();
-  refreshEasterEggs();
-}
-
 const easterEggState = {
   visible: false,
   eggs: [
@@ -361,6 +345,22 @@ function canvasClick(event) {
   }
 }
 
+function clearGraph() {
+  nodes = [];
+  edgeMode = false;
+  edgeStart = null;
+  edgeCount = 0;
+  edgeCount = 0;
+  nodeHover = null;
+  stillInNode = false;
+
+  document.getElementById("node-count").innerHTML = nodes.length;
+  document.getElementById("edge-count").innerHTML = edgeCount;
+  //document.getElementById("adjacency-list").innerHTML = "";
+  setCommentary();
+  refreshEasterEggs();
+}
+
 function mouseLeave(event) {
   edgeMode = false;
   edgeStart = null;
@@ -386,19 +386,6 @@ function mouseMove(event) {
   }
 }
 
-function getEdges(nodes) {
-  let edges = [];
-  let marked = new Set();
-  for (let i = 0; i < nodes.length; i++) {
-    marked.add(nodes[i]);
-    for (let j = 0; j < nodes[i].neighbors.length; j++) {
-      if (!marked.has(nodes[i].neighbors[j])) {
-        edges.push([nodes[i], nodes[i].neighbors[j]]);
-      }
-    }
-  }
-  return edges;
-}
 
 function setCommentary() {
   let egg = easterEggState.eggs.find((egg) => {
@@ -493,13 +480,18 @@ function convertToAdjList(nodes) {
   return adjList;
 }
 
-function isPaw(nodes) {
-  let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-  return (
-    numConnected === 4 &&
-    edgeCount === 4 &&
-    nodes.filter((x) => x.neighbors.length === 3).length === 1
-  );
+function getEdges(nodes) {
+  let edges = [];
+  let marked = new Set();
+  for (let i = 0; i < nodes.length; i++) {
+    marked.add(nodes[i]);
+    for (let j = 0; j < nodes[i].neighbors.length; j++) {
+      if (!marked.has(nodes[i].neighbors[j])) {
+        edges.push([nodes[i], nodes[i].neighbors[j]]);
+      }
+    }
+  }
+  return edges;
 }
 
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
