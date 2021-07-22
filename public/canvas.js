@@ -20,7 +20,7 @@ if (canvas.getContext) {
   window.requestAnimationFrame(draw);
 }
 
-function refreshState() {
+function clearGraph() {
   nodes = [];
   edgeMode = false;
   edgeStart = null;
@@ -309,7 +309,7 @@ function canvasClick(event) {
   let y = event.y - canvasBounds.top;
 
   if (clearButtonHover) {
-    refreshState();
+    clearGraph();
     return;
   }
 
