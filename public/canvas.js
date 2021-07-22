@@ -332,9 +332,9 @@ function setCommentary() {
     refreshEasterEggs();
   } else if (numConnected === 4 && edgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (edgeCount === (nodes.length * (nodes.length - 1)) / 2) {
+  } else if (edgeCount === (numConnected * (numConnected - 1)) / 2) {
     commentary = "Wow! A complete graph! ";
-    switch (nodes.length) {
+    switch (numConnected) {
       case 4:
         easterEggState.eggs.K4.discovered = true;
         commentary +=
