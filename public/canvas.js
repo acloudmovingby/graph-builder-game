@@ -36,27 +36,22 @@ function refreshState() {
   refreshEasterEggs();
 }
 
-let isK3 = function(nodes) {
-  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
-  return numConnected === 3 && edgeCount === 3;
-};
-
 const easterEggState = {
   visible: false,
   eggs: [
-    new Egg("K3", "K3", isK3),
-    new Egg("K4", "K4", isK4),
-    new Egg("K5", "K5", isK5),
-    new Egg("K6", "K6", isK6),
-    new Egg("C3", "C3", isC3),
-    new Egg("C4", "C4", isC4),
-    new Egg("C5", "C5", isC5),
-    new Egg("C6", "C6", isC6),
-    new Egg("paw", "🐾", isPaw),
+    new Egg("K3","K3",isK3),
+    new Egg("K4","K4",isK4),
+    new Egg("K5","K5",isK5),
+    new Egg("K6","K6",isK6),
+    new Egg("C3","C3",isC3),
+    new Egg("C4","C4",isC4),
+    new Egg("C5","C5",isC5),
+    new Egg("C6","C6",isC6),
+    new Egg("paw","🐾",isPaw),
   ],
 };
 
-function Egg(id, symbol, isSubGraphOf) {
+function Egg(id,symbol,isSubGraphOf) {
   this.id = id;
   this.symbol = symbol;
   this.discovered = false;
@@ -68,7 +63,10 @@ function isComplete(nodes) {
   return edgeCount === (numConnected * (numConnected - 1)) / 2;
 }
 
-
+function isK3(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 3 && edgeCount === 3;
+}
 
 function isK4(nodes) {
   let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
@@ -158,7 +156,7 @@ function refreshEasterEggs() {
       easterEggs.style.display = "block";
       eggSlider.style.display = "block";
     }
-    easterEggState.eggs.forEach((egg) => {
+    easterEggState.eggs.forEach(egg => {
       let htmlEgg = document.getElementById(egg.id);
       if (htmlEgg) {
         htmlEgg.style.color = egg.discovered ? "blue" : "black";
@@ -388,20 +386,10 @@ function setCommentary() {
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
-  easterEggState.eggs.forEach((egg) => {
-    if ((egg.id = "K3")) {
-      if (egg.isSubgraphOf(nodes)) {
-        commentary =
-          "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
-        easterEggState.eggs.find((x) => x.id === "K3").discovered = true;
-        easterEggState.eggs.find((x) => x.id === "C3").discovered = true;
-        easterEggState.visible = true;
-        refreshEasterEggs();
-        document.getElementById("commentary").innerHTML =
-    "&#34;" + commentary + "&#34;";
-        return;
-      }
-    }
+  easterEggState.eggs.forEach(egg => {
+    /*if (egg.id = "K3") {
+      egg.isSubgraphOf(nodes);
+    }*/
   });
 
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
@@ -428,16 +416,15 @@ function setCommentary() {
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
   } else if (isK3(nodes)) {
-    /*
     commentary =
       "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
     easterEggState.eggs.find(x=>x.id==="K3").discovered = true;
     easterEggState.eggs.find(x=>x.id==="C3").discovered = true;
     easterEggState.visible = true;
-    refreshEasterEggs();*/
+    refreshEasterEggs();
   } else if (isPaw(nodes)) {
     commentary = "Rawr! I'm a paw graph!";
-    easterEggState.eggs.find((x) => x.id === "paw").discovered = true;
+    easterEggState.eggs.find(x=>x.id==="paw").discovered = true;
     easterEggState.visible = true;
     refreshEasterEggs();
   } else if (numConnected === 4 && edgeCount === 3) {
@@ -445,19 +432,19 @@ function setCommentary() {
   } else if (edgeCount === (numConnected * (numConnected - 1)) / 2) {
     commentary = "Wow! A complete graph! ";
     if (isK4(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "K4").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="K4").discovered = true;
       commentary +=
         "This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.";
       easterEggState.visible = true;
     }
     if (isK5(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "K5").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="K5").discovered = true;
       commentary +=
         "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!...";
       easterEggState.visible = true;
     }
     if (isK6(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "K6").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="K6").discovered = true;
       commentary +=
         " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
       easterEggState.visible = true;
@@ -474,17 +461,17 @@ function setCommentary() {
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
     if (isC4(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "C4").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="C4").discovered = true;
       easterEggState.visible = true;
       commentary = "You've made C4, the cycle graph with 4 nodes! Well done!";
     }
     if (isC5(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "C5").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="C5").discovered = true;
       easterEggState.visible = true;
       commentary = "Ah! Cycle graph C5! An excellent choice!";
     }
     if (isC6(nodes)) {
-      easterEggState.eggs.find((x) => x.id === "C6").discovered = true;
+      easterEggState.eggs.find(x=>x.id==="C6").discovered = true;
       easterEggState.visible = true;
       commentary =
         "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.";
