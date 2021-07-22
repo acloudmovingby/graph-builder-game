@@ -36,24 +36,118 @@ function refreshState() {
   refreshEasterEggs();
 }
 
-const easterEggState = {
-  visible: false,
-  eggs: {
-    K3: new Egg("K3"),
-    K4: new Egg("K4"),
-    K5: new Egg("K5"),
-    K6: new Egg("K6"),
-    C3: new Egg("C3"),
-    C4: new Egg("C4"),
-    C5: new Egg("C5"),
-    C6: new Egg("C6"),
-    paw: new Egg("🐾"),
-  },
+let isK3 = function(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 3 && edgeCount === 3;
 };
 
-function Egg(symbol) {
+const easterEggState = {
+  visible: false,
+  eggs: [
+    new Egg("K3", "K3", isK3),
+    new Egg("K4", "K4", isK4),
+    new Egg("K5", "K5", isK5),
+    new Egg("K6", "K6", isK6),
+    new Egg("C3", "C3", isC3),
+    new Egg("C4", "C4", isC4),
+    new Egg("C5", "C5", isC5),
+    new Egg("C6", "C6", isC6),
+    new Egg("paw", "🐾", isPaw),
+  ],
+};
+
+function Egg(id, symbol, isSubGraphOf) {
+  this.id = id;
   this.symbol = symbol;
   this.discovered = false;
+  this.isSubGraphOf = isSubGraphOf; // takes nodes as argument and returns boolean
+}
+
+function isComplete(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return edgeCount === (numConnected * (numConnected - 1)) / 2;
+}
+
+
+
+function isK4(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 4 && isComplete(nodes);
+}
+
+function isK5(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 5 && isComplete(nodes);
+}
+
+function isK6(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 6 && isComplete(nodes);
+}
+
+function isOnlyCycles(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return (
+    numConnected >= 3 &&
+    numConnected === edgeCount &&
+    numConnected === nodes.filter((node) => node.neighbors.length === 2).length
+  );
+}
+
+function isC3(nodes) {
+  return isK3(nodes);
+}
+
+function isC4(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 4 && isOnlyCycles(nodes) && isOneCycle(nodes);
+}
+
+function isC5(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 5 && isOnlyCycles(nodes) && isOneCycle(nodes);
+}
+
+function isC6(nodes) {
+  let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  return numConnected === 6 && isOnlyCycles(nodes) && isOneCycle(nodes);
+}
+
+function isOneCycle(nodes) {
+  let adjList = convertToAdjList(nodes);
+  let numConnected = adjList.filter((x) => x.length > 0).length;
+  // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
+  let start = adjList.findIndex((n) => n.length > 0);
+  let cur = start;
+  let visited = Array.from({ length: adjList.length }).map((x) => false);
+  let isCycle = true;
+  for (let i = 0; i < numConnected; i++) {
+    visited[cur] = true;
+    let neighbor0 = adjList[cur][0];
+    let neighbor1 = adjList[cur][1];
+    if (visited[neighbor0] && !visited[neighbor1]) {
+      cur = neighbor1;
+    } else if (!visited[neighbor0] && visited[neighbor1]) {
+      cur = neighbor0;
+    } else if (!visited[neighbor0] && !visited[neighbor1]) {
+      cur = neighbor1;
+    } else if (neighbor0 === start || neighbor1 === start) {
+      cur = start;
+    } else {
+      isCycle = false;
+      break;
+    }
+  }
+  return isCycle && cur === start;
+}
+
+function isPaw(nodes) {
+  let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
+  return (
+    numConnected === 4 &&
+    edgeCount === 4 &&
+    nodes.filter((x) => x.neighbors.length === 3).length === 1
+  );
 }
 
 function refreshEasterEggs() {
@@ -64,14 +158,14 @@ function refreshEasterEggs() {
       easterEggs.style.display = "block";
       eggSlider.style.display = "block";
     }
-    for (const [id, egg] of Object.entries(easterEggState.eggs)) {
-      let htmlEgg = document.getElementById(id);
+    easterEggState.eggs.forEach((egg) => {
+      let htmlEgg = document.getElementById(egg.id);
       if (htmlEgg) {
         htmlEgg.style.color = egg.discovered ? "blue" : "black";
         htmlEgg.style.fontWeight = egg.discovered ? "bold" : "normal";
         htmlEgg.innerHTML = egg.discovered ? egg.symbol : "?";
       }
-    }
+    });
   }
 }
 
@@ -179,7 +273,6 @@ function Node(index, counter, x, y) {
   this.y = y;
   this.neighbors = [];
 }
-
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
 function nodeAtPoint(x, y, nodes) {
@@ -295,6 +388,22 @@ function setCommentary() {
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
+  easterEggState.eggs.forEach((egg) => {
+    if ((egg.id = "K3")) {
+      if (egg.isSubgraphOf(nodes)) {
+        commentary =
+          "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
+        easterEggState.eggs.find((x) => x.id === "K3").discovered = true;
+        easterEggState.eggs.find((x) => x.id === "C3").discovered = true;
+        easterEggState.visible = true;
+        refreshEasterEggs();
+        document.getElementById("commentary").innerHTML =
+    "&#34;" + commentary + "&#34;";
+        return;
+      }
+    }
+  });
+
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // The sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
@@ -318,98 +427,67 @@ function setCommentary() {
       "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
-  } else if (numConnected === 3 && edgeCount === 3) {
+  } else if (isK3(nodes)) {
+    /*
     commentary =
       "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!";
-    easterEggState.eggs.K3.discovered = true;
-    easterEggState.eggs.C3.discovered = true;
+    easterEggState.eggs.find(x=>x.id==="K3").discovered = true;
+    easterEggState.eggs.find(x=>x.id==="C3").discovered = true;
     easterEggState.visible = true;
-    refreshEasterEggs();
+    refreshEasterEggs();*/
   } else if (isPaw(nodes)) {
     commentary = "Rawr! I'm a paw graph!";
-    easterEggState.eggs.paw.discovered = true;
+    easterEggState.eggs.find((x) => x.id === "paw").discovered = true;
     easterEggState.visible = true;
     refreshEasterEggs();
   } else if (numConnected === 4 && edgeCount === 3) {
     commentary = "Try making a cycle.";
   } else if (edgeCount === (numConnected * (numConnected - 1)) / 2) {
     commentary = "Wow! A complete graph! ";
+    if (isK4(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "K4").discovered = true;
+      commentary +=
+        "This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.";
+      easterEggState.visible = true;
+    }
+    if (isK5(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "K5").discovered = true;
+      commentary +=
+        "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!...";
+      easterEggState.visible = true;
+    }
+    if (isK6(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "K6").discovered = true;
+      commentary +=
+        " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
+      easterEggState.visible = true;
+    }
     switch (numConnected) {
-      case 4:
-        easterEggState.eggs.K4.discovered = true;
-        commentary +=
-          "This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.";
-        easterEggState.visible = true;
-        break;
-      case 5:
-        easterEggState.eggs.K5.discovered = true;
-        commentary +=
-          "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!...";
-        easterEggState.visible = true;
-        break;
-      case 6:
-        easterEggState.eggs.K6.discovered = true;
-        commentary +=
-          " This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.";
-        easterEggState.visible = true;
-        break;
       case 7:
         commentary =
           "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
         break;
     }
-  } else if (
-    numConnected >= 3 &&
-    numConnected === edgeCount &&
-    numConnected === nodes.filter((node) => node.neighbors.length === 2).length
-  ) {
-    let adjList = convertToAdjList(nodes);
-    // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
-    let start = adjList.findIndex((n) => n.length > 0);
-    let cur = start;
-    let visited = Array.from({ length: adjList.length }).map((x) => false);
-    let isCycle = true;
-    for (let i = 0; i < numConnected; i++) {
-      visited[cur] = true;
-      let neighbor0 = adjList[cur][0];
-      let neighbor1 = adjList[cur][1];
-      if (visited[neighbor0] && !visited[neighbor1]) {
-        cur = neighbor1;
-      } else if (!visited[neighbor0] && visited[neighbor1]) {
-        cur = neighbor0;
-      } else if (!visited[neighbor0] && !visited[neighbor1]) {
-        cur = neighbor1;
-      } else if (neighbor0 === start || neighbor1 === start) {
-        cur = start;
-      } else {
-        isCycle = false;
-        break;
-      }
-    }
-    isCycle = isCycle && cur === start;
+  } else if (isOnlyCycles(nodes)) {
+    let isCycle = isOneCycle(nodes);
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-    if (isCycle) {
-      switch (numConnected) {
-        case 4:
-          easterEggState.eggs.C4.discovered = true;
-          easterEggState.visible = true;
-          commentary =
-            "You've made C4, the cycle graph with 4 nodes! Well done!";
-          break;
-        case 5:
-          easterEggState.eggs.C5.discovered = true;
-          easterEggState.visible = true;
-          commentary = "Ah! Cycle graph C5! An excellent choice!";
-          break;
-        case 6:
-          easterEggState.eggs.C6.discovered = true;
-          easterEggState.visible = true;
-          commentary =
-            "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.";
-          break;
-      }
+    if (isC4(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "C4").discovered = true;
+      easterEggState.visible = true;
+      commentary = "You've made C4, the cycle graph with 4 nodes! Well done!";
+    }
+    if (isC5(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "C5").discovered = true;
+      easterEggState.visible = true;
+      commentary = "Ah! Cycle graph C5! An excellent choice!";
+    }
+    if (isC6(nodes)) {
+      easterEggState.eggs.find((x) => x.id === "C6").discovered = true;
+      easterEggState.visible = true;
+      commentary =
+        "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.";
     }
   } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
@@ -454,9 +532,11 @@ function convertToAdjList(nodes) {
 
 function isPaw(nodes) {
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-    return numConnected === 4 &&
-      edgeCount === 4 &&
-      nodes.filter((x) => x.neighbors.length === 3).length === 1;
+  return (
+    numConnected === 4 &&
+    edgeCount === 4 &&
+    nodes.filter((x) => x.neighbors.length === 3).length === 1
+  );
 }
 
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
