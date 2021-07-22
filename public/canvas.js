@@ -75,7 +75,12 @@ const easterEggState = {
       cycleGraphChecker(4),
       "You've made C4, the cycle graph with 4 nodes! Well done!"
     ),
-    new Egg("C5", "C5", cycleGraphChecker(5), "Ah! Cycle graph C5! An excellent choice!"),
+    new Egg(
+      "C5",
+      "C5",
+      cycleGraphChecker(5),
+      "Ah! Cycle graph C5! An excellent choice!"
+    ),
     new Egg(
       "C6",
       "C6",
@@ -102,17 +107,17 @@ function isComplete(nodes) {
 // The symbols K2,K3...Kn designate complete graphs of size n. This function generates an algorithm to test if a graph is a complete graph of size n.
 // this is somewhat abstract, but it cuts down on a lot of code repetition (you don't have to define different functions like isK3(..) isK4(...), etc.)
 function completeGraphChecker(n) {
-  return function(nodes) {
+  return function (nodes) {
     let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
     return numConnected === n && isComplete(nodes);
   };
 }
 
 function cycleGraphChecker(n) {
-  return function(nodes) {
+  return function (nodes) {
     let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
     return numConnected === n && isOnlyCycles(nodes) && isOneCycle(nodes);
-  }
+  };
 }
 
 function isOnlyCycles(nodes) {
@@ -122,7 +127,7 @@ function isOnlyCycles(nodes) {
     numConnected === edgeCount &&
     numConnected === nodes.filter((node) => node.neighbors.length === 2).length
   );
-  }
+}
 
 function isOneCycle(nodes) {
   let adjList = convertToAdjList(nodes);
@@ -401,8 +406,8 @@ function setCommentary() {
   });
 
   if (egg) {
-    if (egg.id==="K3") {
-      easterEggState.eggs.find(egg=>egg.id==="C3").discovered = true;
+    if (egg.id === "K3") {
+      easterEggState.eggs.find((egg) => egg.id === "C3").discovered = true;
     }
     let commentary = egg.commentary;
     easterEggState.visible = true;
@@ -472,7 +477,7 @@ function setCommentary() {
       "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
   } else if (nodes.length >= 15) {
     commentary = "You're adding a lot of nodes.";
-  } 
+  }
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }
