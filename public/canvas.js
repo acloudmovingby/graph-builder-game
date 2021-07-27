@@ -90,6 +90,18 @@ const easterEggState = {
       starGraphChecker(6),
       "Star graph S5! According to wikipedia, the star network, a computer network modeled after the star graph, is important in distributed computing."
     ),
+    new Egg(
+      "kayak",
+      "🛶",
+      isKayakPaddleGraph(),
+      "This one's called the kayak paddle graph. I swear, I'm not making this up."
+    ),
+    new Egg(
+      "butterfly",
+      "🦋",
+      isButterflyGraph(),
+      "The butterfly graph! Also known as the bowtie graph or the friendship graph, F2. An all around high-quality graph!"
+    ),
   ],
 };
 
@@ -175,12 +187,33 @@ function starGraphChecker(n) {
     return (
       numConnected === n &&
       nodes.some((x) => x.neighbors.length === n - 1) &&
-      nodes.filter((x) => x.neighbors.length === 1).length ===
-        (numConnected - 1)
+      nodes.filter((x) => x.neighbors.length === 1).length === numConnected - 1
     );
   };
 }
 
+function isKayakPaddleGraph() {
+  
+  return function (nodes) {
+    console.log(convertToAdjList(nodes));
+    if (nodes.length != 6) {
+      return false;
+    }
+    let kpg = [[1,2],[2,0],[3,1,0],[4,5,2],[3,5],[3,4]];
+    return isomorphism(kpg, convertToAdjList(nodes));
+  };
+}
+
+function isButterflyGraph() {
+  return function(nodes) {
+    if (nodes.length != 5) {
+      return false;
+    } else {
+      let bfg = [[1,2],[2,0],[3,4,1,0],[2,4],[3,2]];
+      return isomorphism(bfg, convertToAdjList(nodes));
+    }
+  }
+}
 
 function refreshEasterEggs() {
   if (easterEggState.visible) {
