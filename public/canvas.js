@@ -72,6 +72,24 @@ const easterEggState = {
       "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know."
     ),
     new Egg("paw", "🐾", isPaw, "Rawr! I'm a paw graph!"),
+    new Egg(
+      "claw",
+      "S3",
+      starGraphChecker(4),
+      "This is the star graph S3, also known as the 'claw' graph. Note that in graph theory notation, the n in Sn refers to the number of spokes around the center. The total number of nodes, including the center is, is n+1. Graphs without the claw as a subgraph are known as 'claw-free graphs'."
+    ),
+    new Egg(
+      "S4",
+      "S4",
+      starGraphChecker(5),
+      "Star graph S4! Star graphs are technically a special kind of tree. Stars are special kind of tree? Math is silly."
+    ),
+    new Egg(
+      "S5",
+      "S5",
+      starGraphChecker(6),
+      "Star graph S5! According to wikipedia, the star network, a computer network modeled after the star graph, is important in distributed computing."
+    ),
   ],
 };
 
@@ -149,6 +167,20 @@ function isPaw(nodes) {
     nodes.filter((x) => x.neighbors.length === 3).length === 1
   );
 }
+
+// returns an algorithm that checks if the graph is a so-called "star" graph with n+1 nodes (denoted Sn). The n refers to the number of spokes around the center.
+function starGraphChecker(n) {
+  return function (nodes) {
+    let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
+    return (
+      numConnected === n &&
+      nodes.some((x) => x.neighbors.length === n - 1) &&
+      nodes.filter((x) => x.neighbors.length === 1).length ===
+        (numConnected - 1)
+    );
+  };
+}
+
 
 function refreshEasterEggs() {
   if (easterEggState.visible) {
@@ -386,7 +418,6 @@ function mouseMove(event) {
   }
 }
 
-
 function setCommentary() {
   let egg = easterEggState.eggs.find((egg) => {
     return egg.isSubGraphOf(nodes);
@@ -423,7 +454,7 @@ function setCommentary() {
     commentary = "Classic third wheel situation.";
   } else if (numConnected === 3 && edgeCount === 2) {
     commentary =
-      "So technically this is S3, a star graph. It's a bit boring. You can do better.";
+      "This graph has many equivalent names, including S2, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
   } else if (nodes.length >= 6 && nodes.length < 15 && edgeCount === 0) {
