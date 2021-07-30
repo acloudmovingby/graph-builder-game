@@ -255,7 +255,7 @@ function canvasClick(event) {
     nodes.push(new Node(nodes.length, 0, x, y));
     let node = document.createElement("LI");
     node.appendChild(document.createTextNode(nodes.length - 1 + ": "));
-    //document.getElementById("adjacency-list").appendChild(node);
+    document.getElementById("adjacency-list").appendChild(node);
     stillInNode = true;
     document.getElementById("node-count").innerHTML = nodes.length;
     setCommentary();
@@ -263,16 +263,18 @@ function canvasClick(event) {
     // start edge on the node clicked
     edgeMode = true;
     edgeStart = nodeClicked;
+    console.log("edgeStart = " + edgeStart.index);
   } else if (nodeClicked && nodeClicked != edgeStart) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
-      edgeStart = nodeClicked;
+     
       edgeCount++;
       document.getElementById("edge-count").innerHTML = edgeCount;
       setCommentary();
       let adjList = document.getElementById("adjacency-list");
       if (adjList && adjList.hasChildNodes()) {
+
         let items = adjList.childNodes;
         let startIx = 0;
         let clickedIx = 0;
@@ -284,9 +286,13 @@ function canvasClick(event) {
             clickedIx = i;
           }
         }
+        console.log(`edgeStart: ${edgeStart}, startix: ${startIx}, clickedix: ${clickedIx}`);
         items[startIx].appendChild(document.createTextNode(" " + clickedIx));
+        console.log("items start added");
         items[clickedIx].appendChild(document.createTextNode(" " + startIx));
+        console.log("items clicked added");
       }
+      edgeStart = nodeClicked;
     }
     edgeStart = nodeClicked;
   } else {
