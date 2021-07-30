@@ -10,6 +10,11 @@ let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
 
+const buttonRadius = 18;
+let toolButton1x = 150 + buttonRadius/2;
+let toolButton1y = 40 + buttonRadius/2;
+let toolOneMode = true;
+
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
@@ -104,20 +109,41 @@ function isKayakPaddleGraph() {
     if (nodes.length != 6) {
       return false;
     }
-    let kpg = [[1,2],[2,0],[3,1,0],[4,5,2],[3,5],[3,4]];
+    let kpg = [
+      [1, 2],
+      [2, 0],
+      [3, 1, 0],
+      [4, 5, 2],
+      [3, 5],
+      [3, 4],
+    ];
     return isomorphism(kpg, convertToAdjList(nodes));
   };
 }
 
 function isButterflyGraph() {
-  return function(nodes) {
+  return function (nodes) {
     if (nodes.length != 5) {
       return false;
     } else {
-      let bfg = [[1,2],[2,0],[3,4,1,0],[2,4],[3,2]];
+      let bfg = [
+        [1, 2],
+        [2, 0],
+        [3, 4, 1, 0],
+        [2, 4],
+        [3, 2],
+      ];
       return isomorphism(bfg, convertToAdjList(nodes));
     }
-  }
+  };
+}
+
+function drawButton(x, y, ctx) {
+  ctx.beginPath();
+  ctx.fillStyle = "white";
+  ctx.arc(x, y, buttonRadius, 0, Math.PI * 2, false);
+  ctx.fill();
+  ctx.closePath();
 }
 
 function draw() {
@@ -126,6 +152,22 @@ function draw() {
     ctx.canvas.width = window.innerWidth - infoPaneWidth;
     ctx.canvas.height = window.innerHeight;
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+
+    // temp tool buttons
+    ctx.beginPath();
+    ctx.fillStyle = "white";
+    ctx.arc(150, 40, 18, 0, Math.PI * 2, false);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "white";
+    ctx.arc(200, 40, 18, 0, Math.PI * 2, false);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "white";
+    ctx.arc(250, 40, 18, 0, Math.PI * 2, false);
+    ctx.fill();
 
     // start message
     if (nodes.length === 0) {
@@ -147,6 +189,7 @@ function draw() {
 
     //edge mode, draw edge from edgeStart to mouse cursor
     if (edgeMode) {
+      ctx.beginPath();
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
       ctx.moveTo(edgeStart.x, edgeStart.y);
@@ -247,6 +290,12 @@ function canvasClick(event) {
     clearGraph();
     return;
   }
+  
+  if (toolOneHover) {
+    toolOneMode = true;
+    console.log("clicked toolOne");
+    return;
+  }
 
   let nodeClicked = nodeAtPoint(x, y, nodes);
 
@@ -267,13 +316,12 @@ function canvasClick(event) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
-     
+
       edgeCount++;
       document.getElementById("edge-count").innerHTML = edgeCount;
       setCommentary();
       let adjList = document.getElementById("adjacency-list");
       if (adjList && adjList.hasChildNodes()) {
-
         let items = adjList.childNodes;
         let startIx = 0;
         let clickedIx = 0;
@@ -336,10 +384,17 @@ function mouseMove(event) {
       clearButtonHover = false;
     }
   }
+
+  // tool one hover
+  let dx = mouseX - toolButton1x;
+  let dy = mouseY - toolButton1y;
+  let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+  if (distFromCent < buttonRadius) {
+    toolOneHover = true;
+  }
 }
 
 function setCommentary() {
-
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
@@ -369,8 +424,7 @@ function setCommentary() {
   } else if (numConnected === 4 && edgeCount === 3) {
     commentary = "Try making a cycle.";
   } else if (numConnected === 7 && isComplete(nodes)) {
-    commentary =
-      "Well done. You made K7. The complete graph of 7 nodes.";
+    commentary = "Well done. You made K7. The complete graph of 7 nodes.";
   } else if (isOnlyCycles(nodes)) {
     let isCycle = isOneCycle(nodes);
     commentary = isCycle
