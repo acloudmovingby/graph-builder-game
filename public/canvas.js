@@ -193,9 +193,7 @@ function starGraphChecker(n) {
 }
 
 function isKayakPaddleGraph() {
-  
   return function (nodes) {
-    console.log(convertToAdjList(nodes));
     if (nodes.length != 6) {
       return false;
     }
