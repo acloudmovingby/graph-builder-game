@@ -263,7 +263,6 @@ function canvasClick(event) {
     // start edge on the node clicked
     edgeMode = true;
     edgeStart = nodeClicked;
-    console.log("edgeStart = " + edgeStart.index);
   } else if (nodeClicked && nodeClicked != edgeStart) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
@@ -286,11 +285,8 @@ function canvasClick(event) {
             clickedIx = i;
           }
         }
-        console.log(`edgeStart: ${edgeStart}, startix: ${startIx}, clickedix: ${clickedIx}`);
         items[startIx].appendChild(document.createTextNode(" " + clickedIx));
-        console.log("items start added");
         items[clickedIx].appendChild(document.createTextNode(" " + startIx));
-        console.log("items clicked added");
       }
       edgeStart = nodeClicked;
     }
