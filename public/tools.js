@@ -25,6 +25,7 @@ if (canvas.getContext) {
   window.requestAnimationFrame(draw);
 }
 
+
 function isComplete(nodes) {
   let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
   return edgeCount === (numConnected * (numConnected - 1)) / 2;
@@ -282,6 +283,12 @@ function nodeAtPoint(x, y, nodes) {
 }
 
 function canvasClick(event) {
+  // decide what it hit by checking bounding boxes
+  // switch statement with enum of tool mode
+  // in each switch statement, do another switch with what it clicked 
+  // update state, including graph and modes
+
+
   let canvasBounds = canvas.getBoundingClientRect();
   let x = event.x - canvasBounds.left;
   let y = event.y - canvasBounds.top;
