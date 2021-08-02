@@ -10,11 +10,6 @@ let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
 
-const buttonRadius = 18;
-let toolButton1x = 150 + buttonRadius/2;
-let toolButton1y = 40 + buttonRadius/2;
-let toolOneMode = true;
-
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
@@ -154,22 +149,6 @@ function draw() {
     ctx.canvas.height = window.innerHeight;
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
-    // temp tool buttons
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.arc(150, 40, 18, 0, Math.PI * 2, false);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.arc(200, 40, 18, 0, Math.PI * 2, false);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.fillStyle = "white";
-    ctx.arc(250, 40, 18, 0, Math.PI * 2, false);
-    ctx.fill();
-
     // start message
     if (nodes.length === 0) {
       ctx.font = "25px Arial";
@@ -283,24 +262,12 @@ function nodeAtPoint(x, y, nodes) {
 }
 
 function canvasClick(event) {
-  // decide what it hit by checking bounding boxes
-  // switch statement with enum of tool mode
-  // in each switch statement, do another switch with what it clicked 
-  // update state, including graph and modes
-
-
   let canvasBounds = canvas.getBoundingClientRect();
   let x = event.x - canvasBounds.left;
   let y = event.y - canvasBounds.top;
 
   if (clearButtonHover) {
     clearGraph();
-    return;
-  }
-  
-  if (toolOneHover) {
-    toolOneMode = true;
-    console.log("clicked toolOne");
     return;
   }
 
@@ -391,14 +358,6 @@ function mouseMove(event) {
       clearButtonHover = false;
     }
   }
-
-  // tool one hover
-  let dx = mouseX - toolButton1x;
-  let dy = mouseY - toolButton1y;
-  let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-  if (distFromCent < buttonRadius) {
-    toolOneHover = true;
-  }
 }
 
 function setCommentary() {
@@ -408,59 +367,6 @@ function setCommentary() {
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // The sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
-  if (nodes.length === 0) {
-    commentary = "...an empty void...";
-  } else if (nodes.length === 1) {
-    commentary = "A lone wolf.";
-  } else if (nodes.length === 2 && edgeCount === 0) {
-    commentary = "Two lone wolves!";
-  } else if (nodes.length === 2 && edgeCount === 1) {
-    commentary = "Awwww, they're connected! Cute.";
-  } else if (nodes.length === 3 && edgeCount === 1) {
-    commentary = "Classic third wheel situation.";
-  } else if (numConnected === 3 && edgeCount === 2) {
-    commentary =
-      "This graph has many equivalent names, including S2, a star graph. It's a bit boring. You can do better.";
-  } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
-    commentary = "Yo get some edges in there. Things be lookin sparse.";
-  } else if (nodes.length >= 6 && nodes.length < 15 && edgeCount === 0) {
-    commentary =
-      "So...to make an edge click on a node and then, without dragging, click on another node.";
-  } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
-    commentary = "Still pretty sparse";
-  } else if (numConnected === 4 && edgeCount === 3) {
-    commentary = "Try making a cycle.";
-  } else if (numConnected === 7 && isComplete(nodes)) {
-    commentary = "Well done. You made K7. The complete graph of 7 nodes.";
-  } else if (isOnlyCycles(nodes)) {
-    let isCycle = isOneCycle(nodes);
-    commentary = isCycle
-      ? "Cool cycle graph!"
-      : "You got a couple of cycle graphs goin on.";
-  } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
-    commentary = "So close...";
-  } else if (numConnected === nodes.length && nodes.length > 6) {
-    commentary = "Feelin connected!!";
-  } else if (nodes.length >= 70 && edgeCount > 30) {
-    commentary =
-      "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
-  } else if (nodes.length >= 70) {
-    commentary =
-      "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
-  } else if (nodes.length >= 60) {
-    commentary = "Are the animations still smooth? I bet they are :) ";
-  } else if (nodes.length >= 50) {
-    commentary = "Yeah it is.";
-  } else if (nodes.length >= 40) {
-    commentary = "Is your finger tired?";
-  } else if (nodes.length >= 30) {
-    commentary = "Make the screen blue with nodes for all I care...";
-  } else if (nodes.length >= 20) {
-    commentary =
-      "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
-  } else if (nodes.length >= 15) {
-    commentary = "You're adding a lot of nodes.";
-  }
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }
