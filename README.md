@@ -13,6 +13,8 @@ I quickly realized that when building graphs, myself and others who used the pro
 
 I really wanted to see what felt fun. This tool I experimented with allowed me to quickly select a whole range of nodes and connect them all at once! Very satisfying.
 
+![Complete tool](screenshots/drag-complete-tool-1.gif)
+
 This tool also was interesting because it builds edges without clicking. You simply move the target area over nodes and it automatically adds edges.
 
 # Briefly, what are graphs?
