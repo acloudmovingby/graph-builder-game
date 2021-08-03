@@ -148,3 +148,8 @@ p,
 .tool-btn:hover {
   background-color: black;
 }
+
+
+.tool-btn.selected {
+  background-color: #32BFE3;
+}

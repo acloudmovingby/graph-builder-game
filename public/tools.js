@@ -13,6 +13,25 @@ let clearButtonHover = false;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
+let basicTool = document.getElementById("basic");
+let areaCompleteTool = document.getElementById("area-complete");
+if (basicTool && areaCompleteTool) {
+  areaCompleteTool.addEventListener("click",areaCompleteMode,false);
+  basicTool.addEventListener("click",basicMode,false);
+}
+
+function basicMode() {
+  console.log("basic!");
+  basicTool.className = "tool-btn selected"; 
+  areaCompleteTool.className = "tool-btn"; 
+}
+
+function areaCompleteMode() {
+  console.log("area complete!");
+  basicTool.className = "tool-btn"; 
+  areaCompleteTool.className = "tool-btn selected"; 
+}
+
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
   canvas.addEventListener("mousemove", mouseMove, false);
@@ -333,7 +352,7 @@ function clearGraph() {
 
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
-  //document.getElementById("adjacency-list").innerHTML = "";
+  document.getElementById("adjacency-list").innerHTML = "";
   setCommentary();
 }
 
