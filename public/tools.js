@@ -13,6 +13,15 @@ let clearButtonHover = false;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
+const toolModes = {
+  BASIC: "basic",
+  AREACOMPLETE: "area-complete",
+}
+let tool = toolModes.BASIC;
+
+let isDrawing = false; // for area complete tool
+let drawPoints = []; // points for selection area of area complete tool
+
 let basicTool = document.getElementById("basic");
 let areaCompleteTool = document.getElementById("area-complete");
 if (basicTool && areaCompleteTool) {
@@ -21,21 +30,22 @@ if (basicTool && areaCompleteTool) {
 }
 
 function basicMode() {
-  console.log("basic!");
   basicTool.className = "tool-btn selected"; 
   areaCompleteTool.className = "tool-btn"; 
+  tool = toolModes.BASIC;
 }
 
 function areaCompleteMode() {
-  console.log("area complete!");
   basicTool.className = "tool-btn"; 
   areaCompleteTool.className = "tool-btn selected"; 
+  tool = toolModes.AREACOMPLETE;
 }
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
   canvas.addEventListener("mousemove", mouseMove, false);
   canvas.addEventListener("mouseleave", mouseLeave, false);
+  canvas.addEventListener("mouseup", mouseUp, false);
   window.requestAnimationFrame(draw);
 }
 
@@ -254,6 +264,21 @@ function draw() {
         nodes[i].counter += 1;
       }
     }
+
+    if (tool === toolModes.AREACOMPLETE && isDrawing) {
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "red";
+      ctx.fillStyle = "rgba(255, 130, 172, 0.15)";
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      let cur = drawPoints[0];
+      for (let j = 1; j < drawPoints.length; j++) {
+        cur = drawPoints[j];
+        ctx.lineTo(cur.x, cur.y);
+      }
+      ctx.stroke();
+      ctx.fill();
+    }
   }
   window.requestAnimationFrame(draw);
 }
@@ -290,6 +315,11 @@ function canvasClick(event) {
     return;
   }
 
+  if (tool === toolModes.AREACOMPLETE) {
+    isDrawing = true;
+    return;
+  }
+
   let nodeClicked = nodeAtPoint(x, y, nodes);
 
   if (!edgeMode && !nodeClicked) {
@@ -317,7 +347,6 @@ function canvasClick(event) {
       if (adjList && adjList.hasChildNodes()) {
         
         let items = adjList.childNodes;
-        console.log(items);
         let startIx = 0;
         let clickedIx = 0;
         for (let i = 0; i < nodes.length; i++) {
@@ -379,6 +408,27 @@ function mouseMove(event) {
       clearButtonHover = false;
     }
   }
+
+  if (isDrawing && tool === toolModes.AREACOMPLETE) {
+    drawPoints.push(new Point(mouseX, mouseY));
+  }
+}
+
+function mouseUp() {
+  let selectionArea = drawPoints.map((pt) => [pt.x, pt.y]);
+
+  let selected = nodes.filter((n) => {
+    let pt = [n.x, n.y];
+    return inside(pt, selectionArea);
+  });
+  for (let i = 0; i < selected.length; i++) {
+    for (let j = 0; j < selected.length; j++) {
+      addEdgeEfficient(selected[i], selected[j]);
+    }
+  }
+  setCommentary();
+  isDrawing = false;
+  drawPoints = [];
 }
 
 function setCommentary() {
@@ -403,6 +453,11 @@ function convertToAdjList(nodes) {
   return adjList;
 }
 
+function addEdge(source,target) {
+  addEdgeEfficient(source,target);
+  setCommentary();
+}
+
 function getEdges(nodes) {
   let edges = [];
   let marked = new Set();
@@ -415,6 +470,32 @@ function getEdges(nodes) {
     }
   }
   return edges;
+}
+
+function addEdgeEfficient(source, target) {
+  if (target !== source && !source.neighbors.includes(target)) {
+    source.neighbors.push(target);
+    target.neighbors.push(source);
+    source = target;
+    edgeCount++;
+    document.getElementById("edge-count").innerHTML = edgeCount;
+    let adjList = document.getElementById("adjacency-list");
+    if (adjList && adjList.hasChildNodes()) {
+      let items = adjList.childNodes;
+      let startIx = 0;
+      let clickedIx = 0;
+      for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i] === source) {
+          startIx = i;
+        }
+        if (nodes[i] === target) {
+          clickedIx = i;
+        }
+      }
+      items[startIx].appendChild(document.createTextNode(" " + clickedIx));
+      items[clickedIx].appendChild(document.createTextNode(" " + startIx));
+    }
+  }
 }
 
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
@@ -469,4 +550,32 @@ function checkEdges(perm, g1, g2) {
     }
   }
   return true;
+}
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+ // Thank you!: https://stackoverflow.com/questions/22521982/check-if-point-is-inside-a-polygon
+ function inside(point, vs) {
+  // ray-casting algorithm based on
+  // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
+
+  let x = point[0];
+  let y = point[1];
+
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    let xi = vs[i][0],
+      yi = vs[i][1];
+    let xj = vs[j][0],
+      yj = vs[j][1];
+
+    let intersect =
+      yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+
+  return inside;
 }
