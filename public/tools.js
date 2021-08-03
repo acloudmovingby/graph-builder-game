@@ -296,7 +296,9 @@ function canvasClick(event) {
       setCommentary();
       let adjList = document.getElementById("adjacency-list");
       if (adjList && adjList.hasChildNodes()) {
+        
         let items = adjList.childNodes;
+        console.log(items);
         let startIx = 0;
         let clickedIx = 0;
         for (let i = 0; i < nodes.length; i++) {

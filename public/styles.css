@@ -134,11 +134,17 @@ p,
 .toolbar {
   position: absolute;
   left:100px;
-  top: 100px;
+  display:flex;
 }
 
-.button {
-  width: 100px;
-  height: 100px;
-  background-color: darkgreen;
+.tool-btn {
+  width: 30px;
+  height: 30px;
+  margin: 10px;
+  border: 1px solid #909090;
+  border-radius: 5px;
+}
+
+.tool-btn:hover {
+  background-color: black;
 }
