@@ -16,7 +16,7 @@ const nodeRadius = 15;
 const toolModes = {
   BASIC: "basic",
   AREACOMPLETE: "area-complete",
-}
+};
 let tool = toolModes.BASIC;
 
 let isDrawing = false; // for area complete tool
@@ -25,20 +25,22 @@ let drawPoints = []; // points for selection area of area complete tool
 let basicTool = document.getElementById("basic");
 let areaCompleteTool = document.getElementById("area-complete");
 if (basicTool && areaCompleteTool) {
-  areaCompleteTool.addEventListener("click",areaCompleteMode,false);
-  basicTool.addEventListener("click",basicMode,false);
+  areaCompleteTool.addEventListener("click", () => setToolMode(toolModes.AREACOMPLETE), false);
+  basicTool.addEventListener("click", () => setToolMode(toolModes.BASIC), false);
 }
 
-function basicMode() {
-  basicTool.className = "tool-btn selected"; 
-  areaCompleteTool.className = "tool-btn"; 
-  tool = toolModes.BASIC;
-}
-
-function areaCompleteMode() {
-  basicTool.className = "tool-btn"; 
-  areaCompleteTool.className = "tool-btn selected"; 
-  tool = toolModes.AREACOMPLETE;
+function setToolMode(toolMode) {
+  if (toolMode === toolModes.BASIC) {
+    basicTool.className = "tool-btn selected";
+    areaCompleteTool.className = "tool-btn";
+    canvas.style.cursor = "url('images/pointer.svg'), pointer";
+    tool = toolModes.BASIC;
+  } else {
+    basicTool.className = "tool-btn";
+    areaCompleteTool.className = "tool-btn selected";
+    canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
+    tool = toolModes.AREACOMPLETE;
+  }
 }
 
 if (canvas.getContext) {
@@ -46,9 +48,10 @@ if (canvas.getContext) {
   canvas.addEventListener("mousemove", mouseMove, false);
   canvas.addEventListener("mouseleave", mouseLeave, false);
   canvas.addEventListener("mouseup", mouseUp, false);
+  document.addEventListener("keydown", keyDown, false);
+  document.addEventListener("keyup", keyUp, false);
   window.requestAnimationFrame(draw);
 }
-
 
 function isComplete(nodes) {
   let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
@@ -317,6 +320,7 @@ function canvasClick(event) {
 
   if (tool === toolModes.AREACOMPLETE) {
     isDrawing = true;
+    //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer";
     return;
   }
 
@@ -345,7 +349,6 @@ function canvasClick(event) {
       setCommentary();
       let adjList = document.getElementById("adjacency-list");
       if (adjList && adjList.hasChildNodes()) {
-        
         let items = adjList.childNodes;
         let startIx = 0;
         let clickedIx = 0;
@@ -426,17 +429,32 @@ function mouseUp() {
       addEdgeEfficient(selected[i], selected[j]);
     }
   }
+
+  if (tool === toolModes.AREACOMPLETE) {
+    canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
+  }
+
   setCommentary();
   isDrawing = false;
   drawPoints = [];
 }
 
+function keyDown(event) {
+  if (event.code === "ShiftLeft") {
+    setToolMode(toolModes.AREACOMPLETE);
+  }
+}
+
+function keyUp(event) {
+  if (event.code === "ShiftLeft") {
+    setToolMode(toolModes.BASIC);
+  }
+}
+
 function setCommentary() {
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-
-  // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
-  // The sequence of some comments won't make sense if I later add deletion
+  
   let commentary = "Nice graph!";
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
@@ -453,8 +471,8 @@ function convertToAdjList(nodes) {
   return adjList;
 }
 
-function addEdge(source,target) {
-  addEdgeEfficient(source,target);
+function addEdge(source, target) {
+  addEdgeEfficient(source, target);
   setCommentary();
 }
 
@@ -557,8 +575,8 @@ function Point(x, y) {
   this.y = y;
 }
 
- // Thank you!: https://stackoverflow.com/questions/22521982/check-if-point-is-inside-a-polygon
- function inside(point, vs) {
+// Thank you!: https://stackoverflow.com/questions/22521982/check-if-point-is-inside-a-polygon
+function inside(point, vs) {
   // ray-casting algorithm based on
   // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
 
