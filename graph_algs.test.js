@@ -1,4 +1,4 @@
-const { checkEdges, isomorphism } = require("./public/graph_algs");
+const { checkEdges, isomorphism, Graph, isComplete } = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
   expect(checkEdges([], [], [])).toBe(true);
@@ -228,10 +228,107 @@ test("isomorphism - test with isomorphic cycle graphs, 8/8 nodes, 16 edges; comm
     expect(isomorphism(g2, g1)).toBe(true);
   });
 
-  
-
   /******** */
 
-  test("Graph Class - test creating empty graph.", () => {
-    let g1 = [];
+  test("Graph - empty graph; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
   });
+
+  test("Graph - single node; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    g1.addNode("A");
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [[]];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
+  });
+
+  test("Graph - two nodes, no edges; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    g1.addNode("A");
+    g1.addNode("B");
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [[],[]];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
+  });
+
+  test("Graph - two nodes, one edge; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    g1.addNode("A");
+    g1.addNode("B");
+    g1.addEdge("A","B");
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [[1],[0]];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
+  });
+
+  test("Graph - three nodes, two edges; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    g1.addNode("A");
+    g1.addNode("B");
+    g1.addEdge("A","B");
+    g1.addNode("C");
+    g1.addEdge("B","C");
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [[1],[0,2],[1]];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
+  });
+
+  test("Graph - many nodes, complex structure; tests equality of structure not labels", () => {
+    let g1 = new Graph();
+    g1.addNode("A");
+    g1.addNode("B");
+    g1.addNode("C");
+    g1.addNode("D");
+    g1.addNode("E");
+    g1.addNode("F");
+    g1.addNode("G");
+    g1.addEdge("A","B");
+    g1.addEdge("B","C");
+    g1.addEdge("D","E");
+    g1.addEdge("E","F");
+    g1.addEdge("F","G");
+    g1.addEdge("D","F");
+    let adjList1 = g1.getAdjList();
+    let adjList2 = [[4,6],[3,2],[1,3],[5,1,2],[0],[3],[0]];
+    expect(isomorphism(adjList1,adjList2)).toBe(true);
+  });
+  
+
+test("isComplete - tests empty graph, returns true", () => {
+  let g1 = new Graph();
+  expect(isComplete(g1)).toBe(true);
+});
+
+test("isComplete - tests one node graph, returns true", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  expect(isComplete(g1)).toBe(true);
+});
+
+test("isComplete - tests two node graphs", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  expect(isComplete(g1)).toBe(false);
+  g1.addEdge("A","B");
+  expect(isComplete(g1)).toBe(true);
+});
+
+test("isComplete - tests three node graphs", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  expect(isComplete(g1)).toBe(false);
+  g1.addEdge("A","B");
+  expect(isComplete(g1)).toBe(false);
+  g1.addEdge("B","C");
+  expect(isComplete(g1)).toBe(false);
+  g1.addEdge("A","C");
+  expect(g1.nodeCount).toBe(3);
+  expect(g1.edgeCount).toBe(3);
+  expect(isComplete(g1)).toBe(true);
+});

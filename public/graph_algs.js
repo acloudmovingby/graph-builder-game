@@ -54,28 +54,56 @@ function checkEdges(perm, g1, g2) {
 
 class Graph {
   constructor() {
-    this.nodes = nodes;
+    this.adjList = [];
+    this.nodeCount = 0;
     this.edgeCount = 0;
+    this.directedEdgeCount = 0;
+    this.labels = new Map(); // maps "labels" to their indices in the adjacency list. The labels are the values stored in each node as given by the user in addNode
   }
 
   addNode(nodeValue) {
-    this.nodes.push(new Node(nodeValue));
+    this.adjList.push([]);
+    this.labels.set(nodeValue, this.adjList.length - 1);
+    this.nodeCount++;
   }
 
-  addEdge(node1,node2) {
-    this.addDirectionalEdge(node1,node2);
-    this.addDirectionalEdge(node2,node1);
-    this.edgeCount++;
-  }
+  // returns true only if the graph contains these nodes already and the edge didn't already exist; does NOT allow parallel edges
+  addEdge(nodeValue1, nodeValue2) {
+    let containsNodes =
+      this.labels.has(nodeValue1) && this.labels.has(nodeValue2);
 
-  addDirectionalEdge(node1, node2) {
-    if (!node1.neighbors.includes(node2)) {
-      node1.neighbors.push(node2);
+    if (containsNodes) {
+      let index1 = this.labels.get(nodeValue1);
+      let index2 = this.labels.get(nodeValue2);
+      let addedEdge = false;
+
+      if (!this.adjList[index1].includes(index2)) {
+        this.adjList[index1].push(index2);
+        addedEdge = true;
+      }
+
+      if (!this.adjList[index2].includes(index1)) {
+        this.adjList[index2].push(index1);
+        addedEdge = true;
+      }
+      if (addedEdge) {
+        this.edgeCount++;
+        this.directedEdgeCount += 2;
+      }
     }
   }
+
+  // returns adjacency list as just indices (the pure structure of the graph without the values it stores)
+  getAdjList() {
+    return this.adjList;
+  }
+}
+
+function isComplete(graph) {
+  return graph.edgeCount === (graph.nodeCount * (graph.nodeCount - 1)) / 2;
 }
 
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
-
-
+exports.Graph = Graph;
+exports.isComplete = isComplete;
