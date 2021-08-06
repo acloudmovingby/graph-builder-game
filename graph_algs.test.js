@@ -229,3 +229,9 @@ test("isomorphism - test with isomorphic cycle graphs, 8/8 nodes, 16 edges; comm
   });
 
   
+
+  /******** */
+
+  test("Graph Class - test creating empty graph.", () => {
+    let g1 = [];
+  });

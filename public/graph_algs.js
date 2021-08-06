@@ -52,5 +52,30 @@ function checkEdges(perm, g1, g2) {
   return true;
 }
 
+class Graph {
+  constructor() {
+    this.nodes = nodes;
+    this.edgeCount = 0;
+  }
+
+  addNode(nodeValue) {
+    this.nodes.push(new Node(nodeValue));
+  }
+
+  addEdge(node1,node2) {
+    this.addDirectionalEdge(node1,node2);
+    this.addDirectionalEdge(node2,node1);
+    this.edgeCount++;
+  }
+
+  addDirectionalEdge(node1, node2) {
+    if (!node1.neighbors.includes(node2)) {
+      node1.neighbors.push(node2);
+    }
+  }
+}
+
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
+
+

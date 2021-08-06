@@ -11,37 +11,6 @@ let stillInNode = false; // true if mouse is still inside node bounds for a node
 let clearButtonHover = false;
 let curNode = null;
 
-class Graph {
-  constructor() {
-    this.nodes = nodes;
-    this.edgeCount = 0;
-  }
-
-  addNode(nodeValue) {
-    this.nodes.push(new Node(nodeValue));
-  }
-
-  addEdge(node1,node2) {
-    this.addDirectionalEdge(node1,node2);
-    this.addDirectionalEdge(node2,node1);
-    this.edgeCount++;
-  }
-
-  addDirectionalEdge(node1, node2) {
-    if (!node1.neighbors.includes(node2)) {
-      node1.neighbors.push(node2);
-    }
-  }
-}
-
-// keeping these separate allows you to get subgraphs without copying the nodedata. 
-function Node(nodeData) {
-  this.neighbors = [];
-  this.nodeData = nodeData;
-}
-
-
-
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
@@ -185,7 +154,7 @@ function isOneCycle(nodes) {
   let cur = start;
   let visited = Array.from({ length: adjList.length }).map((x) => false);
   let isCycle = true;
-  for (let i = 0; i < numConnected; i++) {
+  for (let i = 0; i < nodes.length; i++) {
     visited[cur] = true;
     let neighbor0 = adjList[cur][0];
     let neighbor1 = adjList[cur][1];
@@ -502,13 +471,9 @@ function mouseMove(event) {
 }
 
 function setCommentary(nodes) {
-  let connected = getConnectedComponent(curNode, nodes);
-
-
-  let connectedEdgeCount = getEdges(connected).length;
   
   let egg = easterEggState.eggs.find((egg) => {
-    return egg.isSubGraphOf(connected);
+    return egg.isSubGraphOf(nodes);
   });
 
   if (egg) {
