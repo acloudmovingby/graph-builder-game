@@ -26,7 +26,6 @@ body {
 #canvas {
   box-sizing: border-box;
   background-color: #f0f0f0;
-  cursor: url('images/pointer.svg'), pointer;
 }
 
 .info-panel {

@@ -18,6 +18,7 @@ const toolModes = {
   AREACOMPLETE: "area-complete",
 };
 let tool = toolModes.BASIC;
+canvas.style.cursor = "url('images/pointer.svg'), pointer";
 
 let isDrawing = false; // for area complete tool
 let drawPoints = []; // points for selection area of area complete tool
@@ -454,8 +455,8 @@ function keyUp(event) {
 function setCommentary() {
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-  
-  let commentary = "Nice graph!";
+
+  let commentary = "Nice graph!"; 
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }

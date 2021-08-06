@@ -9,6 +9,38 @@ let mouseY = 0;
 let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
+let curNode = null;
+
+class Graph {
+  constructor() {
+    this.nodes = nodes;
+    this.edgeCount = 0;
+  }
+
+  addNode(nodeValue) {
+    this.nodes.push(new Node(nodeValue));
+  }
+
+  addEdge(node1,node2) {
+    this.addDirectionalEdge(node1,node2);
+    this.addDirectionalEdge(node2,node1);
+    this.edgeCount++;
+  }
+
+  addDirectionalEdge(node1, node2) {
+    if (!node1.neighbors.includes(node2)) {
+      node1.neighbors.push(node2);
+    }
+  }
+}
+
+// keeping these separate allows you to get subgraphs without copying the nodedata. 
+function Node(nodeData) {
+  this.neighbors = [];
+  this.nodeData = nodeData;
+}
+
+
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
@@ -115,6 +147,7 @@ function Egg(id, symbol, isSubGraphOf, commentary) {
 
 function isComplete(nodes) {
   let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  let edgeCount = getEdges(nodes).length;
   return edgeCount === (numConnected * (numConnected - 1)) / 2;
 }
 
@@ -136,6 +169,7 @@ function cycleGraphChecker(n) {
 
 function isOnlyCycles(nodes) {
   let numConnected = nodes.filter((node) => node.neighbors.length > 0).length;
+  let edgeCount = getEdges(nodes).length;
   return (
     numConnected >= 3 &&
     numConnected === edgeCount &&
@@ -173,6 +207,7 @@ function isOneCycle(nodes) {
 
 function isPaw(nodes) {
   let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
+  let edgeCount = getEdges(nodes).length;
   return (
     numConnected === 4 &&
     edgeCount === 4 &&
@@ -197,20 +232,33 @@ function isKayakPaddleGraph() {
     if (nodes.length != 6) {
       return false;
     }
-    let kpg = [[1,2],[2,0],[3,1,0],[4,5,2],[3,5],[3,4]];
+    let kpg = [
+      [1, 2],
+      [2, 0],
+      [3, 1, 0],
+      [4, 5, 2],
+      [3, 5],
+      [3, 4],
+    ];
     return isomorphism(kpg, convertToAdjList(nodes));
   };
 }
 
 function isButterflyGraph() {
-  return function(nodes) {
+  return function (nodes) {
     if (nodes.length != 5) {
       return false;
     } else {
-      let bfg = [[1,2],[2,0],[3,4,1,0],[2,4],[3,2]];
+      let bfg = [
+        [1, 2],
+        [2, 0],
+        [3, 4, 1, 0],
+        [2, 4],
+        [3, 2],
+      ];
       return isomorphism(bfg, convertToAdjList(nodes));
     }
-  }
+  };
 }
 
 function refreshEasterEggs() {
@@ -329,7 +377,7 @@ function draw() {
 }
 
 // for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in one object.
-function Node(index, counter, x, y) {
+function NodeData(index, counter, x, y) {
   this.index = index;
   this.counter = counter;
   this.x = x;
@@ -364,25 +412,30 @@ function canvasClick(event) {
 
   if (!edgeMode && !nodeClicked) {
     // create new Node
-    nodes.push(new Node(nodes.length, 0, x, y));
+    let newNode = new NodeData(nodes.length, 0, x, y);
+    nodes.push(newNode);
+    curNode = newNode;
+
     let node = document.createElement("LI");
     node.appendChild(document.createTextNode(nodes.length - 1 + ": "));
-    //document.getElementById("adjacency-list").appendChild(node);
+
     stillInNode = true;
     document.getElementById("node-count").innerHTML = nodes.length;
-    setCommentary();
+    setCommentary(nodes);
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
     edgeStart = nodeClicked;
+    curNode = nodeClicked;
   } else if (nodeClicked && nodeClicked != edgeStart) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
       edgeStart = nodeClicked;
       edgeCount++;
+      curNode = nodeClicked;
       document.getElementById("edge-count").innerHTML = edgeCount;
-      setCommentary();
+      setCommentary(nodes);
       let adjList = document.getElementById("adjacency-list");
       if (adjList && adjList.hasChildNodes()) {
         let items = adjList.childNodes;
@@ -413,14 +466,13 @@ function clearGraph() {
   edgeMode = false;
   edgeStart = null;
   edgeCount = 0;
-  edgeCount = 0;
   nodeHover = null;
   stillInNode = false;
 
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
   //document.getElementById("adjacency-list").innerHTML = "";
-  setCommentary();
+  setCommentary(nodes);
   refreshEasterEggs();
 }
 
@@ -449,9 +501,14 @@ function mouseMove(event) {
   }
 }
 
-function setCommentary() {
+function setCommentary(nodes) {
+  let connected = getConnectedComponent(curNode, nodes);
+
+
+  let connectedEdgeCount = getEdges(connected).length;
+  
   let egg = easterEggState.eggs.find((egg) => {
-    return egg.isSubGraphOf(nodes);
+    return egg.isSubGraphOf(connected);
   });
 
   if (egg) {
@@ -467,9 +524,6 @@ function setCommentary() {
     return;
   }
 
-  // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
-  let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
-
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // The sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
@@ -482,10 +536,10 @@ function setCommentary() {
   } else if (nodes.length === 2 && edgeCount === 1) {
     commentary = "Awwww, they're connected! Cute.";
   } else if (nodes.length === 3 && edgeCount === 1) {
-    commentary = "Classic third wheel situation.";
-  } else if (numConnected === 3 && edgeCount === 2) {
+    commentary = "Classic third wheel.";
+  } else if (connected.length === 3 && connectedEdgeCount === 2) {
     commentary =
-      "This graph has many equivalent names, including S2, a star graph. It's a bit boring. You can do better.";
+      "This graph is called S2, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
   } else if (nodes.length >= 6 && nodes.length < 15 && edgeCount === 0) {
@@ -493,9 +547,9 @@ function setCommentary() {
       "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
-  } else if (numConnected === 4 && edgeCount === 3) {
+  } else if (connected.length === 4 && connectedEdgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (numConnected === 7 && isComplete(nodes)) {
+  } else if (connected.length === 7 && isComplete(connected)) {
     commentary =
       "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
   } else if (isOnlyCycles(nodes)) {
@@ -503,9 +557,9 @@ function setCommentary() {
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-  } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
+  } else if (connected.length + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
-  } else if (numConnected === nodes.length && nodes.length > 6) {
+  } else if (connected.length === nodes.length && nodes.length > 6) {
     commentary = "Feelin connected!!";
   } else if (nodes.length >= 70 && edgeCount > 30) {
     commentary =
@@ -608,4 +662,22 @@ function checkEdges(perm, g1, g2) {
     }
   }
   return true;
+}
+
+function getConnectedComponent(node, nodes) {
+  let visited = new Set();
+  return [...memoizeCC(node, visited)];
+}
+
+// helper for getConnectedComponent function
+function memoizeCC(node, visited) {
+  let remaining = node.neighbors.filter((n) => !visited.has(n));
+
+  visited.add(node);
+  
+  for (let i = 0; i<remaining.length; i++) {
+    memoizeCC(remaining[i],visited);
+  }
+
+  return visited;
 }
