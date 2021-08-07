@@ -86,11 +86,13 @@ class Graph {
         this.adjList[index2].push(index1);
         addedEdge = true;
       }
+
       if (addedEdge) {
         this.edgeCount++;
         this.directedEdgeCount += 2;
       }
     }
+    
   }
 
   // returns adjacency list as just indices (the pure structure of the graph without the values it stores)
@@ -103,7 +105,57 @@ function isComplete(graph) {
   return graph.edgeCount === (graph.nodeCount * (graph.nodeCount - 1)) / 2;
 }
 
+// The symbols K2,K3...Kn designate complete graphs of size n. This function generates an algorithm to test if a graph is a complete graph of size n.
+// this is somewhat abstract, but it cuts down on a lot of code repetition (you don't have to define different functions like isK3(..) isK4(...), etc.)
+function completeGraphChecker(n) {
+  return function (graph) {
+    return graph.nodeCount === n && isComplete(graph);
+  };
+}
+
+function cycleGraphChecker(n) {
+  return function (graph) {
+    return graph.nodeCount === n && isOnlyCycles(graph) && isOneCycle(graph);
+  };
+}
+
+function isOnlyCycles(graph) {
+  return (
+    graph.nodeCount >= 3 &&
+    graph.nodeCount === graph.edgeCount &&
+    graph.nodeCount === graph.getAdjList.filter((node) => node.length === 2).length
+  );
+}
+
+function isOneCycle(graph) {
+  let adjList = graph.getAdjList();
+  // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
+  let start = adjList.findIndex((n) => n.length > 0);
+  let cur = start;
+  let visited = Array.from({ length: adjList.length }).map((x) => false);
+  let isCycle = true;
+  for (let i = 0; i < adjList.length; i++) {
+    visited[cur] = true;
+    let neighbor0 = adjList[cur][0];
+    let neighbor1 = adjList[cur][1];
+    if (visited[neighbor0] && !visited[neighbor1]) {
+      cur = neighbor1;
+    } else if (!visited[neighbor0] && visited[neighbor1]) {
+      cur = neighbor0;
+    } else if (!visited[neighbor0] && !visited[neighbor1]) {
+      cur = neighbor1;
+    } else if (neighbor0 === start || neighbor1 === start) {
+      cur = start;
+    } else {
+      isCycle = false;
+      break;
+    }
+  }
+  return isCycle && cur === start;
+}
+
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
 exports.Graph = Graph;
 exports.isComplete = isComplete;
+exports.completeGraphChecker = completeGraphChecker;

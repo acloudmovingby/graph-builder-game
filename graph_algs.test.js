@@ -1,4 +1,4 @@
-const { checkEdges, isomorphism, Graph, isComplete } = require("./public/graph_algs");
+const { checkEdges, isomorphism, Graph, isComplete, completeGraphChecker } = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
   expect(checkEdges([], [], [])).toBe(true);
@@ -331,4 +331,64 @@ test("isComplete - tests three node graphs", () => {
   expect(g1.nodeCount).toBe(3);
   expect(g1.edgeCount).toBe(3);
   expect(isComplete(g1)).toBe(true);
+});
+
+test("completeGraphChecker - single node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  expect(completeGraphChecker(1)(g1)).toBe(true);
+  expect(completeGraphChecker(0)(g1)).toBe(false);
+  expect(completeGraphChecker(2)(g1)).toBe(false);
+});
+
+test("completeGraphChecker - two node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  expect(completeGraphChecker(1)(g1)).toBe(false);
+  expect(completeGraphChecker(2)(g1)).toBe(false);
+  expect(completeGraphChecker(3)(g1)).toBe(false);
+  g1.addEdge()
+});
+
+test("completeGraphChecker - three node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  expect(completeGraphChecker(1)(g1)).toBe(false);
+  expect(completeGraphChecker(2)(g1)).toBe(false);
+  expect(completeGraphChecker(3)(g1)).toBe(false);
+  g1.addEdge("A","B");
+  expect(completeGraphChecker(3)(g1)).toBe(false);
+  g1.addEdge("B","C");
+  expect(completeGraphChecker(3)(g1)).toBe(false);
+  g1.addEdge("A","C");
+  expect(completeGraphChecker(3)(g1)).toBe(true);
+});
+
+test("completeGraphChecker - four node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  expect(completeGraphChecker(1)(g1)).toBe(false);
+  expect(completeGraphChecker(3)(g1)).toBe(false);
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("A","B");
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("B","C");
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("C","D");
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("A","D");
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("B","D");
+  expect(completeGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("B","C");
+  expect(graph.edgeCount).toBe(6);
+  expect(completeGraphChecker(4)(g1)).toBe(true);
+  
+  
 });
