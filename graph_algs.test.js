@@ -377,18 +377,17 @@ test("completeGraphChecker - four node graph", () => {
   expect(completeGraphChecker(3)(g1)).toBe(false);
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("A","B");
+  expect(g1.edgeCount).toBe(1);
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("B","C");
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("C","D");
-  expect(completeGraphChecker(4)(g1)).toBe(false);
+  expect(completeGraphChecker(4)(g1)).toBe(false);å
   g1.addEdge("A","D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("B","D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("B","C");
-  expect(graph.edgeCount).toBe(6);
+  g1.addEdge("A","C");
+  expect(g1.edgeCount).toBe(6);
   expect(completeGraphChecker(4)(g1)).toBe(true);
-  
-  
 });
