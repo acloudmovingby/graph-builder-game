@@ -271,9 +271,8 @@ function canvasClick(event) {
     nodes.push(newNode);
     curNode = newNode;
     graph.addNode(newNode);
-
     stillInNode = true;
-    document.getElementById("node-count").innerHTML = nodes.length;
+    document.getElementById("node-count").innerHTML = graph.nodeCount;
     setCommentary(nodes);
   } else if (!edgeMode) {
     // start edge on the node clicked
@@ -290,24 +289,8 @@ function canvasClick(event) {
       edgeCount++;
       curNode = nodeClicked;
       
-      document.getElementById("edge-count").innerHTML = edgeCount;
+      document.getElementById("edge-count").innerHTML = graph.edgeCount;
       setCommentary(nodes);
-      let adjList = document.getElementById("adjacency-list");
-      if (adjList && adjList.hasChildNodes()) {
-        let items = adjList.childNodes;
-        let startIx = 0;
-        let clickedIx = 0;
-        for (let i = 0; i < nodes.length; i++) {
-          if (nodes[i] === edgeStart) {
-            startIx = i;
-          }
-          if (nodes[i] === nodeClicked) {
-            clickedIx = i;
-          }
-        }
-        items[startIx].appendChild(document.createTextNode(" " + clickedIx));
-        items[clickedIx].appendChild(document.createTextNode(" " + startIx));
-      }
     }
     edgeStart = nodeClicked;
   } else {
