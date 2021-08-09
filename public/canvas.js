@@ -1,6 +1,8 @@
+
 let canvas = document.getElementById("canvas");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
 let nodes = [];
+let graph = new Graph();
 let edgeMode = false;
 let edgeStart = null;
 let edgeCount = 0;
@@ -100,7 +102,7 @@ const easterEggState = {
     new Egg(
       "butterfly",
       "🦋",
-      isButterflyGraph(),
+      isButterflyGraph,
       "The butterfly graph! Also known as the bowtie graph or the friendship graph, F2. An all around high-quality graph!"
     ),
   ],
@@ -211,8 +213,7 @@ function isKayakPaddleGraph(nodes) {
     return isomorphism(kpg, convertToAdjList(nodes));
 }
 
-function isButterflyGraph() {
-  return function (nodes) {
+function isButterflyGraph(nodes) {
     if (nodes.length != 5) {
       return false;
     } else {
@@ -225,7 +226,6 @@ function isButterflyGraph() {
       ];
       return isomorphism(bfg, convertToAdjList(nodes));
     }
-  };
 }
 
 function refreshEasterEggs() {
