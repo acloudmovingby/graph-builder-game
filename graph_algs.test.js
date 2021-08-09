@@ -9,6 +9,8 @@ const {
   starGraphChecker,
   isKayakPaddleGraph,
   isButterflyGraph,
+  getConnectedComponent,
+  subGraph
 } = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
@@ -635,3 +637,119 @@ test("getEdges", () => {
   g1.addEdge("A", "C");
   expect(g1.getEdges().length).toBe(2);
 });
+
+test("getNeighbors - simple", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  expect(g1.getNeighbors("A").length).toBe(0);
+  g1.addEdge("A","B");
+  expect(g1.getNeighbors("A").length).toBe(1);
+  expect(g1.getNeighbors("B").length).toBe(1);
+});
+
+test("getNeighbors - more complex graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  expect(g1.getNeighbors("A").length).toBe(0);
+  g1.addEdge("A","B");
+  g1.addEdge("A","C");
+  g1.addEdge("A","D");
+  g1.addEdge("B","C");
+  expect(g1.getNeighbors("A").length).toBe(3);
+  expect(g1.getNeighbors("B").length).toBe(2);
+  expect(g1.getNeighbors("C").length).toBe(2);
+  expect(g1.getNeighbors("D").length).toBe(1);
+  expect(g1.getNeighbors("D").includes("A")).toBe(true);
+});
+
+test("subGraph - empty graph", () => {
+  let g1 = new Graph();
+  let g2 = subGraph([],g1);
+  expect(g2.getAdjList.length).toBe(0);
+  g2 = subGraph([1],g1); // if the index doesn't exist, subgraph returns empty graph
+  expect(g2.getAdjList.length).toBe(0);
+});
+
+test("subGraph - one node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  let g2 = subGraph([0],g1);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  expect(g2.nodeValues.keys().next().value).toBe("A");
+});
+
+test("subGraph - two node graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  let sub2 = subGraph([0],g1);
+  let sub3 = subGraph([1],g1);
+  expect(isomorphism(sub2.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(sub3.getAdjList(),[[]])).toBe(true);
+  let sub4 = subGraph([0,1],g1);
+  expect(isomorphism(sub4.getAdjList(),[[],[]])).toBe(true);
+  g1.addEdge("A","B");
+  let sub5 = subGraph([0,1],g1);
+  expect(isomorphism(sub5.getAdjList(),[[1],[0]])).toBe(true);
+});
+
+test("subGraph - more complex graph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("A","C");
+  g1.addEdge("A","D");
+  let sub = subGraph([0,3,4],g1); // nodes A, D, E
+  let expected = [[1],[0],[]];
+  expect(isomorphism(sub.getAdjList(),expected)).toBe(true);
+});
+/*
+test("getConnectedComponent - empty graph", () => {
+  let g1 = new Graph();
+  let fakeNode = "A";
+  let connectedComponent = getConnectedComponent(fakeNode,g1);
+  expect(isomorphism(connectedComponent.getAdjList(),g1.getAdjList())).toBe(true);
+});
+
+test("getConnectedComponent - one node", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  let connected1 = getConnectedComponent("A",g1);
+  let connected2 = getConnectedComponent("B",g1); // "fake" node; doesn't exist in graph
+  expect(isomorphism(connected1.getAdjList(),g1.getAdjList())).toBe(true);
+  expect(isomorphism(connected2.getAdjList(),g1.getAdjList())).toBe(false);
+});
+
+test("getConnectedComponent - two nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  let connected1 = getConnectedComponent("A",g1);
+  let connected2 = getConnectedComponent("B",g1); 
+  expect(isomorphism(connected1.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(connected2.getAdjList(),[[]])).toBe(true);
+  g1.addEdge("A","B");
+  connected1 = getConnectedComponent("A",g1);
+  expect(isomorphism(connected1.getAdjList(),g1.getAdjList())).toBe(true);
+});
+
+test("getConnectedComponent - three nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("A","B");
+  let connected1 = getConnectedComponent("A",g1);
+  let connected2 = getConnectedComponent("C",g1); 
+  expect(isomorphism(connected1.getAdjList(),[[1],[0]])).toBe(true);
+  expect(isomorphism(connected2.getAdjList(),[])).toBe(true);
+});*/

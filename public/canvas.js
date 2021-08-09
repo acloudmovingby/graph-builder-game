@@ -442,20 +442,4 @@ function setCommentary(nodes) {
     "&#34;" + commentary + "&#34;";
 }
 
-function getConnectedComponent(node, nodes) {
-  let visited = new Set();
-  return [...memoizeCC(node, visited)];
-}
 
-// helper for getConnectedComponent function
-function memoizeCC(node, visited) {
-  let remaining = node.neighbors.filter((n) => !visited.has(n));
-
-  visited.add(node);
-  
-  for (let i = 0; i<remaining.length; i++) {
-    memoizeCC(remaining[i],visited);
-  }
-
-  return visited;
-}

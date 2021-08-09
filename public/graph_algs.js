@@ -59,7 +59,7 @@ class Graph {
     this.edgeCount = 0;
     this.directedEdgeCount = 0;
     this.nodeValues = new Map(); // maps the values stored in the nodes (the "labels") to their indices in the adjacency list.
-    this.indices = new Map();
+    this.indices = new Map(); // maps indices to the values stored in nodes (the "labels")
   }
 
   addNode(nodeValue) {
@@ -107,7 +107,7 @@ class Graph {
   // won't work for self-edges. (if that ever gets added...)
   getEdges() {
     let edges = this.getEdgeIndices();
-    return edges.map((e) => [this.indices.get(e[0]),this.indices.get(e[1])]);
+    return edges.map((e) => [this.indices.get(e[0]), this.indices.get(e[1])]);
   }
 
   getEdgeIndices() {
@@ -123,6 +123,12 @@ class Graph {
       }
     }
     return edges;
+  }
+
+  // throws error if nodeValue doesn't exist in graph
+  getNeighbors(nodeValue) {
+    let index = this.nodeValues.get(nodeValue);
+    return this.getAdjList()[index].map((node) => this.indices.get(node));
   }
 }
 
@@ -229,6 +235,61 @@ function isButterflyGraph(graph) {
   }
 }
 
+// returns a new Graph representing the connected component to that node; returns an empty graph if the node doesn't exist in the graph
+// TODO: it's unclear if this copies the values stored at nodes or merely copies a reference
+function getConnectedComponent(node, graph) {
+  let visited = Array.from({ length: graph.nodeCount }).map((x) => false);
+  if (!graph.nodeValues.has(node)) {
+    return new Graph();
+  } else {
+    let curIndex = graph.nodeValues.get(node);
+    let connectedIndices = memoizeCC(curIndex, graph.getAdjList(), visited);
+    return subGraph(connectedIndices, graph);
+  }
+}
+
+// recursive helper for getConnectedComponent function
+function memoizeCC(nodeIx, adjList, visited) {
+  visited[nodeIx] = true;
+
+  for (let i = 0; i < adjList[nodeIx].length; i++) {
+    let targetIndex = adjList[nodeIx][i];
+    if (!visited[targetIndex]) {
+      memoizeCC(targetIndex, adjList, visited);
+    }
+  }
+  return visited;
+}
+
+// for a given set of node indices, returns the subgraph that contains all those nodes
+// if an index doesn't exist, it ignores it. (Maybe it should throw an error?)
+function subGraph(nodeIndices, graph) {
+  let newGraph = new Graph();
+  for (const index of nodeIndices) {
+    if (graph.indices.has(index)) {
+      newGraph.addNode(graph.indices.get(index));
+    }
+  }
+  console.log(`newGraph: ${newGraph.getAdjList()}`);
+  for (const index of nodeIndices) {
+    if (graph.indices.has(index)) {
+      let sourceValue = graph.indices.get(index);
+      let targets = graph.getNeighbors(sourceValue);
+      console.log(`sourceValue: ${sourceValue}, targets: ${targets}`);
+      console.log(
+        `newGraph nodeValues: ${Array.from(newGraph.nodeValues.entries())}`
+      );
+      let targetsToAdd = targets.filter((x) => newGraph.nodeValues.has(x));
+      console.log(`targetsToAdd: ${targetsToAdd}`);
+      for (const targetValue of targetsToAdd) {
+        newGraph.addEdge(sourceValue, targetValue);
+      }
+    }
+  }
+  console.log(`newGraph: ${newGraph.getAdjList()}`);
+  return newGraph;
+}
+
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
 exports.Graph = Graph;
@@ -239,3 +300,5 @@ exports.isPaw = isPaw;
 exports.starGraphChecker = starGraphChecker;
 exports.isKayakPaddleGraph = isKayakPaddleGraph;
 exports.isButterflyGraph = isButterflyGraph;
+exports.getConnectedComponent = getConnectedComponent;
+exports.subGraph = subGraph;
