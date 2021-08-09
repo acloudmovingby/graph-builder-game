@@ -1,10 +1,8 @@
 let canvas = document.getElementById("canvas");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
-let nodes = [];
 let graph = new Graph();
 let edgeMode = false;
 let edgeStart = null;
-let edgeCount = 0;
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -268,12 +266,11 @@ function canvasClick(event) {
   if (!edgeMode && !nodeClicked) {
     // create new Node
     let newNode = new NodeData(0, x, y);
-    nodes.push(newNode);
     curNode = newNode;
     graph.addNode(newNode);
     stillInNode = true;
     document.getElementById("node-count").innerHTML = graph.nodeCount;
-    setCommentary(nodes);
+    setCommentary(graph);
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
@@ -287,11 +284,10 @@ function canvasClick(event) {
       graph.addEdge(edgeStart,nodeClicked);
       
       edgeStart = nodeClicked;
-      edgeCount++;
       curNode = nodeClicked;
       
       document.getElementById("edge-count").innerHTML = graph.edgeCount;
-      setCommentary(nodes);
+      setCommentary(graph);
     }
     edgeStart = nodeClicked;
   } else {
@@ -302,16 +298,14 @@ function canvasClick(event) {
 }
 
 function clearGraph() {
-  nodes = [];
   edgeMode = false;
   edgeStart = null;
-  edgeCount = 0;
   nodeHover = null;
   stillInNode = false;
   graph = new Graph();
-  document.getElementById("node-count").innerHTML = nodes.length;
-  document.getElementById("edge-count").innerHTML = edgeCount;
-  setCommentary(nodes);
+  document.getElementById("node-count").innerHTML = graph.nodeCount;
+  document.getElementById("edge-count").innerHTML = graph.edgeCount;
+  setCommentary(graph);
   refreshEasterEggs();
 }
 
@@ -340,7 +334,7 @@ function mouseMove(event) {
   }
 }
 
-function setCommentary(nodes) {
+function setCommentary(graph) {
   let connected = getConnectedComponent(curNode,graph);
 
   let egg = easterEggState.eggs.find((egg) => {
@@ -361,60 +355,60 @@ function setCommentary(nodes) {
   }
 
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
-  // The sequence of some comments won't make sense if I later add deletion
+  // Note: the sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
-  if (nodes.length === 0) {
+  if (graph.nodeCount === 0) {
     commentary = "...an empty void...";
-  } else if (nodes.length === 1) {
+  } else if (graph.nodeCount === 1) {
     commentary = "A lone wolf.";
-  } else if (nodes.length === 2 && edgeCount === 0) {
+  } else if (graph.nodeCount === 2 && graph.edgeCount === 0) {
     commentary = "Two lone wolves!";
-  } else if (nodes.length === 2 && edgeCount === 1) {
+  } else if (graph.nodeCount === 2 && graph.edgeCount === 1) {
     commentary = "Awwww, they're connected! Cute.";
-  } else if (nodes.length === 3 && edgeCount === 1) {
+  } else if (graph.nodeCount === 3 && graph.edgeCount === 1) {
     commentary = "Classic third wheel.";
   } else if (connected.nodeCount === 3 && connected.edgeCount === 2) {
     commentary =
       "This graph is called S2, a star graph. It's a bit boring. You can do better.";
-  } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
+  } else if (graph.nodeCount < 6 && graph.nodeCount > 2 && graph.edgeCount === 0) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
-  } else if (nodes.length >= 6 && nodes.length < 15 && edgeCount === 0) {
+  } else if (graph.nodeCount >= 6 && graph.nodeCount < 15 && graph.edgeCount === 0) {
     commentary =
       "So...to make an edge click on a node and then, without dragging, click on another node.";
-  } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
+  } else if (graph.nodeCount > 3 && graph.nodeCount < 15 && graph.edgeCount < 3) {
     commentary = "Still pretty sparse";
   } else if (connected.nodeCount === 4 && connected.edgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (connected.nodeCount === 7 && isComplete(nodes)) {
+  } else if (connected.nodeCount === 7 && isComplete(graph)) {
     commentary =
       "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
-  } else if (isOnlyCycles(nodes)) {
-    let isCycle = isOneCycle(nodes);
+  } else if (isOnlyCycles(graph)) {
+    let isCycle = isOneCycle(graph);
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-  } else if (connected.nodeCount + 1 === nodes.length && nodes.length > 6) {
+  } else if (connected.nodeCount + 1 === graph.nodeCount && graph.nodeCount > 6) {
     commentary = "So close...";
-  } else if (connected.nodeCount === nodes.length && nodes.length > 6) {
+  } else if (connected.nodeCount === graph.nodeCount && graph.nodeCount > 6) {
     commentary = "Feelin connected!!";
-  } else if (nodes.length >= 70 && edgeCount > 30) {
+  } else if (graph.nodeCount >= 70 && graph.edgeCount > 30) {
     commentary =
       "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
-  } else if (nodes.length >= 70) {
+  } else if (graph.nodeCount >= 70) {
     commentary =
       "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
-  } else if (nodes.length >= 60) {
+  } else if (graph.nodeCount >= 60) {
     commentary = "Are the animations still smooth? I bet they are :) ";
-  } else if (nodes.length >= 50) {
+  } else if (graph.nodeCount >= 50) {
     commentary = "Yeah it is.";
-  } else if (nodes.length >= 40) {
+  } else if (graph.nodeCount >= 40) {
     commentary = "Is your finger tired?";
-  } else if (nodes.length >= 30) {
+  } else if (graph.nodeCount >= 30) {
     commentary = "Make the screen blue with nodes for all I care...";
-  } else if (nodes.length >= 20) {
+  } else if (graph.nodeCount >= 20) {
     commentary =
       "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
-  } else if (nodes.length >= 15) {
+  } else if (graph.nodeCount >= 15) {
     commentary = "You're adding a lot of nodes.";
   }
   document.getElementById("commentary").innerHTML =
