@@ -243,7 +243,13 @@ function getConnectedComponent(node, graph) {
     return new Graph();
   } else {
     let curIndex = graph.nodeValues.get(node);
-    let connectedIndices = memoizeCC(curIndex, graph.getAdjList(), visited);
+    memoizeCC(curIndex, graph.getAdjList(), visited);
+    let connectedIndices = [];
+    for (let i=0; i<visited.length;i++) {
+      if (visited[i]) {
+        connectedIndices.push(i);
+      }
+    }
     return subGraph(connectedIndices, graph);
   }
 }
@@ -270,23 +276,16 @@ function subGraph(nodeIndices, graph) {
       newGraph.addNode(graph.indices.get(index));
     }
   }
-  console.log(`newGraph: ${newGraph.getAdjList()}`);
   for (const index of nodeIndices) {
     if (graph.indices.has(index)) {
       let sourceValue = graph.indices.get(index);
       let targets = graph.getNeighbors(sourceValue);
-      console.log(`sourceValue: ${sourceValue}, targets: ${targets}`);
-      console.log(
-        `newGraph nodeValues: ${Array.from(newGraph.nodeValues.entries())}`
-      );
       let targetsToAdd = targets.filter((x) => newGraph.nodeValues.has(x));
-      console.log(`targetsToAdd: ${targetsToAdd}`);
       for (const targetValue of targetsToAdd) {
         newGraph.addEdge(sourceValue, targetValue);
       }
     }
   }
-  console.log(`newGraph: ${newGraph.getAdjList()}`);
   return newGraph;
 }
 

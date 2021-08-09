@@ -712,7 +712,7 @@ test("subGraph - more complex graph", () => {
   let expected = [[1],[0],[]];
   expect(isomorphism(sub.getAdjList(),expected)).toBe(true);
 });
-/*
+
 test("getConnectedComponent - empty graph", () => {
   let g1 = new Graph();
   let fakeNode = "A";
@@ -751,5 +751,5 @@ test("getConnectedComponent - three nodes", () => {
   let connected1 = getConnectedComponent("A",g1);
   let connected2 = getConnectedComponent("C",g1); 
   expect(isomorphism(connected1.getAdjList(),[[1],[0]])).toBe(true);
-  expect(isomorphism(connected2.getAdjList(),[])).toBe(true);
-});*/
+  expect(isomorphism(connected2.getAdjList(),[[]])).toBe(true);
+});
