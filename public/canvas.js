@@ -12,6 +12,7 @@ let stillInNode = false; // true if mouse is still inside node bounds for a node
 let clearButtonHover = false;
 let curNode = null;
 
+
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
@@ -142,7 +143,7 @@ function draw() {
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
     // start message
-    if (nodes.length === 0) {
+    if (graph.nodeCount === 0) {
       ctx.font = "25px Arial";
       ctx.fillStyle = "gray";
       ctx.textAlign = "center";
@@ -182,6 +183,7 @@ function draw() {
     });
 
     // draw nodes
+    let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
       ctx.beginPath();
       ctx.lineWidth = 8;
