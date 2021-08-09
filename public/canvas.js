@@ -280,6 +280,7 @@ function canvasClick(event) {
     edgeStart = nodeClicked;
     curNode = nodeClicked;
   } else if (nodeClicked && nodeClicked != edgeStart) {
+    // add edge
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
@@ -294,7 +295,7 @@ function canvasClick(event) {
     }
     edgeStart = nodeClicked;
   } else {
-    // cancel edge mode
+    // exit edge mode
     edgeMode = false;
     edgeStart = null;
   }
@@ -307,12 +308,9 @@ function clearGraph() {
   edgeCount = 0;
   nodeHover = null;
   stillInNode = false;
-
   graph = new Graph();
-
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
-  //document.getElementById("adjacency-list").innerHTML = "";
   setCommentary(nodes);
   refreshEasterEggs();
 }
