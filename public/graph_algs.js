@@ -123,7 +123,7 @@ function isOnlyCycles(graph) {
   return (
     graph.nodeCount >= 3 &&
     graph.nodeCount === graph.edgeCount &&
-    graph.nodeCount === graph.getAdjList.filter((node) => node.length === 2).length
+    graph.nodeCount === graph.getAdjList().filter((node) => node.length === 2).length
   );
 }
 
@@ -154,8 +154,62 @@ function isOneCycle(graph) {
   return isCycle && cur === start;
 }
 
+function isPaw(graph) {
+  return (
+    graph.nodeCount === 4 &&
+    graph.edgeCount === 4 &&
+    graph.getAdjList().filter((x) => x.length === 3).length === 1
+  );
+}
+
+function starGraphChecker(n) {
+  return function (graph) {
+    return (
+      graph.nodeCount === n &&
+      graph.getAdjList().some((x) => x.length === n - 1) &&
+      graph.getAdjList().filter((x) => x.length === 1).length === graph.nodeCount - 1
+    );
+  };
+}
+
+function isKayakPaddleGraph(graph) {
+    if (graph.nodeCount != 6) {
+      return false;
+    }
+    let kpg = [
+      [1, 2],
+      [2, 0],
+      [3, 1, 0],
+      [4, 5, 2],
+      [3, 5],
+      [3, 4],
+    ];
+    return isomorphism(kpg, graph.getAdjList(graph));
+}
+
+function isButterflyGraph(graph) {
+    if (graph.nodeCount != 5) {
+      return false;
+    } else {
+      let bfg = [
+        [1, 2],
+        [2, 0],
+        [3, 4, 1, 0],
+        [2, 4],
+        [3, 2],
+      ];
+      return isomorphism(bfg, graph.getAdjList());
+    }
+}
+
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
 exports.Graph = Graph;
 exports.isComplete = isComplete;
 exports.completeGraphChecker = completeGraphChecker;
+exports.cycleGraphChecker = cycleGraphChecker; 
+exports.isPaw = isPaw;
+exports.starGraphChecker = starGraphChecker;
+exports.isKayakPaddleGraph = isKayakPaddleGraph;
+exports.isButterflyGraph = isButterflyGraph;
+

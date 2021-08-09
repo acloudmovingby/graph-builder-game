@@ -1,4 +1,4 @@
-const { checkEdges, isomorphism, Graph, isComplete, completeGraphChecker } = require("./public/graph_algs");
+const { checkEdges, isomorphism, Graph, isComplete, completeGraphChecker, cycleGraphChecker, isPaw, starGraphChecker, isKayakPaddleGraph, isButterflyGraph} = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
   expect(checkEdges([], [], [])).toBe(true);
@@ -382,7 +382,7 @@ test("completeGraphChecker - four node graph", () => {
   g1.addEdge("B","C");
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("C","D");
-  expect(completeGraphChecker(4)(g1)).toBe(false);å
+  expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("A","D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
   g1.addEdge("B","D");
@@ -391,3 +391,152 @@ test("completeGraphChecker - four node graph", () => {
   expect(g1.edgeCount).toBe(6);
   expect(completeGraphChecker(4)(g1)).toBe(true);
 });
+
+
+test("cycleGraphChecker - three nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","A");
+  expect(cycleGraphChecker(3)(g1)).toBe(true);
+});
+
+test("cycleGraphChecker - four nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","D");
+  g1.addEdge("A","D");
+  expect(cycleGraphChecker(4)(g1)).toBe(true);
+});
+
+test("cycleGraphChecker - five nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","D");
+  g1.addEdge("D","E");
+  g1.addEdge("A","E");
+  expect(cycleGraphChecker(5)(g1)).toBe(true);
+});
+
+test("isPaw test", () => {
+  let g1 = new Graph();
+  expect(isPaw(g1)).toBe(false);
+  g1.addNode("A");
+  expect(isPaw(g1)).toBe(false);
+  g1.addNode("B");
+  expect(isPaw(g1)).toBe(false);
+  g1.addNode("C");
+  expect(isPaw(g1)).toBe(false);
+  g1.addNode("D");
+  expect(isPaw(g1)).toBe(false);
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("A","C");
+  expect(isPaw(g1)).toBe(false);
+  g1.addEdge("B","D");
+  expect(isPaw(g1)).toBe(true);
+  g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","D");
+  g1.addEdge("A","D");
+  expect(isPaw(g1)).toBe(false);
+});
+
+test("starGraphChecker - 3 nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  expect(starGraphChecker(2)(g1)).toBe(false);
+  expect(starGraphChecker(3)(g1)).toBe(true);
+  expect(starGraphChecker(4)(g1)).toBe(false);
+});
+
+test("starGraphChecker - 4 nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addEdge("A","B");
+  g1.addEdge("A","C");
+  expect(starGraphChecker(4)(g1)).toBe(false);
+  g1.addEdge("A","D");
+  expect(starGraphChecker(4)(g1)).toBe(true);
+});
+
+test("starGraphChecker - 5 nodes", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  g1.addEdge("A","B");
+  g1.addEdge("A","C");
+  g1.addEdge("A","D");
+  expect(starGraphChecker(5)(g1)).toBe(false);
+  g1.addEdge("A","E");
+  expect(starGraphChecker(5)(g1)).toBe(true);
+});
+
+test("kayakPaddleGraph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  g1.addNode("F");
+  expect(isKayakPaddleGraph(g1)).toBe(false);
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","A");
+  g1.addEdge("D","E");
+  g1.addEdge("E","F");
+  g1.addEdge("D","F");
+  expect(isKayakPaddleGraph(g1)).toBe(false);
+  g1.addEdge("A","D");
+  expect(isKayakPaddleGraph(g1)).toBe(true);
+});
+
+test("isButterflyGraph", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  expect(isButterflyGraph(g1)).toBe(false);
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addEdge("C","A");
+  g1.addEdge("C","D");
+  g1.addEdge("D","E");
+  g1.addEdge("E","C");
+  expect(isButterflyGraph(g1)).toBe(true);
+});
+
+
+

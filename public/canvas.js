@@ -94,7 +94,7 @@ const easterEggState = {
     new Egg(
       "kayak",
       "🛶",
-      isKayakPaddleGraph(),
+      isKayakPaddleGraph,
       "This one's called the kayak paddle graph. I swear, I'm not making this up."
     ),
     new Egg(
@@ -196,8 +196,7 @@ function starGraphChecker(n) {
   };
 }
 
-function isKayakPaddleGraph() {
-  return function (nodes) {
+function isKayakPaddleGraph(nodes) {
     if (nodes.length != 6) {
       return false;
     }
@@ -210,7 +209,6 @@ function isKayakPaddleGraph() {
       [3, 4],
     ];
     return isomorphism(kpg, convertToAdjList(nodes));
-  };
 }
 
 function isButterflyGraph() {
