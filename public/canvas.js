@@ -233,8 +233,7 @@ function draw() {
 }
 
 // for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in one object.
-function NodeData(index, counter, x, y) {
-  this.index = index;
+function NodeData(counter, x, y) {
   this.counter = counter;
   this.x = x;
   this.y = y;
@@ -268,7 +267,7 @@ function canvasClick(event) {
 
   if (!edgeMode && !nodeClicked) {
     // create new Node
-    let newNode = new NodeData(nodes.length, 0, x, y);
+    let newNode = new NodeData(0, x, y);
     nodes.push(newNode);
     curNode = newNode;
     graph.addNode(newNode);
