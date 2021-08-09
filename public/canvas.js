@@ -1,4 +1,3 @@
-
 let canvas = document.getElementById("canvas");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
 let nodes = [];
@@ -242,12 +241,12 @@ function NodeData(index, counter, x, y) {
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
 function nodeAtPoint(x, y, nodes) {
-  for (let i = 0; i < nodes.length; i++) {
-    let dx = x - nodes[i].x;
-    let dy = y - nodes[i].y;
+  for (const node of nodes) {
+    let dx = x - node.x;
+    let dy = y - node.y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     if (distFromCent < nodeRadius * 2) {
-      return nodes[i];
+      return node;
     }
   }
   return null;
@@ -263,7 +262,7 @@ function canvasClick(event) {
     return;
   }
 
-  let nodeClicked = nodeAtPoint(x, y, nodes);
+  let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
 
   if (!edgeMode && !nodeClicked) {
     // create new Node
@@ -327,6 +326,8 @@ function clearGraph() {
   nodeHover = null;
   stillInNode = false;
 
+  graph = new Graph();
+
   document.getElementById("node-count").innerHTML = nodes.length;
   document.getElementById("edge-count").innerHTML = edgeCount;
   //document.getElementById("adjacency-list").innerHTML = "";
@@ -344,7 +345,7 @@ function mouseMove(event) {
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
 
-  nodeHover = nodeAtPoint(mouseX, mouseY, nodes);
+  nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
   if (!nodeHover) {
     stillInNode = false;
   }

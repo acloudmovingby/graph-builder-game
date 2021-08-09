@@ -58,23 +58,23 @@ class Graph {
     this.nodeCount = 0;
     this.edgeCount = 0;
     this.directedEdgeCount = 0;
-    this.labels = new Map(); // maps labels to their indices in the adjacency list. The labels are the values stored in each node as given by the user in addNode
+    this.nodeValues = new Map(); // maps the values stored in the nodes (the "labels") to their indices in the adjacency list. 
   }
 
   addNode(nodeValue) {
     this.adjList.push([]);
-    this.labels.set(nodeValue, this.adjList.length - 1);
+    this.nodeValues.set(nodeValue, this.adjList.length - 1);
     this.nodeCount++;
   }
 
   // returns true only if the graph contains these nodes already and the edge didn't already exist; does NOT allow parallel edges
   addEdge(nodeValue1, nodeValue2) {
     let containsNodes =
-      this.labels.has(nodeValue1) && this.labels.has(nodeValue2);
+      this.nodeValues.has(nodeValue1) && this.nodeValues.has(nodeValue2);
 
     if (containsNodes) {
-      let index1 = this.labels.get(nodeValue1);
-      let index2 = this.labels.get(nodeValue2);
+      let index1 = this.nodeValues.get(nodeValue1);
+      let index2 = this.nodeValues.get(nodeValue2);
       let addedEdge = false;
       if (!this.adjList[index1].includes(index2)) {
         this.adjList[index1].push(index2);
@@ -96,6 +96,10 @@ class Graph {
   // returns adjacency list as just indices (the pure structure of the graph without the values it stores)
   getAdjList() {
     return this.adjList;
+  }
+
+  getNodeValues() {
+    return this.nodeValues.keys();
   }
 }
 
