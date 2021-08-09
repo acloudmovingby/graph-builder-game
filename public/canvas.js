@@ -362,8 +362,9 @@ function mouseMove(event) {
 
 function setCommentary(nodes) {
   
+  let connected = getConnectedComponent(curNode,graph);
   let egg = easterEggState.eggs.find((egg) => {
-    return egg.isSubGraphOf(graph);
+    return egg.isSubGraphOf(connected);
   });
 
   if (egg) {
