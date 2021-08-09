@@ -271,8 +271,6 @@ function canvasClick(event) {
     nodes.push(newNode);
     curNode = newNode;
     graph.addNode(newNode);
-    let node = document.createElement("LI");
-    node.appendChild(document.createTextNode(nodes.length - 1 + ": "));
 
     stillInNode = true;
     document.getElementById("node-count").innerHTML = nodes.length;
