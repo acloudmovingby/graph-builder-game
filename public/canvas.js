@@ -361,8 +361,8 @@ function mouseMove(event) {
 }
 
 function setCommentary(nodes) {
-  
   let connected = getConnectedComponent(curNode,graph);
+
   let egg = easterEggState.eggs.find((egg) => {
     return egg.isSubGraphOf(connected);
   });
@@ -380,8 +380,6 @@ function setCommentary(nodes) {
     return;
   }
 
-  let numConnected = nodes.filter((n) => n.neighbors.length).length;
-  let connectedEdgeCount = edgeCount;
   // Some if's are redundant and there's not a grand plan of the logic here other than: check easy stuff first and if the condition is true, change commentary and don't check anything else
   // The sequence of some comments won't make sense if I later add deletion
   let commentary = "Nice graph!";
@@ -395,7 +393,7 @@ function setCommentary(nodes) {
     commentary = "Awwww, they're connected! Cute.";
   } else if (nodes.length === 3 && edgeCount === 1) {
     commentary = "Classic third wheel.";
-  } else if (numConnected === 3 && connectedEdgeCount === 2) {
+  } else if (connected.nodeCount === 3 && connected.edgeCount === 2) {
     commentary =
       "This graph is called S2, a star graph. It's a bit boring. You can do better.";
   } else if (nodes.length < 6 && nodes.length > 2 && edgeCount === 0) {
@@ -405,9 +403,9 @@ function setCommentary(nodes) {
       "So...to make an edge click on a node and then, without dragging, click on another node.";
   } else if (nodes.length > 3 && nodes.length < 15 && edgeCount < 3) {
     commentary = "Still pretty sparse";
-  } else if (numConnected === 4 && connectedEdgeCount === 3) {
+  } else if (connected.nodeCount === 4 && connected.edgeCount === 3) {
     commentary = "Try making a cycle.";
-  } else if (numConnected === 7 && isComplete(nodes)) {
+  } else if (connected.nodeCount === 7 && isComplete(nodes)) {
     commentary =
       "Well done. You made K7. You have a lot of time on your hands. But no eggs for you.";
   } else if (isOnlyCycles(nodes)) {
@@ -415,9 +413,9 @@ function setCommentary(nodes) {
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-  } else if (numConnected + 1 === nodes.length && nodes.length > 6) {
+  } else if (connected.nodeCount + 1 === nodes.length && nodes.length > 6) {
     commentary = "So close...";
-  } else if (numConnected === nodes.length && nodes.length > 6) {
+  } else if (connected.nodeCount === nodes.length && nodes.length > 6) {
     commentary = "Feelin connected!!";
   } else if (nodes.length >= 70 && edgeCount > 30) {
     commentary =
