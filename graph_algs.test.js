@@ -1,4 +1,15 @@
-const { checkEdges, isomorphism, Graph, isComplete, completeGraphChecker, cycleGraphChecker, isPaw, starGraphChecker, isKayakPaddleGraph, isButterflyGraph} = require("./public/graph_algs");
+const {
+  checkEdges,
+  isomorphism,
+  Graph,
+  isComplete,
+  completeGraphChecker,
+  cycleGraphChecker,
+  isPaw,
+  starGraphChecker,
+  isKayakPaddleGraph,
+  isButterflyGraph,
+} = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
   expect(checkEdges([], [], [])).toBe(true);
@@ -12,15 +23,15 @@ test("checks graphs with single nodes", () => {
 });
 
 test("checks dissimilar graphs with 2/2 nodes, edges are 1/0", () => {
-    let g1 = [[1], [0]];
-    let g2 = [[], []];
-    let perm = [1, 0];
-    expect(checkEdges(perm, g1, g2)).toBe(false);
-    expect(checkEdges(perm, g2, g1)).toBe(false);
-    perm = [0, 1];
-    expect(checkEdges(perm, g1, g2)).toBe(false);
-    expect(checkEdges(perm, g2, g1)).toBe(false);
-  });
+  let g1 = [[1], [0]];
+  let g2 = [[], []];
+  let perm = [1, 0];
+  expect(checkEdges(perm, g1, g2)).toBe(false);
+  expect(checkEdges(perm, g2, g1)).toBe(false);
+  perm = [0, 1];
+  expect(checkEdges(perm, g1, g2)).toBe(false);
+  expect(checkEdges(perm, g2, g1)).toBe(false);
+});
 
 test("checks graphs with 2/2 nodes, no edges", () => {
   let g1 = [[], []];
@@ -201,101 +212,176 @@ test("isomorphism - test with non-isomorphic 2/2 nodes, 1/0 edges; commutative",
 });
 
 test("isomorphism - test with isomorphic cycle graphs, 8/8 nodes, 16 edges; commutative", () => {
-    let g1 = [[1,7], [0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,0]];
-    let g2 = [[7,2], [3,5],[0,6],[1,4],[6,3],[1,7],[2,4],[5,0]];
-    expect(isomorphism(g1, g2)).toBe(true);
-    expect(isomorphism(g2, g1)).toBe(true);
-  });
+  let g1 = [
+    [1, 7],
+    [0, 2],
+    [1, 3],
+    [2, 4],
+    [3, 5],
+    [4, 6],
+    [5, 7],
+    [6, 0],
+  ];
+  let g2 = [
+    [7, 2],
+    [3, 5],
+    [0, 6],
+    [1, 4],
+    [6, 3],
+    [1, 7],
+    [2, 4],
+    [5, 0],
+  ];
+  expect(isomorphism(g1, g2)).toBe(true);
+  expect(isomorphism(g2, g1)).toBe(true);
+});
 
-  test("isomorphism - test with isomorphic 2 separate cycle graphs, 8/8 nodes, 16 edges; commutative", () => {
-    let g1 = [[1,7], [0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,0]];
-    let g2 = [[1,7], [0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,0]];
-    expect(isomorphism(g1, g2)).toBe(true);
-    expect(isomorphism(g2, g1)).toBe(true);
-  });
+test("isomorphism - test with isomorphic 2 separate cycle graphs, 8/8 nodes, 16 edges; commutative", () => {
+  let g1 = [
+    [1, 7],
+    [0, 2],
+    [1, 3],
+    [2, 4],
+    [3, 5],
+    [4, 6],
+    [5, 7],
+    [6, 0],
+  ];
+  let g2 = [
+    [1, 7],
+    [0, 2],
+    [1, 3],
+    [2, 4],
+    [3, 5],
+    [4, 6],
+    [5, 7],
+    [6, 0],
+  ];
+  expect(isomorphism(g1, g2)).toBe(true);
+  expect(isomorphism(g2, g1)).toBe(true);
+});
 
-  test("isomorphism - test with non-isomorphic 8/8 nodes, 16 edges; commutative", () => {
-    let g1 = [[1,7], [0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,0]]; // big ring
-    let g2 = [[7,1], [0,5],[6,4],[4,6],[3,2],[7,1],[3,2],[5,0]]; // two non-overlapping rings
-    expect(isomorphism(g1, g2)).toBe(false);
-    expect(isomorphism(g2, g1)).toBe(false);
-  });
+test("isomorphism - test with non-isomorphic 8/8 nodes, 16 edges; commutative", () => {
+  let g1 = [
+    [1, 7],
+    [0, 2],
+    [1, 3],
+    [2, 4],
+    [3, 5],
+    [4, 6],
+    [5, 7],
+    [6, 0],
+  ]; // big ring
+  let g2 = [
+    [7, 1],
+    [0, 5],
+    [6, 4],
+    [4, 6],
+    [3, 2],
+    [7, 1],
+    [3, 2],
+    [5, 0],
+  ]; // two non-overlapping rings
+  expect(isomorphism(g1, g2)).toBe(false);
+  expect(isomorphism(g2, g1)).toBe(false);
+});
 
-  test("isomorphism - test on nearly complete graph, 5 nodes; commutative", () => {
-    let g1 = [[1,2,3,4], [2,0,4],[3,1,0,4],[4,2,0],[3,0,2,1]]; 
-    let g2 = [[1,2,3], [2,0,3,4],[3,1,0,4],[4,2,1,0],[3,2,1]];
-    expect(isomorphism(g1, g2)).toBe(true);
-    expect(isomorphism(g2, g1)).toBe(true);
-  });
+test("isomorphism - test on nearly complete graph, 5 nodes; commutative", () => {
+  let g1 = [
+    [1, 2, 3, 4],
+    [2, 0, 4],
+    [3, 1, 0, 4],
+    [4, 2, 0],
+    [3, 0, 2, 1],
+  ];
+  let g2 = [
+    [1, 2, 3],
+    [2, 0, 3, 4],
+    [3, 1, 0, 4],
+    [4, 2, 1, 0],
+    [3, 2, 1],
+  ];
+  expect(isomorphism(g1, g2)).toBe(true);
+  expect(isomorphism(g2, g1)).toBe(true);
+});
 
-  /******** */
+/******** */
 
-  test("Graph - empty graph; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
+test("Graph - empty graph; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
 
-  test("Graph - single node; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    g1.addNode("A");
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [[]];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
+test("Graph - single node; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [[]];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
 
-  test("Graph - two nodes, no edges; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    g1.addNode("A");
-    g1.addNode("B");
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [[],[]];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
+test("Graph - two nodes, no edges; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [[], []];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
 
-  test("Graph - two nodes, one edge; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    g1.addNode("A");
-    g1.addNode("B");
-    g1.addEdge("A","B");
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [[1],[0]];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
+test("Graph - two nodes, one edge; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addEdge("A", "B");
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [[1], [0]];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
 
-  test("Graph - three nodes, two edges; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    g1.addNode("A");
-    g1.addNode("B");
-    g1.addEdge("A","B");
-    g1.addNode("C");
-    g1.addEdge("B","C");
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [[1],[0,2],[1]];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
+test("Graph - three nodes, two edges; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addEdge("A", "B");
+  g1.addNode("C");
+  g1.addEdge("B", "C");
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [[1], [0, 2], [1]];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
 
-  test("Graph - many nodes, complex structure; tests equality of structure not labels", () => {
-    let g1 = new Graph();
-    g1.addNode("A");
-    g1.addNode("B");
-    g1.addNode("C");
-    g1.addNode("D");
-    g1.addNode("E");
-    g1.addNode("F");
-    g1.addNode("G");
-    g1.addEdge("A","B");
-    g1.addEdge("B","C");
-    g1.addEdge("D","E");
-    g1.addEdge("E","F");
-    g1.addEdge("F","G");
-    g1.addEdge("D","F");
-    let adjList1 = g1.getAdjList();
-    let adjList2 = [[4,6],[3,2],[1,3],[5,1,2],[0],[3],[0]];
-    expect(isomorphism(adjList1,adjList2)).toBe(true);
-  });
-  
+test("Graph - many nodes, complex structure; tests equality of structure not labels", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addNode("D");
+  g1.addNode("E");
+  g1.addNode("F");
+  g1.addNode("G");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("D", "E");
+  g1.addEdge("E", "F");
+  g1.addEdge("F", "G");
+  g1.addEdge("D", "F");
+  let adjList1 = g1.getAdjList();
+  let adjList2 = [[4, 6], [3, 2], [1, 3], [5, 1, 2], [0], [3], [0]];
+  expect(isomorphism(adjList1, adjList2)).toBe(true);
+});
+
+test("Graph - tests edgecount is correct, simple case", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("A","B");
+  g1.addEdge("C","B");
+  expect(g1.edgeCount).toBe(2);
+});
 
 test("isComplete - tests empty graph, returns true", () => {
   let g1 = new Graph();
@@ -313,7 +399,7 @@ test("isComplete - tests two node graphs", () => {
   g1.addNode("A");
   g1.addNode("B");
   expect(isComplete(g1)).toBe(false);
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   expect(isComplete(g1)).toBe(true);
 });
 
@@ -323,11 +409,11 @@ test("isComplete - tests three node graphs", () => {
   g1.addNode("B");
   g1.addNode("C");
   expect(isComplete(g1)).toBe(false);
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   expect(isComplete(g1)).toBe(false);
-  g1.addEdge("B","C");
+  g1.addEdge("B", "C");
   expect(isComplete(g1)).toBe(false);
-  g1.addEdge("A","C");
+  g1.addEdge("A", "C");
   expect(g1.nodeCount).toBe(3);
   expect(g1.edgeCount).toBe(3);
   expect(isComplete(g1)).toBe(true);
@@ -348,7 +434,7 @@ test("completeGraphChecker - two node graph", () => {
   expect(completeGraphChecker(1)(g1)).toBe(false);
   expect(completeGraphChecker(2)(g1)).toBe(false);
   expect(completeGraphChecker(3)(g1)).toBe(false);
-  g1.addEdge()
+  g1.addEdge();
 });
 
 test("completeGraphChecker - three node graph", () => {
@@ -359,11 +445,11 @@ test("completeGraphChecker - three node graph", () => {
   expect(completeGraphChecker(1)(g1)).toBe(false);
   expect(completeGraphChecker(2)(g1)).toBe(false);
   expect(completeGraphChecker(3)(g1)).toBe(false);
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   expect(completeGraphChecker(3)(g1)).toBe(false);
-  g1.addEdge("B","C");
+  g1.addEdge("B", "C");
   expect(completeGraphChecker(3)(g1)).toBe(false);
-  g1.addEdge("A","C");
+  g1.addEdge("A", "C");
   expect(completeGraphChecker(3)(g1)).toBe(true);
 });
 
@@ -376,31 +462,30 @@ test("completeGraphChecker - four node graph", () => {
   expect(completeGraphChecker(1)(g1)).toBe(false);
   expect(completeGraphChecker(3)(g1)).toBe(false);
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   expect(g1.edgeCount).toBe(1);
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("B","C");
+  g1.addEdge("B", "C");
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("C","D");
+  g1.addEdge("C", "D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("A","D");
+  g1.addEdge("A", "D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("B","D");
+  g1.addEdge("B", "D");
   expect(completeGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("A","C");
+  g1.addEdge("A", "C");
   expect(g1.edgeCount).toBe(6);
   expect(completeGraphChecker(4)(g1)).toBe(true);
 });
-
 
 test("cycleGraphChecker - three nodes", () => {
   let g1 = new Graph();
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","A");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "A");
   expect(cycleGraphChecker(3)(g1)).toBe(true);
 });
 
@@ -410,10 +495,10 @@ test("cycleGraphChecker - four nodes", () => {
   g1.addNode("B");
   g1.addNode("C");
   g1.addNode("D");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","D");
-  g1.addEdge("A","D");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "D");
+  g1.addEdge("A", "D");
   expect(cycleGraphChecker(4)(g1)).toBe(true);
 });
 
@@ -424,11 +509,11 @@ test("cycleGraphChecker - five nodes", () => {
   g1.addNode("C");
   g1.addNode("D");
   g1.addNode("E");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","D");
-  g1.addEdge("D","E");
-  g1.addEdge("A","E");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "D");
+  g1.addEdge("D", "E");
+  g1.addEdge("A", "E");
   expect(cycleGraphChecker(5)(g1)).toBe(true);
 });
 
@@ -443,21 +528,21 @@ test("isPaw test", () => {
   expect(isPaw(g1)).toBe(false);
   g1.addNode("D");
   expect(isPaw(g1)).toBe(false);
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("A","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("A", "C");
   expect(isPaw(g1)).toBe(false);
-  g1.addEdge("B","D");
+  g1.addEdge("B", "D");
   expect(isPaw(g1)).toBe(true);
   g1 = new Graph();
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
   g1.addNode("D");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","D");
-  g1.addEdge("A","D");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "D");
+  g1.addEdge("A", "D");
   expect(isPaw(g1)).toBe(false);
 });
 
@@ -466,8 +551,8 @@ test("starGraphChecker - 3 nodes", () => {
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
   expect(starGraphChecker(2)(g1)).toBe(false);
   expect(starGraphChecker(3)(g1)).toBe(true);
   expect(starGraphChecker(4)(g1)).toBe(false);
@@ -479,10 +564,10 @@ test("starGraphChecker - 4 nodes", () => {
   g1.addNode("B");
   g1.addNode("C");
   g1.addNode("D");
-  g1.addEdge("A","B");
-  g1.addEdge("A","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("A", "C");
   expect(starGraphChecker(4)(g1)).toBe(false);
-  g1.addEdge("A","D");
+  g1.addEdge("A", "D");
   expect(starGraphChecker(4)(g1)).toBe(true);
 });
 
@@ -493,11 +578,11 @@ test("starGraphChecker - 5 nodes", () => {
   g1.addNode("C");
   g1.addNode("D");
   g1.addNode("E");
-  g1.addEdge("A","B");
-  g1.addEdge("A","C");
-  g1.addEdge("A","D");
+  g1.addEdge("A", "B");
+  g1.addEdge("A", "C");
+  g1.addEdge("A", "D");
   expect(starGraphChecker(5)(g1)).toBe(false);
-  g1.addEdge("A","E");
+  g1.addEdge("A", "E");
   expect(starGraphChecker(5)(g1)).toBe(true);
 });
 
@@ -510,14 +595,14 @@ test("kayakPaddleGraph", () => {
   g1.addNode("E");
   g1.addNode("F");
   expect(isKayakPaddleGraph(g1)).toBe(false);
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","A");
-  g1.addEdge("D","E");
-  g1.addEdge("E","F");
-  g1.addEdge("D","F");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "A");
+  g1.addEdge("D", "E");
+  g1.addEdge("E", "F");
+  g1.addEdge("D", "F");
   expect(isKayakPaddleGraph(g1)).toBe(false);
-  g1.addEdge("A","D");
+  g1.addEdge("A", "D");
   expect(isKayakPaddleGraph(g1)).toBe(true);
 });
 
@@ -529,14 +614,11 @@ test("isButterflyGraph", () => {
   g1.addNode("D");
   g1.addNode("E");
   expect(isButterflyGraph(g1)).toBe(false);
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("C","A");
-  g1.addEdge("C","D");
-  g1.addEdge("D","E");
-  g1.addEdge("E","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("C", "A");
+  g1.addEdge("C", "D");
+  g1.addEdge("D", "E");
+  g1.addEdge("E", "C");
   expect(isButterflyGraph(g1)).toBe(true);
 });
-
-
-

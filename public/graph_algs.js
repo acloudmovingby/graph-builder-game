@@ -58,7 +58,7 @@ class Graph {
     this.nodeCount = 0;
     this.edgeCount = 0;
     this.directedEdgeCount = 0;
-    this.labels = new Map(); // maps "labels" to their indices in the adjacency list. The labels are the values stored in each node as given by the user in addNode
+    this.labels = new Map(); // maps labels to their indices in the adjacency list. The labels are the values stored in each node as given by the user in addNode
   }
 
   addNode(nodeValue) {
@@ -76,7 +76,6 @@ class Graph {
       let index1 = this.labels.get(nodeValue1);
       let index2 = this.labels.get(nodeValue2);
       let addedEdge = false;
-
       if (!this.adjList[index1].includes(index2)) {
         this.adjList[index1].push(index2);
         addedEdge = true;
@@ -86,7 +85,6 @@ class Graph {
         this.adjList[index2].push(index1);
         addedEdge = true;
       }
-
       if (addedEdge) {
         this.edgeCount++;
         this.directedEdgeCount += 2;
