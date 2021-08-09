@@ -170,7 +170,7 @@ function draw() {
     }
 
     // draw edges
-    let edges = getEdges(nodes);
+    let edges = graph.getEdges();
     edges.forEach((e) => {
       ctx.beginPath();
       ctx.lineWidth = 8;
@@ -440,31 +440,6 @@ function setCommentary(nodes) {
   }
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
-}
-
-function convertToAdjList(nodes) {
-  let adjList = [];
-  for (let i = 0; i < nodes.length; i++) {
-    adjList.push([]);
-    for (let j = 0; j < nodes[i].neighbors.length; j++) {
-      adjList[i].push(nodes[i].neighbors[j].index);
-    }
-  }
-  return adjList;
-}
-
-function getEdges(nodes) {
-  let edges = [];
-  let marked = new Set();
-  for (let i = 0; i < nodes.length; i++) {
-    marked.add(nodes[i]);
-    for (let j = 0; j < nodes[i].neighbors.length; j++) {
-      if (!marked.has(nodes[i].neighbors[j])) {
-        edges.push([nodes[i], nodes[i].neighbors[j]]);
-      }
-    }
-  }
-  return edges;
 }
 
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary

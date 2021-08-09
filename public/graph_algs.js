@@ -58,12 +58,14 @@ class Graph {
     this.nodeCount = 0;
     this.edgeCount = 0;
     this.directedEdgeCount = 0;
-    this.nodeValues = new Map(); // maps the values stored in the nodes (the "labels") to their indices in the adjacency list. 
+    this.nodeValues = new Map(); // maps the values stored in the nodes (the "labels") to their indices in the adjacency list.
+    this.indices = new Map();
   }
 
   addNode(nodeValue) {
     this.adjList.push([]);
     this.nodeValues.set(nodeValue, this.adjList.length - 1);
+    this.indices.set(this.adjList.length - 1, nodeValue);
     this.nodeCount++;
   }
 
@@ -90,7 +92,6 @@ class Graph {
         this.directedEdgeCount += 2;
       }
     }
-    
   }
 
   // returns adjacency list as just indices (the pure structure of the graph without the values it stores)
@@ -98,8 +99,30 @@ class Graph {
     return this.adjList;
   }
 
+  // returns iterator
   getNodeValues() {
     return this.nodeValues.keys();
+  }
+
+  // won't work for self-edges. (if that ever gets added...)
+  getEdges() {
+    let edges = this.getEdgeIndices();
+    return edges.map((e) => [this.indices.get(e[0]),this.indices.get(e[1])]);
+  }
+
+  getEdgeIndices() {
+    let marked = Array.from({ length: this.nodeCount }).map((x) => false);
+    let edges = [];
+    for (let i = 0; i < this.adjList.length; i++) {
+      marked[i] = true;
+      for (let j = 0; j < this.adjList[i].length; j++) {
+        let targetIndex = this.adjList[i][j];
+        if (!marked[targetIndex]) {
+          edges.push([i, this.adjList[i][j]]);
+        }
+      }
+    }
+    return edges;
   }
 }
 
@@ -125,7 +148,8 @@ function isOnlyCycles(graph) {
   return (
     graph.nodeCount >= 3 &&
     graph.nodeCount === graph.edgeCount &&
-    graph.nodeCount === graph.getAdjList().filter((node) => node.length === 2).length
+    graph.nodeCount ===
+      graph.getAdjList().filter((node) => node.length === 2).length
   );
 }
 
@@ -169,39 +193,40 @@ function starGraphChecker(n) {
     return (
       graph.nodeCount === n &&
       graph.getAdjList().some((x) => x.length === n - 1) &&
-      graph.getAdjList().filter((x) => x.length === 1).length === graph.nodeCount - 1
+      graph.getAdjList().filter((x) => x.length === 1).length ===
+        graph.nodeCount - 1
     );
   };
 }
 
 function isKayakPaddleGraph(graph) {
-    if (graph.nodeCount != 6) {
-      return false;
-    }
-    let kpg = [
-      [1, 2],
-      [2, 0],
-      [3, 1, 0],
-      [4, 5, 2],
-      [3, 5],
-      [3, 4],
-    ];
-    return isomorphism(kpg, graph.getAdjList(graph));
+  if (graph.nodeCount != 6) {
+    return false;
+  }
+  let kpg = [
+    [1, 2],
+    [2, 0],
+    [3, 1, 0],
+    [4, 5, 2],
+    [3, 5],
+    [3, 4],
+  ];
+  return isomorphism(kpg, graph.getAdjList(graph));
 }
 
 function isButterflyGraph(graph) {
-    if (graph.nodeCount != 5) {
-      return false;
-    } else {
-      let bfg = [
-        [1, 2],
-        [2, 0],
-        [3, 4, 1, 0],
-        [2, 4],
-        [3, 2],
-      ];
-      return isomorphism(bfg, graph.getAdjList());
-    }
+  if (graph.nodeCount != 5) {
+    return false;
+  } else {
+    let bfg = [
+      [1, 2],
+      [2, 0],
+      [3, 4, 1, 0],
+      [2, 4],
+      [3, 2],
+    ];
+    return isomorphism(bfg, graph.getAdjList());
+  }
 }
 
 exports.checkEdges = checkEdges;
@@ -209,10 +234,8 @@ exports.isomorphism = isomorphism;
 exports.Graph = Graph;
 exports.isComplete = isComplete;
 exports.completeGraphChecker = completeGraphChecker;
-exports.cycleGraphChecker = cycleGraphChecker; 
+exports.cycleGraphChecker = cycleGraphChecker;
 exports.isPaw = isPaw;
 exports.starGraphChecker = starGraphChecker;
 exports.isKayakPaddleGraph = isKayakPaddleGraph;
 exports.isButterflyGraph = isButterflyGraph;
-
-

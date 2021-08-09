@@ -622,3 +622,16 @@ test("isButterflyGraph", () => {
   g1.addEdge("E", "C");
   expect(isButterflyGraph(g1)).toBe(true);
 });
+
+test("getEdges", () => {
+  let g1 = new Graph();
+  expect(g1.getEdges().length).toBe(0);
+  g1.addNode("A");
+  g1.addNode("B");
+  expect(g1.getEdges().length).toBe(0);
+  g1.addEdge("A", "B");
+  expect(g1.getEdges().length).toBe(1);
+  g1.addNode("C");
+  g1.addEdge("A", "C");
+  expect(g1.getEdges().length).toBe(2);
+});
