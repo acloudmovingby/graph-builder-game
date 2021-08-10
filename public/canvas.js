@@ -1,4 +1,5 @@
 let canvas = document.getElementById("canvas");
+let eggsHtml = document.querySelectorAll(".egg");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
 let graph = new Graph();
 let edgeMode = false;
@@ -10,7 +11,6 @@ let stillInNode = false; // true if mouse is still inside node bounds for a node
 let clearButtonHover = false;
 let curNode = null;
 
-
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
@@ -20,6 +20,16 @@ if (canvas.getContext) {
   canvas.addEventListener("mouseleave", mouseLeave, false);
   window.requestAnimationFrame(draw);
 }
+
+if (eggsHtml) {
+  for (let i=0; i<eggsHtml.length; i++) {
+    let id = eggsHtml[i].id;
+    console.log("egg: " + eggsHtml[i].id);
+    eggsHtml[i].addEventListener("mouseenter", () => {console.log(id)}, false);
+  }
+}
+
+
 
 const easterEggState = {
   visible: false,
