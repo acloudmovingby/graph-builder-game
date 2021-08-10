@@ -9,6 +9,7 @@ let mouseY = 0;
 let nodeHover = null;
 let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
+
 let curNode = null;
 
 const timeInit = new Date().getSeconds();
@@ -25,11 +26,18 @@ if (eggsHtml) {
   for (let i=0; i<eggsHtml.length; i++) {
     let id = eggsHtml[i].id;
     console.log("egg: " + eggsHtml[i].id);
-    eggsHtml[i].addEventListener("mouseenter", () => {console.log(id)}, false);
+    eggsHtml[i].addEventListener("mouseenter", (event) => {
+      let eggInfoElement = document.getElementById("egg-info");
+      eggInfoElement.style.visibility = "visible";
+      eggInfoElement.style.left = `${event.x - eggInfoElement.offsetWidth}px`;
+      eggInfoElement.style.top = `${event.y}px`;
+    }, false);
+    eggsHtml[i].addEventListener("mouseleave", (event) => {
+      let eggInfoElement = document.getElementById("egg-info");
+      eggInfoElement.style.visibility = "hidden";
+    }, false);
   }
 }
-
-
 
 const easterEggState = {
   visible: false,
