@@ -169,11 +169,12 @@ p,
 }
 
 .egg-info-text {
-  width: 200px;
+  width: 250px;
 }
 
 .egg-info-img {
   align-self: center;
+  margin-left: 14px;
   width:100px;
   height: 100px;
   background-color: grey;

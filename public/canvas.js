@@ -15,40 +15,6 @@ let curNode = null;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
-if (canvas.getContext) {
-  canvas.addEventListener("mousedown", canvasClick, false);
-  canvas.addEventListener("mousemove", mouseMove, false);
-  canvas.addEventListener("mouseleave", mouseLeave, false);
-  window.requestAnimationFrame(draw);
-}
-
-if (eggsHtml) {
-  for (let i = 0; i < eggsHtml.length; i++) {
-    let id = eggsHtml[i].id;
-    console.log("egg: " + eggsHtml[i].id);
-    eggsHtml[i].addEventListener(
-      "mouseenter",
-      (event) => {
-        let eggInfoElement = document.getElementById("egg-info-pane");
-        eggInfoElement.style.visibility = "visible";
-        eggInfoElement.style.left = `${event.x - eggInfoElement.offsetWidth}px`;
-        eggInfoElement.style.top = `${event.y}px`;
-        let commentary = easterEggState.eggs.find((egg) => egg.id ===eggsHtml[i].id).commentary;
-        document.getElementById("egg-description").innerHTML = commentary;
-      },
-      false
-    );
-    eggsHtml[i].addEventListener(
-      "mouseleave",
-      (event) => {
-        let eggInfoElement = document.getElementById("egg-info-pane");
-        eggInfoElement.style.visibility = "hidden";
-      },
-      false
-    );
-  }
-}
-
 const easterEggState = {
   visible: false,
   eggs: [
@@ -56,91 +22,128 @@ const easterEggState = {
       "K3",
       "K3",
       completeGraphChecker(3),
-      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!"
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!",
+      "The complete graph K3 has 3 nodes and 3 edges.",
+      "Complete Graph K3"
     ),
     new Egg(
       "K4",
       "K4",
       completeGraphChecker(4),
-      "Wow! A complete graph!! This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already."
+      "Wow! A complete graph!! This one's called K4. It forms the edge set of a tetrahedron, but you probably knew that already.",
+      "The complete graph K4 has 4 nodes and 6 edges.",
+      "Complete Graph K4"
     ),
     new Egg(
       "K5",
       "K5",
       completeGraphChecker(5),
-      "From wikipedia: 'The nonplanar complete graph K5 plays a key role in the characterizations of planar graphs: by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3 as a subdivision, and by Wagner's theorem the same result holds for graph minors in place of subdivisions.'...Thanks wikipedia!..."
+      "From wikipedia: 'by Kuratowski's theorem, a graph is planar if and only if it contains neither K5 nor the complete bipartite graph K3,3.",
+      "The complete graph K5 has 5 nodes and 10 edges. It looks like a pentagram.",
+      "Complete Graph K5"
     ),
     new Egg(
       "K6",
       "K6",
       completeGraphChecker(6),
-      "Wow! A complete graph!! This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'."
+      "Wow! A complete graph!! This one's called K6. This beautiful graph, arranged on a hexagon, has appeared in many places across the world. Such a drawing is called a 'mystic rose'.",
+      "The complete graph K6 has 6 nodes and 15 edges. It has appeared in art throughout the world.",
+      "Complete Graph K6"
     ),
     new Egg(
       "C3",
       "C3",
       cycleGraphChecker(3),
-      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!"
+      "You made a triangle! This is also a complete graph (K3) and a cycle graph (C3)!",
+      "The cycle graph C3 has 3 nodes and 3 edges. It's the same as the complete graph K3.",
+      "Cycle Graph C3"
     ),
     new Egg(
       "C4",
       "C4",
       cycleGraphChecker(4),
-      "You've made C4, the cycle graph with 4 nodes! Well done!"
+      "You've made C4, the cycle graph with 4 nodes! Well done!",
+      "The cycle graph C4 has 4 nodes and 4 edges",
+      "Cycle Graph C4"
     ),
     new Egg(
       "C5",
       "C5",
       cycleGraphChecker(5),
-      "Ah! Cycle graph C5! An excellent choice!"
+      "Ah! Cycle graph C5! An excellent choice!",
+      "The cycle graph C5 has 5 nodes and 5 edges.",
+      "Cycle Graph C5"
     ),
     new Egg(
       "C6",
       "C6",
       cycleGraphChecker(6),
-      "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know."
+      "C6. Beautiful. It's like 6 people holding hands in a circle. Maybe they're casting a spell or something, I don't know.",
+      "The cycle graph C6 has 6 nodes and 6 edges.",
+      "Cycle Graph C6"
     ),
-    new Egg("paw", "🐾", isPaw, "Rawr! I'm a paw graph!"),
+    new Egg(
+      "paw",
+      "🐾",
+      isPaw,
+      "Rawr! I'm a paw graph!",
+      "The paw graph has 4 nodes and 4 edges.",
+      "The Paw Graph"
+    ),
     new Egg(
       "claw",
       "S3",
       starGraphChecker(4),
-      "This is the star graph S3, also known as the 'claw' graph. Note that in graph theory notation, the n in Sn refers to the number of spokes around the center. The total number of nodes, including the center is, is n+1. Graphs without the claw as a subgraph are known as 'claw-free graphs'."
+      "This is the star graph S3, also known as the 'claw' graph. Note that in graph theory notation, the n in Sn refers to the number of spokes around the center. The total number of nodes, including the center is, is n+1. Graphs without the claw as a subgraph are known as 'claw-free graphs'.",
+      "The 'claw' graph has 4 nodes and 3 edges. It is the star graph S3.",
+      "Star Graph S3"
     ),
     new Egg(
       "S4",
       "S4",
       starGraphChecker(5),
-      "Star graph S4! Star graphs are technically a special kind of tree. Stars are special kind of tree? Math is silly."
+      "Star graph S4! Star graphs are technically a special kind of tree. Stars are special kind of tree? Math is silly.",
+      "The star graph S4 has 5 nodes and 4 edges.",
+      "Star Graph S4"
     ),
     new Egg(
       "S5",
       "S5",
       starGraphChecker(6),
-      "Star graph S5! According to wikipedia, the star network, a computer network modeled after the star graph, is important in distributed computing."
+      "Star graph S5! According to wikipedia, the star network, a computer network modeled after the star graph, is important in distributed computing.",
+      "The star graph S5 has 6 nodes and 5 edges.",
+      "Star Graph S5"
     ),
     new Egg(
       "kayak",
       "🛶",
       isKayakPaddleGraph,
-      "This one's called the kayak paddle graph. I swear, I'm not making this up."
+      "This one's called the kayak paddle graph. I swear, I'm not making this up.",
+      "The kayak paddle graph has 6 nodes and 7 edges.",
+      "Kayak Paddle Graph"
     ),
     new Egg(
       "butterfly",
       "🦋",
       isButterflyGraph,
-      "The butterfly graph! Also known as the bowtie graph or the friendship graph, F2. An all around high-quality graph!"
+      "The butterfly graph! Also known as the bowtie graph or the friendship graph, F2. An all around high-quality graph!",
+      "The butterfly graph has 5 nodes and 6 edges. It's also known as the bowtie graph and the friendship graph F2.",
+      "Butterfly Graph"
     ),
   ],
 };
 
-function Egg(id, symbol, isSubGraphOf, commentary) {
+function Egg(id, symbol, isSubGraphOf, commentary, description, title) {
   this.discovered = false;
   this.id = id;
   this.symbol = symbol;
   this.isSubGraphOf = isSubGraphOf; // function that takes nodes as argument and returns boolean
   this.commentary = commentary ?? "default comment";
+  this.description = description ?? "";
+  this.title = title;
 }
+
+
 
 function refreshEasterEggs() {
   if (easterEggState.visible) {
@@ -158,6 +161,46 @@ function refreshEasterEggs() {
         htmlEgg.innerHTML = egg.discovered ? egg.symbol : "?";
       }
     });
+  }
+}
+
+if (canvas.getContext) {
+  canvas.addEventListener("mousedown", canvasClick, false);
+  canvas.addEventListener("mousemove", mouseMove, false);
+  canvas.addEventListener("mouseleave", mouseLeave, false);
+  window.requestAnimationFrame(draw);
+}
+
+if (eggsHtml) {
+  for (let i = 0; i < eggsHtml.length; i++) {
+    eggsHtml[i].addEventListener(
+      "mouseenter",
+      (event) => {
+        let egg = easterEggState.eggs.find((egg) => egg.id === eggsHtml[i].id);
+        if (egg) {
+          let eggInfoElement = document.getElementById("egg-info-pane");
+          eggInfoElement.style.visibility = "visible";
+          eggInfoElement.style.left = `${
+            event.x - eggInfoElement.offsetWidth
+          }px`;
+          eggInfoElement.style.top = `${event.y}px`;
+          document.getElementById("egg-description").innerHTML = egg.discovered
+            ? egg.description
+            : "...not yet discovered...";
+          document.getElementById("egg-header").innerHTML =
+            egg.discovered ? egg.title : "???";
+        }
+      },
+      false
+    );
+    eggsHtml[i].addEventListener(
+      "mouseleave",
+      (event) => {
+        let eggInfoElement = document.getElementById("egg-info-pane");
+        eggInfoElement.style.visibility = "hidden";
+      },
+      false
+    );
   }
 }
 
