@@ -8,14 +8,12 @@
     <title>Document</title>
   </head>
   <body>
-    
     <div class="container">
       <canvas id="canvas"> </canvas>
       <div class="info-panel">
-        
         <div id="easter-eggs" class="info-section">
           <div id="egg-slider">
-            <p class="header eggs-header">Easter Eggs 🐇 🎀 🎗️ </p>
+            <p class="header eggs-header">Easter Eggs 🐇 🎀 🎗️</p>
             <p class="note">(note: it's okay to clear the graph)</p>
             <div class="info-area">
               <p id="K3" class="egg">K3</p>
@@ -51,22 +49,22 @@
             <p id="edge-count">0</p>
           </div>
         </div>
-
-        <!--<div class="info-section">
-          <p class="header">Adjacency List</p>
-          <div class="info-area">
-            <ul id="adjacency-list"></ul>
-          </div>
-        </div> -->
         <div class="info-section bottom">
           <p id="commentary"></p>
         </div>
-        
       </div>
     </div>
-    <div id="egg-info"></div>
+    <div id="egg-info-pane">
+      <div class="egg-info-text">
+        <p class="header">Graph Title</p>
+        <p id="egg-description">This is a bunch of info about this particular graph.</p>
+      </div>
+      <div class="egg-info-img"></div>
+    </div>
   </body>
-  <script>exports={}</script>
+  <script>
+    exports = {};
+  </script>
   <script src="graph_algs.js"></script>
   <script src="canvas.js"></script>
 </html>

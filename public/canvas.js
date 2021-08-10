@@ -23,19 +23,29 @@ if (canvas.getContext) {
 }
 
 if (eggsHtml) {
-  for (let i=0; i<eggsHtml.length; i++) {
+  for (let i = 0; i < eggsHtml.length; i++) {
     let id = eggsHtml[i].id;
     console.log("egg: " + eggsHtml[i].id);
-    eggsHtml[i].addEventListener("mouseenter", (event) => {
-      let eggInfoElement = document.getElementById("egg-info");
-      eggInfoElement.style.visibility = "visible";
-      eggInfoElement.style.left = `${event.x - eggInfoElement.offsetWidth}px`;
-      eggInfoElement.style.top = `${event.y}px`;
-    }, false);
-    eggsHtml[i].addEventListener("mouseleave", (event) => {
-      let eggInfoElement = document.getElementById("egg-info");
-      eggInfoElement.style.visibility = "hidden";
-    }, false);
+    eggsHtml[i].addEventListener(
+      "mouseenter",
+      (event) => {
+        let eggInfoElement = document.getElementById("egg-info-pane");
+        eggInfoElement.style.visibility = "visible";
+        eggInfoElement.style.left = `${event.x - eggInfoElement.offsetWidth}px`;
+        eggInfoElement.style.top = `${event.y}px`;
+        let commentary = easterEggState.eggs.find((egg) => egg.id ===eggsHtml[i].id).commentary;
+        document.getElementById("egg-description").innerHTML = commentary;
+      },
+      false
+    );
+    eggsHtml[i].addEventListener(
+      "mouseleave",
+      (event) => {
+        let eggInfoElement = document.getElementById("egg-info-pane");
+        eggInfoElement.style.visibility = "hidden";
+      },
+      false
+    );
   }
 }
 
@@ -299,11 +309,11 @@ function canvasClick(event) {
     if (!edgeStart.neighbors.includes(nodeClicked)) {
       edgeStart.neighbors.push(nodeClicked);
       nodeClicked.neighbors.push(edgeStart);
-      graph.addEdge(edgeStart,nodeClicked);
-      
+      graph.addEdge(edgeStart, nodeClicked);
+
       edgeStart = nodeClicked;
       curNode = nodeClicked;
-      
+
       document.getElementById("edge-count").innerHTML = graph.edgeCount;
       setCommentary(graph);
     }
@@ -353,7 +363,7 @@ function mouseMove(event) {
 }
 
 function setCommentary(graph) {
-  let connected = getConnectedComponent(curNode,graph);
+  let connected = getConnectedComponent(curNode, graph);
 
   let egg = easterEggState.eggs.find((egg) => {
     return egg.isSubGraphOf(connected);
@@ -388,12 +398,24 @@ function setCommentary(graph) {
   } else if (connected.nodeCount === 3 && connected.edgeCount === 2) {
     commentary =
       "This graph is called S2, a star graph. It's a bit boring. You can do better.";
-  } else if (graph.nodeCount < 6 && graph.nodeCount > 2 && graph.edgeCount === 0) {
+  } else if (
+    graph.nodeCount < 6 &&
+    graph.nodeCount > 2 &&
+    graph.edgeCount === 0
+  ) {
     commentary = "Yo get some edges in there. Things be lookin sparse.";
-  } else if (graph.nodeCount >= 6 && graph.nodeCount < 15 && graph.edgeCount === 0) {
+  } else if (
+    graph.nodeCount >= 6 &&
+    graph.nodeCount < 15 &&
+    graph.edgeCount === 0
+  ) {
     commentary =
       "So...to make an edge click on a node and then, without dragging, click on another node.";
-  } else if (graph.nodeCount > 3 && graph.nodeCount < 15 && graph.edgeCount < 3) {
+  } else if (
+    graph.nodeCount > 3 &&
+    graph.nodeCount < 15 &&
+    graph.edgeCount < 3
+  ) {
     commentary = "Still pretty sparse";
   } else if (connected.nodeCount === 4 && connected.edgeCount === 3) {
     commentary = "Try making a cycle.";
@@ -405,7 +427,10 @@ function setCommentary(graph) {
     commentary = isCycle
       ? "Cool cycle graph!"
       : "You got a couple of cycle graphs goin on.";
-  } else if (connected.nodeCount + 1 === graph.nodeCount && graph.nodeCount > 6) {
+  } else if (
+    connected.nodeCount + 1 === graph.nodeCount &&
+    graph.nodeCount > 6
+  ) {
     commentary = "So close...";
   } else if (connected.nodeCount === graph.nodeCount && graph.nodeCount > 6) {
     commentary = "Feelin connected!!";
@@ -432,5 +457,3 @@ function setCommentary(graph) {
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
 }
-
-
