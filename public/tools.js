@@ -347,8 +347,6 @@ function refreshAdjListHtml(graph) {
 }
 
 function setCommentary() {
-  // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
-
   let commentary = "Nice graph!";
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
@@ -373,11 +371,9 @@ function inside(point, vs) {
       yi = vs[i][1];
     let xj = vs[j][0],
       yj = vs[j][1];
-
     let intersect =
       yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
-
   return inside;
 }
