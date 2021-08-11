@@ -9,7 +9,7 @@ There are other tools out there on the internet to build graphs, but many felt c
 
 I gave a little bounce to the nodes, but the real goal was to be able to make nodes with a single click--and pepper the screen with them quickly if I wanted to.
 
-![Basic use tool](screenshots/basic-use-many-nodes-1.gif)
+![Basic use tool](screenshots/basic-use-4.gif)
 
 I quickly realized that when building graphs, myself and others who used the program often found it more intutitive to build the edges in sequentially as a path, rather than repeatedly adding edges radiating out from a point. Of course, which method is faster depends on the structure of the graph.
 
