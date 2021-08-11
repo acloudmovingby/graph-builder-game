@@ -1,6 +1,18 @@
+import {
+  Graph,
+  isComplete,
+  completeGraphChecker,
+  cycleGraphChecker,
+  isPaw,
+  starGraphChecker,
+  isKayakPaddleGraph,
+  isButterflyGraph,
+  getConnectedComponent,
+} from "./graph_algs.js";
+
 let canvas = document.getElementById("canvas");
 let eggsHtml = document.querySelectorAll(".egg");
-const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
+const infoPaneWidth = 300; // TODO: don't set constant here, but get width from computed width of info pane 
 let graph = new Graph();
 let edgeMode = false;
 let edgeStart = null;
@@ -142,8 +154,6 @@ function Egg(id, symbol, isSubGraphOf, commentary, description, title) {
   this.description = description ?? "";
   this.title = title;
 }
-
-
 
 function refreshEasterEggs() {
   if (easterEggState.visible) {
@@ -350,7 +360,7 @@ function canvasClick(event) {
   } else if (nodeClicked && nodeClicked != edgeStart) {
     // add edge
     if (!edgeStart.neighbors.includes(nodeClicked)) {
-      edgeStart.neighbors.push(nodeClicked);
+      edgeStart.neighbors.push(nodeClicked);//TODO get rid of neighbors entirely
       nodeClicked.neighbors.push(edgeStart);
       graph.addEdge(edgeStart, nodeClicked);
 
@@ -491,9 +501,9 @@ function setCommentary(graph) {
     commentary = "Is your finger tired?";
   } else if (graph.nodeCount >= 30) {
     commentary = "Make the screen blue with nodes for all I care...";
-  } else if (graph.nodeCount >= 20) {
+  } else if (graph.nodeCount >= 25) {
     commentary =
-      "That's a lot of nodes. Are you trying to break my program? 😈 Try your best, I dare you.";
+      "That's a lot of nodes. Are you trying to break my program? 😈 Try your best...";
   } else if (graph.nodeCount >= 15) {
     commentary = "You're adding a lot of nodes.";
   }

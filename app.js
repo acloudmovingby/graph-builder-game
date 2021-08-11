@@ -11,3 +11,7 @@ app.listen(process.env.PORT || "3000", function () {
 app.get("/", function (req, res) {
   res.sendFile("index.html");
 });
+
+app.get("/tools", function (req, res) {
+  res.sendFile(__dirname + "/public/tools.html");
+});

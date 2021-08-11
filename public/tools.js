@@ -1,9 +1,12 @@
+import {
+  Graph
+} from "./graph_algs.js";
+
 let canvas = document.getElementById("canvas");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
-let nodes = [];
+let graph = new Graph();
 let edgeMode = false;
 let edgeStart = null;
-let edgeCount = 0;
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -26,8 +29,16 @@ let drawPoints = []; // points for selection area of area complete tool
 let basicTool = document.getElementById("basic");
 let areaCompleteTool = document.getElementById("area-complete");
 if (basicTool && areaCompleteTool) {
-  areaCompleteTool.addEventListener("click", () => setToolMode(toolModes.AREACOMPLETE), false);
-  basicTool.addEventListener("click", () => setToolMode(toolModes.BASIC), false);
+  areaCompleteTool.addEventListener(
+    "click",
+    () => setToolMode(toolModes.AREACOMPLETE),
+    false
+  );
+  basicTool.addEventListener(
+    "click",
+    () => setToolMode(toolModes.BASIC),
+    false
+  );
 }
 
 function setToolMode(toolMode) {
@@ -62,7 +73,7 @@ function draw() {
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
     // start message
-    if (nodes.length === 0) {
+    if (graph.nodeCount === 0) {
       ctx.font = "25px Arial";
       ctx.fillStyle = "gray";
       ctx.textAlign = "center";
@@ -91,7 +102,7 @@ function draw() {
     }
 
     // draw edges
-    let edges = getEdges(nodes);
+    let edges = graph.getEdges();
     edges.forEach((e) => {
       ctx.beginPath();
       ctx.lineWidth = 8;
@@ -103,6 +114,7 @@ function draw() {
     });
 
     // draw nodes
+    let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
       ctx.beginPath();
       ctx.lineWidth = 8;
@@ -167,8 +179,7 @@ function draw() {
 }
 
 // for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in one object.
-function Node(index, counter, x, y) {
-  this.index = index;
+function NodeData(counter, x, y) {
   this.counter = counter;
   this.x = x;
   this.y = y;
@@ -177,12 +188,12 @@ function Node(index, counter, x, y) {
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
 function nodeAtPoint(x, y, nodes) {
-  for (let i = 0; i < nodes.length; i++) {
-    let dx = x - nodes[i].x;
-    let dy = y - nodes[i].y;
+  for (const node of nodes) {
+    let dx = x - node.x;
+    let dy = y - node.y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     if (distFromCent < nodeRadius * 2) {
-      return nodes[i];
+      return node;
     }
   }
   return null;
@@ -204,48 +215,27 @@ function canvasClick(event) {
     return;
   }
 
-  let nodeClicked = nodeAtPoint(x, y, nodes);
+  let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
 
   if (!edgeMode && !nodeClicked) {
     // create new Node
-    nodes.push(new Node(nodes.length, 0, x, y));
-    let node = document.createElement("LI");
-    node.appendChild(document.createTextNode(nodes.length - 1 + ": "));
-    document.getElementById("adjacency-list").appendChild(node);
+    let newNode = new NodeData(0, x, y);
+    graph.addNode(newNode);
     stillInNode = true;
-    document.getElementById("node-count").innerHTML = nodes.length;
-    setCommentary();
+    setCommentary(graph);
+    refreshGraphInfoHtml(graph);
+    refreshAdjListHtml(graph);
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
     edgeStart = nodeClicked;
   } else if (nodeClicked && nodeClicked != edgeStart) {
-    if (!edgeStart.neighbors.includes(nodeClicked)) {
-      edgeStart.neighbors.push(nodeClicked);
-      nodeClicked.neighbors.push(edgeStart);
-
-      edgeCount++;
-      document.getElementById("edge-count").innerHTML = edgeCount;
-      setCommentary();
-      let adjList = document.getElementById("adjacency-list");
-      if (adjList && adjList.hasChildNodes()) {
-        let items = adjList.childNodes;
-        let startIx = 0;
-        let clickedIx = 0;
-        for (let i = 0; i < nodes.length; i++) {
-          if (nodes[i] === edgeStart) {
-            startIx = i;
-          }
-          if (nodes[i] === nodeClicked) {
-            clickedIx = i;
-          }
-        }
-        items[startIx].appendChild(document.createTextNode(" " + clickedIx));
-        items[clickedIx].appendChild(document.createTextNode(" " + startIx));
-      }
-      edgeStart = nodeClicked;
-    }
+    // add edge
+    graph.addEdge(edgeStart, nodeClicked);
     edgeStart = nodeClicked;
+    setCommentary(graph);
+    refreshGraphInfoHtml(graph);
+    refreshAdjListHtml(graph);
   } else {
     // cancel edge mode
     edgeMode = false;
@@ -254,17 +244,14 @@ function canvasClick(event) {
 }
 
 function clearGraph() {
-  nodes = [];
+  graph = new Graph();
   edgeMode = false;
   edgeStart = null;
-  edgeCount = 0;
-  edgeCount = 0;
   nodeHover = null;
   stillInNode = false;
 
-  document.getElementById("node-count").innerHTML = nodes.length;
-  document.getElementById("edge-count").innerHTML = edgeCount;
-  document.getElementById("adjacency-list").innerHTML = "";
+  refreshGraphInfoHtml(graph);
+  refreshAdjListHtml(graph);
   setCommentary();
 }
 
@@ -278,7 +265,7 @@ function mouseMove(event) {
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
 
-  nodeHover = nodeAtPoint(mouseX, mouseY, nodes);
+  nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
   if (!nodeHover) {
     stillInNode = false;
   }
@@ -300,13 +287,16 @@ function mouseMove(event) {
 function mouseUp() {
   let selectionArea = drawPoints.map((pt) => [pt.x, pt.y]);
 
-  let selected = nodes.filter((n) => {
+  let selected = Array.from(graph.getNodeValues()).filter((n) => {
     let pt = [n.x, n.y];
     return inside(pt, selectionArea);
   });
   for (let i = 0; i < selected.length; i++) {
     for (let j = 0; j < selected.length; j++) {
-      addEdgeEfficient(selected[i], selected[j]);
+      if (i!=j) {
+        // don't allow self edges
+        graph.addEdge(selected[i], selected[j]);
+      }
     }
   }
 
@@ -315,6 +305,8 @@ function mouseUp() {
   }
 
   setCommentary();
+  refreshGraphInfoHtml(graph);
+  refreshAdjListHtml(graph);
   isDrawing = false;
   drawPoints = [];
 }
@@ -331,123 +323,35 @@ function keyUp(event) {
   }
 }
 
+function refreshGraphInfoHtml(graph) {
+  document.getElementById("node-count").innerHTML = graph.nodeCount;
+  document.getElementById("edge-count").innerHTML = graph.edgeCount;
+}
+
+function refreshAdjListHtml(graph) {
+  let adjListElem = document.getElementById("adjacency-list");
+    if (adjListElem) {
+      let graphAdj = graph.getAdjList();
+      adjListElem.innerHTML = '';
+      for (let i = 0; i < graphAdj.length; i++) {
+        var node=document.createElement("LI");
+        var textnode=document.createTextNode(i + ":");
+        node.appendChild(textnode);
+        for (let j=0; j<graphAdj[i].length; j++) {
+          node.appendChild(document.createTextNode(" " + graphAdj[i][j]));
+        }
+        adjListElem.appendChild(node);
+
+      }
+    }
+}
+
 function setCommentary() {
   // number of nodes with at least 1 edge (often it's useful to ignore isolate nodes)
-  let numConnected = nodes.filter((x) => x.neighbors.length > 0).length;
 
-  let commentary = "Nice graph!"; 
+  let commentary = "Nice graph!";
   document.getElementById("commentary").innerHTML =
     "&#34;" + commentary + "&#34;";
-}
-
-function convertToAdjList(nodes) {
-  let adjList = [];
-  for (let i = 0; i < nodes.length; i++) {
-    adjList.push([]);
-    for (let j = 0; j < nodes[i].neighbors.length; j++) {
-      adjList[i].push(nodes[i].neighbors[j].index);
-    }
-  }
-  return adjList;
-}
-
-function addEdge(source, target) {
-  addEdgeEfficient(source, target);
-  setCommentary();
-}
-
-function getEdges(nodes) {
-  let edges = [];
-  let marked = new Set();
-  for (let i = 0; i < nodes.length; i++) {
-    marked.add(nodes[i]);
-    for (let j = 0; j < nodes[i].neighbors.length; j++) {
-      if (!marked.has(nodes[i].neighbors[j])) {
-        edges.push([nodes[i], nodes[i].neighbors[j]]);
-      }
-    }
-  }
-  return edges;
-}
-
-function addEdgeEfficient(source, target) {
-  if (target !== source && !source.neighbors.includes(target)) {
-    source.neighbors.push(target);
-    target.neighbors.push(source);
-    source = target;
-    edgeCount++;
-    document.getElementById("edge-count").innerHTML = edgeCount;
-    let adjList = document.getElementById("adjacency-list");
-    if (adjList && adjList.hasChildNodes()) {
-      let items = adjList.childNodes;
-      let startIx = 0;
-      let clickedIx = 0;
-      for (let i = 0; i < nodes.length; i++) {
-        if (nodes[i] === source) {
-          startIx = i;
-        }
-        if (nodes[i] === target) {
-          clickedIx = i;
-        }
-      }
-      items[startIx].appendChild(document.createTextNode(" " + clickedIx));
-      items[clickedIx].appendChild(document.createTextNode(" " + startIx));
-    }
-  }
-}
-
-// THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
-// This is based on the algorithm(s) described in the link above.
-function isomorphism(g1, g2) {
-  if (g1.length !== g2.length) {
-    return false;
-  } else {
-    let perm = Array.from({ length: g1.length }).map((x) => -1);
-    let used = Array.from({ length: g1.length }).map((x) => false);
-    let level = g1.length - 1;
-    return bruteForce(level, used, perm, g1, g2);
-  }
-}
-
-function bruteForce(level, used, perm, g1, g2) {
-  let result = false;
-
-  if (level === -1) {
-    result = checkEdges(perm, g1, g2);
-  } else {
-    let i = 0;
-    while (i < g1.length && result === false) {
-      if (used[i] === false) {
-        used[i] = true;
-        perm[level] = i;
-        result = bruteForce(level - 1, used, perm, g1, g2);
-        used[i] = false;
-      }
-      i = i + 1;
-    }
-  }
-  return result;
-}
-
-// g1 and g2 are adjacency lists assumed to be the same length and are valid representations of bidirectional graphs
-// perm is a mapping from nodes in g1 to g2. This function checks whether this mapping is a correct isomorphism between the two graphs
-function checkEdges(perm, g1, g2) {
-  for (let i = 0; i < g1.length; i++) {
-    for (let j = 0; j < g1[i].length; j++) {
-      let g1_target = g1[i][j];
-      let g2_source = perm[i];
-      let g2_target = perm[g1_target];
-      let g2_all_targets = g2[g2_source];
-      if (!g2_all_targets.includes(g2_target)) {
-        return false;
-      }
-    }
-    if (g1[i].length !== g2[perm[i]].length) {
-      // just delete this if block and then the algorithm returns true if g1 is a subgraph of g2!
-      return false;
-    }
-  }
-  return true;
 }
 
 function Point(x, y) {

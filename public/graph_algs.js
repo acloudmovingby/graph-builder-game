@@ -69,7 +69,9 @@ class Graph {
     this.nodeCount++;
   }
 
-  // returns true only if the graph contains these nodes already and the edge didn't already exist; does NOT allow parallel edges
+  // returns true only if the graph contains these nodes already and the edge didn't already exist; 
+  // does NOT allow parallel edges (multiple edges between two nodes)
+  // does allow self edges (node connected to itself)
   addEdge(nodeValue1, nodeValue2) {
     let containsNodes =
       this.nodeValues.has(nodeValue1) && this.nodeValues.has(nodeValue2);
@@ -104,7 +106,7 @@ class Graph {
     return this.nodeValues.keys();
   }
 
-  // won't work for self-edges. (if that ever gets added...)
+  //TODO won't work for self-edges. (if that ever gets added...)
   getEdges() {
     let edges = this.getEdgeIndices();
     return edges.map((e) => [this.indices.get(e[0]), this.indices.get(e[1])]);
@@ -301,3 +303,18 @@ exports.isKayakPaddleGraph = isKayakPaddleGraph;
 exports.isButterflyGraph = isButterflyGraph;
 exports.getConnectedComponent = getConnectedComponent;
 exports.subGraph = subGraph;
+
+export {
+  checkEdges,
+  isomorphism,
+  Graph,
+  isComplete,
+  completeGraphChecker,
+  cycleGraphChecker,
+  isPaw,
+  starGraphChecker,
+  isKayakPaddleGraph,
+  isButterflyGraph,
+  getConnectedComponent,
+  subGraph
+};
