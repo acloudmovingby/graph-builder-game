@@ -1,7 +1,3 @@
-import {
-  Graph
-} from "./graph_algs.js";
-
 let canvas = document.getElementById("canvas");
 const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
 let graph = new Graph();

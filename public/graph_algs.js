@@ -304,17 +304,3 @@ exports.isButterflyGraph = isButterflyGraph;
 exports.getConnectedComponent = getConnectedComponent;
 exports.subGraph = subGraph;
 
-export {
-  checkEdges,
-  isomorphism,
-  Graph,
-  isComplete,
-  completeGraphChecker,
-  cycleGraphChecker,
-  isPaw,
-  starGraphChecker,
-  isKayakPaddleGraph,
-  isButterflyGraph,
-  getConnectedComponent,
-  subGraph
-};

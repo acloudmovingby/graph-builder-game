@@ -1,15 +1,3 @@
-import {
-  Graph,
-  isComplete,
-  completeGraphChecker,
-  cycleGraphChecker,
-  isPaw,
-  starGraphChecker,
-  isKayakPaddleGraph,
-  isButterflyGraph,
-  getConnectedComponent,
-} from "./graph_algs.js";
-
 let canvas = document.getElementById("canvas");
 let eggsHtml = document.querySelectorAll(".egg");
 const infoPaneWidth = 300; // TODO: don't set constant here, but get width from computed width of info pane 
