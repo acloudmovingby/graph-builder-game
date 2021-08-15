@@ -141,8 +141,7 @@ p,
   width: 30px;
   height: 30px;
   margin: 10px;
-  border: 1px solid #909090;
-  border-radius: 5px;
+  border: none;
 }
 
 .tool-btn:hover {
@@ -151,6 +150,16 @@ p,
 
 .tool-btn.selected {
   background-color: #32BFE3;
+}
+
+#basic {
+  background-image: url("images/pointer.svg");
+  background-repeat: no-repeat;
+}
+
+#area-complete {
+  background-image: url('images/area-complete-cursor.svg');
+  background-repeat: no-repeat;
 }
 
 .cursor-shadow {
