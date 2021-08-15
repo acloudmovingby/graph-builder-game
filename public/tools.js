@@ -221,6 +221,7 @@ function canvasClick(event) {
     setCommentary(graph);
     refreshGraphInfoHtml(graph);
     refreshAdjListHtml(graph);
+    refreshAdjMatrixHtml(graph);
   } else if (!edgeMode) {
     // start edge on the node clicked
     edgeMode = true;
@@ -232,6 +233,7 @@ function canvasClick(event) {
     setCommentary(graph);
     refreshGraphInfoHtml(graph);
     refreshAdjListHtml(graph);
+    refreshAdjMatrixHtml(graph);
   } else {
     // cancel edge mode
     edgeMode = false;
@@ -248,6 +250,7 @@ function clearGraph() {
 
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
+  refreshAdjMatrixHtml(graph);
   setCommentary();
 }
 
@@ -289,7 +292,7 @@ function mouseUp() {
   });
   for (let i = 0; i < selected.length; i++) {
     for (let j = 0; j < selected.length; j++) {
-      if (i!=j) {
+      if (i != j) {
         // don't allow self edges
         graph.addEdge(selected[i], selected[j]);
       }
@@ -303,6 +306,7 @@ function mouseUp() {
   setCommentary();
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
+  refreshAdjMatrixHtml(graph);
   isDrawing = false;
   drawPoints = [];
 }
@@ -326,20 +330,19 @@ function refreshGraphInfoHtml(graph) {
 
 function refreshAdjListHtml(graph) {
   let adjListElem = document.getElementById("adjacency-list");
-    if (adjListElem) {
-      let graphAdj = graph.getAdjList();
-      adjListElem.innerHTML = '';
-      for (let i = 0; i < graphAdj.length; i++) {
-        var node=document.createElement("LI");
-        var textnode=document.createTextNode(i + ":");
-        node.appendChild(textnode);
-        for (let j=0; j<graphAdj[i].length; j++) {
-          node.appendChild(document.createTextNode(" " + graphAdj[i][j]));
-        }
-        adjListElem.appendChild(node);
-
+  if (adjListElem) {
+    let graphAdj = graph.getAdjList();
+    adjListElem.innerHTML = "";
+    for (let i = 0; i < graphAdj.length; i++) {
+      var node = document.createElement("LI");
+      var textnode = document.createTextNode(i + ":");
+      node.appendChild(textnode);
+      for (let j = 0; j < graphAdj[i].length; j++) {
+        node.appendChild(document.createTextNode(" " + graphAdj[i][j]));
       }
+      adjListElem.appendChild(node);
     }
+  }
 }
 
 function setCommentary() {
@@ -372,4 +375,40 @@ function inside(point, vs) {
     if (intersect) inside = !inside;
   }
   return inside;
+}
+
+function refreshAdjMatrixHtml(graph) {
+  let matrixElem = document.getElementById("adj-matrix");
+  if (matrixElem && matrixElem.getContext) {
+    let totalWidth = matrixElem.offsetWidth;
+    let totalHeight = matrixElem.offsetHeight;
+    let ctx = matrixElem.getContext("2d");
+    ctx.clearRect(0, 0, totalWidth, totalHeight);
+
+    let width = totalWidth / graph.nodeCount;
+    let height = totalHeight / graph.nodeCount;
+    let adjMatrix = generateAdjacencyMatrix(graph.getAdjList());
+    for (let i = 0; i < adjMatrix.length; i++) {
+      for (let j = 0; j < adjMatrix[i].length; j++) {
+        if (adjMatrix[i][j]) {
+          ctx.fillRect(width * i, height * j, width, height);
+        }
+      }
+    }
+  }
+}
+
+// boolean 2d array; length of array is number of nodes; true means an edge exists between those nodes
+function generateAdjacencyMatrix(adjList) {
+  // initialize 2d array with false 
+  let adjMatrix = Array.from({ length: graph.nodeCount }).map((n) =>
+    Array.from({ length: graph.nodeCount }).map((x) => (x = false))
+  );
+  for (let i = 0; i < adjList.length; i++) {
+    for (let j = 0; j < adjList[i].length; j++) {
+      let targetIndex = adjList[i][j];
+      adjMatrix[i][targetIndex] = true;
+    }
+  }
+  return adjMatrix;
 }

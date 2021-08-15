@@ -183,3 +183,13 @@ p,
 .egg-info-text > .header {
   margin-top: 0rem;
 }
+
+.adj-list-area {
+  height: 120px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#adj-matrix {
+  border: 1px solid lightgray;
+}
