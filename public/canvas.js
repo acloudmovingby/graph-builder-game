@@ -187,6 +187,7 @@ if (eggsHtml) {
             : "...not yet discovered...";
           document.getElementById("egg-header").innerHTML =
             egg.discovered ? egg.title : "???";
+            document.getElementById("egg-info-img").src = egg.discovered ? `images/${egg.id}.png` : "images/blank.png";
         }
       },
       false
