@@ -141,7 +141,7 @@ p,
   width: 30px;
   height: 30px;
   margin: 10px;
-  border: none;
+  border: 1px solid lightgray;
 }
 
 .tool-btn:hover {
@@ -155,11 +155,13 @@ p,
 #basic {
   background-image: url("images/pointer.svg");
   background-repeat: no-repeat;
+  background-position: center;
 }
 
 #area-complete {
   background-image: url('images/area-complete-cursor.svg');
   background-repeat: no-repeat;
+  background-position: center;
 }
 
 .cursor-shadow {

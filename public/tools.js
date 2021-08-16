@@ -15,16 +15,20 @@ const nodeRadius = 15;
 const toolModes = {
   BASIC: "basic",
   AREACOMPLETE: "area-complete",
+  RECTSELECT: "rect-select",
 };
 let tool = toolModes.BASIC;
 canvas.style.cursor = "url('images/pointer.svg'), pointer";
 
-let isDrawing = false; // for area complete tool
+let mousePressed = false; // for area complete tool
 let drawPoints = []; // points for selection area of area complete tool
+
+let rectSelectStart = new Point(0, 0);
 
 let basicTool = document.getElementById("basic");
 let areaCompleteTool = document.getElementById("area-complete");
-if (basicTool && areaCompleteTool) {
+let rectSelectTool = document.getElementById("rect-select");
+if (basicTool && areaCompleteTool && rectSelectTool) {
   areaCompleteTool.addEventListener(
     "click",
     () => setToolMode(toolModes.AREACOMPLETE),
@@ -35,19 +39,32 @@ if (basicTool && areaCompleteTool) {
     () => setToolMode(toolModes.BASIC),
     false
   );
+  rectSelectTool.addEventListener(
+    "click",
+    () => setToolMode(toolModes.RECTSELECT),
+    false
+  );
 }
 
 function setToolMode(toolMode) {
   if (toolMode === toolModes.BASIC) {
     basicTool.className = "tool-btn selected";
     areaCompleteTool.className = "tool-btn";
+    rectSelectTool.className = "tool-btn";
     canvas.style.cursor = "url('images/pointer.svg'), pointer";
     tool = toolModes.BASIC;
-  } else {
+  } else if (toolMode === toolModes.AREACOMPLETE) {
     basicTool.className = "tool-btn";
     areaCompleteTool.className = "tool-btn selected";
+    rectSelectTool.className = "tool-btn";
     canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
     tool = toolModes.AREACOMPLETE;
+  } else {
+    basicTool.className = "tool-btn";
+    areaCompleteTool.className = "tool-btn";
+    rectSelectTool.className = "tool-btn selected";
+    canvas.style.cursor = "url('images/rect-select.svg'), pointer";
+    tool = toolModes.RECTSELECT;
   }
 }
 
@@ -156,16 +173,18 @@ function draw() {
       }
     }
 
-    if (tool === toolModes.AREACOMPLETE && isDrawing) {
+    if (mousePressed) {
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "red";
       ctx.fillStyle = "rgba(255, 130, 172, 0.15)";
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
-      let cur = drawPoints[0];
-      for (let j = 1; j < drawPoints.length; j++) {
-        cur = drawPoints[j];
-        ctx.lineTo(cur.x, cur.y);
+      if (tool === toolModes.AREACOMPLETE) {
+        let cur = drawPoints[0];
+        for (let j = 1; j < drawPoints.length; j++) {
+          cur = drawPoints[j];
+          ctx.lineTo(cur.x, cur.y);
+        }
       }
       ctx.stroke();
       ctx.fill();
@@ -205,8 +224,8 @@ function canvasClick(event) {
     return;
   }
 
-  if (tool === toolModes.AREACOMPLETE) {
-    isDrawing = true;
+  if (tool === toolModes.AREACOMPLETE || tool === toolModes.RECTSELECT) {
+    mousePressed = true;
     //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer";
     return;
   }
@@ -278,7 +297,7 @@ function mouseMove(event) {
     }
   }
 
-  if (isDrawing && tool === toolModes.AREACOMPLETE) {
+  if (mousePressed && tool === toolModes.AREACOMPLETE) {
     drawPoints.push(new Point(mouseX, mouseY));
   }
 }
@@ -307,7 +326,7 @@ function mouseUp() {
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
-  isDrawing = false;
+  mousePressed = false;
   drawPoints = [];
 }
 
@@ -400,7 +419,7 @@ function refreshAdjMatrixHtml(graph) {
 
 // boolean 2d array; length of array is number of nodes; true means an edge exists between those nodes
 function generateAdjacencyMatrix(adjList) {
-  // initialize 2d array with false 
+  // initialize 2d array with false
   let adjMatrix = Array.from({ length: graph.nodeCount }).map((n) =>
     Array.from({ length: graph.nodeCount }).map((x) => (x = false))
   );
