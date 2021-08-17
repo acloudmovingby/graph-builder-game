@@ -52,7 +52,7 @@ class Graph {
     return this.nodeValues.keys();
   }
 
-  //TODO won't work for self-edges. (if that ever gets added...)
+  //TODO won't work for self-edges
   getEdges() {
     let edges = this.getEdgeIndices();
     return edges.map((e) => [this.indices.get(e[0]), this.indices.get(e[1])]);
