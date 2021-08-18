@@ -1,80 +1,62 @@
 let canvas = document.getElementById("canvas");
-const infoPaneWidth = 300; // this MUST match the grid-template-columns max width in .container in the CSS file
+const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth; // this MUST match the grid-template-columns max width in .container in the CSS file
 let graph = new Graph();
-let edgeMode = false;
-let edgeStart = null;
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
-let stillInNode = false; // true if mouse is still inside node bounds for a node that was just created, so you don't immediately get a hover effect after creating the node but only starts happening after you've left that node's location
 let clearButtonHover = false;
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
-const toolModes = {
-  BASIC: "basic",
-  AREACOMPLETE: "area-complete",
-  RECTSELECT: "rect-select",
+function Tool(id, cursor, state) {
+  this.id = id; // html id
+  this.cursor = cursor; // css for url of cursor image
+  this.state = state; // every tool is responsible for managing the state it requires (e.g. the prior node clicked, an array of nodes selected, etc.); by having each tool store its own state, cuts down on global variables
+}
+
+let basicTool = new Tool("basic", "url('images/pointer.svg'), pointer", {
+  edgeMode: false,
+  edgeStart: null,
+  stillInNode: false, // prevents hover effect happening immediately after you add a point. true if mouse is still inside node bounds for a node that was just created
+});
+
+let areaCompleteTool = new Tool(
+  "area-complete",
+  "url('images/area-complete-cursor.svg'), pointer",
+  {
+    mousePressed: false,
+    drawPoints: [],
+  }
+);
+
+const toolState = {
+  curTool: basicTool,
+  allTools: [basicTool, areaCompleteTool],
 };
-let tool = toolModes.BASIC;
-canvas.style.cursor = "url('images/pointer.svg'), pointer";
 
-let mousePressed = false; // for area complete tool
-let drawPoints = []; // points for selection area of area complete tool
-
-let rectSelectStart = new Point(0, 0);
-
-let basicTool = document.getElementById("basic");
-let areaCompleteTool = document.getElementById("area-complete");
-let rectSelectTool = document.getElementById("rect-select");
-let tools = [basicTool, areaCompleteTool, rectSelectTool];
-if (basicTool && areaCompleteTool && rectSelectTool) {
-  areaCompleteTool.addEventListener(
-    "click",
-    () => setToolMode(toolModes.AREACOMPLETE),
-    false
-  );
-  basicTool.addEventListener(
-    "click",
-    () => setToolMode(toolModes.BASIC),
-    false
-  );
-  rectSelectTool.addEventListener(
-    "click",
-    () => setToolMode(toolModes.RECTSELECT),
-    false
-  );
-}
-
-// TODO: remove repetition of code, filter all tools somehow and deselect all of them
-function setToolMode(toolMode) {
-  for (let i=0; i<tools.length; i++) {
-    tools[i].className = "tool-btn"; 
-  }
-
-  if (toolMode === toolModes.BASIC) {
-    basicTool.className = "tool-btn selected";
-    canvas.style.cursor = "url('images/pointer.svg'), pointer";
-    tool = toolModes.BASIC;
-  } else if (toolMode === toolModes.AREACOMPLETE) {
-    areaCompleteTool.className = "tool-btn selected";
-    canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
-    tool = toolModes.AREACOMPLETE;
-  } else {
-    rectSelectTool.className = "tool-btn selected";
-    canvas.style.cursor = "url('images/rect-select.svg'), pointer";
-    tool = toolModes.RECTSELECT;
+for (const tool of toolState.allTools) {
+  if (document.getElementById(tool.id)) {
+    document.getElementById(tool.id).addEventListener(
+      "click",
+      () => {
+        {
+          toolState.curTool = tool;
+          refreshToolbarHtml(toolState);
+        }
+      },
+      false
+    );
   }
 }
+
+canvas.style.cursor = toolState.curTool.cursor;
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
   canvas.addEventListener("mousemove", mouseMove, false);
   canvas.addEventListener("mouseleave", mouseLeave, false);
   canvas.addEventListener("mouseup", mouseUp, false);
-  document.addEventListener("keydown", keyDown, false);
-  document.addEventListener("keyup", keyUp, false);
   window.requestAnimationFrame(draw);
 }
 
@@ -104,10 +86,11 @@ function draw() {
     ctx.fillText("clear", 35, 35);
 
     //edge mode, draw edge from edgeStart to mouse cursor
-    if (edgeMode) {
+    if (toolState.curTool === basicTool && basicTool.state.edgeMode) {
       ctx.beginPath();
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
+      let edgeStart = basicTool.state.edgeStart;
       ctx.moveTo(edgeStart.x, edgeStart.y);
       ctx.lineTo(mouseX, mouseY);
       ctx.closePath();
@@ -131,10 +114,13 @@ function draw() {
     for (let i = 0; i < nodes.length; i++) {
       ctx.beginPath();
       ctx.lineWidth = 8;
-      if (nodes[i] === edgeStart) {
+      if (nodes[i] === basicTool.state.edgeStart) {
         ctx.strokeStyle = "#FA5750";
         ctx.fillStyle = "#FA5750";
-      } else if (edgeMode) {
+      } else if (
+        toolState.curTool === basicTool &&
+        basicTool.state.edgeMode
+      ) {
         ctx.strokeStyle = "#FA5750";
         ctx.fillStyle = "white";
       } else {
@@ -154,10 +140,10 @@ function draw() {
       ctx.fill();
 
       // hover effects
-      if (nodes[i] === nodeHover && !stillInNode) {
+      if (nodes[i] === nodeHover && !basicTool.state.stillInNode) {
         ctx.closePath();
         ctx.beginPath();
-        if (!edgeMode) {
+        if (!basicTool.state.edgeMode) {
           ctx.lineWidth = 4;
           ctx.arc(nodes[i].x, nodes[i].y, radius + 10, 0, Math.PI * 2, false);
           ctx.stroke();
@@ -173,19 +159,22 @@ function draw() {
       }
     }
 
-    if (mousePressed) {
+    if (
+      toolState.curTool === areaCompleteTool &&
+      areaCompleteTool.state.mousePressed
+    ) {
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "red";
       ctx.fillStyle = "rgba(255, 130, 172, 0.15)";
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
-      if (tool === toolModes.AREACOMPLETE) {
-        let cur = drawPoints[0];
-        for (let j = 1; j < drawPoints.length; j++) {
-          cur = drawPoints[j];
-          ctx.lineTo(cur.x, cur.y);
-        }
+      let drawPoints = areaCompleteTool.state.drawPoints;
+      let cur = drawPoints[0];
+      for (let j = 1; j < drawPoints.length; j++) {
+        cur = drawPoints[j];
+        ctx.lineTo(cur.x, cur.y);
       }
+
       ctx.stroke();
       ctx.fill();
     }
@@ -224,48 +213,48 @@ function canvasClick(event) {
     return;
   }
 
-  if (tool === toolModes.AREACOMPLETE || tool === toolModes.RECTSELECT) {
-    mousePressed = true;
+  if (toolState.curTool === areaCompleteTool) {
+    areaCompleteTool.state.mousePressed = true;
     //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer"; // red circle at tip of cursor
     return;
   }
 
   let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
 
-  if (!edgeMode && !nodeClicked) {
+  if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
     let newNode = new NodeData(0, x, y);
     graph.addNode(newNode);
-    stillInNode = true;
+    basicTool.state.stillInNode = true;
     setCommentary(graph);
     refreshGraphInfoHtml(graph);
     refreshAdjListHtml(graph);
     refreshAdjMatrixHtml(graph);
-  } else if (!edgeMode) {
+  } else if (!basicTool.state.edgeMode) {
     // start edge on the node clicked
-    edgeMode = true;
-    edgeStart = nodeClicked;
-  } else if (nodeClicked && nodeClicked != edgeStart) {
+    basicTool.state.edgeMode = true;
+    basicTool.state.edgeStart = nodeClicked;
+  } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
-    graph.addEdge(edgeStart, nodeClicked);
-    edgeStart = nodeClicked;
+    graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+    basicTool.state.edgeStart = nodeClicked;
     setCommentary(graph);
     refreshGraphInfoHtml(graph);
     refreshAdjListHtml(graph);
     refreshAdjMatrixHtml(graph);
   } else {
     // cancel edge mode
-    edgeMode = false;
-    edgeStart = null;
+    basicTool.state.edgeMode = false;
+    basicTool.state.edgeStart = null;
   }
 }
 
 function clearGraph() {
   graph = new Graph();
-  edgeMode = false;
-  edgeStart = null;
+  basicTool.state.edgeMode = false;
+  basicTool.state.edgeStart = null;
   nodeHover = null;
-  stillInNode = false;
+  basicTool.state.stillInNode = false;
 
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
@@ -274,8 +263,8 @@ function clearGraph() {
 }
 
 function mouseLeave(event) {
-  edgeMode = false;
-  edgeStart = null;
+  basicTool.state.edgeMode = false;
+  basicTool.state.edgeStart = null;
 }
 
 function mouseMove(event) {
@@ -285,7 +274,7 @@ function mouseMove(event) {
 
   nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
   if (!nodeHover) {
-    stillInNode = false;
+    basicTool.state.stillInNode = false;
   }
 
   // hover over clear button
@@ -297,13 +286,19 @@ function mouseMove(event) {
     }
   }
 
-  if (mousePressed && tool === toolModes.AREACOMPLETE) {
-    drawPoints.push(new Point(mouseX, mouseY));
+  if (
+    toolState.curTool === areaCompleteTool &&
+    areaCompleteTool.state.mousePressed
+  ) {
+    areaCompleteTool.state.drawPoints.push(new Point(mouseX, mouseY));
   }
 }
 
 function mouseUp() {
-  let selectionArea = drawPoints.map((pt) => [pt.x, pt.y]);
+  let selectionArea = areaCompleteTool.state.drawPoints.map((pt) => [
+    pt.x,
+    pt.y,
+  ]);
 
   let selected = Array.from(graph.getNodeValues()).filter((n) => {
     let pt = [n.x, n.y];
@@ -318,28 +313,16 @@ function mouseUp() {
     }
   }
 
-  if (tool === toolModes.AREACOMPLETE) {
-    canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
+  if (toolState.curTool === areaCompleteTool) {
+    canvas.style.cursor = areaCompleteTool.state.cursor;
   }
 
   setCommentary();
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
-  mousePressed = false;
-  drawPoints = [];
-}
-
-function keyDown(event) {
-  if (event.code === "ShiftLeft") {
-    setToolMode(toolModes.AREACOMPLETE);
-  }
-}
-
-function keyUp(event) {
-  if (event.code === "ShiftLeft") {
-    setToolMode(toolModes.BASIC);
-  }
+  areaCompleteTool.state.mousePressed = false;
+  areaCompleteTool.state.drawPoints = [];
 }
 
 function refreshGraphInfoHtml(graph) {
@@ -362,6 +345,16 @@ function refreshAdjListHtml(graph) {
       adjListElem.appendChild(node);
     }
   }
+}
+
+function refreshToolbarHtml(toolState) {
+  for (const tool of toolState.allTools) {
+    let toolElem = document.getElementById(tool.id);
+    toolElem.className = "tool-btn";
+  }
+  let curToolElem = document.getElementById(toolState.curTool.id);
+  curToolElem.className = "tool-btn selected";
+  canvas.style.cursor = toolState.curTool.cursor;
 }
 
 function setCommentary() {
