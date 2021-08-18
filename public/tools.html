@@ -8,38 +8,40 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="toolbar">
-      <button id="basic" class="tool-btn selected"></button>
-      <button id="area-complete" class="tool-btn"></button>
-      <button id="rect-select" class="tool-btn"></button>
-    </div>
-    <div class="container">
-      <canvas id="canvas"></canvas>
-      <div class="info-panel">
-        <div class="info-section">
-          <p class="header">Graph Info</p>
-          <div class="info-area">
-            <p class="info-name">Nodes:</p>
-            <p id="node-count">0</p>
-            <br />
-            <p class="info-name">Edges:</p>
-            <p id="edge-count">0</p>
+    <div class="flex">
+      <div class="toolbar">
+        <button id="basic" class="tool-btn selected"></button>
+        <button id="area-complete" class="tool-btn"></button>
+        <button id="rect-select" class="tool-btn"></button>
+      </div>
+      <div class="container">
+        <canvas id="canvas"></canvas>
+        <div class="info-panel">
+          <div class="info-section">
+            <p class="header">Graph Info</p>
+            <div class="info-area">
+              <p class="info-name">Nodes:</p>
+              <p id="node-count">0</p>
+              <br />
+              <p class="info-name">Edges:</p>
+              <p id="edge-count">0</p>
+            </div>
           </div>
-        </div>
-        <div class="info-section">
-          <p class="header">Adjacency List</p>
-          <div class="info-area adj-list-area">
-            <ul id="adjacency-list"></ul>
+          <div class="info-section">
+            <p class="header">Adjacency List</p>
+            <div class="info-area adj-list-area">
+              <ul id="adjacency-list"></ul>
+            </div>
           </div>
-        </div>
-        <div class="info-section">
-          <p class="header">Adjacency Matrix</p>
-          <div class="info-area">
-            <canvas id="adj-matrix" width="180" height="180"></canvas>
+          <div class="info-section">
+            <p class="header">Adjacency Matrix</p>
+            <div class="info-area">
+              <canvas id="adj-matrix" width="180" height="180"></canvas>
+            </div>
           </div>
-        </div>
-        <div class="info-section bottom">
-          <p id="commentary"></p>
+          <div class="info-section bottom">
+            <p id="commentary"></p>
+          </div>
         </div>
       </div>
     </div>

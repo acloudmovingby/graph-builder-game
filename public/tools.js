@@ -28,6 +28,7 @@ let rectSelectStart = new Point(0, 0);
 let basicTool = document.getElementById("basic");
 let areaCompleteTool = document.getElementById("area-complete");
 let rectSelectTool = document.getElementById("rect-select");
+let tools = [basicTool, areaCompleteTool, rectSelectTool];
 if (basicTool && areaCompleteTool && rectSelectTool) {
   areaCompleteTool.addEventListener(
     "click",
@@ -46,22 +47,21 @@ if (basicTool && areaCompleteTool && rectSelectTool) {
   );
 }
 
+// TODO: remove repetition of code, filter all tools somehow and deselect all of them
 function setToolMode(toolMode) {
+  for (let i=0; i<tools.length; i++) {
+    tools[i].className = "tool-btn"; 
+  }
+
   if (toolMode === toolModes.BASIC) {
     basicTool.className = "tool-btn selected";
-    areaCompleteTool.className = "tool-btn";
-    rectSelectTool.className = "tool-btn";
     canvas.style.cursor = "url('images/pointer.svg'), pointer";
     tool = toolModes.BASIC;
   } else if (toolMode === toolModes.AREACOMPLETE) {
-    basicTool.className = "tool-btn";
     areaCompleteTool.className = "tool-btn selected";
-    rectSelectTool.className = "tool-btn";
     canvas.style.cursor = "url('images/area-complete-cursor.svg'), pointer";
     tool = toolModes.AREACOMPLETE;
   } else {
-    basicTool.className = "tool-btn";
-    areaCompleteTool.className = "tool-btn";
     rectSelectTool.className = "tool-btn selected";
     canvas.style.cursor = "url('images/rect-select.svg'), pointer";
     tool = toolModes.RECTSELECT;
@@ -193,7 +193,7 @@ function draw() {
   window.requestAnimationFrame(draw);
 }
 
-// for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in one object.
+// for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in an object.
 function NodeData(counter, x, y) {
   this.counter = counter;
   this.x = x;
@@ -226,7 +226,7 @@ function canvasClick(event) {
 
   if (tool === toolModes.AREACOMPLETE || tool === toolModes.RECTSELECT) {
     mousePressed = true;
-    //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer";
+    //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer"; // red circle at tip of cursor
     return;
   }
 
@@ -289,7 +289,7 @@ function mouseMove(event) {
   }
 
   // hover over clear button
-  if (mouseX > 0 && mouseX < 80 && mouseY > 0 && mouseY < 80) {
+  if (mouseX > 0 && mouseX < 76 && mouseY > 0 && mouseY < 39) {
     clearButtonHover = true;
   } else {
     if (clearButtonHover) {
