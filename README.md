@@ -26,7 +26,7 @@ In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Gra
 # What Tools
 I've been trying lots of different tool types (see below), and these are my findings:
 * What tool is best really depends on what kind of graph you're building (sparsely connected, nearly complete, a tree, etc.)
-* Fewer, less "efficient" tools are better than too many tools: feature bloat is dangerous, not just because users get confused but it also multiplies all the interactions and tech debt you have to deal with.
+* Fewer, less "efficient" tools are better than too many tools: feature bloat is dangerous, not just because users get confused but it also multiplies all the interactions and tech debt you have to deal with. For example, Figma, a professional design tool designed specifically for tasks like designing vector art, has only 3 (!) tools to edit vectors. That's it! 3! There's something to learn from that.
 
 # Tool Examples
 I gave a little bounce to the nodes, but the real goal was to be able to make nodes with a single click--and pepper the screen with them quickly if I wanted to.
