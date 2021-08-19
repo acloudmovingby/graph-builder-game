@@ -16,7 +16,7 @@ In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Gra
 * provide a way to export in a variety of formats to be implemented in code or other applications
 # WHY?
 * Figuring out graphs on paper is tedious and error prone. In a prior project, I needed to build test cases for certain graph algorithms I was designing and I had to do a lot of drawing on paper. For some situations I needed graphs of 20 or 30 nodes with dozens of edges, and when test cases failed it was hard to tell if the issue was my algorithms or because I had constructed the graph incorrectly.
-* This sparked an idea: I want to make it easier to quickly build small to medium size graphs.
+* Other WYSIWYG graph tools I came across were clunky, overly complicated and in states of developer neglect. They also all suffered from feature bloat and confusing the construction/export of a graph with other concerns: visualizing or analyzing...
 
 # NOT-GOALS:
  ("you have to say 'no' to 90% of feature ideas that come to your head")
