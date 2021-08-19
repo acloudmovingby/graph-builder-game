@@ -1,12 +1,28 @@
 # graph-builder-game
 
-Site: http://tranquil-oasis-04623.herokuapp.com/
+The original "game" with Easter Eggs: http://tranquil-oasis-04623.herokuapp.com/
+The tooling I'm currently developing: http://tranquil-oasis-04623.herokuapp.com/tools
 
-Graphs, in computer science, are not like graphs in normal math, but are really more like networks. There are many tools available to analzye graphs/networks, but I found nothing online that quickly and easily allowed you to build graphs. The goal was to create a WYSIWYG tool that was intuitive and fast at building small graphs. As of July 2021, this links to the prototype version where there are "easter egg" graphs that you can discover with commentary that encourages the user while analyzing their graphs. 
+FEEDBACK WELCOME!!
 
-# Goals / Process
-There are other tools out there on the internet to build graphs, but many felt clunky and not fun. One of the biggest themes of this project was to try to create a more fun and intuitive experience, allowing the user to quickly create graphs without too much clicking and fuss. In some versions of the app, it's more for utility purposes: you can export the adjacency lists/matrices to then copy into a program. However, the Easter eggs kind of became a thing of their own and now it has a game-like feel.
+In computer science, networks (called graphs in CS) are used in all kinds of applications. I wanted to make a WYSIWYG (what you see is what you get) tool to build graphs: 
+# GOALS:
+* A WYSIWYG tool to build graphs quickly
+* provide a way to export in a variety of formats to be implemented in code or other applications
+* Make it feel fun and intuitive
+# WHY?
+* In an earlier project I was using graphs to write custom pathfinding algorithms for map data. However, building test cases was not easy and for some situations I needed graphs of 20 or 30 nodes. Writing these test cases out on paper was tedious and error prone
+* I want to make it easier to quickly build small to medium size graphs.
+# NOT-GOALS ("you have to say 'no' to 90% of feature ideas"):
+* Graph analysis - there are many, many tools available out there that take graph data and can analyze the heck out of it. I'm not trying to reinvent all of graph theory here. The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
+* Creating pretty pictures - Graph drawing is a fascinating problem, and in the future I might try to have more ways to move or customize the appearance of the graph, but there are tools out there that do this well: (1) there are [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. The issue is that they are fiddly and not WYSIWYG (2) Actual art tools like Figma/Illustrator/many others that help you draw prety diagrams or other vector based art. I don't have time to reinvent all of Adobe Illustrator :) 
 
+#What Tools to Add?
+I've been trying lots of different tool types (see below), and these are my findings:
+* What tool is best really depends on what kind of graph you're building (sparsely connected, nearly complete, a tree, etc.)
+* Fewer, less "efficient" tools are better than too many tools: feature bloat is dangerous, not just because users get confused but it also multiplies all the interactions and tech debt you have to deal with.
+
+#Tool Examples
 I gave a little bounce to the nodes, but the real goal was to be able to make nodes with a single click--and pepper the screen with them quickly if I wanted to.
 
 ![Basic use tool](screenshots/basic-use-4.gif)
