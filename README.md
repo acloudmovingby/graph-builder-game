@@ -1,3 +1,4 @@
+Here's a basic example of building a graph (see more screenshots below).
 ![Basic use tool](screenshots/basic-use-4.gif)
 
 # graph-builder-game
