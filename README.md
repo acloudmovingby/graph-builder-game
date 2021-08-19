@@ -9,7 +9,7 @@ The tooling I'm currently developing: http://tranquil-oasis-04623.herokuapp.com/
 
 FEEDBACK WELCOME!!
 
-In computer science, networks (called graphs in CS) are used in all kinds of applications. I wanted to make a WYSIWYG (what you see is what you get) tool to build graphs. 
+In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Graph_theory) in CS) are used in all kinds of applications. I wanted to make a WYSIWYG (what you see is what you get) tool to build graphs. 
 # GOALS:
 * A WYSIWYG tool to build graphs quickly
 * Make it feel fun and intuitive
