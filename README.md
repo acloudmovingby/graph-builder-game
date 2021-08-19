@@ -1,3 +1,5 @@
+![Basic use tool](screenshots/basic-use-4.gif)
+
 # graph-builder-game
 
 The original "game" with Easter Eggs: http://tranquil-oasis-04623.herokuapp.com/
