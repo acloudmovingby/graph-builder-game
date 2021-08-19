@@ -14,12 +14,13 @@ In computer science, networks (called graphs in CS) are used in all kinds of app
 * Make it feel fun and intuitive
 * provide a way to export in a variety of formats to be implemented in code or other applications
 # WHY?
-* In an earlier project I was writing custom graph algorithsm. However, writing test cases out on paper was tedious and error prone. For some situations I needed graphs of 20 or 30 nodes with dozens of edges, and when test cases failed it was hard to tell if the issue was my algorithms or because I had constructed the graph incorrectly.
-* I want to make it easier to quickly build small to medium size graphs.
+* Figuring out graphs on paper is tedious and error prone. In a prior project, I needed to build test cases for certain graph algorithms I was designing and I had to do a lot of drawing on paper. For some situations I needed graphs of 20 or 30 nodes with dozens of edges, and when test cases failed it was hard to tell if the issue was my algorithms or because I had constructed the graph incorrectly.
+* This sparked an idea: I want to make it easier to quickly build small to medium size graphs.
+
 # NOT-GOALS:
- ("you have to say 'no' to 90% of feature ideas")
-* Graph analysis - there are many, many tools available out there that take graph data and can analyze the heck out of it. I'm not trying to reinvent all of graph theory here. The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
-* Creating pretty pictures - [Graph drawing](https://en.wikipedia.org/wiki/Graph_drawing) is a fascinating field, and I'm very tempted to build more ways to move or customize the appearance of the graph...but feature bloat is real and there are tools out there that do this well: (1) there are many [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. The issue is that they are fiddly and not WYSIWYG (2) I don't have time to reinvent all of Adobe Illustrator :( Actual art tools like Figma/Illustrator/many others help you draw pretty diagrams or other vector based art and we don't need to entirely reinvent that wheel. 
+ ("you have to say 'no' to 90% of feature ideas that come to your head")
+* Heavy-duty graph analysis - there are many, many tools available out there that take graph data and can analyze the heck out of it. I'm not trying to reinvent all of graph theory here. The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
+* Creating pretty pictures - [Graph drawing](https://en.wikipedia.org/wiki/Graph_drawing) is a fascinating field, and I'm always dreaming of ways to move or customize the appearance of the graph...but feature bloat is real and there are tools out there that do this well: (1) there are many [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. The issue is that they are fiddly and NOT WYSIWYG (2) I don't have time to reinvent all of Adobe Illustrator :( Actual art tools like Figma/Illustrator/many others help you draw pretty diagrams or other vector based art and we don't need to entirely reinvent that wheel. 
 
 # What Tools
 I've been trying lots of different tool types (see below), and these are my findings:
