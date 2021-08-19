@@ -44,7 +44,9 @@ This tool also was interesting because it builds edges without clicking. You sim
 ![Path tool](screenshots/path-tool-1.gif)
 
 # Wait, these aren't graphs...
-For those not already acquainted, the term "graph" in computer science aren't ordinary graphs like we see in high school math (with an x-axis, y-axis and so on). Graphs, in CS, are what most people would call "networks". It's confusing. These networks are a collection of "nodes" (also called "vertices") connected together. A connection between two nodes is called an "edge".
+For those not already acquainted, the word "graph" in computer science doesn't mean ordinary graphs like we see in high school math (with an x-axis, y-axis and so on). Graphs, in CS, are what most people would call "networks". 
+
+It's confusing. Networks are described as a collection of "nodes" (also called "vertices") connected together. A connection between two nodes is called an "edge".
 
 Technologies ranging from Google Maps, to molecular analysis, to fingerprint identification are all made possible by graphs. Graphs can model many situations because there structure is so flexible: a collention of entities and the relationships between them.
 
