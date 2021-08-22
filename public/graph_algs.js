@@ -42,6 +42,14 @@ class Graph {
     }
   }
 
+  // sees if graph has directed edge from 1 to 2 (but not 2 to 1)
+  containsEdge(nodeValue1,nodeValue2) {
+    let index1 = this.nodeValues.get(this.nodeValues);
+    let index2 = this.nodeValues.get(this.nodeValues);
+    let adjList = this.getAdjList();
+    return adjList[index1].contains(index2) && adjList[index2].contains(index1);
+  }
+
   // returns adjacency list as just indices (the pure structure of the graph without the values it stores)
   getAdjList() {
     return this.adjList;
@@ -53,11 +61,13 @@ class Graph {
   }
 
   //TODO won't work for self-edges
+  // tuple of node values
   getEdges() {
     let edges = this.getEdgeIndices();
     return edges.map((e) => [this.indices.get(e[0]), this.indices.get(e[1])]);
   }
 
+  // tuple of ints
   getEdgeIndices() {
     let marked = Array.from({ length: this.nodeCount }).map((x) => false);
     let edges = [];
@@ -77,6 +87,25 @@ class Graph {
   getNeighbors(nodeValue) {
     let index = this.nodeValues.get(nodeValue);
     return this.getAdjList()[index].map((node) => this.indices.get(node));
+  }
+
+  // clones the graph
+  // Needs nodeCopyFunction because Graph is unaware of the contents it is storing, so it cannot perform a deep copy on them.
+  // This has a nice side effect of making it easy to "map" a graph. You can make nodeCopyFunction any kind of function you want, the graph structure won't be affected.
+  clone(nodeCopyFunction) {
+    let clone = new Graph();
+    for (const node of this.getNodeValues()) {
+      let nodeClone = nodeCopyFunction(node);
+      clone.addNode(nodeClone);
+    }
+
+    for (const edge of this.getEdges()) {
+        clone.addEdge(edge[0],edge[1]);
+    }
+    console.assert(this.nodeCount === clone.nodeCount);
+    console.assert(this.edgeCount === clone.edgeCount);
+
+    return clone;
   }
 }
 

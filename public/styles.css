@@ -182,6 +182,13 @@ p,
   background-size: 2rem;
 }
 
+#undo {
+  background-image: url("images/area-complete-cursor-white.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 2rem;
+}
+
 .cursor-shadow {
   filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.7));
 }

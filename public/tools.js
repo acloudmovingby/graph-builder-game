@@ -12,13 +12,13 @@ const nodeRadius = 15;
 function Tool(id, cursor, state) {
   this.id = id; // html id
   this.cursor = cursor; // css for url of cursor image
-  this.state = state; // every tool is responsible for managing the state it requires (e.g. the prior node clicked, an array of nodes selected, etc.); by having each tool store its own state, cuts down on global variables
+  this.state = state; // every tool is responsible for managing the state it requires (e.g. the prior node clicked, an array of nodes selected, etc.); having each tool store its own state cuts down on global variables
 }
 
 let basicTool = new Tool("basic", "url('images/pointer.svg'), pointer", {
   edgeMode: false,
   edgeStart: null,
-  stillInNode: false, // prevents hover effect happening immediately after you add a point. true if mouse is still inside node bounds for a node that was just created
+  stillInNode: false, // prevents hover effect happening immediately after you add a point. value=true if mouse is still inside node bounds for a node that was just created
 });
 
 let areaCompleteTool = new Tool(
@@ -26,7 +26,7 @@ let areaCompleteTool = new Tool(
   "url('images/area-complete-cursor.svg'), pointer",
   {
     mousePressed: false,
-    drawPoints: [],
+    drawPoints: [], // forms a polygon representing the selected area
   }
 );
 
@@ -42,7 +42,7 @@ for (const tool of toolState.allTools) {
       () => {
         {
           toolState.curTool = tool;
-          refreshToolbarHtml(toolState);
+          refreshHtml(graph,toolState);
         }
       },
       false
@@ -51,6 +51,25 @@ for (const tool of toolState.allTools) {
 }
 
 canvas.style.cursor = toolState.curTool.cursor;
+
+// TODO: make/find an actual deque class to use here?
+let undoGraphStates = [];
+let redoGraphStates = [];
+let undoElem = document.getElementById('undo');
+if (undoElem) {
+  undoElem.addEventListener(
+    "click",
+    () => {
+      if (undoGraphStates.length > 0) {
+        redoGraphStates.push(graph.deepClone((n) => cloneNodeData(n)));
+        graph = undoGraphStates.pop();
+      }
+      refreshHtml(graph, toolState);
+    },
+    false
+  );
+}
+
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
@@ -187,7 +206,12 @@ function NodeData(counter, x, y) {
   this.counter = counter;
   this.x = x;
   this.y = y;
-  this.neighbors = [];
+}
+
+// need to make deep copy for undo/redo
+// TODO: should we make NodeData a class?
+function cloneNodeData(nodeData) {
+  return new NodeData(nodeData.counter,nodeData.x,nodeData.y); 
 }
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
@@ -223,27 +247,23 @@ function canvasClick(event) {
 
   if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
+    undoGraphStates.push(graph);
     let newNode = new NodeData(0, x, y);
     graph.addNode(newNode);
     basicTool.state.stillInNode = true;
-    setCommentary(graph);
-    refreshGraphInfoHtml(graph);
-    refreshAdjListHtml(graph);
-    refreshAdjMatrixHtml(graph);
+    refreshHtml(graph, toolState);
   } else if (!basicTool.state.edgeMode) {
     // start edge on the node clicked
     basicTool.state.edgeMode = true;
     basicTool.state.edgeStart = nodeClicked;
   } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
+    undoGraphStates.push(graph);
     graph.addEdge(basicTool.state.edgeStart, nodeClicked);
     basicTool.state.edgeStart = nodeClicked;
-    setCommentary(graph);
-    refreshGraphInfoHtml(graph);
-    refreshAdjListHtml(graph);
-    refreshAdjMatrixHtml(graph);
+    refreshHtml(graph, toolState);
   } else {
-    // cancel edge mode
+    // leave edge mode
     basicTool.state.edgeMode = false;
     basicTool.state.edgeStart = null;
   }
@@ -255,11 +275,7 @@ function clearGraph() {
   basicTool.state.edgeStart = null;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-
-  refreshGraphInfoHtml(graph);
-  refreshAdjListHtml(graph);
-  refreshAdjMatrixHtml(graph);
-  setCommentary();
+  refreshHtml(graph, toolState);
 }
 
 function mouseLeave(event) {
@@ -317,12 +333,18 @@ function mouseUp() {
     canvas.style.cursor = areaCompleteTool.state.cursor;
   }
 
+ 
+  areaCompleteTool.state.mousePressed = false;
+  areaCompleteTool.state.drawPoints = [];
+  refreshHtml(graph, toolState);
+}
+
+function refreshHtml(graph, toolState) {
+  refreshToolbarHtml(toolState);
   setCommentary();
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
-  areaCompleteTool.state.mousePressed = false;
-  areaCompleteTool.state.drawPoints = [];
 }
 
 function refreshGraphInfoHtml(graph) {
@@ -346,6 +368,7 @@ function refreshAdjListHtml(graph) {
     }
   }
 }
+
 
 function refreshToolbarHtml(toolState) {
   for (const tool of toolState.allTools) {

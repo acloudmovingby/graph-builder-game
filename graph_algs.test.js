@@ -753,3 +753,90 @@ test("getConnectedComponent - three nodes", () => {
   expect(isomorphism(connected1.getAdjList(),[[1],[0]])).toBe(true);
   expect(isomorphism(connected2.getAdjList(),[[]])).toBe(true);
 });
+
+test("Clone - Tests deep copy of graph structure (not contents) - empty", () => {
+  let g1 = new Graph();
+  let g2 = g1.clone((x) => x);
+
+  expect(isomorphism(g1.getAdjList(),[])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+});
+
+test("Clone - Tests deep copy of graph structure (not contents) - add one node original", () => {
+  let g1 = new Graph();
+  let g2 = g1.clone((x) => x);
+
+  // alter original graph, make sure it doesn't affect clone
+  g1.addNode("A");
+  expect(isomorphism(g1.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+});
+
+test("Clone - Tests deep copy of graph structure (not contents) - add one node clone", () => {
+  let g1 = new Graph();
+  let g2 = g1.clone((x) => x);
+
+  // alter clone graph, make sure it doesn't affect original
+  g2.addNode("A");
+  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),[])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+});
+
+test("Clone - Tests deep copy of graph structure (not contents) - test cloning single node", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  let g2 = g1.clone((x) => x);
+
+  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+
+  g1.addNode("B");
+  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),[[],[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+});
+
+test("Clone - Tests deep copy of graph structure (not contents) - test cloning single edge", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addEdge("A","B");
+  let g2 = g1.clone((x) => x);
+
+  expect(isomorphism(g1.getAdjList(),[[1],[0]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[[1],[0]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+
+  g1.addNode("C");
+  expect(isomorphism(g1.getAdjList(),[[1],[0],[]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[[1],[0]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+});
+
+test("Clone - Tests deep copy of graph structure (not contents) - test cloning mulitple edges", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("A","B");
+  g1.addEdge("B","C");
+  g1.addNode("D");
+  let g2 = g1.clone((x) => x);
+
+  expect(isomorphism(g1.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+
+  g1.addNode("E");
+  g1.addNode("F");
+  g1.addEdge("F","E");
+
+  expect(isomorphism(g1.getAdjList(),[[1],[0,2],[1],[],[5],[4]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+});
+
