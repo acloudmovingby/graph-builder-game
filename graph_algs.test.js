@@ -10,7 +10,7 @@ const {
   isKayakPaddleGraph,
   isButterflyGraph,
   getConnectedComponent,
-  subGraph
+  subGraph,
 } = require("./public/graph_algs");
 
 test("checks edges with empty graphs", () => {
@@ -380,8 +380,8 @@ test("Graph - tests edgecount is correct, simple case", () => {
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
-  g1.addEdge("A","B");
-  g1.addEdge("C","B");
+  g1.addEdge("A", "B");
+  g1.addEdge("C", "B");
   expect(g1.edgeCount).toBe(2);
 });
 
@@ -643,7 +643,7 @@ test("getNeighbors - simple", () => {
   g1.addNode("A");
   g1.addNode("B");
   expect(g1.getNeighbors("A").length).toBe(0);
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   expect(g1.getNeighbors("A").length).toBe(1);
   expect(g1.getNeighbors("B").length).toBe(1);
 });
@@ -655,10 +655,10 @@ test("getNeighbors - more complex graph", () => {
   g1.addNode("C");
   g1.addNode("D");
   expect(g1.getNeighbors("A").length).toBe(0);
-  g1.addEdge("A","B");
-  g1.addEdge("A","C");
-  g1.addEdge("A","D");
-  g1.addEdge("B","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("A", "C");
+  g1.addEdge("A", "D");
+  g1.addEdge("B", "C");
   expect(g1.getNeighbors("A").length).toBe(3);
   expect(g1.getNeighbors("B").length).toBe(2);
   expect(g1.getNeighbors("C").length).toBe(2);
@@ -668,17 +668,17 @@ test("getNeighbors - more complex graph", () => {
 
 test("subGraph - empty graph", () => {
   let g1 = new Graph();
-  let g2 = subGraph([],g1);
+  let g2 = subGraph([], g1);
   expect(g2.getAdjList.length).toBe(0);
-  g2 = subGraph([1],g1); // if the index doesn't exist, subgraph returns empty graph
+  g2 = subGraph([1], g1); // if the index doesn't exist, subgraph returns empty graph
   expect(g2.getAdjList.length).toBe(0);
 });
 
 test("subGraph - one node graph", () => {
   let g1 = new Graph();
   g1.addNode("A");
-  let g2 = subGraph([0],g1);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  let g2 = subGraph([0], g1);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
   expect(g2.nodeValues.keys().next().value).toBe("A");
 });
 
@@ -686,15 +686,15 @@ test("subGraph - two node graph", () => {
   let g1 = new Graph();
   g1.addNode("A");
   g1.addNode("B");
-  let sub2 = subGraph([0],g1);
-  let sub3 = subGraph([1],g1);
-  expect(isomorphism(sub2.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(sub3.getAdjList(),[[]])).toBe(true);
-  let sub4 = subGraph([0,1],g1);
-  expect(isomorphism(sub4.getAdjList(),[[],[]])).toBe(true);
-  g1.addEdge("A","B");
-  let sub5 = subGraph([0,1],g1);
-  expect(isomorphism(sub5.getAdjList(),[[1],[0]])).toBe(true);
+  let sub2 = subGraph([0], g1);
+  let sub3 = subGraph([1], g1);
+  expect(isomorphism(sub2.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(sub3.getAdjList(), [[]])).toBe(true);
+  let sub4 = subGraph([0, 1], g1);
+  expect(isomorphism(sub4.getAdjList(), [[], []])).toBe(true);
+  g1.addEdge("A", "B");
+  let sub5 = subGraph([0, 1], g1);
+  expect(isomorphism(sub5.getAdjList(), [[1], [0]])).toBe(true);
 });
 
 test("subGraph - more complex graph", () => {
@@ -704,42 +704,44 @@ test("subGraph - more complex graph", () => {
   g1.addNode("C");
   g1.addNode("D");
   g1.addNode("E");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
-  g1.addEdge("A","C");
-  g1.addEdge("A","D");
-  let sub = subGraph([0,3,4],g1); // nodes A, D, E
-  let expected = [[1],[0],[]];
-  expect(isomorphism(sub.getAdjList(),expected)).toBe(true);
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
+  g1.addEdge("A", "C");
+  g1.addEdge("A", "D");
+  let sub = subGraph([0, 3, 4], g1); // nodes A, D, E
+  let expected = [[1], [0], []];
+  expect(isomorphism(sub.getAdjList(), expected)).toBe(true);
 });
 
 test("getConnectedComponent - empty graph", () => {
   let g1 = new Graph();
   let fakeNode = "A";
-  let connectedComponent = getConnectedComponent(fakeNode,g1);
-  expect(isomorphism(connectedComponent.getAdjList(),g1.getAdjList())).toBe(true);
+  let connectedComponent = getConnectedComponent(fakeNode, g1);
+  expect(isomorphism(connectedComponent.getAdjList(), g1.getAdjList())).toBe(
+    true
+  );
 });
 
 test("getConnectedComponent - one node", () => {
   let g1 = new Graph();
   g1.addNode("A");
-  let connected1 = getConnectedComponent("A",g1);
-  let connected2 = getConnectedComponent("B",g1); // "fake" node; doesn't exist in graph
-  expect(isomorphism(connected1.getAdjList(),g1.getAdjList())).toBe(true);
-  expect(isomorphism(connected2.getAdjList(),g1.getAdjList())).toBe(false);
+  let connected1 = getConnectedComponent("A", g1);
+  let connected2 = getConnectedComponent("B", g1); // "fake" node; doesn't exist in graph
+  expect(isomorphism(connected1.getAdjList(), g1.getAdjList())).toBe(true);
+  expect(isomorphism(connected2.getAdjList(), g1.getAdjList())).toBe(false);
 });
 
 test("getConnectedComponent - two nodes", () => {
   let g1 = new Graph();
   g1.addNode("A");
   g1.addNode("B");
-  let connected1 = getConnectedComponent("A",g1);
-  let connected2 = getConnectedComponent("B",g1); 
-  expect(isomorphism(connected1.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(connected2.getAdjList(),[[]])).toBe(true);
-  g1.addEdge("A","B");
-  connected1 = getConnectedComponent("A",g1);
-  expect(isomorphism(connected1.getAdjList(),g1.getAdjList())).toBe(true);
+  let connected1 = getConnectedComponent("A", g1);
+  let connected2 = getConnectedComponent("B", g1);
+  expect(isomorphism(connected1.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(connected2.getAdjList(), [[]])).toBe(true);
+  g1.addEdge("A", "B");
+  connected1 = getConnectedComponent("A", g1);
+  expect(isomorphism(connected1.getAdjList(), g1.getAdjList())).toBe(true);
 });
 
 test("getConnectedComponent - three nodes", () => {
@@ -747,20 +749,20 @@ test("getConnectedComponent - three nodes", () => {
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
-  g1.addEdge("A","B");
-  let connected1 = getConnectedComponent("A",g1);
-  let connected2 = getConnectedComponent("C",g1); 
-  expect(isomorphism(connected1.getAdjList(),[[1],[0]])).toBe(true);
-  expect(isomorphism(connected2.getAdjList(),[[]])).toBe(true);
+  g1.addEdge("A", "B");
+  let connected1 = getConnectedComponent("A", g1);
+  let connected2 = getConnectedComponent("C", g1);
+  expect(isomorphism(connected1.getAdjList(), [[1], [0]])).toBe(true);
+  expect(isomorphism(connected2.getAdjList(), [[]])).toBe(true);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - empty", () => {
   let g1 = new Graph();
   let g2 = g1.clone((x) => x);
 
-  expect(isomorphism(g1.getAdjList(),[])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [])).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - add one node original", () => {
@@ -769,9 +771,9 @@ test("Clone - Tests deep copy of graph structure (not contents) - add one node o
 
   // alter original graph, make sure it doesn't affect clone
   g1.addNode("A");
-  expect(isomorphism(g1.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+  expect(isomorphism(g1.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - add one node clone", () => {
@@ -780,9 +782,9 @@ test("Clone - Tests deep copy of graph structure (not contents) - add one node c
 
   // alter clone graph, make sure it doesn't affect original
   g2.addNode("A");
-  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),[])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+  expect(isomorphism(g2.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - test cloning single node", () => {
@@ -790,31 +792,31 @@ test("Clone - Tests deep copy of graph structure (not contents) - test cloning s
   g1.addNode("A");
   let g2 = g1.clone((x) => x);
 
-  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
 
   g1.addNode("B");
-  expect(isomorphism(g2.getAdjList(),[[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),[[],[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+  expect(isomorphism(g2.getAdjList(), [[]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [[], []])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - test cloning single edge", () => {
   let g1 = new Graph();
   g1.addNode("A");
   g1.addNode("B");
-  g1.addEdge("A","B");
+  g1.addEdge("A", "B");
   let g2 = g1.clone((x) => x);
 
-  expect(isomorphism(g1.getAdjList(),[[1],[0]])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[[1],[0]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [[1], [0]])).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [[1], [0]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
 
   g1.addNode("C");
-  expect(isomorphism(g1.getAdjList(),[[1],[0],[]])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[[1],[0]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+  expect(isomorphism(g1.getAdjList(), [[1], [0], []])).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [[1], [0]])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
 test("Clone - Tests deep copy of graph structure (not contents) - test cloning mulitple edges", () => {
@@ -822,21 +824,48 @@ test("Clone - Tests deep copy of graph structure (not contents) - test cloning m
   g1.addNode("A");
   g1.addNode("B");
   g1.addNode("C");
-  g1.addEdge("A","B");
-  g1.addEdge("B","C");
+  g1.addEdge("A", "B");
+  g1.addEdge("B", "C");
   g1.addNode("D");
   let g2 = g1.clone((x) => x);
 
-  expect(isomorphism(g1.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+  expect(isomorphism(g1.getAdjList(), [[1], [0, 2], [1], []])).toBe(true);
+  expect(isomorphism(g2.getAdjList(), [[1], [0, 2], [1], []])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
 
   g1.addNode("E");
   g1.addNode("F");
-  g1.addEdge("F","E");
+  g1.addEdge("F", "E");
 
-  expect(isomorphism(g1.getAdjList(),[[1],[0,2],[1],[],[5],[4]])).toBe(true);
-  expect(isomorphism(g2.getAdjList(),[[1],[0,2],[1],[]])).toBe(true);
-  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(false);
+  expect(isomorphism(g1.getAdjList(), [[1], [0, 2], [1], [], [5], [4]])).toBe(
+    true
+  );
+  expect(isomorphism(g2.getAdjList(), [[1], [0, 2], [1], []])).toBe(true);
+  expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
+// tests if supplying a function to copy the node data successfully makes a deep copy when we pass it to Graph.clone()
+test("NodeData clone test", () => {
+  // for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in an object.
+  function NodeData(counter, x, y) {
+    this.counter = counter;
+    this.x = x;
+    this.y = y;
+  }
+
+  function cloneNodeData(nodeData) {
+    return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
+  }
+
+  let g1 = new Graph();
+  let data = new NodeData(0,0,0);
+  g1.addNode(data);
+  let g2 = g1.clone(cloneNodeData);
+
+  expect(g2.getNodeValues().next().value.x === data.x).toBe(true);
+  
+  g1.getNodeValues().next().value.x = 1; 
+  expect(g1.getNodeValues().next().value.x).toBe(1);
+  expect(g2.getNodeValues().next().value.x).toBe(0);
+  expect(data.x).toBe(1);
+});
