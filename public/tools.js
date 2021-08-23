@@ -57,14 +57,24 @@ let undoElem = document.getElementById('undo');
 if (undoElem) {
   undoElem.addEventListener(
     "click",
-    () => {
-      if (undoGraphStates.length > 0) {
-        graph = undoGraphStates.pop();
-        refreshHtml(graph, toolState);
-      }
-    },
+    undo,
     false
   );
+}
+
+function undo() {
+  if (undoGraphStates.length > 0) {
+    graph = undoGraphStates.pop();
+    refreshHtml(graph, toolState);
+  }
+}
+
+// limit on past number of states
+function addToUndo() {
+  undoGraphStates.push(graph.clone(cloneNodeData));
+  if (undoGraphStates.length>10) {
+    undoGraphStates.shift(1);
+  }
 }
 
 
@@ -244,7 +254,7 @@ function canvasClick(event) {
 
   if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
-    undoGraphStates.push(graph.clone(cloneNodeData));
+    addToUndo();
     let newNode = new NodeData(0, x, y);
     graph.addNode(newNode);
     basicTool.state.stillInNode = true;
@@ -255,7 +265,7 @@ function canvasClick(event) {
     basicTool.state.edgeStart = nodeClicked;
   } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
-    undoGraphStates.push(graph.clone(cloneNodeData));
+    addToUndo();
     graph.addEdge(basicTool.state.edgeStart, nodeClicked);
     basicTool.state.edgeStart = nodeClicked;
     refreshHtml(graph, toolState);
@@ -317,6 +327,10 @@ function mouseUp() {
     let pt = [n.x, n.y];
     return inside(pt, selectionArea);
   });
+
+  if (selected.length !== 0) {
+    addToUndo();
+  }
   for (let i = 0; i < selected.length; i++) {
     for (let j = 0; j < selected.length; j++) {
       if (i != j) {
@@ -325,6 +339,7 @@ function mouseUp() {
       }
     }
   }
+  
 
   if (toolState.curTool === areaCompleteTool) {
     canvas.style.cursor = areaCompleteTool.state.cursor;
