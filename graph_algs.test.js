@@ -13,6 +13,7 @@ const {
   subGraph,
 } = require("./public/graph_algs");
 
+
 test("checks edges with empty graphs", () => {
   expect(checkEdges([], [], [])).toBe(true);
 });
@@ -306,8 +307,6 @@ test("isomorphism - test on nearly complete graph, 5 nodes; commutative", () => 
   expect(isomorphism(g1, g2)).toBe(true);
   expect(isomorphism(g2, g1)).toBe(true);
 });
-
-/******** */
 
 test("Graph - empty graph; tests equality of structure not labels", () => {
   let g1 = new Graph();
@@ -713,6 +712,7 @@ test("subGraph - more complex graph", () => {
   expect(isomorphism(sub.getAdjList(), expected)).toBe(true);
 });
 
+
 test("getConnectedComponent - empty graph", () => {
   let g1 = new Graph();
   let fakeNode = "A";
@@ -819,6 +819,18 @@ test("Clone - Tests deep copy of graph structure (not contents) - test cloning s
   expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
+test("Clone - Tests deep copy of graph structure (not contents) - test double edges", () => {
+  let g1 = new Graph();
+  g1.addNode(0);
+  g1.addNode(1);
+  g1.addNode(2);
+  g1.addEdge(0,1);
+  g1.addEdge(1,2);
+  let g2 = g1.clone(x => x);
+  
+  expect(isomorphism(g1.getAdjList(),g2.getAdjList())).toBe(true);
+});
+
 test("Clone - Tests deep copy of graph structure (not contents) - test cloning mulitple edges", () => {
   let g1 = new Graph();
   g1.addNode("A");
@@ -844,6 +856,7 @@ test("Clone - Tests deep copy of graph structure (not contents) - test cloning m
   expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(false);
 });
 
+// TODO: actually make a test file for tools.js or put this function in another file (tried to make test for tools.js before but Jest complained it didn't know what 'document' was)
 // tests if supplying a function to copy the node data successfully makes a deep copy when we pass it to Graph.clone()
 test("NodeData clone test", () => {
   // for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in an object.
@@ -868,4 +881,33 @@ test("NodeData clone test", () => {
   expect(g1.getNodeValues().next().value.x).toBe(1);
   expect(g2.getNodeValues().next().value.x).toBe(0);
   expect(data.x).toBe(1);
+});
+
+test("NodeData clone test 2", () => {
+  function NodeData(counter, x, y) {
+    this.counter = counter;
+    this.x = x;
+    this.y = y;
+  }
+
+  function cloneNodeData(nodeData) {
+    return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
+  }
+
+  let g1 = new Graph();
+  let node1 = new NodeData(0,0,0);
+  let node2 = new NodeData(1,1,1);
+  let node3 = new NodeData(2,2,2);
+  g1.addNode(node1);
+  g1.addNode(node2);
+  g1.addNode(node3);
+  g1.addEdge(node1,node2);
+  g1.addEdge(node2,node3);
+  let g2 = g1.clone(cloneNodeData);
+  
+  g1.getNodeValues().next().value.x = 5; 
+  expect(g1.getNodeValues().next().value.x).toBe(5);
+  expect(g2.getNodeValues().next().value.x).toBe(0);
+  expect(g1.edgeCount).toBe(2);
+  expect(g2.edgeCount).toBe(2);
 });

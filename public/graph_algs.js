@@ -3,7 +3,6 @@ class Graph {
     this.adjList = [];
     this.nodeCount = 0;
     this.edgeCount = 0;
-    this.directedEdgeCount = 0;
     this.nodeValues = new Map(); // maps the values stored in the nodes (the "labels") to their indices in the adjacency list.
     this.indices = new Map(); // maps indices to the values stored in nodes (the "labels")
   }
@@ -18,6 +17,8 @@ class Graph {
   // returns true only if the graph contains these nodes already and the edge didn't already exist;
   // does NOT allow parallel edges (multiple edges between two nodes)
   // does allow self edges (node connected to itself)
+
+  // WARNING TODO: this function assumes bidirectional graph. Directed graph should either be other class or at least use a different method
   addEdge(nodeValue1, nodeValue2) {
     let containsNodes =
       this.nodeValues.has(nodeValue1) && this.nodeValues.has(nodeValue2);
@@ -25,25 +26,24 @@ class Graph {
     if (containsNodes) {
       let index1 = this.nodeValues.get(nodeValue1);
       let index2 = this.nodeValues.get(nodeValue2);
-      let addedEdge = false;
-      if (!this.adjList[index1].includes(index2)) {
-        this.adjList[index1].push(index2);
-        addedEdge = true;
-      }
+      let oneTwoExists = this.adjList[index1].includes(index2);
+      let twoOneExists = this.adjList[index2].includes(index1);
 
-      if (!this.adjList[index2].includes(index1)) {
+      if (!oneTwoExists || !twoOneExists) {
+        console.assert(
+          !oneTwoExists && !twoOneExists,
+          "graph had a directed edge; addEdge assumes graph is bidirectional"
+        );
+        this.adjList[index1].push(index2);
         this.adjList[index2].push(index1);
-        addedEdge = true;
-      }
-      if (addedEdge) {
         this.edgeCount++;
-        this.directedEdgeCount += 2;
       }
     }
+    return containsNodes;
   }
 
   // sees if graph has directed edge from 1 to 2 (but not 2 to 1)
-  containsEdge(nodeValue1,nodeValue2) {
+  containsEdge(nodeValue1, nodeValue2) {
     let index1 = this.nodeValues.get(this.nodeValues);
     let index2 = this.nodeValues.get(this.nodeValues);
     let adjList = this.getAdjList();
@@ -94,17 +94,26 @@ class Graph {
   // This has a nice side effect of making it easy to "map" a graph. You can make nodeCopyFunction any kind of function you want, the graph structure won't be affected.
   clone(nodeCopyFunction) {
     let clone = new Graph();
+    let nodeMap = new Map(); // maps this graph's node values to the clone's new node values
     for (const node of this.getNodeValues()) {
       let nodeClone = nodeCopyFunction(node);
       clone.addNode(nodeClone);
+      nodeMap.set(node, nodeClone);
     }
 
     for (const edge of this.getEdges()) {
-        clone.addEdge(edge[0],edge[1]);
+      let start = nodeMap.get(edge[0]);
+      let end = nodeMap.get(edge[1]);
+      clone.addEdge(start, end);
     }
-    console.assert(this.nodeCount === clone.nodeCount);
-    console.assert(this.edgeCount === clone.edgeCount);
-
+    console.assert(
+      this.nodeCount === clone.nodeCount,
+      `Node counts don't match`
+    );
+    console.assert(
+      this.edgeCount === clone.edgeCount,
+      `Edge counts don't match`
+    );
     return clone;
   }
 }

@@ -52,19 +52,16 @@ for (const tool of toolState.allTools) {
 
 canvas.style.cursor = toolState.curTool.cursor;
 
-// TODO: make/find an actual deque class to use here?
 let undoGraphStates = [];
-let redoGraphStates = [];
 let undoElem = document.getElementById('undo');
 if (undoElem) {
   undoElem.addEventListener(
     "click",
     () => {
       if (undoGraphStates.length > 0) {
-        redoGraphStates.push(graph.deepClone((n) => cloneNodeData(n)));
         graph = undoGraphStates.pop();
+        refreshHtml(graph, toolState);
       }
-      refreshHtml(graph, toolState);
     },
     false
   );
@@ -247,7 +244,7 @@ function canvasClick(event) {
 
   if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
-    undoGraphStates.push(graph);
+    undoGraphStates.push(graph.clone(cloneNodeData));
     let newNode = new NodeData(0, x, y);
     graph.addNode(newNode);
     basicTool.state.stillInNode = true;
@@ -258,7 +255,7 @@ function canvasClick(event) {
     basicTool.state.edgeStart = nodeClicked;
   } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
-    undoGraphStates.push(graph);
+    undoGraphStates.push(graph.clone(cloneNodeData));
     graph.addEdge(basicTool.state.edgeStart, nodeClicked);
     basicTool.state.edgeStart = nodeClicked;
     refreshHtml(graph, toolState);
