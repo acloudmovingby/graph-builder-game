@@ -911,3 +911,17 @@ test("NodeData clone test 2", () => {
   expect(g1.edgeCount).toBe(2);
   expect(g2.edgeCount).toBe(2);
 });
+
+test("Contains edge", () => {
+  let g1 = new Graph();
+  expect(g1.containsEdge("A","B")).toBe(false);
+
+  g1.addNode("A");
+  g1.addNode("B");
+  g1.addNode("C");
+  g1.addEdge("B","C");
+
+  expect(g1.containsEdge("A","B")).toBe(false);
+  expect(g1.containsEdge("A","C")).toBe(false);
+  expect(g1.containsEdge("B","C")).toBe(true);
+});
