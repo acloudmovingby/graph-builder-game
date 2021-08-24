@@ -47,14 +47,15 @@ let areaCompleteTool = new Tool(
 
 let magicPathTool = new Tool(
   "magic-path",
-  "url('images/magic-path-cursor.svg'), pointer",
+  "url('images/magic-path-cursor-2.svg'), pointer",
   {
     edgeMode: false,
     edgeStart: null,
-    cursor: "none",
+    normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
+    noneCursor: "none"
   },
   "Magic Path Tool",
-  "Click on a node then simply move the mouse over other nodes and a path will automatically be added! To exit, simply click on the gray canvas.",
+  "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!",
   "images/magic-path-tool-tooltip-example.gif"
 );
 
@@ -106,6 +107,19 @@ for (const tool of toolState.allTools) {
     );
   }
 }
+
+// if user presses 'escape' key, exit edge mode
+document.onkeydown = function (event) {
+  event = event || window.event;
+  var isEscape = false;
+  if ("key" in event) {
+    isEscape = event.key === "Escape" || event.key === "Esc";
+  }
+  if (isEscape) {
+    if (toolState.curTool === basicTool) exitBasicEdgeMode();
+    if (toolState.curTool === magicPathTool) exitMagicEdgeMode();
+  }
+};
 
 canvas.style.cursor = toolState.curTool.cursor;
 
@@ -324,17 +338,9 @@ function canvasClick(event) {
 
   if (toolState.curTool === magicPathTool) {
     if (nodeClicked && !magicPathTool.state.edgeMode) {
-      magicPathTool.state.edgeMode = true;
-      magicPathTool.state.edgeStart = nodeClicked;
-      let tempCursor = magicPathTool.cursor;
-      magicPathTool.cursor = magicPathTool.state.cursor;
-      magicPathTool.state.cursor = tempCursor;
+      enterMagicEdgeMode(nodeClicked);
     } else if (!nodeClicked && magicPathTool.state.edgeMode) {
-      magicPathTool.state.edgeMode = false;
-      magicPathTool.state.edgeStart = null;
-      let tempCursor = magicPathTool.cursor;
-      magicPathTool.cursor = magicPathTool.state.cursor;
-      magicPathTool.state.cursor = tempCursor;
+      exitMagicEdgeMode();
     }
     return;
   }
@@ -360,8 +366,7 @@ function canvasClick(event) {
     refreshHtml(graph, toolState);
   } else {
     // leave edge mode
-    basicTool.state.edgeMode = false;
-    basicTool.state.edgeStart = null;
+    exitBasicEdgeMode();
   }
 }
 
@@ -405,7 +410,12 @@ function mouseMove(event) {
     areaCompleteTool.state.drawPoints.push(new Point(mouseX, mouseY));
   }
 
-  if (nodeHover && toolState.curTool === magicPathTool && magicPathTool.state.edgeMode && nodeHover !== magicPathTool.state.edgeStart) {
+  if (
+    nodeHover &&
+    toolState.curTool === magicPathTool &&
+    magicPathTool.state.edgeMode &&
+    nodeHover !== magicPathTool.state.edgeStart
+  ) {
     if (!graph.containsEdge(basicTool.state.edgeStart, nodeHover)) {
       addToUndo(undoGraphStates, graph);
       graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
@@ -560,4 +570,22 @@ function generateAdjacencyMatrix(adjList) {
     }
   }
   return adjMatrix;
+}
+
+function exitBasicEdgeMode() {
+  basicTool.state.edgeMode = false;
+  basicTool.state.edgeStart = null;
+}
+
+function exitMagicEdgeMode() {
+  magicPathTool.state.edgeMode = false;
+  magicPathTool.state.edgeStart = null;
+  magicPathTool.cursor = magicPathTool.state.normalCursor;
+  refreshToolbarHtml(toolState);
+}
+
+function enterMagicEdgeMode(node) {
+  magicPathTool.state.edgeMode = true;
+  magicPathTool.state.edgeStart = node;
+  magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
