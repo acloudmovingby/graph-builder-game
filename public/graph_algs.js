@@ -16,10 +16,15 @@ class Graph {
 
   // returns true only if the graph contains these nodes already and the edge didn't already exist;
   // does NOT allow parallel edges (multiple edges between two nodes)
-  // does allow self edges (node connected to itself)
+  // does NOT allow self edges (node connected to itself)
 
   // WARNING TODO: this function assumes bidirectional graph. Directed graph should either be other class or at least use a different method
   addEdge(nodeValue1, nodeValue2) {
+    console.assert(nodeValue1 !== nodeValue2, "addEdge hasn't been designed yet to be used for self-edges");
+    if (nodeValue1 === nodeValue2) {
+      return false;
+    }
+    
     let containsNodes =
       this.nodeValues.has(nodeValue1) && this.nodeValues.has(nodeValue2);
     let addedEdge = false;

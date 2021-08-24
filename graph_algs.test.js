@@ -925,3 +925,13 @@ test("Contains edge", () => {
   expect(g1.containsEdge("A","C")).toBe(false);
   expect(g1.containsEdge("B","C")).toBe(true);
 });
+
+test("Test addEdge returns boolean", () => {
+  let g1 = new Graph();
+  g1.addNode("A");
+  g1.addNode("B");
+  expect(g1.addEdge("A","C")).toBe(false);
+  expect(g1.addEdge("B","C")).toBe(false);
+  expect(g1.addEdge("A","B")).toBe(true);
+  expect(g1.addEdge("A","B")).toBe(false); // after edge added you can't keep adding (no parallel edges)
+});

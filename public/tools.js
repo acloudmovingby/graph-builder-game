@@ -416,7 +416,7 @@ function mouseMove(event) {
     magicPathTool.state.edgeMode &&
     nodeHover !== magicPathTool.state.edgeStart
   ) {
-    if (!graph.containsEdge(basicTool.state.edgeStart, nodeHover)) {
+    if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
       addToUndo(undoGraphStates, graph);
       graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
     }
@@ -436,20 +436,17 @@ function mouseUp() {
     return inside(pt, selectionArea);
   });
 
-  if (selected.length !== 0) {
-    addToUndo(undoGraphStates, graph);
-  }
+  let edgesAdded = false;
   for (let i = 0; i < selected.length; i++) {
     for (let j = 0; j < selected.length; j++) {
       if (i != j) {
         // don't allow self edges
-        graph.addEdge(selected[i], selected[j]);
+        edgesAdded = edgesAdded || graph.addEdge(selected[i], selected[j]);
       }
     }
   }
 
-  if (toolState.curTool === areaCompleteTool) {
-  }
+  if (edgesAdded) addToUndo(undoGraphStates, graph);
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
