@@ -22,7 +22,7 @@ class Graph {
   addEdge(nodeValue1, nodeValue2) {
     let containsNodes =
       this.nodeValues.has(nodeValue1) && this.nodeValues.has(nodeValue2);
-
+    let addedEdge = false;
     if (containsNodes) {
       let index1 = this.nodeValues.get(nodeValue1);
       let index2 = this.nodeValues.get(nodeValue2);
@@ -32,22 +32,27 @@ class Graph {
       if (!oneTwoExists || !twoOneExists) {
         console.assert(
           !oneTwoExists && !twoOneExists,
-          "graph had a directed edge; addEdge assumes graph is bidirectional"
+          "graph had a directed edge; addEdge assumes graph is bidirectional; edge added anyway"
         );
+        addedEdge = true;
         this.adjList[index1].push(index2);
         this.adjList[index2].push(index1);
         this.edgeCount++;
       }
     }
-    return containsNodes;
+    return addedEdge;
   }
 
   // sees if graph has directed edge from 1 to 2 (but not 2 to 1)
   containsEdge(nodeValue1, nodeValue2) {
-    let index1 = this.nodeValues.get(this.nodeValues);
-    let index2 = this.nodeValues.get(this.nodeValues);
-    let adjList = this.getAdjList();
-    return adjList[index1].contains(index2) && adjList[index2].contains(index1);
+    if (!this.nodeValues.has(nodeValue1) || !this.nodeValues.has(nodeValue2)) {
+      return false;
+    } else {
+      let index1 = this.nodeValues.get(nodeValue1);
+      let index2 = this.nodeValues.get(nodeValue2);
+      let adjList = this.getAdjList();
+      return adjList[index1].includes(index2) && adjList[index2].includes(index1);
+    }
   }
 
   // returns adjacency list as just indices (the pure structure of the graph without the values it stores)

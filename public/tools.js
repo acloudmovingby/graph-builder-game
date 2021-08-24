@@ -1,5 +1,6 @@
 let canvas = document.getElementById("canvas");
-const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth; // this MUST match the grid-template-columns max width in .container in the CSS file
+const infoPaneWidth =
+  document.getElementsByClassName("info-panel")?.[0].offsetWidth; // this MUST match the grid-template-columns max width in .container in the CSS file
 let graph = new Graph();
 let mouseX = 0;
 let mouseY = 0;
@@ -42,7 +43,7 @@ for (const tool of toolState.allTools) {
       () => {
         {
           toolState.curTool = tool;
-          refreshHtml(graph,toolState);
+          refreshHtml(graph, toolState);
         }
       },
       false
@@ -53,13 +54,9 @@ for (const tool of toolState.allTools) {
 canvas.style.cursor = toolState.curTool.cursor;
 
 let undoGraphStates = [];
-let undoElem = document.getElementById('undo');
+let undoElem = document.getElementById("undo");
 if (undoElem) {
-  undoElem.addEventListener(
-    "click",
-    undo,
-    false
-  );
+  undoElem.addEventListener("click", undo, false);
 }
 
 function undo() {
@@ -70,13 +67,15 @@ function undo() {
 }
 
 // limit on past number of states
-function addToUndo() {
+function addToUndo(undoGraphStates, graph) {
+  const UNDO_SIZE_LIMIT = 20;
   undoGraphStates.push(graph.clone(cloneNodeData));
-  if (undoGraphStates.length>10) {
+  if (undoGraphStates.length > UNDO_SIZE_LIMIT) {
     undoGraphStates.shift(1);
   }
 }
 
+refreshHtml(graph, toolState);
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
@@ -143,10 +142,7 @@ function draw() {
       if (nodes[i] === basicTool.state.edgeStart) {
         ctx.strokeStyle = "#FA5750";
         ctx.fillStyle = "#FA5750";
-      } else if (
-        toolState.curTool === basicTool &&
-        basicTool.state.edgeMode
-      ) {
+      } else if (toolState.curTool === basicTool && basicTool.state.edgeMode) {
         ctx.strokeStyle = "#FA5750";
         ctx.fillStyle = "white";
       } else {
@@ -218,7 +214,7 @@ function NodeData(counter, x, y) {
 // need to make deep copy for undo/redo
 // TODO: should we make NodeData a class?
 function cloneNodeData(nodeData) {
-  return new NodeData(nodeData.counter,nodeData.x,nodeData.y); 
+  return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
 }
 
 // returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
@@ -254,7 +250,7 @@ function canvasClick(event) {
 
   if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
-    addToUndo();
+    addToUndo(undoGraphStates, graph);
     let newNode = new NodeData(0, x, y);
     graph.addNode(newNode);
     basicTool.state.stillInNode = true;
@@ -265,8 +261,10 @@ function canvasClick(event) {
     basicTool.state.edgeStart = nodeClicked;
   } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
-    addToUndo();
-    graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+    if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
+      addToUndo(undoGraphStates, graph);
+      graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+    }
     basicTool.state.edgeStart = nodeClicked;
     refreshHtml(graph, toolState);
   } else {
@@ -329,7 +327,7 @@ function mouseUp() {
   });
 
   if (selected.length !== 0) {
-    addToUndo();
+    addToUndo(undoGraphStates, graph);
   }
   for (let i = 0; i < selected.length; i++) {
     for (let j = 0; j < selected.length; j++) {
@@ -339,13 +337,11 @@ function mouseUp() {
       }
     }
   }
-  
 
   if (toolState.curTool === areaCompleteTool) {
     canvas.style.cursor = areaCompleteTool.state.cursor;
   }
 
- 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
   refreshHtml(graph, toolState);
@@ -381,7 +377,6 @@ function refreshAdjListHtml(graph) {
   }
 }
 
-
 function refreshToolbarHtml(toolState) {
   for (const tool of toolState.allTools) {
     let toolElem = document.getElementById(tool.id);
@@ -390,6 +385,14 @@ function refreshToolbarHtml(toolState) {
   let curToolElem = document.getElementById(toolState.curTool.id);
   curToolElem.className = "tool-btn selected";
   canvas.style.cursor = toolState.curTool.cursor;
+
+  let undoElem = document.getElementById("undo");
+  if (undoElem) {
+    undoElem.style.backgroundImage =
+    undoGraphStates.length === 0
+        ? 'url("images/undo-icon-gray.svg")'
+        : 'url("images/undo-icon.svg")';
+  }
 }
 
 function setCommentary() {
