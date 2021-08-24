@@ -51,16 +51,16 @@ let magicPathTool = new Tool(
   {
     edgeMode: false,
     edgeStart: null,
-    cursor:"url('images/area-complete-cursor.svg'), pointer"
+    cursor: "none",
   },
   "Magic Path Tool",
-  "Click once on a node to start, then simply move the target area over other nodes to make edges. To exit this path building mode, simply click on the gray canvas.",
-  "images/basic-tool-tooltip-example.gif"
+  "Click on a node then simply move the mouse over other nodes and a path will automatically be added! To exit, simply click on the gray canvas.",
+  "images/magic-path-tool-tooltip-example.gif"
 );
 
 const toolState = {
   curTool: basicTool,
-  allTools: [basicTool, areaCompleteTool,magicPathTool],
+  allTools: [basicTool, areaCompleteTool, magicPathTool],
 };
 
 // event listener for clicking on a tool
@@ -91,8 +91,10 @@ for (const tool of toolState.allTools) {
             let toolBtnOffsetLeft = document.getElementById(tool.id).offsetLeft;
             let toolBtnWidth = document.getElementById(tool.id).offsetWidth;
             let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
-            hoverInfoElement.style.left = `${toolBtnOffsetLeft + toolBtnWidth/2}px`;
-            hoverInfoElement.style.top = `${toolBtnHeight-5}px`;
+            hoverInfoElement.style.left = `${
+              toolBtnOffsetLeft + toolBtnWidth / 2
+            }px`;
+            hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
             document.getElementById("hover-header").innerHTML = tool.header;
             document.getElementById("hover-description").innerHTML =
               tool.description;
@@ -165,11 +167,15 @@ function draw() {
     ctx.fillText("clear", 35, 35);
 
     //edge mode, draw edge from edgeStart to mouse cursor
-    if (toolState.curTool === basicTool && basicTool.state.edgeMode) {
+    let inBasicEdgeMode =
+      toolState.curTool === basicTool && basicTool.state.edgeMode;
+    let inMagicPathEdgeMode =
+      toolState.curTool === magicPathTool && magicPathTool.state.edgeMode;
+    if (inBasicEdgeMode || inMagicPathEdgeMode) {
       ctx.beginPath();
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
-      let edgeStart = basicTool.state.edgeStart;
+      let edgeStart = toolState.curTool.state.edgeStart;
       ctx.moveTo(edgeStart.x, edgeStart.y);
       ctx.lineTo(mouseX, mouseY);
       ctx.closePath();
@@ -193,12 +199,14 @@ function draw() {
     for (let i = 0; i < nodes.length; i++) {
       ctx.beginPath();
       ctx.lineWidth = 8;
-      if (nodes[i] === basicTool.state.edgeStart) {
-        ctx.strokeStyle = "#FA5750";
-        ctx.fillStyle = "#FA5750";
-      } else if (toolState.curTool === basicTool && basicTool.state.edgeMode) {
-        ctx.strokeStyle = "#FA5750";
-        ctx.fillStyle = "white";
+      if (inBasicEdgeMode || inMagicPathEdgeMode) {
+        if (nodes[i] === toolState.curTool.state.edgeStart) {
+          ctx.strokeStyle = "#FA5750";
+          ctx.fillStyle = "#FA5750";
+        } else {
+          ctx.strokeStyle = "#FA5750";
+          ctx.fillStyle = "white";
+        }
       } else {
         ctx.strokeStyle = "#32BFE3";
         ctx.fillStyle = "#32BFE3";
@@ -251,19 +259,20 @@ function draw() {
         ctx.lineTo(cur.x, cur.y);
       }
 
-/* Magic path tool...
-      if (edgeMode) {
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5,5]);
-        ctx.strokeStyle = "black";
-        ctx.arc(mouseX, mouseY, 30, 0, Math.PI*2, false);
-        ctx.closePath();
-        ctx.stroke();
-      }*/
-
       ctx.stroke();
       ctx.fill();
+    }
+
+    // dotted circle target for magic path tool
+    if (toolState.curTool === magicPathTool && magicPathTool.state.edgeMode) {
+      ctx.closePath();
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = "black";
+      ctx.arc(mouseX, mouseY, 30, 0, Math.PI * 2, false);
+      ctx.closePath();
+      ctx.stroke();
     }
   }
   window.requestAnimationFrame(draw);
@@ -314,15 +323,15 @@ function canvasClick(event) {
   let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
 
   if (toolState.curTool === magicPathTool) {
-    if (nodeClicked && !magicPathTool.edgeMode) {
-      magicPathTool.edgeMode = true;
-      magicPathTool.edgeStart = nodeClicked;
+    if (nodeClicked && !magicPathTool.state.edgeMode) {
+      magicPathTool.state.edgeMode = true;
+      magicPathTool.state.edgeStart = nodeClicked;
       let tempCursor = magicPathTool.cursor;
       magicPathTool.cursor = magicPathTool.state.cursor;
       magicPathTool.state.cursor = tempCursor;
-    } else if (!nodeClicked && magicPathTool.edgeMode) {
-      magicPathTool.edgeMode = false;
-      magicPathTool.edgeStart = null;
+    } else if (!nodeClicked && magicPathTool.state.edgeMode) {
+      magicPathTool.state.edgeMode = false;
+      magicPathTool.state.edgeStart = null;
       let tempCursor = magicPathTool.cursor;
       magicPathTool.cursor = magicPathTool.state.cursor;
       magicPathTool.state.cursor = tempCursor;
@@ -394,6 +403,15 @@ function mouseMove(event) {
     areaCompleteTool.state.mousePressed
   ) {
     areaCompleteTool.state.drawPoints.push(new Point(mouseX, mouseY));
+  }
+
+  if (nodeHover && toolState.curTool === magicPathTool && magicPathTool.state.edgeMode && nodeHover !== magicPathTool.state.edgeStart) {
+    if (!graph.containsEdge(basicTool.state.edgeStart, nodeHover)) {
+      addToUndo(undoGraphStates, graph);
+      graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
+    }
+    magicPathTool.state.edgeStart = nodeHover;
+    refreshHtml(graph, toolState);
   }
 }
 
