@@ -68,7 +68,7 @@ function undo() {
 
 // limit on past number of states
 function addToUndo(undoGraphStates, graph) {
-  const UNDO_SIZE_LIMIT = 20;
+  const UNDO_SIZE_LIMIT = 25;
   undoGraphStates.push(graph.clone(cloneNodeData));
   if (undoGraphStates.length > UNDO_SIZE_LIMIT) {
     undoGraphStates.shift(1);
