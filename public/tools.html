@@ -9,17 +9,21 @@
   </head>
   <body>
     <div class="flex">
-      <div class="toolbar">
-        <button id="basic" class="tool-btn selected"></button>
-        <button id="area-complete" class="tool-btn"></button>
-        <button id="undo" class="tool-btn"></button>
-        <div id="hover-info-pane">
-          <div class="hover-info-text">
-            <p id="hover-header" class="header">Graph Title</p>
-            <p id="hover-description">This is a bunch of info about this particular graph.</p>
+      <div class="navbar">
+        <div class="toolbar">
+          <button id="basic" class="tool-btn selected"></button>
+          <button id="area-complete" class="tool-btn"></button>
+          <div id="hover-info-pane">
+            <div class="hover-info-text">
+              <p id="hover-header" class="header">Graph Title</p>
+              <p id="hover-description">
+                This is a bunch of info about this particular graph.
+              </p>
+            </div>
+            <img id="hover-info-img" src="images/paw.png" />
           </div>
-          <img id="hover-info-img" src="images/paw.png">
         </div>
+        <button id="undo" class="tool-btn"></button>
       </div>
       <div class="container">
         <canvas id="canvas"></canvas>
@@ -52,7 +56,6 @@
         </div>
       </div>
     </div>
-    
   </body>
   <script>
     exports = {};
