@@ -192,7 +192,13 @@ p,
   background-image: url("images/area-complete-cursor-white.svg");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 2rem;
+  background-size: 1.5rem;
+}
+
+#magic-path {
+  background-image: url("images/magic-path-icon.svg");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 #undo {

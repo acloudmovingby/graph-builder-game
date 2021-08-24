@@ -45,9 +45,22 @@ let areaCompleteTool = new Tool(
   "images/area-complete-tool-tooltip-example.gif"
 );
 
+let magicPathTool = new Tool(
+  "magic-path",
+  "url('images/magic-path-cursor.svg'), pointer",
+  {
+    edgeMode: false,
+    edgeStart: null,
+    cursor:"url('images/area-complete-cursor.svg'), pointer"
+  },
+  "Magic Path Tool",
+  "Click once on a node to start, then simply move the target area over other nodes to make edges. To exit this path building mode, simply click on the gray canvas.",
+  "images/basic-tool-tooltip-example.gif"
+);
+
 const toolState = {
   curTool: basicTool,
-  allTools: [basicTool, areaCompleteTool],
+  allTools: [basicTool, areaCompleteTool,magicPathTool],
 };
 
 // event listener for clicking on a tool
@@ -238,6 +251,17 @@ function draw() {
         ctx.lineTo(cur.x, cur.y);
       }
 
+/* Magic path tool...
+      if (edgeMode) {
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5,5]);
+        ctx.strokeStyle = "black";
+        ctx.arc(mouseX, mouseY, 30, 0, Math.PI*2, false);
+        ctx.closePath();
+        ctx.stroke();
+      }*/
+
       ctx.stroke();
       ctx.fill();
     }
@@ -288,6 +312,23 @@ function canvasClick(event) {
   }
 
   let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
+
+  if (toolState.curTool === magicPathTool) {
+    if (nodeClicked && !magicPathTool.edgeMode) {
+      magicPathTool.edgeMode = true;
+      magicPathTool.edgeStart = nodeClicked;
+      let tempCursor = magicPathTool.cursor;
+      magicPathTool.cursor = magicPathTool.state.cursor;
+      magicPathTool.state.cursor = tempCursor;
+    } else if (!nodeClicked && magicPathTool.edgeMode) {
+      magicPathTool.edgeMode = false;
+      magicPathTool.edgeStart = null;
+      let tempCursor = magicPathTool.cursor;
+      magicPathTool.cursor = magicPathTool.state.cursor;
+      magicPathTool.state.cursor = tempCursor;
+    }
+    return;
+  }
 
   if (!basicTool.state.edgeMode && !nodeClicked) {
     // create new Node
@@ -380,7 +421,6 @@ function mouseUp() {
   }
 
   if (toolState.curTool === areaCompleteTool) {
-    canvas.style.cursor = areaCompleteTool.state.cursor;
   }
 
   areaCompleteTool.state.mousePressed = false;
