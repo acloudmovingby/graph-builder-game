@@ -52,7 +52,7 @@ let magicPathTool = new Tool(
     edgeMode: false,
     edgeStart: null,
     normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
-    noneCursor: "none"
+    noneCursor: "none",
   },
   "Magic Path Tool",
   "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!",
@@ -353,9 +353,7 @@ function canvasClick(event) {
     basicTool.state.stillInNode = true;
     refreshHtml(graph, toolState);
   } else if (!basicTool.state.edgeMode) {
-    // start edge on the node clicked
-    basicTool.state.edgeMode = true;
-    basicTool.state.edgeStart = nodeClicked;
+    enterBasicEdgeMode(nodeClicked);
   } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
     // add edge
     if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
@@ -371,17 +369,18 @@ function canvasClick(event) {
 }
 
 function clearGraph() {
+  addToUndo(undoGraphStates,graph);
   graph = new Graph();
-  basicTool.state.edgeMode = false;
-  basicTool.state.edgeStart = null;
+  exitBasicEdgeMode();
+  exitMagicEdgeMode();
   nodeHover = null;
   basicTool.state.stillInNode = false;
   refreshHtml(graph, toolState);
 }
 
 function mouseLeave(event) {
-  basicTool.state.edgeMode = false;
-  basicTool.state.edgeStart = null;
+  exitBasicEdgeMode();
+  exitMagicEdgeMode();
 }
 
 function mouseMove(event) {
@@ -436,17 +435,20 @@ function mouseUp() {
     return inside(pt, selectionArea);
   });
 
-  let edgesAdded = false;
-  for (let i = 0; i < selected.length; i++) {
-    for (let j = 0; j < selected.length; j++) {
-      if (i != j) {
-        // don't allow self edges
-        edgesAdded = edgesAdded || graph.addEdge(selected[i], selected[j]);
+  if (selected.length > 0) {
+    let anyEdgesAdded = false;
+    let graphClone = graph.clone(cloneNodeData);
+    for (let i = 0; i < selected.length; i++) {
+      for (let j = 0; j < selected.length; j++) {
+        if (i != j) {
+          // don't allow self edges
+          let edgeAdded = graph.addEdge(selected[i], selected[j]);
+          anyEdgesAdded = anyEdgesAdded || edgeAdded;
+        }
       }
     }
+    if (anyEdgesAdded) addToUndo(undoGraphStates, graphClone);
   }
-
-  if (edgesAdded) addToUndo(undoGraphStates, graph);
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
@@ -567,6 +569,11 @@ function generateAdjacencyMatrix(adjList) {
     }
   }
   return adjMatrix;
+}
+
+function enterBasicEdgeMode(node) {
+  basicTool.state.edgeMode = true;
+  basicTool.state.edgeStart = node;
 }
 
 function exitBasicEdgeMode() {
