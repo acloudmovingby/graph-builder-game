@@ -39,7 +39,7 @@ body {
 }
 
 .info-section {
-  padding: 1rem 2rem;
+  padding: 1.5rem 1.5rem;
   height: auto;
   border-bottom: 1px solid #f0f0f0;
   line-height: 1.3;
@@ -123,6 +123,7 @@ p,
 }
 
 .header {
+  margin-top: 0rem;
   font-weight:bold;
 }
 
@@ -142,6 +143,10 @@ p,
   height: auto;
   display: flex;
   align-items: center;
+}
+
+.toolbar:hover #hover-info-pane {
+  visibility: visible;
 }
 
 .tool-btn {
@@ -193,22 +198,22 @@ p,
   filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.7));
 }
 
-#egg-info-pane {
+#hover-info-pane {
   position: absolute;
   visibility: hidden;
   display: flex;
   align-items: flex-start;
   border-radius: 4px;
   background-color: white;
-  padding: 14px;
+  padding: 25px;
   filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.4));
 }
 
-.egg-info-text {
+.hover-info-text {
   width: 250px;
 }
 
-#egg-info-img {
+#hover-info-img {
   align-self: center;
   margin-left: 14px;
   width: 100px;
@@ -217,7 +222,7 @@ p,
   background-color: grey;
 }
 
-.egg-info-text > .header {
+.hover-info-text > .header {
   margin-top: 0rem;
 }
 

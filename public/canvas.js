@@ -176,18 +176,18 @@ if (eggsHtml) {
       (event) => {
         let egg = easterEggState.eggs.find((egg) => egg.id === eggsHtml[i].id);
         if (egg) {
-          let eggInfoElement = document.getElementById("egg-info-pane");
-          eggInfoElement.style.visibility = "visible";
-          eggInfoElement.style.left = `${
-            event.x - eggInfoElement.offsetWidth
+          let hoverInfoElement = document.getElementById("hover-info-pane");
+          hoverInfoElement.style.visibility = "visible";
+          hoverInfoElement.style.left = `${
+            event.x - hoverInfoElement.offsetWidth
           }px`;
-          eggInfoElement.style.top = `${event.y}px`;
-          document.getElementById("egg-description").innerHTML = egg.discovered
+          hoverInfoElement.style.top = `${event.y}px`;
+          document.getElementById("hover-description").innerHTML = egg.discovered
             ? egg.description
             : "...not yet discovered...";
-          document.getElementById("egg-header").innerHTML =
+          document.getElementById("hover-header").innerHTML =
             egg.discovered ? egg.title : "???";
-            document.getElementById("egg-info-img").src = egg.discovered ? `images/${egg.id}.png` : "images/blank.png";
+            document.getElementById("hover-info-img").src = egg.discovered ? `images/${egg.id}.png` : "images/blank.png";
         }
       },
       false
@@ -195,8 +195,8 @@ if (eggsHtml) {
     eggsHtml[i].addEventListener(
       "mouseleave",
       (event) => {
-        let eggInfoElement = document.getElementById("egg-info-pane");
-        eggInfoElement.style.visibility = "hidden";
+        let hoverInfoElement = document.getElementById("hover-info-pane");
+        hoverInfoElement.style.visibility = "hidden";
       },
       false
     );
@@ -476,24 +476,22 @@ function setCommentary(graph) {
     commentary = "So close...";
   } else if (connected.nodeCount === graph.nodeCount && graph.nodeCount > 6) {
     commentary = "Feelin connected!!";
-  } else if (graph.nodeCount >= 70 && graph.edgeCount > 30) {
+  } else if (graph.nodeCount >= 65 && graph.edgeCount > 30) {
     commentary =
       "Are you actually trying to connect all those? Please don't. I was joking. To complete this graph would take at least 2,556 edges.";
-  } else if (graph.nodeCount >= 70) {
+  } else if (graph.nodeCount >= 65) {
     commentary =
       "So there's a MEGA EASTER EGG in this game. Hint: start making edges...";
   } else if (graph.nodeCount >= 60) {
-    commentary = "Are the animations still smooth? I bet they are :) ";
+    commentary = "This is a lot nodes. Are the animations still smooth? :) ";
   } else if (graph.nodeCount >= 50) {
-    commentary = "Yeah it is.";
-  } else if (graph.nodeCount >= 40) {
     commentary = "Is your finger tired?";
-  } else if (graph.nodeCount >= 30) {
+  } else if (graph.nodeCount >= 40) {
     commentary = "Make the screen blue with nodes for all I care...";
-  } else if (graph.nodeCount >= 25) {
+  } else if (graph.nodeCount >= 35) {
     commentary =
       "That's a lot of nodes. Are you trying to break my program? 😈 Try your best...";
-  } else if (graph.nodeCount >= 15) {
+  } else if (graph.nodeCount >= 25) {
     commentary = "You're adding a lot of nodes.";
   }
   document.getElementById("commentary").innerHTML =

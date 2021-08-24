@@ -6,21 +6,32 @@ let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
 let clearButtonHover = false;
+let infoPaneHover = false;
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
-function Tool(id, cursor, state) {
+function Tool(id, cursor, state, header, description, image) {
   this.id = id; // html id
   this.cursor = cursor; // css for url of cursor image
   this.state = state; // every tool is responsible for managing the state it requires (e.g. the prior node clicked, an array of nodes selected, etc.); having each tool store its own state cuts down on global variables
+  this.description = description;
+  this.header = header;
+  this.image = image;
 }
 
-let basicTool = new Tool("basic", "url('images/pointer.svg'), pointer", {
-  edgeMode: false,
-  edgeStart: null,
-  stillInNode: false, // prevents hover effect happening immediately after you add a point. value=true if mouse is still inside node bounds for a node that was just created
-});
+let basicTool = new Tool(
+  "basic",
+  "url('images/pointer.svg'), pointer",
+  {
+    edgeMode: false,
+    edgeStart: null,
+    stillInNode: false, // prevents hover effect happening immediately after you add a point. value=true if mouse is still inside node bounds for a node that was just created
+  },
+  "Basic Node/Edge Adding Tool",
+  "Click to make nodes, then click on a node to begin adding edges. To exit edge making mode, simply click on the gray canvas.",
+  "images/basic-tool-tooltip-example.gif"
+);
 
 let areaCompleteTool = new Tool(
   "area-complete",
@@ -28,7 +39,10 @@ let areaCompleteTool = new Tool(
   {
     mousePressed: false,
     drawPoints: [], // forms a polygon representing the selected area
-  }
+  },
+  "Area Complete Tool",
+  "Adds all possible edges between nodes in the selected area.",
+  "images/area-complete-tool-tooltip-example.gif"
 );
 
 const toolState = {
@@ -36,6 +50,7 @@ const toolState = {
   allTools: [basicTool, areaCompleteTool],
 };
 
+// event listener for clicking on a tool
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
     document.getElementById(tool.id).addEventListener(
@@ -44,6 +59,32 @@ for (const tool of toolState.allTools) {
         {
           toolState.curTool = tool;
           refreshHtml(graph, toolState);
+        }
+      },
+      false
+    );
+  }
+}
+
+// set info/location for tooltip (when hovering over tools)
+for (const tool of toolState.allTools) {
+  if (document.getElementById(tool.id)) {
+    document.getElementById(tool.id).addEventListener(
+      "mouseenter",
+      (event) => {
+        {
+          let hoverInfoElement = document.getElementById("hover-info-pane");
+          if (hoverInfoElement) {
+            let toolBtnOffsetLeft = document.getElementById(tool.id).offsetLeft;
+            let toolBtnWidth = document.getElementById(tool.id).offsetWidth;
+            let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
+            hoverInfoElement.style.left = `${toolBtnOffsetLeft + toolBtnWidth/2}px`;
+            hoverInfoElement.style.top = `${toolBtnHeight-5}px`;
+            document.getElementById("hover-header").innerHTML = tool.header;
+            document.getElementById("hover-description").innerHTML =
+              tool.description;
+            document.getElementById("hover-info-img").src = tool.image;
+          }
         }
       },
       false
@@ -389,7 +430,7 @@ function refreshToolbarHtml(toolState) {
   let undoElem = document.getElementById("undo");
   if (undoElem) {
     undoElem.style.backgroundImage =
-    undoGraphStates.length === 0
+      undoGraphStates.length === 0
         ? 'url("images/undo-icon-gray.svg")'
         : 'url("images/undo-icon.svg")';
   }
