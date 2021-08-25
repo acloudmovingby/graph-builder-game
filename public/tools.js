@@ -369,7 +369,7 @@ function canvasClick(event) {
 }
 
 function clearGraph() {
-  addToUndo(undoGraphStates,graph);
+  addToUndo(undoGraphStates, graph);
   graph = new Graph();
   exitBasicEdgeMode();
   exitMagicEdgeMode();
@@ -504,9 +504,9 @@ function refreshToolbarHtml(toolState) {
 }
 
 function setCommentary() {
-  let commentary = "Nice graph!";
+  /*let commentary = ""; 
   document.getElementById("commentary").innerHTML =
-    "&#34;" + commentary + "&#34;";
+    "&#34;" + commentary + "&#34;";*/
 }
 
 function Point(x, y) {
@@ -593,3 +593,37 @@ function enterMagicEdgeMode(node) {
   magicPathTool.state.edgeStart = node;
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
+
+document.getElementById("export-pane-select").addEventListener(
+  "click",
+  () => {
+    for (const elem of document.getElementsByClassName("info-pane-only")) {
+      elem.style.display = 'none';
+    }
+    for (const elem of document.getElementsByClassName("export-pane-only")) {
+      elem.style.display = 'block';
+    }
+    document.getElementById("export-pane-select").style.color = 'black';
+    document.getElementById("export-pane-select").style.fontWeight = 'bold';  
+    document.getElementById("info-pane-select").style.color = 'gray';
+    document.getElementById("info-pane-select").style.fontWeight = 'normal'; 
+  },
+  false
+);
+
+document.getElementById("info-pane-select").addEventListener(
+  "click",
+  () => {
+    for (const elem of document.getElementsByClassName("export-pane-only")) {
+      elem.style.display = 'none';
+    }
+    for (const elem of document.getElementsByClassName("info-pane-only")) {
+      elem.style.display = 'block';
+    }
+    document.getElementById("info-pane-select").style.color = 'black';
+    document.getElementById("info-pane-select").style.fontWeight = 'bold';  
+    document.getElementById("export-pane-select").style.color = 'gray';
+    document.getElementById("export-pane-select").style.fontWeight = 'normal';  
+  },
+  false
+);

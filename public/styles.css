@@ -36,10 +36,13 @@ body {
 .info-panel {
   grid-column-start: 2;
   grid-column-end: 3;
+  height:90vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .info-section {
-  padding: 1.5rem 1.5rem;
+  padding: 1.2rem 1.2rem;
   height: auto;
   border-bottom: 1px solid #f0f0f0;
   line-height: 1.3;
@@ -51,17 +54,32 @@ body {
 
 .info-area {
   padding: 0rem 1rem;
-  padding-bottom: 1.3rem;
 }
 
-p,
+p, a,
 #adjacency-list {
-  font-size: 0.8rem;
+  font-size: 0.77rem;
 }
 
 .info-name {
   color: gray;
   display: inline;
+}
+
+.info-pane-header {
+  padding-right: 2rem;
+  display: inline;
+  font-weight: bold;
+  margin-top: 0rem;
+}
+
+#export-pane-select {
+  color: gray;
+  font-weight: normal;
+}
+
+#export-pane-select:hover {
+  color:black;
 }
 
 .text-center {
@@ -125,6 +143,11 @@ p,
 .header {
   margin-top: 0rem;
   font-weight:bold;
+}
+
+.inline{
+  display:inline;
+  padding-right:1.2rem;
 }
 
 #adjacency-list {
@@ -241,11 +264,15 @@ p,
 }
 
 .adj-list-area {
-  height: 120px;
+  height: 110px;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
 #adj-matrix {
   border: 1px solid lightgray;
+}
+
+#export-pane {
+  display: none;
 }

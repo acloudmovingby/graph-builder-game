@@ -16,9 +16,9 @@
           <button id="magic-path" class="tool-btn"></button>
           <div id="hover-info-pane">
             <div class="hover-info-text">
-              <p id="hover-header" class="header">Graph Title</p>
+              <p id="hover-header" class="header">Tool</p>
               <p id="hover-description">
-                This is a bunch of info about this particular graph.
+                This is info about the tools.
               </p>
             </div>
             <img id="hover-info-img" src="images/paw.png" />
@@ -30,6 +30,15 @@
         <canvas id="canvas"></canvas>
         <div class="info-panel">
           <div class="info-section">
+            <p id="info-pane-select" class="info-pane-header">Info</p>
+            <p id="export-pane-select" class="info-pane-header">Export</p>
+          </div>
+          <div id="export-pane" class="info-section export-pane-only">
+            <p class="info-name">...Coming soon...</p>
+            <br>
+            <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">I would love feedback!</a>
+          </div>
+          <div class="info-section info-pane-only">
             <p class="header">Graph Info</p>
             <div class="info-area">
               <p class="info-name">Nodes:</p>
@@ -39,17 +48,20 @@
               <p id="edge-count">0</p>
             </div>
           </div>
-          <div class="info-section">
+          <div class="info-section info-pane-only">
             <p class="header">Adjacency List</p>
             <div class="info-area adj-list-area">
               <ul id="adjacency-list"></ul>
             </div>
           </div>
-          <div class="info-section">
+          <div class="info-section info-pane-only">
             <p class="header">Adjacency Matrix</p>
             <div class="info-area">
               <canvas id="adj-matrix" width="180" height="180"></canvas>
             </div>
+          </div>
+          <div class="info-section info-pane-only">
+            <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback (I would love it!)</a>
           </div>
           <div class="info-section bottom">
             <p id="commentary"></p>
