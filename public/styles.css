@@ -36,7 +36,6 @@ body {
 .info-panel {
   grid-column-start: 2;
   grid-column-end: 3;
-  height:90vh;
   overflow-x: hidden;
   overflow-y: auto;
 }
