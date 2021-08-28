@@ -59,9 +59,20 @@ let magicPathTool = new Tool(
   "images/magic-path-tool-tooltip-example.gif"
 );
 
+let moveTool = new Tool(
+  "move",
+  "url('images/area-complete-cursor.svg'), pointer",
+  {
+    node: null, // the node you're currently moving on the screen
+  },
+  "Move Tool",
+  "Click and drag it around.",
+  "images/magic-path-tool-tooltip-example.gif"
+);
+
 const toolState = {
-  curTool: basicTool,
-  allTools: [basicTool, areaCompleteTool, magicPathTool],
+  curTool: moveTool,
+  allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
 };
 
 // event listener for clicking on a tool
@@ -323,6 +334,7 @@ function canvasClick(event) {
   let x = event.x - canvasBounds.left;
   let y = event.y - canvasBounds.top;
 
+  // TODO: put clear button in HTML, not in canvas
   if (clearButtonHover) {
     clearGraph();
     return;
@@ -345,26 +357,33 @@ function canvasClick(event) {
     return;
   }
 
-  if (!basicTool.state.edgeMode && !nodeClicked) {
-    // create new Node
-    addToUndo(undoGraphStates, graph);
-    let newNode = new NodeData(0, x, y);
-    graph.addNode(newNode);
-    basicTool.state.stillInNode = true;
-    refreshHtml(graph, toolState);
-  } else if (!basicTool.state.edgeMode) {
-    enterBasicEdgeMode(nodeClicked);
-  } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
-    // add edge
-    if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
+  if (toolState.curTool == basicTool) {
+    if (!basicTool.state.edgeMode && !nodeClicked) {
+      // create new Node
       addToUndo(undoGraphStates, graph);
-      graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+      let newNode = new NodeData(0, x, y);
+      graph.addNode(newNode);
+      basicTool.state.stillInNode = true;
+      refreshHtml(graph, toolState);
+    } else if (!basicTool.state.edgeMode) {
+      enterBasicEdgeMode(nodeClicked);
+    } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
+      // add edge
+      if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
+        addToUndo(undoGraphStates, graph);
+        graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+      }
+      basicTool.state.edgeStart = nodeClicked;
+      refreshHtml(graph, toolState);
+    } else {
+      // leave edge mode
+      exitBasicEdgeMode();
     }
-    basicTool.state.edgeStart = nodeClicked;
-    refreshHtml(graph, toolState);
-  } else {
-    // leave edge mode
-    exitBasicEdgeMode();
+  }
+
+  if (toolState.curTool == moveTool) {
+    console.log("move tool click, nodeClicked.x = ");
+    moveTool.state.node = nodeClicked;
   }
 }
 
@@ -422,32 +441,47 @@ function mouseMove(event) {
     magicPathTool.state.edgeStart = nodeHover;
     refreshHtml(graph, toolState);
   }
+
+  if (toolState.curTool == moveTool) {
+    if (moveTool.state.node) {
+      console.log("yo");
+      moveTool.state.node.x = mouseX;
+      moveTool.state.node.y = mouseY;
+    }
+  }
 }
 
 function mouseUp() {
-  let selectionArea = areaCompleteTool.state.drawPoints.map((pt) => [
-    pt.x,
-    pt.y,
-  ]);
+  if (toolState.curTool == moveTool && moveTool.state.node) {
+    moveTool.state.node = null;
+    addToUndo(undoGraphStates, graph);
+  }
 
-  let selected = Array.from(graph.getNodeValues()).filter((n) => {
-    let pt = [n.x, n.y];
-    return inside(pt, selectionArea);
-  });
+  if (toolState.curTool == areaCompleteTool) {
+    let selectionArea = areaCompleteTool.state.drawPoints.map((pt) => [
+      pt.x,
+      pt.y,
+    ]);
 
-  if (selected.length > 0) {
-    let anyEdgesAdded = false;
-    let graphClone = graph.clone(cloneNodeData);
-    for (let i = 0; i < selected.length; i++) {
-      for (let j = 0; j < selected.length; j++) {
-        if (i != j) {
-          // don't allow self edges
-          let edgeAdded = graph.addEdge(selected[i], selected[j]);
-          anyEdgesAdded = anyEdgesAdded || edgeAdded;
+    let selected = Array.from(graph.getNodeValues()).filter((n) => {
+      let pt = [n.x, n.y];
+      return inside(pt, selectionArea);
+    });
+
+    if (selected.length > 0) {
+      let anyEdgesAdded = false;
+      let graphClone = graph.clone(cloneNodeData);
+      for (let i = 0; i < selected.length; i++) {
+        for (let j = 0; j < selected.length; j++) {
+          if (i != j) {
+            // don't allow self edges
+            let edgeAdded = graph.addEdge(selected[i], selected[j]);
+            anyEdgesAdded = anyEdgesAdded || edgeAdded;
+          }
         }
       }
+      if (anyEdgesAdded) addToUndo(undoGraphStates, graphClone);
     }
-    if (anyEdgesAdded) addToUndo(undoGraphStates, graphClone);
   }
 
   areaCompleteTool.state.mousePressed = false;
@@ -488,10 +522,10 @@ function refreshAdjListHtml(graph) {
 function refreshToolbarHtml(toolState) {
   for (const tool of toolState.allTools) {
     let toolElem = document.getElementById(tool.id);
-    toolElem.className = "tool-btn";
+    if (toolElem) toolElem.className = "tool-btn";
   }
   let curToolElem = document.getElementById(toolState.curTool.id);
-  curToolElem.className = "tool-btn selected";
+  if (curToolElem) curToolElem.className = "tool-btn selected";
   canvas.style.cursor = toolState.curTool.cursor;
 
   let undoElem = document.getElementById("undo");
@@ -598,15 +632,15 @@ document.getElementById("export-pane-select").addEventListener(
   "click",
   () => {
     for (const elem of document.getElementsByClassName("info-pane-only")) {
-      elem.style.display = 'none';
+      elem.style.display = "none";
     }
     for (const elem of document.getElementsByClassName("export-pane-only")) {
-      elem.style.display = 'block';
+      elem.style.display = "block";
     }
-    document.getElementById("export-pane-select").style.color = 'black';
-    document.getElementById("export-pane-select").style.fontWeight = 'bold';  
-    document.getElementById("info-pane-select").style.color = 'gray';
-    document.getElementById("info-pane-select").style.fontWeight = 'normal'; 
+    document.getElementById("export-pane-select").style.color = "black";
+    document.getElementById("export-pane-select").style.fontWeight = "bold";
+    document.getElementById("info-pane-select").style.color = "gray";
+    document.getElementById("info-pane-select").style.fontWeight = "normal";
   },
   false
 );
@@ -615,15 +649,15 @@ document.getElementById("info-pane-select").addEventListener(
   "click",
   () => {
     for (const elem of document.getElementsByClassName("export-pane-only")) {
-      elem.style.display = 'none';
+      elem.style.display = "none";
     }
     for (const elem of document.getElementsByClassName("info-pane-only")) {
-      elem.style.display = 'block';
+      elem.style.display = "block";
     }
-    document.getElementById("info-pane-select").style.color = 'black';
-    document.getElementById("info-pane-select").style.fontWeight = 'bold';  
-    document.getElementById("export-pane-select").style.color = 'gray';
-    document.getElementById("export-pane-select").style.fontWeight = 'normal';  
+    document.getElementById("info-pane-select").style.color = "black";
+    document.getElementById("info-pane-select").style.fontWeight = "bold";
+    document.getElementById("export-pane-select").style.color = "gray";
+    document.getElementById("export-pane-select").style.fontWeight = "normal";
   },
   false
 );
