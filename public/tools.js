@@ -382,7 +382,6 @@ function canvasClick(event) {
   }
 
   if (toolState.curTool == moveTool) {
-    console.log("move tool click, nodeClicked.x = ");
     moveTool.state.node = nodeClicked;
   }
 }
@@ -444,7 +443,6 @@ function mouseMove(event) {
 
   if (toolState.curTool == moveTool) {
     if (moveTool.state.node) {
-      console.log("yo");
       moveTool.state.node.x = mouseX;
       moveTool.state.node.y = mouseY;
     }
