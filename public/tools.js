@@ -626,6 +626,7 @@ function enterMagicEdgeMode(node) {
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 
+// TODO: code smells here, this and the next function have duplicated code
 document.getElementById("export-pane-select").addEventListener(
   "click",
   () => {
@@ -659,3 +660,18 @@ document.getElementById("info-pane-select").addEventListener(
   },
   false
 );
+
+for (const copyBtn of document.getElementsByClassName("copy-btn")) {
+  copyBtn.addEventListener(
+    "click",
+    () => {
+      navigator.clipboard.writeText(getDot(graph)).then(
+        function () {},
+        function () {
+          console.assert(false, "Clipboard write failed.");
+        }
+      );
+    },
+    false
+  );
+}

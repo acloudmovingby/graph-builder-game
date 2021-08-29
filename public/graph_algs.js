@@ -18,7 +18,7 @@ class Graph {
   // does NOT allow parallel edges (multiple edges between two nodes)
   // does NOT allow self edges (node connected to itself)
 
-  // WARNING TODO: this function assumes bidirectional graph. Directed graph should either be other class or at least use a different method
+  // WARNING TODO: this function assumes bidirectional graph. When I add directed graphs, they should either be a different class or at least use a different method for insertion
   addEdge(nodeValue1, nodeValue2) {
     console.assert(nodeValue1 !== nodeValue2, "addEdge hasn't been designed yet to be used for self-edges");
     if (nodeValue1 === nodeValue2) {
@@ -70,8 +70,11 @@ class Graph {
     return this.nodeValues.keys();
   }
 
-  //TODO won't work for self-edges
-  // tuple of node values
+  // returns a list of bidirectional edges
+  // each pair of vertices only appears once; in other words, it  returns either (A,B) or (B,A) but not both
+  // vertex order for each edge unspecified
+  // actually references node values, so be careful mutating
+  // assumes graph is entirely bidirectional
   getEdges() {
     let edges = this.getEdgeIndices();
     return edges.map((e) => [this.indices.get(e[0]), this.indices.get(e[1])]);
@@ -100,7 +103,7 @@ class Graph {
   }
 
   // clones the graph
-  // Needs nodeCopyFunction because Graph is unaware of the contents it is storing, so it cannot perform a deep copy on them.
+  // Needs nodeCopyFunction because Graph is unaware of the contents it is storing, so it cannot perform a deep copy on them without being given a function to do so.
   // This has a nice side effect of making it easy to "map" a graph. You can make nodeCopyFunction any kind of function you want, the graph structure won't be affected.
   clone(nodeCopyFunction) {
     let clone = new Graph();
@@ -126,10 +129,16 @@ class Graph {
     );
     return clone;
   }
+
 }
 
+// tells you if two graphs have an equivalent structure (i.e. they're the "same")
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
 // This is based on the algorithm(s) described in the link above.
+// Note: graph isomorphism is a non-trivial problem, a quasipolynomial was only found in 2017 and I'm sure I couldn't implement it.
+// this uses mostly brute force with basic pruning using simple invariants (e.g. degree sequence)
+// for small graphs I tested it on, it worked fine
+// will work poorly on graphs with lots of edges and with similar degree sequences
 function isomorphism(g1, g2) {
   if (g1.length !== g2.length) {
     return false;
@@ -141,6 +150,7 @@ function isomorphism(g1, g2) {
   }
 }
 
+// TODO: uses recursion, maybe should be iterative to reduce memory in call stack?
 function bruteForce(level, used, perm, g1, g2) {
   let result = false;
 
@@ -339,6 +349,27 @@ function subGraph(nodeIndices, graph) {
   return newGraph;
 }
 
+// returns a string representing the .DOT format of the graph for applications such as GraphViz
+// adds "n" to the beginning of the node label names because .dot format won't accept digits at the start of a label name
+// e.g. 3 gets turned into n3
+// TODO have user label graphs however they want
+function getDot(graph) {
+  const edges = graph.getEdgeIndices();
+  let ret = "graph {\n";
+  for (const e of edges) {
+    ret = ret + " n" + e[0] + " -- n" + e[1] + " \n";
+  }
+
+  const adjList = graph.getAdjList();
+  for (let i=0; i<adjList.length; i++) {
+    if (adjList[i].length == 0) {
+      ret = ret + " n" + i + "\n";
+    }
+  }
+  ret += "}";
+  return ret;
+}
+
 exports.checkEdges = checkEdges;
 exports.isomorphism = isomorphism;
 exports.Graph = Graph;
@@ -351,3 +382,4 @@ exports.isKayakPaddleGraph = isKayakPaddleGraph;
 exports.isButterflyGraph = isButterflyGraph;
 exports.getConnectedComponent = getConnectedComponent;
 exports.subGraph = subGraph;
+exports.getDot = getDot;

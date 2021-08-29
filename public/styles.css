@@ -282,3 +282,15 @@ p, a,
 #export-pane {
   display: none;
 }
+
+.feedback {
+  text-align: center;
+}
+.feedback > a {
+  font-size: 0.7rem;
+  text-decoration: none;
+}
+
+.copy-btn { 
+  display: inline;
+}
