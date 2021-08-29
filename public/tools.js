@@ -61,17 +61,17 @@ let magicPathTool = new Tool(
 
 let moveTool = new Tool(
   "move",
-  "url('images/area-complete-cursor.svg'), pointer",
+  "url('images/move-tool-cursor.svg'), pointer",
   {
     node: null, // the node you're currently moving on the screen
   },
   "Move Tool",
   "Click and drag it around.",
-  "images/magic-path-tool-tooltip-example.gif"
+  "images/move-tool-tooltip-example.gif"
 );
 
 const toolState = {
-  curTool: moveTool,
+  curTool: basicTool,
   allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
 };
 
