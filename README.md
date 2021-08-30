@@ -3,9 +3,9 @@ Here's a basic example of building a graph (see more screenshots below).
 
 # graph-builder-game
 
-The original "game" with Easter Eggs: http://tranquil-oasis-04623.herokuapp.com/
-
 The tooling I'm currently developing: http://tranquil-oasis-04623.herokuapp.com/tools
+
+The original "game" with Easter Eggs: http://tranquil-oasis-04623.herokuapp.com/
 
 FEEDBACK WELCOME!!
 
