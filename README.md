@@ -6,7 +6,7 @@ I designed this in Figma first, then built in Javascript with HTML canvas / CSS
 
 ![Basic use tool](screenshots/tooltips.png)
 
-# graph-builder-game
+# Links
 
 The tooling I'm currently developing: http://tranquil-oasis-04623.herokuapp.com/tools
 
