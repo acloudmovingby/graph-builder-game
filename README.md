@@ -25,8 +25,8 @@ In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Gra
 
 # NOT-GOALS:
  ("you have to say 'no' to 90% of feature ideas that come to your head")
-* Heavy-duty graph analysis - there are many, many tools available out there that take graph data and can analyze the heck out of it. I'm not trying to reinvent all of graph theory here. The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
-* Creating pretty pictures - [Graph drawing](https://en.wikipedia.org/wiki/Graph_drawing) is a fascinating field, and I'm always dreaming of ways to move or customize the appearance of the graph...but feature bloat is real and there are tools out there that do this well: (1) there are many [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. The issue is that they are fiddly and NOT WYSIWYG (2) I don't have time to reinvent all of Adobe Illustrator :( Actual art tools like Figma/Illustrator/many others help you draw pretty diagrams or other vector based art and we don't need to entirely reinvent that wheel. 
+* Heavy-duty graph analysis - there are many tools available out there that take graph data and can analyze The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
+* Creating pretty pictures - [Graph drawing](https://en.wikipedia.org/wiki/Graph_drawing) is a fascinating field, and it's fun to think of ways to generate or customize the appearance of the graph...but feature bloat is real and there are tools out there that do this well: (1) there are many [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. (2)Actual art tools like Figma/Illustrator/many others help you draw pretty diagrams or other vector based art.
 
 # What Tools
 I've been trying lots of different tool types (see below), and these are my findings:
