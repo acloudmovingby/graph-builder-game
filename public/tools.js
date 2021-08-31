@@ -1,6 +1,6 @@
 let canvas = document.getElementById("canvas");
 const infoPaneWidth =
-  document.getElementsByClassName("info-panel")?.[0].offsetWidth; // this MUST match the grid-template-columns max width in .container in the CSS file
+  document.getElementsByClassName("info-panel")?.[0].offsetWidth; 
 let graph = new Graph();
 let mouseX = 0;
 let mouseY = 0;
@@ -382,6 +382,7 @@ function canvasClick(event) {
   }
 
   if (toolState.curTool == moveTool) {
+    addToUndo(undoGraphStates, graph);
     moveTool.state.node = nodeClicked;
   }
 }
@@ -452,7 +453,6 @@ function mouseMove(event) {
 function mouseUp() {
   if (toolState.curTool == moveTool && moveTool.state.node) {
     moveTool.state.node = null;
-    addToUndo(undoGraphStates, graph);
   }
 
   if (toolState.curTool == areaCompleteTool) {
