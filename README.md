@@ -8,9 +8,9 @@ I designed this in Figma first, then built in Javascript with HTML canvas / CSS
 
 # Links
 
-The tooling I'm currently developing: http://tranquil-oasis-04623.herokuapp.com/tools
+The tooling I'm currently developing: https://tranquil-oasis-04623.herokuapp.com/tools
 
-The original "game" with Easter Eggs: http://tranquil-oasis-04623.herokuapp.com/
+The original "game" with Easter Eggs: https://tranquil-oasis-04623.herokuapp.com/
 
 FEEDBACK WELCOME!!
 
