@@ -1,5 +1,8 @@
-Here's a basic example of building a graph (see more screenshots below).
+Here's a basic example of building a graph.
 ![Basic use tool](screenshots/basic-use-4.gif)
+
+I designed this in Figma first, then built in Javascript with HTML canvas / CSS
+![Basic use tool](screenshots/tooltips.png)
 
 # graph-builder-game
 
