@@ -489,7 +489,6 @@ function mouseUp() {
 
 function refreshHtml(graph, toolState) {
   refreshToolbarHtml(toolState);
-  setCommentary();
   refreshGraphInfoHtml(graph);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
@@ -533,12 +532,6 @@ function refreshToolbarHtml(toolState) {
         ? 'url("images/undo-icon-gray.svg")'
         : 'url("images/undo-icon.svg")';
   }
-}
-
-function setCommentary() {
-  /*let commentary = ""; 
-  document.getElementById("commentary").innerHTML =
-    "&#34;" + commentary + "&#34;";*/
 }
 
 function Point(x, y) {
@@ -626,6 +619,7 @@ function enterMagicEdgeMode(node) {
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 
+// event handlers for switching between info/export panes, changing CSS
 // TODO: code smells here, this and the next function have duplicated code
 document.getElementById("export-pane-select").addEventListener(
   "click",
