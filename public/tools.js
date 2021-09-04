@@ -266,6 +266,15 @@ function draw() {
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
       }
+
+      // labels
+      ctx.font = "1rem Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle"; 
+      ctx.fillStyle = "white";
+      let label = graph.nodeValues.get(nodes[i]);
+      const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
+      ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
     }
 
     if (
@@ -342,7 +351,6 @@ function canvasClick(event) {
 
   if (toolState.curTool === areaCompleteTool) {
     areaCompleteTool.state.mousePressed = true;
-    //canvas.style.cursor = "url('images/area-complete-cursor-clicked.svg') 4 3, pointer"; // red circle at tip of cursor
     return;
   }
 
