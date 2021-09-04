@@ -1,6 +1,6 @@
 let canvas = document.getElementById("canvas");
 const infoPaneWidth =
-  document.getElementsByClassName("info-panel")?.[0].offsetWidth; 
+  document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Graph();
 let mouseX = 0;
 let mouseY = 0;
@@ -11,63 +11,80 @@ let infoPaneHover = false;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
-function Tool(id, cursor, state, header, description, image) {
-  this.id = id; // html id
-  this.cursor = cursor; // css for url of cursor image
-  this.state = state; // every tool is responsible for managing the state it requires (e.g. the prior node clicked, an array of nodes selected, etc.); having each tool store its own state cuts down on global variables
-  this.description = description;
-  this.header = header;
-  this.image = image;
+// information necessary for tooltip pane that appears as you hover over tools
+class ToolTipHover {
+  constructor(header, description, image) {
+    this.header = header;
+    this.description = description;
+    this.image = image;
+  }
 }
+
+class Tool {
+  constructor(id, cursor, toolTipHover, state) {
+    this.id = id; // html id
+    this.cursor = cursor; // css for url of cursor image
+    this.hover = toolTipHover;
+    this.state = state; // varies by tool. This cuts down on global variables. every tool is responsible for managing the state it requires (e.g. the prior node clicked for an edge adding tool, an array of nodes selected by a selection tool, etc.);
+  }
+} 
 
 let basicTool = new Tool(
   "basic",
   "url('images/pointer.svg'), pointer",
+  new ToolTipHover(
+    "Basic Node/Edge Adding Tool",
+    "Click to make nodes, then click on a node to begin adding edges. To exit edge making mode, simply click on the gray canvas.",
+    "images/basic-tool-tooltip-example.gif"
+  ),
   {
     edgeMode: false,
     edgeStart: null,
     stillInNode: false, // prevents hover effect happening immediately after you add a point. value=true if mouse is still inside node bounds for a node that was just created
-  },
-  "Basic Node/Edge Adding Tool",
-  "Click to make nodes, then click on a node to begin adding edges. To exit edge making mode, simply click on the gray canvas.",
-  "images/basic-tool-tooltip-example.gif"
+  }
 );
 
 let areaCompleteTool = new Tool(
   "area-complete",
   "url('images/area-complete-cursor.svg'), pointer",
+  new ToolTipHover(
+    "Area Complete Tool",
+    "Adds all possible edges between nodes in the selected area.",
+    "images/area-complete-tool-tooltip-example.gif"
+  ),
   {
     mousePressed: false,
     drawPoints: [], // forms a polygon representing the selected area
-  },
-  "Area Complete Tool",
-  "Adds all possible edges between nodes in the selected area.",
-  "images/area-complete-tool-tooltip-example.gif"
+  }
 );
 
 let magicPathTool = new Tool(
   "magic-path",
   "url('images/magic-path-cursor-2.svg'), pointer",
+  new ToolTipHover(
+    "Magic Path Tool",
+    "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!",
+    "images/magic-path-tool-tooltip-example.gif"
+  ),
   {
     edgeMode: false,
     edgeStart: null,
     normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
     noneCursor: "none",
-  },
-  "Magic Path Tool",
-  "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!",
-  "images/magic-path-tool-tooltip-example.gif"
+  }
 );
 
 let moveTool = new Tool(
   "move",
   "url('images/move-tool-cursor.svg'), pointer",
+  new ToolTipHover(
+    "Move Tool",
+    "Click and drag it around.",
+    "images/move-tool-tooltip-example.gif"
+  ),
   {
     node: null, // the node you're currently moving on the screen
-  },
-  "Move Tool",
-  "Click and drag it around.",
-  "images/move-tool-tooltip-example.gif"
+  }
 );
 
 const toolState = {
@@ -107,10 +124,11 @@ for (const tool of toolState.allTools) {
               toolBtnOffsetLeft + toolBtnWidth / 2
             }px`;
             hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
-            document.getElementById("hover-header").innerHTML = tool.header;
+            document.getElementById("hover-header").innerHTML =
+              tool.hover.header;
             document.getElementById("hover-description").innerHTML =
-              tool.description;
-            document.getElementById("hover-info-img").src = tool.image;
+              tool.hover.description;
+            document.getElementById("hover-info-img").src = tool.hover.image;
           }
         }
       },
@@ -208,7 +226,7 @@ function draw() {
     }
 
     // draw edges
-    let edges = graph.getEdges();
+    edges = graph.getEdges();
     edges.forEach((e) => {
       ctx.beginPath();
       ctx.lineWidth = 8;
@@ -270,7 +288,7 @@ function draw() {
       // labels
       ctx.font = "1rem Arial";
       ctx.textAlign = "center";
-      ctx.textBaseline = "middle"; 
+      ctx.textBaseline = "middle";
       ctx.fillStyle = "white";
       let label = graph.nodeValues.get(nodes[i]);
       const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
