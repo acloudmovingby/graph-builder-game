@@ -7,6 +7,7 @@ let mouseY = 0;
 let nodeHover = null;
 let clearButtonHover = false;
 let infoPaneHover = false;
+let labelsVisible = true;
 
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
@@ -27,7 +28,7 @@ class Tool {
     this.hover = toolTipHover;
     this.state = state; // varies by tool. This cuts down on global variables. every tool is responsible for managing the state it requires (e.g. the prior node clicked for an edge adding tool, an array of nodes selected by a selection tool, etc.);
   }
-} 
+}
 
 let basicTool = new Tool(
   "basic",
@@ -166,6 +167,7 @@ function undo() {
 }
 
 // limit on past number of states
+// arbitrary number TODO: profile to get better sense of performance impact
 function addToUndo(undoGraphStates, graph) {
   const UNDO_SIZE_LIMIT = 25;
   undoGraphStates.push(graph.clone(cloneNodeData));
@@ -184,6 +186,8 @@ if (canvas.getContext) {
   window.requestAnimationFrame(draw);
 }
 
+// the main function to draw shapes to the canvas
+// it's long but it's largely boilerplate changing of colors and such
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
@@ -240,10 +244,11 @@ function draw() {
     // draw nodes
     let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
+      const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
       ctx.beginPath();
       ctx.lineWidth = 8;
       if (inBasicEdgeMode || inMagicPathEdgeMode) {
-        if (nodes[i] === toolState.curTool.state.edgeStart) {
+        if (isEdgeStart) {
           ctx.strokeStyle = "#FA5750";
           ctx.fillStyle = "#FA5750";
         } else {
@@ -280,19 +285,22 @@ function draw() {
           ctx.fill();
         }
       }
-      // to prevent overflow, don't increment indefinitely
+      // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
       }
 
-      // labels
-      ctx.font = "1rem Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "white";
-      let label = graph.nodeValues.get(nodes[i]);
-      const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
-      ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
+      // labels on nodes
+      if (labelsVisible) {
+        ctx.font = "1rem Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i] != nodeHover;
+        ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
+        let label = graph.nodeValues.get(nodes[i]);
+        const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
+        ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
+      }
     }
 
     if (
@@ -695,3 +703,18 @@ for (const copyBtn of document.getElementsByClassName("copy-btn")) {
     false
   );
 }
+
+let labelVisibleBtn = document.getElementById("label-visible-btn");
+labelVisibleBtn.addEventListener(
+  "click",
+  () => {
+    console.log(labelsVisible);
+    if (document.getElementById("visible-icon")) {
+      document.getElementById("visible-icon").src = labelsVisible
+        ? "images/invisible-icon.svg"
+        : "images/node-label-visible.svg";
+      labelsVisible = !labelsVisible;
+    }
+  },
+  false
+);

@@ -63,6 +63,22 @@ p, a,
 .info-name {
   color: gray;
   display: inline;
+  line-height: 1.3rem;
+}
+
+.visible-btn {
+  display:inline;
+  padding:0.25rem;
+}
+
+.visible-btn:hover {
+  background-color: lightgray;
+}
+
+.visible-icon {
+  display: inline;
+  height: 10px;
+  width: 17px;
 }
 
 .info-pane-header {
