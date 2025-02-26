@@ -7,6 +7,7 @@ I designed this in Figma first, then built in Javascript with HTML canvas / CSS
 ![Basic use tool](screenshots/tooltips.png)
 
 # Links
+EDIT 2025: Uh, these links don't currently work and I haven't gotten around to fixing. But the screenshots show what it looked like more or less.
 
 The tooling I'm currently developing: https://tranquil-oasis-04623.herokuapp.com/tools
 
