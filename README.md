@@ -1,3 +1,14 @@
+# How to run
+
+EDIT 2025: I used to have this available on a public website but Heroku killed their free tier, so right now you can only run locally. It's pretty easy though: 
+
+*To run locally*: clone repo, then run `node app.js` then go to:
+1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
+2. `localhost:3000`. This will run the 'game', i.e. where you can click around with the basic node/edge tooling to make graphs and discover Easter eggs.
+
+# About
+
+This was a fun personal project to make a WYSIWYG editor for building [graphs](https://en.wikipedia.org/wiki/Graph_theory).
 Here's a basic example of building a graph.
 
 ![Basic use tool](screenshots/basic-use-4.gif)
@@ -7,22 +18,9 @@ I designed this in Figma first, then built in Javascript with HTML canvas / CSS
 ![Basic use tool](screenshots/tooltips.png)
 
 # Links
-EDIT 2025: Uh, these links don't currently work and I haven't gotten around to fixing. But the screenshots show what it looked like more or less.
-
-*To run locally*: do `node app.js` then go to:
-1. `localhost:3000`. This will run the 'game', i.e. where you can click around with the basic node/edge tooling to make graphs and discover Easter eggs.
-2. `localhost:3000/tools`. This is the more advanced graph editor tool. 
-
-OLD INFO (pre-2025):
-
-The tooling I'm currently developing: https://tranquil-oasis-04623.herokuapp.com/tools
-
-The original "game" with Easter Eggs: https://tranquil-oasis-04623.herokuapp.com/
-
-FEEDBACK WELCOME!!
 
 In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Graph_theory) in CS) are used in all kinds of applications. I wanted to make a WYSIWYG (what you see is what you get) tool to build graphs. 
-# GOALS:
+# Goals:
 * A WYSIWYG tool to build graphs quickly
 * Make it feel fun and intuitive
 * provide a way to export in a variety of formats to be implemented in code or other applications
@@ -30,8 +28,8 @@ In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Gra
 * Figuring out graphs on paper is tedious and error prone. In a prior project, I needed to build test cases for certain graph algorithms I was designing and I had to do a lot of drawing on paper. For some situations I needed graphs of 20 or 30 nodes with dozens of edges, and when test cases failed it was hard to tell if the issue was my algorithms or because I had constructed the graph incorrectly.
 * Other WYSIWYG graph tools I came across were clunky, overly complicated and trying to do everything, which leads to my next point...
 
-# NOT-GOALS:
- ("you have to say 'no' to 90% of feature ideas that come to your head")
+# Non-goals:
+ 
 * Heavy-duty graph analysis - there are many tools available out there that take graph data and can analyze The goal with this app is to help you construct a graph visually and then you can export it to be analyzed or used however you want later
 * Creating pretty pictures - [Graph drawing](https://en.wikipedia.org/wiki/Graph_drawing) is a fascinating field, and it's fun to think of ways to generate or customize the appearance of the graph...but feature bloat is real and there are tools out there that do this well: (1) there are many [tools](https://neo4j.com/developer/tools-graph-visualization/) that, given the raw graph data, can visualize the graph. (2)Actual art tools like Figma/Illustrator/many others help you draw pretty diagrams or other vector based art.
 
