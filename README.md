@@ -4,20 +4,18 @@ EDIT 2025: I used to have this available on a public website but Heroku killed t
 
 *To run locally*: clone repo, then run `node app.js` then go to:
 1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
-2. `localhost:3000`. This will run the 'game', i.e. where you can click around with the basic node/edge tooling to make graphs and discover Easter eggs.
+2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
 
 # About
 
 This was a fun personal project to make a WYSIWYG editor for building [graphs](https://en.wikipedia.org/wiki/Graph_theory).
-Here's a basic example of building a graph.
+Here's a basic example of what the tooling can do:.
 
 ![Basic use tool](screenshots/basic-use-4.gif)
 
-I designed this in Figma first, then built in Javascript with HTML canvas / CSS
+I designed this in Figma first, then built in Javascript with HTML canvas / CSS. As a life-long artist I really enjoyed thinking about the icons, tooltips, animations, etc. 
 
 ![Basic use tool](screenshots/tooltips.png)
-
-# Links
 
 In computer science, networks (called [graphs](https://en.wikipedia.org/wiki/Graph_theory) in CS) are used in all kinds of applications. I wanted to make a WYSIWYG (what you see is what you get) tool to build graphs. 
 # Goals:
