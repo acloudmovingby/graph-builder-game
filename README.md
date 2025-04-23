@@ -6,6 +6,8 @@ EDIT 2025: I used to have this available on a public website but Heroku killed t
 1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
 2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
 
+To run tests: `npm run test`. Might need to do `npm install` if it can't find Jest.
+
 # About
 
 This was a fun personal project to make a WYSIWYG editor for building [graphs](https://en.wikipedia.org/wiki/Graph_theory).
