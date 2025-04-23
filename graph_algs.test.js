@@ -125,7 +125,7 @@ test("checks graphs with three nodes and three edges", () => {
     [2, 1],
     [2, 0],
     [0, 1],
-  ]; // note adj lists are identicaly, but order is not same
+  ]; // note: adj lists are identical, but order is not same
   let perm = [0, 1, 2];
   expect(checkEdges(perm, g1, g2)).toBe(true);
   perm = [0, 2, 1];

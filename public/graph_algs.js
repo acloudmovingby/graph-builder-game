@@ -192,11 +192,12 @@ function checkEdges(perm, g1, g2) {
   return true;
 }
 
+// Complete graphs have (n*(n-1))/2 edges
 function isComplete(graph) {
   return graph.edgeCount === (graph.nodeCount * (graph.nodeCount - 1)) / 2;
 }
 
-// The symbols K2,K3...Kn designate complete graphs of size n. This function generates an algorithm to test if a graph is a complete graph of size n.
+// The symbols K2,K3...Kn designate complete graphs of size n. This function generates a function to test if a graph is a complete graph of size n.
 // this is somewhat abstract, but it cuts down on a lot of code repetition (you don't have to define different functions like isK3(..) isK4(...), etc.)
 function completeGraphChecker(n) {
   return function (graph) {
@@ -210,6 +211,8 @@ function cycleGraphChecker(n) {
   };
 }
 
+// A graph is a 'cycle graph' if it has n nodes and n edges, and each node has degree 2.
+// In other words, the graph is a big circle.
 function isOnlyCycles(graph) {
   return (
     graph.nodeCount >= 3 &&
