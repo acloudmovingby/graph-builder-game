@@ -9,6 +9,12 @@ I designed this in Figma first, then built in Javascript with HTML canvas / CSS
 # Links
 EDIT 2025: Uh, these links don't currently work and I haven't gotten around to fixing. But the screenshots show what it looked like more or less.
 
+*To run locally*: do `node app.js` then go to:
+1. `localhost:3000`. This will run the 'game', i.e. where you can click around with the basic node/edge tooling to make graphs and discover Easter eggs.
+2. `localhost:3000/tools`. This is the more advanced graph editor tool. 
+
+OLD INFO (pre-2025):
+
 The tooling I'm currently developing: https://tranquil-oasis-04623.herokuapp.com/tools
 
 The original "game" with Easter Eggs: https://tranquil-oasis-04623.herokuapp.com/
