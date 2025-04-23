@@ -9,7 +9,7 @@
   "author": "Chris Oates",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "jest": "^27.0.6"
