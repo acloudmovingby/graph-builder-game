@@ -426,6 +426,7 @@ function clearGraph() {
   graph = new Graph();
   exitBasicEdgeMode();
   exitMagicEdgeMode();
+  toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
   refreshHtml(graph, toolState);
