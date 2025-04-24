@@ -57,7 +57,7 @@ body {
 
 p, a,
 #adjacency-list {
-  font-size: 0.77rem;
+  font-size: 0.82rem;
 }
 
 .info-name {
@@ -303,7 +303,7 @@ p, a,
   text-align: center;
 }
 .feedback > a {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   text-decoration: none;
 }
 
