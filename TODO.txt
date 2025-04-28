@@ -11,4 +11,12 @@ Just playing around with it, these are some things that would be cool to change/
 - Directed edges??? That's gonna be tricky and complicated to think about, but is arguably 'important' if you wanted to use this for real use-cases.
 - Redo button
 - Hotkeys, e.g. ctrl+z for undo, escape to exit a certain tool mode
-- After you clear switch back to basic node tool (otherwise the text "try clicking somewhere" doesn't make sense) 
+- After you clear switch back to basic node tool (otherwise the text "try clicking somewhere" doesn't make sense)
+- Make favicon or whatever so tab in Chrome doesn't just say "Document" with blank image icon
+- In Graph Info section, add "labels" list that includes labels for the graphs, like if it's bipartite, complete, etc.
+- Add Laplacin Matrix
+- Add Explore tab that is much more complex analysis like minimum cut, coloring, spanning trees, etc. (could possibly go to a backend for the harder calculations). 
+- More info to show: number of connected components (or strongly connected for directed graphs), graph density, node degrees (in/out degree for directed graphs), cycle detection, chromatic number,  
+- Allow selecting two points and highlight shortest path between them
+- Add standard graph generators, to automatically add common graphs: complete Kn, cycle Cn, path Pn, complete bipartite Kmn, grid, or even random graphs (e.g., Erdős–Rényi model).
+- Zoom? 
