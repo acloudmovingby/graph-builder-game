@@ -93,6 +93,8 @@ const toolState = {
   allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
 };
 
+let graphTypes = []; // TODO: maybe better name? Maybe "labels"? In case it encompasses other things than graph types
+
 // event listener for clicking on a tool
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
@@ -419,6 +421,8 @@ function canvasClick(event) {
     addToUndo(undoGraphStates, graph);
     moveTool.state.node = nodeClicked;
   }
+
+
 }
 
 function clearGraph() {
@@ -523,15 +527,19 @@ function mouseUp() {
 }
 
 function refreshHtml(graph, toolState) {
+  // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
+  graphTypes = calculateGraphType(graph);
+
   refreshToolbarHtml(toolState);
-  refreshGraphInfoHtml(graph);
+  refreshGraphInfoHtml(graph, graphTypes);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
 }
 
-function refreshGraphInfoHtml(graph) {
+function refreshGraphInfoHtml(graph, graphTypes) {
   document.getElementById("node-count").innerHTML = graph.nodeCount;
   document.getElementById("edge-count").innerHTML = graph.edgeCount;
+  document.getElementById("graph-types").innerHTML = graphTypes;
 }
 
 function refreshAdjListHtml(graph) {

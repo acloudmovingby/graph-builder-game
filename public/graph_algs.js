@@ -7,6 +7,8 @@ class Graph {
     this.indices = new Map(); // maps indices to the values stored in nodes (the "labels")
   }
 
+  // Don't do anything computationally intensive here because it seems this gets used O(n) times per adding node in the UI (where n = nodeCount)
+  // This addNode function is used often to build up graphs for comparisons, tests, etc., so it should be lightweight
   addNode(nodeValue) {
     this.adjList.push([]);
     this.nodeValues.set(nodeValue, this.adjList.length - 1);
@@ -132,6 +134,35 @@ class Graph {
 
 }
 
+// Returns String of graph types
+function calculateGraphType(g) {
+  let types = [];
+
+  if (g.nodeCount === 1) {
+    types.push("trivial");
+  } else if (g.edgeCount === 0) {
+    types.push("unconnected");
+  } else {
+    if (isComplete(g)) {
+      types.push("complete");
+    }
+    if (isCycleGraph(g)) {
+      types.push("cycle");
+    }
+    if (isButterflyGraph(g)) {
+      types.push("butterfly");
+    }
+    if (isKayakPaddleGraph(g)) {
+      types.push("kayak paddle");
+    }
+    if (isPaw(g)) {
+      types.push("paw");
+    }
+  }
+
+  return types;
+}
+
 // tells you if two graphs have an equivalent structure (i.e. they're the "same")
 // THANK YOU to https://stars.library.ucf.edu/cgi/viewcontent.cgi?referer=https://www.google.com/&httpsredir=1&article=1105&context=istlibrary
 // This is based on the algorithm(s) described in the link above.
@@ -205,10 +236,15 @@ function completeGraphChecker(n) {
   };
 }
 
+// Returns a function that checks if it's a *specific* cycle graph (say, C5).
 function cycleGraphChecker(n) {
   return function (graph) {
-    return graph.nodeCount === n && isOnlyCycles(graph) && isOneCycle(graph);
+    return graph.nodeCount === n && isCycleGraph(graph);
   };
+}
+
+function isCycleGraph(graph) {
+    return isOnlyCycles(graph) && isOneCycle(graph);
 }
 
 // A graph is a 'cycle graph' if it has n nodes and n edges, and each node has degree 2.
@@ -222,10 +258,14 @@ function isOnlyCycles(graph) {
   );
 }
 
+// TODO (2025): Wait, what does this function do? How is it different from isOnlyCycles?
 function isOneCycle(graph) {
   let adjList = graph.getAdjList();
   // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
   let start = adjList.findIndex((n) => n.length > 0);
+  if (start == -1) { // TODO (2025) I didn't check if this is correct, we should add to tests
+    return false;
+  }
   let cur = start;
   let visited = Array.from({ length: adjList.length }).map((x) => false);
   let isCycle = true;
