@@ -8,6 +8,7 @@ Just playing around with it, these are some things that would be cool to change/
 - Actual downloadable dot format not just copy, even though it's dumb, but people do want to export as jpeg
 - Deletion tools! (delete nodes/edges)
 - move "node labels" toggle to within the drawing pane or maybe as a sub-bar beneath the tool bar
+- make "clear" and "node labels" html things that float above the canvas, instead of being in the canvas itself since it's blurry this way
 - Add standard graph generators, to automatically add common graphs: complete Kn, cycle Cn, path Pn, complete bipartite Kmn, grid, or even random graphs (e.g., Erdős–Rényi model).
 - backend computation for NP-hard stuff
 - When connected components happen, make big animation to indicate. Maybe bigger animation when large components connect.
