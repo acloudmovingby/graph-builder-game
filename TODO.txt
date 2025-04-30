@@ -1,22 +1,24 @@
 (Update 2025)
 
 Just playing around with it, these are some things that would be cool to change/incorporate:
-- make text a bit bigger on right side
+- (DONE) make text a bit bigger on right side
+- (DONE) After you clear switch back to basic node tool (otherwise the text "try clicking somewhere" doesn't make sense)
 - Have an About section somewhere. Maybe just more tabs in general on the right pane to distinguish various things.
 - For the export tab, have a suggestion on how to use a dot format file.
-- Actual downloadable dot format not just copy
+- Actual downloadable dot format not just copy, even though it's dumb, but people do want to export as jpeg
 - Deletion tools! (delete nodes/edges)
+- move "node labels" toggle to within the drawing pane or maybe as a sub-bar beneath the tool bar
+- Add standard graph generators, to automatically add common graphs: complete Kn, cycle Cn, path Pn, complete bipartite Kmn, grid, or even random graphs (e.g., Erdős–Rényi model).
+- backend computation for NP-hard stuff
 - When connected components happen, make big animation to indicate. Maybe bigger animation when large components connect.
 - Likewise, maybe have animations/indicators when you form various graph types, e.g. trees, cyclical, etc.
+- In Graph Info section, add "labels" list that includes labels for the graphs, like if it's bipartite, complete, number of connected components (or strongly connected for directed graphs), graph density, node degrees (in/out degree for directed graphs), cycle detection, chromatic number,  
 - Directed edges??? That's gonna be tricky and complicated to think about, but is arguably 'important' if you wanted to use this for real use-cases.
 - Redo button
 - Hotkeys, e.g. ctrl+z for undo, escape to exit a certain tool mode
-- After you clear switch back to basic node tool (otherwise the text "try clicking somewhere" doesn't make sense)
 - Make favicon or whatever so tab in Chrome doesn't just say "Document" with blank image icon
-- In Graph Info section, add "labels" list that includes labels for the graphs, like if it's bipartite, complete, etc.
-- Add Laplacin Matrix
-- Add Explore tab that is much more complex analysis like minimum cut, coloring, spanning trees, etc. (could possibly go to a backend for the harder calculations). 
-- More info to show: number of connected components (or strongly connected for directed graphs), graph density, node degrees (in/out degree for directed graphs), cycle detection, chromatic number,  
+- Add Laplacian Matrix
+- Add Explore tab that is much more complex analysis like minimum cut, coloring, spanning trees, etc. (could possibly go to a backend for the harder calculations).
+- Maybe add "Algorithm" section that is different than "Explore" in that you do something interactively? So, for example in the Explore section you might be able to see different cuts but it's pre-computed but in the Algorithm section you could select two nodes and see shortest path or step through a BFS/DFS or Djikstra algorithm 
 - Allow selecting two points and highlight shortest path between them
-- Add standard graph generators, to automatically add common graphs: complete Kn, cycle Cn, path Pn, complete bipartite Kmn, grid, or even random graphs (e.g., Erdős–Rényi model).
 - Zoom? 
