@@ -15,3 +15,7 @@ app.get("/", function (req, res) {
 app.get("/tools", function (req, res) {
   res.sendFile(__dirname + "/public/tools.html");
 });
+
+app.get("/tools_d3", function (req, res) {
+  res.sendFile(__dirname + "/public/tools_d3.html");
+});
