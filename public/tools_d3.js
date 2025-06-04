@@ -196,40 +196,31 @@ console.log("This is a message!");
 // the main function to draw shapes to the canvas
 // it's long but it's largely boilerplate changing of colors and such
 function draw() {
-    // TODO try doing d3 here and adding a circle in the middle of the canvas
-    const container = d3.select("#canvas");
+    const canvas_d3 = d3.select("#canvas"); // TODO: rename?
 
-    let width = window.innerWidth - infoPaneWidth;
-    let height = window.innerHeight;
-    const svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
-    svg.append("circle")
-                .attr("cx", width / 2)    // Center X position
-                .attr("cy", height / 2)   // Center Y position
-                .attr("r", 50)            // Radius
-                .attr("fill", "steelblue"); // Fill color
+    /* TODO figure out how this width/height stuff affects the canvas and see how to add circle without doing that */
+//    let width = window.innerWidth - infoPaneWidth;
+//    let height = window.innerHeight;
+//    const svg = canvas_d3.append("svg")
+//                .attr("width", width)
+//                .attr("height", height)
+//                //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
+//    svg.append("circle")
+//                .attr("cx", width / 2)    // Center X position
+//                .attr("cy", height / 2)   // Center Y position
+//                .attr("r", 50)            // Radius
+//                .attr("fill", "steelblue"); // Fill color
 
-    // TODO delete this next part and then figure out how to get that Welcome message below to appear
-    // as just a basic html element
-    let ctx = canvas.getContext("2d");
-        ctx.canvas.width = window.innerWidth - infoPaneWidth;
-        ctx.canvas.height = window.innerHeight;
-        ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+    // TODO put that graph.nodeCount === 0 to be toggle the welcome message element and make sure it's centered
 
     // start message
     if (graph.nodeCount === 0) {
-      ctx.font = "25px Arial";
-      ctx.fillStyle = "gray";
-      ctx.textAlign = "center";
-      ctx.fillText(
-        "Welcome! To start, try clicking somewhere",
-        ctx.canvas.width / 2,
-        ctx.canvas.height / 2
-      );
+      const welcome = document.getElementById('welcome-message');
+//      welcome.style.left = width / 4 + "px";
+      //welcome.style.top = height / 2 + "px";
     }
 
+    // TODO do the following but with html/css like you did with welcome message
     // clear/reset message
     ctx.font = "1rem Arial";
     ctx.textAlign = "start";
@@ -695,6 +686,7 @@ document.getElementById("export-pane-select").addEventListener(
     for (const elem of document.getElementsByClassName("export-pane-only")) {
       elem.style.display = "block";
     }
+    // TODO: why am I doing these things here in JS? Why not in CSS?
     document.getElementById("export-pane-select").style.color = "black";
     document.getElementById("export-pane-select").style.fontWeight = "bold";
     document.getElementById("info-pane-select").style.color = "gray";

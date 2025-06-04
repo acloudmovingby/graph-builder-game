@@ -16,32 +16,40 @@ body {
   flex-direction: column;
 }
 
-.container {
-  display: grid;
-  grid-template-columns: auto max(300px);
-  grid-template-rows: auto;
-  width: 100vw;
-  height: 1000px;
-}
-
-.eggs-header {
-  margin-bottom: -0.8rem;
+.main-content-area {
+  display: flex;
+  flex: 1; /* Takes remaining vertical space */
+  overflow: hidden; /* Crucial for contained scrolling */
 }
 
 #canvas {
+  flex: 1; /* Takes remaining horizontal space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
   box-sizing: border-box;
+  position: relative; /* For absolute positioning inside */
   background-color: #f0f0f0;
 }
 
 #welcome-message {
     font: 25px "Arial";
+    color: grey;
+    text-align: center;
+    position: absolute;
+    /* these two move top left of text element to center */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* this transforms the origin point of the text element itself to its center */
 }
 
 .info-panel {
-  grid-column-start: 2;
-  grid-column-end: 3;
-  overflow-x: hidden;
-  overflow-y: auto;
+  width: 300px;
+  overflow-y: auto; /* Enables vertical scrolling if content overflows */
+  background-color: white;
+  box-sizing: border-box;
 }
 
 .info-section {
@@ -105,6 +113,10 @@ p, a,
   text-align: center;
 }
 
+/*
+ TODO: remove easter-egg specific styles since we don't need that no more...I think...
+ (already removed one part of it, check commits
+ */
 #easter-eggs {
   display: none;
   animation-duration: 0.5s;
