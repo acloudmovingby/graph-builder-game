@@ -220,13 +220,6 @@ function draw() {
       //welcome.style.top = height / 2 + "px";
     }
 
-    // TODO do the following but with html/css like you did with welcome message
-    // clear/reset message
-    ctx.font = "1rem Arial";
-    ctx.textAlign = "start";
-    ctx.fillStyle = clearButtonHover ? "black" : "#909090";
-    ctx.fillText("clear", 35, 35);
-
     //edge mode, draw edge from edgeStart to mouse cursor
     let inBasicEdgeMode =
       toolState.curTool === basicTool && basicTool.state.edgeMode;

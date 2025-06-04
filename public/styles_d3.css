@@ -19,6 +19,20 @@ body {
   overflow: hidden; /* Crucial for contained scrolling */
 }
 
+#clear-btn {
+    text-align: start;
+    font: 1em "Arial";
+    color: #909090;
+    top: 20px;
+    left: 30px;
+    position: absolute;
+    margin: 0;
+}
+
+#clear-btn:hover {
+    color: black;
+}
+
 #canvas {
   flex: 1; /* Takes remaining horizontal space */
   display: flex;
