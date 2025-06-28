@@ -225,14 +225,10 @@ function addD3Node(x, y) {
 // the main function to draw shapes to the canvas
 // it's long but it's largely boilerplate changing of colors and such
 function draw() {
-    // TODO put that graph.nodeCount === 0 to be toggle the welcome message element and make sure it's centered
-
+    // TODO move this to the click function or whatever, since we'll get rid of draw() eventually?
     // start message
-    if (graph.nodeCount === 0) {
-      const welcome = document.getElementById('welcome-message');
-//      welcome.style.left = width / 4 + "px";
-      //welcome.style.top = height / 2 + "px";
-    }
+    const welcome = document.getElementById('welcome-message');
+    welcome.style.visibility = graph.nodeCount === 0 ? "visible" : "hidden";
 
     //edge mode, draw edge from edgeStart to mouse cursor
     let inBasicEdgeMode =
@@ -263,67 +259,67 @@ function draw() {
     });
 
     // draw nodes
-    let nodes = Array.from(graph.getNodeValues());
-    for (let i = 0; i < nodes.length; i++) {
-      const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
-      ctx.beginPath();
-      ctx.lineWidth = 8;
-      if (inBasicEdgeMode || inMagicPathEdgeMode) {
-        if (isEdgeStart) {
-          ctx.strokeStyle = "#FA5750";
-          ctx.fillStyle = "#FA5750";
-        } else {
-          ctx.strokeStyle = "#FA5750";
-          ctx.fillStyle = "white";
-        }
-      } else {
-        ctx.strokeStyle = "#32BFE3";
-        ctx.fillStyle = "#32BFE3";
-      }
-
-      let oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
-      let dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
-      let dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
-      let radius = Math.max(
-        1,
-        25 * oscillator * dampener * dampener2 + nodeRadius
-      );
-      ctx.arc(nodes[i].x, nodes[i].y, radius, 0, Math.PI * 2, false);
-      ctx.stroke();
-      ctx.fill();
-
-      // hover effects
-      if (nodes[i] === nodeHover && !basicTool.state.stillInNode) {
-        ctx.closePath();
-        ctx.beginPath();
-        if (!basicTool.state.edgeMode) {
-          ctx.lineWidth = 4;
-          ctx.arc(nodes[i].x, nodes[i].y, radius + 10, 0, Math.PI * 2, false);
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = "#FA5750";
-          ctx.arc(nodes[i].x, nodes[i].y, radius - 4, 0, Math.PI * 2, false);
-          ctx.fill();
-        }
-      }
-      // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
-      if (nodes[i].counter < 1000) {
-        nodes[i].counter += 1;
-      }
-
-      // labels on nodes
-      if (labelsVisible) {
-        ctx.font = "1rem Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i] != nodeHover;
-        ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
-        let label = graph.nodeValues.get(nodes[i]);
-        const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
-        ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
-      }
-    }
-
+//    let nodes = Array.from(graph.getNodeValues());
+//    for (let i = 0; i < nodes.length; i++) {
+//      const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
+//      ctx.beginPath();
+//      ctx.lineWidth = 8;
+//      if (inBasicEdgeMode || inMagicPathEdgeMode) {
+//        if (isEdgeStart) {
+//          ctx.strokeStyle = "#FA5750";
+//          ctx.fillStyle = "#FA5750";
+//        } else {
+//          ctx.strokeStyle = "#FA5750";
+//          ctx.fillStyle = "white";
+//        }
+//      } else {
+//        ctx.strokeStyle = "#32BFE3";
+//        ctx.fillStyle = "#32BFE3";
+//      }
+//
+//      let oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
+//      let dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
+//      let dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
+//      let radius = Math.max(
+//        1,
+//        25 * oscillator * dampener * dampener2 + nodeRadius
+//      );
+//      ctx.arc(nodes[i].x, nodes[i].y, radius, 0, Math.PI * 2, false);
+//      ctx.stroke();
+//      ctx.fill();
+//
+//      // hover effects
+//      if (nodes[i] === nodeHover && !basicTool.state.stillInNode) {
+//        ctx.closePath();
+//        ctx.beginPath();
+//        if (!basicTool.state.edgeMode) {
+//          ctx.lineWidth = 4;
+//          ctx.arc(nodes[i].x, nodes[i].y, radius + 10, 0, Math.PI * 2, false);
+//          ctx.stroke();
+//        } else {
+//          ctx.fillStyle = "#FA5750";
+//          ctx.arc(nodes[i].x, nodes[i].y, radius - 4, 0, Math.PI * 2, false);
+//          ctx.fill();
+//        }
+//      }
+//      // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
+//      if (nodes[i].counter < 1000) {
+//        nodes[i].counter += 1;
+//      }
+//
+//      // labels on nodes
+//      if (labelsVisible) {
+//        ctx.font = "1rem Arial";
+//        ctx.textAlign = "center";
+//        ctx.textBaseline = "middle";
+//        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i] != nodeHover;
+//        ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
+//        let label = graph.nodeValues.get(nodes[i]);
+//        const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
+//        ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
+//      }
+//    }
+//
     if (
       toolState.curTool === areaCompleteTool &&
       areaCompleteTool.state.mousePressed
@@ -343,7 +339,7 @@ function draw() {
       ctx.stroke();
       ctx.fill();
     }
-
+//
     // dotted circle target for magic path tool
     if (toolState.curTool === magicPathTool && magicPathTool.state.edgeMode) {
       ctx.closePath();
