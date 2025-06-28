@@ -183,34 +183,48 @@ refreshHtml(graph, toolState);
 console.log("This is a message!");
 
 
-  console.log("This is a message! 2");
-  canvas.addEventListener("mousedown", canvasClick, false);
-  console.log("This is a message! 3");
-  canvas.addEventListener("mousemove", mouseMove, false);
-  canvas.addEventListener("mouseleave", mouseLeave, false);
-  canvas.addEventListener("mouseup", mouseUp, false);
-  console.log("This is a message! 4");
+console.log("This is a message! 2");
+canvas.addEventListener("mousedown", canvasClick, false);
+console.log("This is a message! 3");
+canvas.addEventListener("mousemove", mouseMove, false);
+canvas.addEventListener("mouseleave", mouseLeave, false);
+canvas.addEventListener("mouseup", mouseUp, false);
+console.log("This is a message! 4");
 
-  window.requestAnimationFrame(draw);
+window.requestAnimationFrame(draw);
+
+
+function initD3() {
+    console.log("Initializing d3 stuff...")
+    d3WasInitialized = true;
+    const canvas_d3 = d3.select("#canvas"); // TODO: rename?
+
+    /* TODO figure out how this width/height stuff affects the canvas and see how to add circle without doing that */
+    let width = window.innerWidth - infoPaneWidth;
+    let height = window.innerHeight;
+    const svg = canvas_d3.append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
+
+    return svg;
+}
+
+// TODO: put this and other initialization things in some kind of main function that gets called somewhere
+const svg = initD3();
+
+// TODO is there a way in JS to add types
+function addD3Node(x, y) {
+    svg.append("circle")
+        .attr("cx", x)            // Center X position
+        .attr("cy", y)            // Center Y position
+        .attr("r", nodeRadius)    // Radius
+        .attr("fill", "#32BFE3"); // Fill color
+}
 
 // the main function to draw shapes to the canvas
 // it's long but it's largely boilerplate changing of colors and such
 function draw() {
-    const canvas_d3 = d3.select("#canvas"); // TODO: rename?
-
-    /* TODO figure out how this width/height stuff affects the canvas and see how to add circle without doing that */
-//    let width = window.innerWidth - infoPaneWidth;
-//    let height = window.innerHeight;
-//    const svg = canvas_d3.append("svg")
-//                .attr("width", width)
-//                .attr("height", height)
-//                //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
-//    svg.append("circle")
-//                .attr("cx", width / 2)    // Center X position
-//                .attr("cy", height / 2)   // Center Y position
-//                .attr("r", 50)            // Radius
-//                .attr("fill", "steelblue"); // Fill color
-
     // TODO put that graph.nodeCount === 0 to be toggle the welcome message element and make sure it's centered
 
     // start message
@@ -406,6 +420,7 @@ function canvasClick(event) {
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
       basicTool.state.stillInNode = true;
+      addD3Node(x, y);
       refreshHtml(graph, toolState);
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
