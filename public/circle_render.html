@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 Dynamic SVG Circles</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .svg-container {
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+            /* We'll set width/height on the SVG itself via D3 */
+        }
+        circle {
+            /* Default styling for circles */
+            stroke: black;
+            stroke-width: 1;
+            transition: all 0.75s ease-out; /* Smooth transitions for changes */
+            cursor: pointer;
+        }
+        /* Style for removed items during transition */
+        circle.exit {
+            opacity: 0;
+            transform: scale(0); /* Shrink to nothing */
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic SVG Circles with D3</h1>
+    <div class="svg-container"></div>
+
+    <script>
+        // Initial data
+        let circles = [
+            { id: "A", cx: 50, cy: 50, color: "red" },
+            { id: "B", cx: 150, cy: 50, color: "blue" },
+            { id: "C", cx: 50, cy: 150, color: "green" },
+            { id: "D", cx: 150, cy: 150, color: "yellow" }
+        ];
+
+        const svgWidth = 400;
+        const svgHeight = 300;
+        const circleRadius = 20;
+
+        // Select the container div and append our SVG drawing area
+        const svg = d3.select(".svg-container")
+            .append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+        // Function to render/update the circles
+        function updateCircles(data) {
+            // 1. Data Binding: Select all existing <circle> elements, bind the new data.
+            //    The key function `d => d.id` is CRUCIAL here. It uniquely identifies
+            //    each circle regardless of its position or color, allowing D3 to know
+            //    which DOM element corresponds to which data point.
+            const circleSelection = svg.selectAll("circle")
+                .data(data, d => d.id); // Use 'id' as the unique key
+
+            // 2. Enter Selection: For new data points (new circles)
+            const enterCircles = circleSelection.enter()
+                .append("circle") // Append a new <circle> element for each new data point
+                .attr("r", 0) // Start with radius 0 for a pop-in effect
+                .attr("cx", d => d.cx) // Set initial position (from data)
+                .attr("cy", d => d.cy) // Set initial position (from data)
+                .style("fill", d => d.color); // Set initial color (from data)
+
+            // 3. Merge Enter and Update Selections: Combine new and existing circles
+            const allCircles = enterCircles.merge(circleSelection);
+
+            // 4. Update Selection: For existing data points (circles whose properties might have changed)
+            //    Apply (or re-apply) cx, cy, r, and color based on the current data.
+            //    We use .transition() for smooth animations.
+            allCircles.transition()
+                .duration(750) // Animate over 0.75 seconds
+                .attr("r", circleRadius) // Ensure correct radius
+                .attr("cx", d => d.cx) // Update x position
+                .attr("cy", d => d.cy) // Update y position
+                .style("fill", d => d.color); // Update fill color
+
+            // 5. Exit Selection: For data points that are no longer in the array (removed circles)
+            circleSelection.exit()
+                .classed("exit", true) // Add an 'exit' class for styling (e.g., fade out, shrink)
+                .transition() // Start a transition for smooth removal
+                .duration(750) // Animate over 0.75 seconds
+                .attr("r", 0) // Shrink radius to 0
+                .style("opacity", 0) // Fade out
+                .remove(); // Remove the element from the DOM after the transition
+        }
+
+        // --- Initial Render ---
+        console.log("Initial Render:");
+        updateCircles(circles);
+
+        // --- Data Change Scenarios (using setTimeout for demonstration) ---
+
+        // Scenario 1: Change coordinates and colors
+        setTimeout(() => {
+            console.log("\nScenario 1: Changing coordinates and colors (A, B, C, D)");
+            const newCircles1 = [
+                { id: "A", cx: 350, cy: 250, color: "purple" }, // Moved, color changed
+                { id: "B", cx: 50, cy: 250, color: "orange" },  // Moved, color changed
+                { id: "C", cx: 350, cy: 50, color: "pink" },   // Moved, color changed
+                { id: "D", cx: 150, cy: 150, color: "cyan" }    // Only color changed
+            ];
+            circles = newCircles1; // Update our main data array
+            updateCircles(circles);
+        }, 2000); // After 2 seconds
+
+        // Scenario 2: Remove some circles (B and D) and add a new one (E)
+        setTimeout(() => {
+            console.log("\nScenario 2: Removing B, D; Adding E");
+            const newCircles2 = [
+                { id: "A", cx: 100, cy: 100, color: "darkgray" }, // Move A again, new color
+                { id: "C", cx: 300, cy: 100, color: "brown" },    // Move C again, new color
+                { id: "E", cx: 200, cy: 200, color: "gold" }      // New circle E
+            ];
+            circles = newCircles2;
+            updateCircles(circles);
+        }, 4000); // After 4 seconds
+
+        // Scenario 3: Add more circles (F, G) and re-position others
+        setTimeout(() => {
+            console.log("\nScenario 3: Adding F, G and re-positioning");
+            const newCircles3 = [
+                { id: "A", cx: 50, cy: 50, color: "red" },
+                { id: "C", cx: 150, cy: 50, color: "green" },
+                { id: "E", cx: 50, cy: 150, color: "gold" },
+                { id: "F", cx: 150, cy: 150, color: "purple" }, // New F
+                { id: "G", cx: 250, cy: 100, color: "darkblue" } // New G
+            ];
+            circles = newCircles3;
+            updateCircles(circles);
+        }, 6000); // After 6 seconds
+
+    </script>
+</body>
+</html>

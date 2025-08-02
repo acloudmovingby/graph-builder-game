@@ -22,4 +22,28 @@ Just playing around with it, these are some things that would be cool to change/
 - Add Explore tab that is much more complex analysis like minimum cut, coloring, spanning trees, etc. (could possibly go to a backend for the harder calculations).
 - Maybe add "Algorithm" section that is different than "Explore" in that you do something interactively? So, for example in the Explore section you might be able to see different cuts but it's pre-computed but in the Algorithm section you could select two nodes and see shortest path or step through a BFS/DFS or Djikstra algorithm 
 - Allow selecting two points and highlight shortest path between them
-- Zoom? 
+- Zoom?
+
+NEW PLAN (IGNORE BELOW):
+- maybe move normal and d3 into separate folders, as well as sandbox stuff
+- Back to normal, prioritize:
+    - Can I make an arrow with Canvas? If so let's do it
+    - Figure out the blurriness problem?
+
+**Weekend Aug 1 Plan**
+Overarching goal:
+- Make nodes dynamically shown using D3. (i.e. if you click and add nodes, it'll do what the old one did).
+- Style of nodes is defined by a css style sheet, or, if that doesn't seem possible some separate config file/class separate from logic
+
+Non-requirements:
+- Bounciness (optional, but nice to have)
+- Edges
+- Colors / Thickness
+
+Plan/Structure:
+- initialize svg as a whole in the prelude/beginning section or put into some kind of init function
+- in add_node (or whatever it's called) call append_node_svg which takes coordinates (what coordinates?)
+    - coordinate possibilities:
+        - relative "ideal" coordinates that are simply for the relative positioning of nodes in the graph, which would be unchanged if graph as a whole is zoomed, rotated, etc.
+        - coordinates in the viewport, i.e. whatever the click event callback returns
+        - ??? 

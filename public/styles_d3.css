@@ -295,6 +295,10 @@ p, a,
   filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.4));
 }
 
+#vert {
+    fill: "red";
+}
+
 .hover-info-text {
   width: 250px;
 }

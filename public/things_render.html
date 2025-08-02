@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 Dynamic Paragraphs</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .item-container {
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-height: 150px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .item-container p {
+            padding: 5px 10px;
+            margin: 5px 0;
+            background-color: steelblue;
+            color: white;
+            border-radius: 4px;
+            transition: all 0.5s ease-out; /* Smooth transitions for position/style changes */
+        }
+        /* Style for removed items during transition */
+        .item-container p.exit {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Paragraphs with D3</h1>
+    <div class="item-container"></div>
+
+    <script>
+        // Initial data
+        const things = [
+            { name: "John", order: 1 },
+            { name: "Jane", order: 2 },
+            { name: "Doe", order: 3 },
+            { name: "Smith", order: 4 }
+        ];
+
+        // Select the container where our paragraphs will live
+        const container = d3.select(".item-container");
+
+        // Function to render/update the paragraphs
+        function updateParagraphs(data) {
+            // 1. Data Binding: Select all existing <p> elements, bind the new data.
+            //    The key function `d => d.name` is CRUCIAL here. It tells D3
+            //    that a data point `{name: "John", ...}` corresponds to the
+            //    <p> element that was created for "John", regardless of its order.
+            //    This is how D3 knows to move "John" instead of deleting and recreating.
+            const paragraphs = container.selectAll("p")
+                .data(data, d => d.name); // Use 'name' as the unique key
+
+            // 2. Enter Selection: For new data points (new people)
+            const enterParagraphs = paragraphs.enter()
+                .append("p") // Append a new <p> element for each new data point
+                .text(d => d.name); // Set its text content
+
+            // 3. Merge Enter and Update Selections: Combine new and existing elements
+            //    This selection now contains ALL paragraphs that should exist.
+            const allParagraphs = enterParagraphs.merge(paragraphs);
+
+            // 4. Sort Elements: Reorder the DOM elements based on the 'order' property.
+            //    D3's .sort() method sorts the DOM elements themselves.
+            allParagraphs.sort((a, b) => a.order - b.order);
+
+            // 5. Update Selection: For existing data points (people whose order might have changed)
+            //    We re-apply the text just in case, and ensure styling is consistent.
+            allParagraphs.text(d => d.name);
+
+            // 6. Exit Selection: For data points that are no longer in the array (removed people)
+            paragraphs.exit()
+                .classed("exit", true) // Add an 'exit' class for styling (e.g., fade out)
+                .transition() // Start a transition for smooth removal
+                .duration(500) // Animate over 0.5 seconds
+                .remove(); // Remove the element from the DOM after the transition
+        }
+
+        // --- Initial Render ---
+        console.log("Initial Render:");
+        updateParagraphs(things);
+
+        // --- Data Change Scenarios (using setTimeout for demonstration) ---
+
+        // Scenario 1: Change order (John and Smith swap places)
+        setTimeout(() => {
+            console.log("\nScenario 1: Changing order (John and Smith swap)");
+            const newThings1 = [
+                { name: "Smith", order: 1 }, // Smith is now 1st
+                { name: "Jane", order: 2 },
+                { name: "Doe", order: 3 },
+                { name: "John", order: 4 }  // John is now 4th
+            ];
+            updateParagraphs(newThings1);
+        }, 2000); // After 2 seconds
+
+        // Scenario 2: Remove a person (Jane is removed)
+        setTimeout(() => {
+            console.log("\nScenario 2: Removing Jane");
+            const newThings2 = [
+                { name: "Smith", order: 1 },
+                { name: "Doe", order: 2 }, // Doe shifts up
+                { name: "John", order: 3 }  // John shifts up
+            ];
+            updateParagraphs(newThings2);
+        }, 4000); // After 4 seconds
+
+        // Scenario 3: Add a new person (Alice) and reorder everyone
+        setTimeout(() => {
+            console.log("\nScenario 3: Adding Alice and reordering");
+            const newThings3 = [
+                { name: "Alice", order: 1 }, // Alice is new and first
+                { name: "John", order: 2 },
+                { name: "Smith", order: 3 },
+                { name: "Doe", order: 4 }
+            ];
+            updateParagraphs(newThings3);
+        }, 6000); // After 6 seconds
+
+        // Scenario 4: Multiple people with the same order (as per your allowance)
+        setTimeout(() => {
+            console.log("\nScenario 4: Multiple people with same order");
+            const newThings4 = [
+                { name: "Alice", order: 1 },
+                { name: "Bob", order: 1 }, // Bob is new and also order 1
+                { name: "Charlie", order: 2 }, // Charlie is new
+                { name: "John", order: 3 }
+            ];
+            updateParagraphs(newThings4);
+        }, 8000); // After 8 seconds
+
+    </script>
+</body>
+</html>
