@@ -228,18 +228,18 @@ function draw() {
     const canvas_d3 = d3.select("#canvas"); // TODO: rename?
 
     /* TODO figure out how this width/height stuff affects the canvas and see how to add circle without doing that */
-    let width = window.innerWidth - infoPaneWidth;
-    let height = window.innerHeight;
-    const svg = canvas_d3.append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
-    svg.append("circle")
-                .attr("cx", width / 2)    // Center X position
-                .attr("cy", height / 2)   // Center Y position
-                .attr("r", 50)            // Radius
-                //.attr("fill", "steelblue") // Fill color
-                .attr("id", "vert");        // Add an ID for styling
+//    let width = window.innerWidth - infoPaneWidth;
+//    let height = window.innerHeight;
+//    const svg = canvas_d3.append("svg")
+//                .attr("width", width)
+//                .attr("height", height)
+//                //.attr("id", "canvas"); // Add the ID for styling (TODO I don't think I need this?)
+//    svg.append("circle")
+//                .attr("cx", width / 2)    // Center X position
+//                .attr("cy", height / 2)   // Center Y position
+//                .attr("r", 50)            // Radius
+//                //.attr("fill", "steelblue") // Fill color
+//                .attr("id", "vert");        // Add an ID for styling
 
     // TODO put that graph.nodeCount === 0 to be toggle the welcome message element and make sure it's centered
 
