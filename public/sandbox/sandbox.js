@@ -62,7 +62,6 @@ setTimeout(() => {
     counter++;
 }, 1000);
 
-
 const data = [
   {name: "Locke", number: 4},
   {name: "Reyes", number: 8},
@@ -76,14 +75,12 @@ d3.selectAll("div")
   .data(data, function(d) { return d ? d.name : this.id; })
     .text(d => d.number);
 
-
 const thingsWithColors = [
     {name: "John", order: 1, color: "red"},
     {name: "Jane", order: 2, color: "blue"},
     {name: "Doe", order: 3, color: "green"},
     {name: "Smith", order: 4, color: "yellow"}
 ]
-
 
 const things = [
     {name: "John", order: 1},

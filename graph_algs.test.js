@@ -11,7 +11,7 @@ const {
   isButterflyGraph,
   getConnectedComponent,
   subGraph,
-} = require("./public/graph_algs");
+} = require("./public/algorithms/graph_algs");
 
 
 test("checks edges with empty graphs", () => {
