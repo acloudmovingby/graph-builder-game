@@ -12,10 +12,33 @@ let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
+let printCounter = 0;
+
+function printDimensions(headerMessage) {
+    if (headerMessage) {
+        console.log(headerMessage);
+    }
+    console.log(
+        "window.innerWidth - infoPaneWidth: " + (window.innerWidth - infoPaneWidth) + "\n" +
+        "window.innerHeight: " + window.innerHeight + "\n" +
+        "canvas.style.width: " + canvas.style.width + "\n" +
+        "canvas.style.height: " + canvas.style.height
+    );
+    if (canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+        console.log(
+            "canvas.width: " + ctx.canvas.width + "\n" +
+            "canvas.height: " + ctx.canvas.height + "\n"
+        );
+    }
+}
+
 let canvasWidth = window.innerWidth - infoPaneWidth;
 let canvasHeight = window.innerHeight;
-var scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
+let scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
 function setCanvasSize() {
+    printDimensions("Setting canvas size...");
+
     canvas.style.width = canvasWidth + "px";
     canvas.style.height = canvasHeight + "px";
 
@@ -25,8 +48,12 @@ function setCanvasSize() {
 
     if (canvas.getContext) {
         let ctx = canvas.getContext("2d");
+//        ctx.canvas.width = canvasWidth;
+//        ctx.canvas.height = canvasHeight;
         ctx.scale(scale, scale);
     }
+
+    printDimensions("Canvas size set.");
 }
 
 setCanvasSize()
@@ -211,9 +238,18 @@ if (canvas.getContext) {
 // it's long but it's largely boilerplate changing of colors and such
 function draw() {
   if (canvas.getContext) {
+    if (printCounter == 0 || printCounter == 1) {
+      printDimensions("Drawing canvas...");
+    }
     let ctx = canvas.getContext("2d");
 
+    setCanvasSize()
+
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+
+    if (printCounter == 0 || printCounter == 1) {
+      printDimensions("Doing start message...");
+    }
 
     // start message
     if (graph.nodeCount === 0) {
@@ -355,6 +391,10 @@ function draw() {
       ctx.closePath();
       ctx.stroke();
     }
+    if (printCounter == 0 || printCounter == 1) {
+      printDimensions("End drawing canvas...");
+      printCounter = -1;
+    }
   }
   window.requestAnimationFrame(draw);
 }
@@ -413,6 +453,8 @@ function canvasClick(event) {
   }
 
   if (toolState.curTool == basicTool) {
+    printDimensions("Basic tool add node...");
+    printCounter = 0;
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
       addToUndo(undoGraphStates, graph);
