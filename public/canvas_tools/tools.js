@@ -12,6 +12,25 @@ let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 const nodeRadius = 15;
 
+let canvasWidth = window.innerWidth - infoPaneWidth;
+let canvasHeight = window.innerHeight;
+var scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
+function setCanvasSize() {
+    canvas.style.width = canvasWidth + "px";
+    canvas.style.height = canvasHeight + "px";
+
+    // Set actual size in memory (scaled to account for extra pixel density).
+    canvas.width = canvasWidth * scale;
+    canvas.height = canvasHeight * scale;
+
+    if (canvas.getContext) {
+        let ctx = canvas.getContext("2d");
+        ctx.scale(scale, scale);
+    }
+}
+
+setCanvasSize()
+
 // information necessary for tooltip pane that appears as you hover over tools
 class ToolTipHover {
   constructor(header, description, image) {
@@ -193,8 +212,7 @@ if (canvas.getContext) {
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
-    ctx.canvas.width = window.innerWidth - infoPaneWidth;
-    ctx.canvas.height = window.innerHeight;
+
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
     // start message
@@ -204,8 +222,8 @@ function draw() {
       ctx.textAlign = "center";
       ctx.fillText(
         "Welcome! To start, try clicking somewhere",
-        ctx.canvas.width / 2,
-        ctx.canvas.height / 2
+        ctx.canvas.width / 4,
+        ctx.canvas.height / 4
       );
     }
 
@@ -244,6 +262,7 @@ function draw() {
     });
 
     // draw nodes
+
     let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
       const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
