@@ -1,11 +1,11 @@
 let canvas = document.getElementById("canvas");
+let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth =
   document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Graph();
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
-let clearButtonHover = false;
 let infoPaneHover = false;
 let labelsVisible = true;
 
@@ -14,6 +14,7 @@ const nodeRadius = 15;
 
 let printCounter = 0;
 
+// For debugging canvas size issues, not currently used but will probably use again in the future
 function printDimensions(headerMessage) {
     if (headerMessage) {
         console.log(headerMessage);
@@ -37,23 +38,15 @@ let canvasWidth = window.innerWidth - infoPaneWidth;
 let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
 function setCanvasSize() {
-    printDimensions("Setting canvas size...");
-
     canvas.style.width = canvasWidth + "px";
     canvas.style.height = canvasHeight + "px";
-
     // Set actual size in memory (scaled to account for extra pixel density).
     canvas.width = canvasWidth * scale;
     canvas.height = canvasHeight * scale;
-
     if (canvas.getContext) {
         let ctx = canvas.getContext("2d");
-//        ctx.canvas.width = canvasWidth;
-//        ctx.canvas.height = canvasHeight;
         ctx.scale(scale, scale);
     }
-
-    printDimensions("Canvas size set.");
 }
 
 setCanvasSize()
@@ -199,7 +192,9 @@ document.onkeydown = function (event) {
   }
 };
 
-canvas.style.cursor = toolState.curTool.cursor;
+
+canvasArea.style.cursor = toolState.curTool.cursor;
+
 
 let undoGraphStates = [];
 let undoElem = document.getElementById("undo");
@@ -238,36 +233,14 @@ if (canvas.getContext) {
 // it's long but it's largely boilerplate changing of colors and such
 function draw() {
   if (canvas.getContext) {
-    if (printCounter == 0 || printCounter == 1) {
-      printDimensions("Drawing canvas...");
-    }
     let ctx = canvas.getContext("2d");
 
     setCanvasSize()
 
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
-    if (printCounter == 0 || printCounter == 1) {
-      printDimensions("Doing start message...");
-    }
-
-    // start message
-    if (graph.nodeCount === 0) {
-      ctx.font = "25px Arial";
-      ctx.fillStyle = "gray";
-      ctx.textAlign = "center";
-      ctx.fillText(
-        "Welcome! To start, try clicking somewhere",
-        ctx.canvas.width / 4,
-        ctx.canvas.height / 4
-      );
-    }
-
-    // clear/reset message
-    ctx.font = "1rem Arial";
-    ctx.textAlign = "start";
-    ctx.fillStyle = clearButtonHover ? "black" : "#909090";
-    ctx.fillText("clear", 35, 35);
+    const welcome = document.getElementById('welcome-message');
+    welcome.style.visibility = graph.nodeCount === 0 ? "visible" : "hidden";
 
     //edge mode, draw edge from edgeStart to mouse cursor
     let inBasicEdgeMode =
@@ -391,10 +364,6 @@ function draw() {
       ctx.closePath();
       ctx.stroke();
     }
-    if (printCounter == 0 || printCounter == 1) {
-      printDimensions("End drawing canvas...");
-      printCounter = -1;
-    }
   }
   window.requestAnimationFrame(draw);
 }
@@ -430,12 +399,6 @@ function canvasClick(event) {
   let x = event.x - canvasBounds.left;
   let y = event.y - canvasBounds.top;
 
-  // TODO: put clear button in HTML, not in canvas
-  if (clearButtonHover) {
-    clearGraph();
-    return;
-  }
-
   if (toolState.curTool === areaCompleteTool) {
     areaCompleteTool.state.mousePressed = true;
     return;
@@ -453,8 +416,6 @@ function canvasClick(event) {
   }
 
   if (toolState.curTool == basicTool) {
-    printDimensions("Basic tool add node...");
-    printCounter = 0;
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
       addToUndo(undoGraphStates, graph);
@@ -510,15 +471,6 @@ function mouseMove(event) {
   nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
   if (!nodeHover) {
     basicTool.state.stillInNode = false;
-  }
-
-  // hover over clear button
-  if (mouseX > 0 && mouseX < 76 && mouseY > 0 && mouseY < 39) {
-    clearButtonHover = true;
-  } else {
-    if (clearButtonHover) {
-      clearButtonHover = false;
-    }
   }
 
   if (
@@ -627,7 +579,7 @@ function refreshToolbarHtml(toolState) {
   }
   let curToolElem = document.getElementById(toolState.curTool.id);
   if (curToolElem) curToolElem.className = "tool-btn selected";
-  canvas.style.cursor = toolState.curTool.cursor;
+  canvasArea.style.cursor = toolState.curTool.cursor;
 
   let undoElem = document.getElementById("undo");
   if (undoElem) {
@@ -637,6 +589,15 @@ function refreshToolbarHtml(toolState) {
         : 'url("images/undo-icon.svg")';
   }
 }
+
+function setupClearButtonEventListener() {
+    const clearButton = document.getElementById('clear-btn');
+    clearButton.addEventListener('click', () => {
+        clearGraph();
+    });
+}
+
+setupClearButtonEventListener()
 
 function Point(x, y) {
   this.x = x;

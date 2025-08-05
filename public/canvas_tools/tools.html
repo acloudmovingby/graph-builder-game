@@ -8,7 +8,6 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="flex">
       <div class="navbar">
         <div class="toolbar">
           <button id="basic" class="tool-btn selected"></button>
@@ -27,8 +26,12 @@
         </div>
         <button id="undo" class="tool-btn"></button>
       </div>
-      <div class="container">
-        <canvas id="canvas"></canvas>
+      <div class="main-content-area">
+        <div id="canvas-area">
+          <p id="clear-btn">clear</p>
+          <p id="welcome-message">"Welcome! To start, try clicking somewhere"</p>
+          <canvas id="canvas"></canvas>
+        </div>
         <div class="info-panel">
           <div class="info-section">
             <p id="info-pane-select" class="info-pane-header">Info</p>
@@ -54,7 +57,7 @@
               <div id="label-visible-btn" class="visible-btn">
                 <img id="visible-icon" class="visible-icon" src="images/node-label-visible.svg">
               </div>
-              
+
             </div>
           </div>
           <div class="info-section info-pane-only">
@@ -77,7 +80,6 @@
           </div>
         </div>
       </div>
-    </div>
   </body>
   <script>
     exports = {};

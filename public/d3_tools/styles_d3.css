@@ -23,8 +23,8 @@ body {
     text-align: start;
     font: 1em "Arial";
     color: #909090;
-    top: 20px;
-    left: 30px;
+    top: 23px;
+    left: 35px;
     position: absolute;
     margin: 0;
 }
@@ -53,6 +53,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* this transforms the origin point of the text element itself to its center */
+    pointer-events: none; /* makes it not clickable so doesn't interfere with adding nodes */
 }
 
 .info-panel {
@@ -293,10 +294,6 @@ p, a,
   background-color: white;
   padding: 25px;
   filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.4));
-}
-
-#vert {
-    fill: "red";
 }
 
 .hover-info-text {

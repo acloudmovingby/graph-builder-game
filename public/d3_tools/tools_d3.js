@@ -239,7 +239,6 @@ function draw() {
 //                .attr("cy", height / 2)   // Center Y position
 //                .attr("r", 50)            // Radius
 //                //.attr("fill", "steelblue") // Fill color
-//                .attr("id", "vert");        // Add an ID for styling
 
     // TODO put that graph.nodeCount === 0 to be toggle the welcome message element and make sure it's centered
 
