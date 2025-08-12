@@ -1,57 +1,6 @@
-let canvas = document.getElementById("canvas");
-let canvasArea = document.getElementById("canvas-area");
-const infoPaneWidth =
-  document.getElementsByClassName("info-panel")?.[0].offsetWidth;
-let graph = new Graph();
-let mouseX = 0;
-let mouseY = 0;
-let nodeHover = null;
-let infoPaneHover = false;
-let labelsVisible = true;
-
-const timeInit = new Date().getSeconds();
-const nodeRadius = 15;
-
-let printCounter = 0;
-
-// For debugging canvas size issues, not currently used but will probably use again in the future
-function printDimensions(headerMessage) {
-    if (headerMessage) {
-        console.log(headerMessage);
-    }
-    console.log(
-        "window.innerWidth - infoPaneWidth: " + (window.innerWidth - infoPaneWidth) + "\n" +
-        "window.innerHeight: " + window.innerHeight + "\n" +
-        "canvas.style.width: " + canvas.style.width + "\n" +
-        "canvas.style.height: " + canvas.style.height
-    );
-    if (canvas.getContext) {
-        let ctx = canvas.getContext("2d");
-        console.log(
-            "canvas.width: " + ctx.canvas.width + "\n" +
-            "canvas.height: " + ctx.canvas.height + "\n"
-        );
-    }
-}
-
-let canvasWidth = window.innerWidth - infoPaneWidth;
-let canvasHeight = window.innerHeight;
-let scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
-function setCanvasSize() {
-    canvas.style.width = canvasWidth + "px";
-    canvas.style.height = canvasHeight + "px";
-    // Set actual size in memory (scaled to account for extra pixel density).
-    canvas.width = canvasWidth * scale;
-    canvas.height = canvasHeight * scale;
-    if (canvas.getContext) {
-        let ctx = canvas.getContext("2d");
-        ctx.scale(scale, scale);
-    }
-}
-
-setCanvasSize()
-
-// information necessary for tooltip pane that appears as you hover over tools
+// =====================
+// Class/Type Definitions
+// =====================
 class ToolTipHover {
   constructor(header, description, image) {
     this.header = header;
@@ -69,6 +18,45 @@ class Tool {
   }
 }
 
+function NodeData(counter, x, y) {
+  this.counter = counter;
+  this.x = x;
+  this.y = y;
+}
+
+function cloneNodeData(nodeData) {
+  return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
+}
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+// =====================
+// State and Constants
+// =====================
+let canvas = document.getElementById("canvas");
+let canvasArea = document.getElementById("canvas-area");
+const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
+let graph = new Graph();
+let mouseX = 0;
+let mouseY = 0;
+let nodeHover = null;
+let infoPaneHover = false;
+let labelsVisible = true;
+const timeInit = new Date().getSeconds();
+const nodeRadius = 15;
+let printCounter = 0;
+let canvasWidth = window.innerWidth - infoPaneWidth;
+let canvasHeight = window.innerHeight;
+let scale = window.devicePixelRatio;
+let undoGraphStates = [];
+let graphTypes = [];
+
+// =====================
+// Tool Definitions
+// =====================
 let basicTool = new Tool(
   "basic",
   "url('images/pointer.svg'), pointer",
@@ -80,7 +68,7 @@ let basicTool = new Tool(
   {
     edgeMode: false,
     edgeStart: null,
-    stillInNode: false, // prevents hover effect happening immediately after you add a point. value=true if mouse is still inside node bounds for a node that was just created
+    stillInNode: false,
   }
 );
 
@@ -94,7 +82,7 @@ let areaCompleteTool = new Tool(
   ),
   {
     mousePressed: false,
-    drawPoints: [], // forms a polygon representing the selected area
+    drawPoints: [],
   }
 );
 
@@ -123,7 +111,7 @@ let moveTool = new Tool(
     "images/move-tool-tooltip-example.gif"
   ),
   {
-    node: null, // the node you're currently moving on the screen
+    node: null,
   }
 );
 
@@ -132,46 +120,52 @@ const toolState = {
   allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
 };
 
-let graphTypes = []; // TODO: maybe better name? Maybe "labels"? In case it encompasses other things than graph types
+// =====================
+// Canvas Setup
+// =====================
+function setCanvasSize() {
+  canvas.style.width = canvasWidth + "px";
+  canvas.style.height = canvasHeight + "px";
+  canvas.width = canvasWidth * scale;
+  canvas.height = canvasHeight * scale;
+  if (canvas.getContext) {
+    let ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+  }
+}
+setCanvasSize();
 
-// event listener for clicking on a tool
+// =====================
+// Event Listeners
+// =====================
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
     document.getElementById(tool.id).addEventListener(
       "click",
       () => {
-        {
-          toolState.curTool = tool;
-          refreshHtml(graph, toolState);
-        }
+        toolState.curTool = tool;
+        refreshHtml(graph, toolState);
       },
       false
     );
   }
 }
 
-// set info/location for tooltip (when hovering over tools)
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
     document.getElementById(tool.id).addEventListener(
       "mouseenter",
       (event) => {
-        {
-          let hoverInfoElement = document.getElementById("hover-info-pane");
-          if (hoverInfoElement) {
-            let toolBtnOffsetLeft = document.getElementById(tool.id).offsetLeft;
-            let toolBtnWidth = document.getElementById(tool.id).offsetWidth;
-            let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
-            hoverInfoElement.style.left = `${
-              toolBtnOffsetLeft + toolBtnWidth / 2
-            }px`;
-            hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
-            document.getElementById("hover-header").innerHTML =
-              tool.hover.header;
-            document.getElementById("hover-description").innerHTML =
-              tool.hover.description;
-            document.getElementById("hover-info-img").src = tool.hover.image;
-          }
+        let hoverInfoElement = document.getElementById("hover-info-pane");
+        if (hoverInfoElement) {
+          let toolBtnOffsetLeft = document.getElementById(tool.id).offsetLeft;
+          let toolBtnWidth = document.getElementById(tool.id).offsetWidth;
+          let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
+          hoverInfoElement.style.left = `${toolBtnOffsetLeft + toolBtnWidth / 2}px`;
+          hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
+          document.getElementById("hover-header").innerHTML = tool.hover.header;
+          document.getElementById("hover-description").innerHTML = tool.hover.description;
+          document.getElementById("hover-info-img").src = tool.hover.image;
         }
       },
       false
@@ -179,7 +173,6 @@ for (const tool of toolState.allTools) {
   }
 }
 
-// if user presses 'escape' key, exit edge mode
 document.onkeydown = function (event) {
   event = event || window.event;
   var isEscape = false;
@@ -192,34 +185,12 @@ document.onkeydown = function (event) {
   }
 };
 
-
 canvasArea.style.cursor = toolState.curTool.cursor;
 
-
-let undoGraphStates = [];
 let undoElem = document.getElementById("undo");
 if (undoElem) {
   undoElem.addEventListener("click", undo, false);
 }
-
-function undo() {
-  if (undoGraphStates.length > 0) {
-    graph = undoGraphStates.pop();
-    refreshHtml(graph, toolState);
-  }
-}
-
-// limit on past number of states
-// arbitrary number TODO: profile to get better sense of performance impact
-function addToUndo(undoGraphStates, graph) {
-  const UNDO_SIZE_LIMIT = 25;
-  undoGraphStates.push(graph.clone(cloneNodeData));
-  if (undoGraphStates.length > UNDO_SIZE_LIMIT) {
-    undoGraphStates.shift(1);
-  }
-}
-
-refreshHtml(graph, toolState);
 
 if (canvas.getContext) {
   canvas.addEventListener("mousedown", canvasClick, false);
@@ -229,8 +200,9 @@ if (canvas.getContext) {
   window.requestAnimationFrame(draw);
 }
 
-// the main function to draw shapes to the canvas
-// it's long but it's largely boilerplate changing of colors and such
+// =====================
+// Main Drawing and Core Logic
+// =====================
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
@@ -368,32 +340,6 @@ function draw() {
   window.requestAnimationFrame(draw);
 }
 
-// for the graph algorithms, I use only adjacency lists (as 2d arrays) for efficiency, but for drawing to the canvas, it's easier if I store state associated with that node all in an object.
-function NodeData(counter, x, y) {
-  this.counter = counter;
-  this.x = x;
-  this.y = y;
-}
-
-// need to make deep copy for undo/redo
-// TODO: should we make NodeData a class?
-function cloneNodeData(nodeData) {
-  return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
-}
-
-// returns the node, if any, located at those coordinates. Assumes coordinates are relative to canvas, not window.
-function nodeAtPoint(x, y, nodes) {
-  for (const node of nodes) {
-    let dx = x - node.x;
-    let dy = y - node.y;
-    let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    if (distFromCent < nodeRadius * 2) {
-      return node;
-    }
-  }
-  return null;
-}
-
 function canvasClick(event) {
   let canvasBounds = canvas.getBoundingClientRect();
   let x = event.x - canvasBounds.left;
@@ -443,8 +389,6 @@ function canvasClick(event) {
     addToUndo(undoGraphStates, graph);
     moveTool.state.node = nodeClicked;
   }
-
-
 }
 
 function clearGraph() {
@@ -539,6 +483,59 @@ function mouseUp() {
   refreshHtml(graph, toolState);
 }
 
+// =====================
+// Undo/Redo
+// =====================
+function undo() {
+  if (undoGraphStates.length > 0) {
+    graph = undoGraphStates.pop();
+    refreshHtml(graph, toolState);
+  }
+}
+
+function addToUndo(undoGraphStates, graph) {
+  const UNDO_SIZE_LIMIT = 25;
+  undoGraphStates.push(graph.clone(cloneNodeData));
+  if (undoGraphStates.length > UNDO_SIZE_LIMIT) {
+    undoGraphStates.shift(1);
+  }
+}
+
+// =====================
+// UI Refresh/Utility Functions
+// =====================
+function printDimensions(headerMessage) {
+  // For debugging canvas size issues, not currently used but will probably use again in the future
+  if (headerMessage) {
+      console.log(headerMessage);
+  }
+  console.log(
+      "window.innerWidth - infoPaneWidth: " + (window.innerWidth - infoPaneWidth) + "\n" +
+      "window.innerHeight: " + window.innerHeight + "\n" +
+      "canvas.style.width: " + canvas.style.width + "\n" +
+      "canvas.style.height: " + canvas.style.height
+  );
+  if (canvas.getContext) {
+      let ctx = canvas.getContext("2d");
+      console.log(
+          "canvas.width: " + ctx.canvas.width + "\n" +
+          "canvas.height: " + ctx.canvas.height + "\n"
+      );
+  }
+}
+
+function nodeAtPoint(x, y, nodes) {
+  for (const node of nodes) {
+    let dx = x - node.x;
+    let dy = y - node.y;
+    let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    if (distFromCent < nodeRadius * 2) {
+      return node;
+    }
+  }
+  return null;
+}
+
 function refreshHtml(graph, toolState) {
   // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
   graphTypes = calculateGraphType(graph);
@@ -591,20 +588,14 @@ function refreshToolbarHtml(toolState) {
 }
 
 function setupClearButtonEventListener() {
-    const clearButton = document.getElementById('clear-btn');
-    clearButton.addEventListener('click', () => {
-        clearGraph();
-    });
+  const clearButton = document.getElementById('clear-btn');
+  clearButton.addEventListener('click', () => {
+      clearGraph();
+  });
 }
 
-setupClearButtonEventListener()
+setupClearButtonEventListener();
 
-function Point(x, y) {
-  this.x = x;
-  this.y = y;
-}
-
-// Thank you!: https://stackoverflow.com/questions/22521982/check-if-point-is-inside-a-polygon
 function inside(point, vs) {
   // ray-casting algorithm based on
   // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
@@ -684,8 +675,7 @@ function enterMagicEdgeMode(node) {
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 
-// event handlers for switching between info/export panes, changing CSS
-// TODO: code smells here, this and the next function have duplicated code
+// Info/Export Pane Event Handlers
 document.getElementById("export-pane-select").addEventListener(
   "click",
   () => {
@@ -739,7 +729,6 @@ let labelVisibleBtn = document.getElementById("label-visible-btn");
 labelVisibleBtn.addEventListener(
   "click",
   () => {
-    console.log(labelsVisible);
     if (document.getElementById("visible-icon")) {
       document.getElementById("visible-icon").src = labelsVisible
         ? "images/invisible-icon.svg"
@@ -749,3 +738,6 @@ labelVisibleBtn.addEventListener(
   },
   false
 );
+
+refreshHtml(graph, toolState);
+
