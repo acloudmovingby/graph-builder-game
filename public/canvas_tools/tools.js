@@ -163,6 +163,7 @@ for (const tool of toolState.allTools) {
           let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
           hoverInfoElement.style.left = `${toolBtnOffsetLeft + toolBtnWidth / 2}px`;
           hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
+          hoverInfoElement.style.visibility = "visible";
           document.getElementById("hover-header").innerHTML = tool.hover.header;
           document.getElementById("hover-description").innerHTML = tool.hover.description;
           document.getElementById("hover-info-img").src = tool.hover.image;
@@ -170,6 +171,16 @@ for (const tool of toolState.allTools) {
       },
       false
     );
+    document.getElementById(tool.id).addEventListener(
+          "mouseleave",
+          (event) => {
+            let hoverInfoElement = document.getElementById("hover-info-pane");
+            if (hoverInfoElement) {
+              hoverInfoElement.style.visibility = "hidden";
+            }
+          },
+          false
+        );
   }
 }
 
