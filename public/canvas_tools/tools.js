@@ -387,7 +387,7 @@ function draw() {
         // TODO:
         // Make these constants at top or in separate file
         // next reduce edge length by node radius + triangle height + padding
-        const arrowPadding = 5;
+        const arrowPadding = 4;
         const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPadding;
         const edgeLength = Math.sqrt(dx * dx + dy * dy);
         const ratio = arrowDisplacement / edgeLength;
