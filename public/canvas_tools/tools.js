@@ -39,7 +39,7 @@ function Point(x, y) {
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
-let graph = new Graph();
+let graph = new Digraph();
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;

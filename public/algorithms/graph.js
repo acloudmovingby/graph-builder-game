@@ -191,7 +191,7 @@ class Digraph extends Graph {
             for (let j = 0; j < this.adjList[i].length; j++) {
                 edges.push([this.indices.get(i), this.indices.get(this.adjList[i][j])]);
             }
-        }   
+        }
         return edges;
     }
 }
