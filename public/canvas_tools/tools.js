@@ -46,7 +46,6 @@ let nodeHover = null;
 let infoPaneHover = false;
 let labelsVisible = true;
 const timeInit = new Date().getSeconds();
-const nodeRadius = 15;
 let printCounter = 0;
 let canvasWidth = window.innerWidth - infoPaneWidth;
 let canvasHeight = window.innerHeight;
@@ -243,18 +242,12 @@ function draw() {
 
     // draw edges
     edges = graph.getEdges();
-    edges.forEach((e) => {
-      ctx.beginPath();
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "orange";
-      ctx.moveTo(e[0].x, e[0].y);
-      ctx.lineTo(e[1].x, e[1].y);
-      ctx.closePath();
-      ctx.stroke();
-    });
+    drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
+
+
+    drawDirectedEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
 
     // draw nodes
-
     let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
       const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
@@ -347,73 +340,6 @@ function draw() {
       ctx.closePath();
       ctx.stroke();
     }
-
-
-    ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
-
-    // **** draw triangles ****
-    // TODO: maybe these calculations should happen outside the draw function, pre-calculated once and reused every frame
-    const triangleHeight = 1.8;
-    const triangleBase = 2;
-    const tri_1 = new Point(0, -1 * triangleBase / 2);
-    const tri_2 = new Point(0, triangleBase / 2);
-    const tri_3 = new Point(triangleHeight, 0);
-    const trisOrigin = [tri_1, tri_2, tri_3];
-
-    // scaling
-    const scale_factor = 10;
-    const trisScaledOrigin = trisOrigin.map(pt => new Point(pt.x * scale_factor, pt.y * scale_factor));
-
-
-    // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
-    edges.forEach((e) => {
-        let tris = trisScaledOrigin;
-
-        // rotate
-        const dx = e[1].x - e[0].x;
-        const dy = e[1].y - e[0].y;
-        const rotate_radians = Math.atan2(dy, dx); // angle in radians
-        const rotateMatrix = [[Math.cos(rotate_radians), -Math.sin(rotate_radians)], [Math.sin(rotate_radians), Math.cos(rotate_radians)]];
-        const rotatePoint = new Point(0, 0); // rotate around origin (0, 0)
-        tris = tris.map(pt => {
-            const translatedX = pt.x - rotatePoint.x;
-            const translatedY = pt.y - rotatePoint.y;
-            const rotatedX = translatedX * rotateMatrix[0][0] + translatedY * rotateMatrix[0][1];
-            const rotatedY = translatedX * rotateMatrix[1][0] + translatedY * rotateMatrix[1][1];
-            return new Point(rotatedX + rotatePoint.x, rotatedY + rotatePoint.y);
-        });
-
-
-        // TODO:
-        // Make these constants at top or in separate file
-        // next reduce edge length by node radius + triangle height + padding
-        const arrowPadding = 4;
-        const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPadding;
-        const edgeLength = Math.sqrt(dx * dx + dy * dy);
-        const ratio = arrowDisplacement / edgeLength;
-        const dxFromEndNode = dx * ratio;
-        const dyFromEndNode = dy * ratio;
-        const translateVec = new Point(
-            -1 * dxFromEndNode + e[1].x,
-            -1 * dyFromEndNode + e[1].y
-        );
-
-        tris = tris.map(pt => new Point(pt.x + translateVec.x, pt.y + translateVec.y));
-
-        // style
-        ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
-        ctx.strokeStyle = "#32BFE3";
-        ctx.fillStyle = "#32BFE3";
-
-        // draw
-        ctx.beginPath();
-        ctx.moveTo(tris[0].x, tris[0].y);
-        ctx.lineTo(tris[1].x, tris[1].y);
-        ctx.lineTo(tris[2].x, tris[2].y);
-        ctx.closePath();
-        ctx.fill();
-    });
-
   }
   window.requestAnimationFrame(draw);
 }
