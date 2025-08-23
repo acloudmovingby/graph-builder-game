@@ -1,4 +1,4 @@
-class Graph {
+export class Graph {
     constructor() {
         this.adjList = [];
         this.nodeCount = 0;
@@ -138,7 +138,7 @@ class Graph {
 
 }
 
-class Digraph extends Graph {
+export class Digraph extends Graph {
     constructor() {
         super();
     }
@@ -196,6 +196,3 @@ class Digraph extends Graph {
         return edges;
     }
 }
-
-exports.Graph = Graph;
-exports.Digraph = Digraph;

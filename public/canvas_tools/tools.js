@@ -1,3 +1,8 @@
+import { Graph, Digraph } from "../algorithms/graph.mjs";
+import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
+import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
+import { nodeRadius } from "./render/node_render.mjs";
+
 // =====================
 // Class/Type Definitions
 // =====================
@@ -241,7 +246,7 @@ function draw() {
     }
 
     // draw edges
-    edges = graph.getEdges();
+    const edges = graph.getEdges();
     // TODO have an if here when it comes time to toggle back and forth between directed and undirected
     //drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
     drawDirectedEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));

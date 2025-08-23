@@ -1,15 +1,16 @@
+import { nodeRadius } from './node_render.mjs';
+
 // =====================
 // CONSTANTS
 // =====================
 // Parameters for styling the rendered shapes on the canvas
-const nodeRadius = 15;
 const simpleEdgeStrokeColor = "orange";
 const simpleEdgeStrokeWidth = 8;
 
 
 //// Arrow
 // Base triangle, placed at the origin, top pointing to the right
-function Point(x, y) {
+export function Point(x, y) {
   this.x = x;
   this.y = y;
 }
@@ -34,7 +35,7 @@ const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPa
 // They take the minimal graph data and calculate the points to draw, then call the canvas API to draw the shapes.
 
 // edges is an array of 4 integer arrays, i.e. [x1, y1, x2, y2]
-function drawSimpleEdges(ctx, edges) {
+export function drawSimpleEdges(ctx, edges) {
     ctx.lineWidth = simpleEdgeStrokeWidth;
     ctx.strokeStyle = simpleEdgeStrokeColor;
     ctx.beginPath();
@@ -48,7 +49,7 @@ function drawSimpleEdges(ctx, edges) {
 const arrowRenderCache = new Map(); // map from "x1,y1,x2,y2" to pre-calculated points
 
 // edges is an array of 4 integer arrays, i.e. [[x1, y1, x2, y2], ...]. Each inner array is an edge represented by its start and end coordinates.
-function drawDirectedEdges(ctx, edges) {
+export function drawDirectedEdges(ctx, edges) {
     // TODO replace this with new function that draws edges terminating at the base of the arrow
     drawSimpleEdges(ctx, edges);
     // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
@@ -101,6 +102,3 @@ function drawDirectedEdges(ctx, edges) {
     });
     ctx.fill();
 }
-
-exports.drawSimpleEdges = drawSimpleEdges;
-exports.drawDirectedEdges = drawDirectedEdges;

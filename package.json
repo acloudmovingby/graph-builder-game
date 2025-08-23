@@ -2,9 +2,10 @@
   "name": "graph-theory-2021",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "author": "Chris Oates",
   "license": "ISC",
@@ -12,6 +13,7 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
+    "cross-env": "^10.0.0",
     "jest": "^27.0.6"
   }
 }

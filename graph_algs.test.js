@@ -1,7 +1,7 @@
-const {
+import {
     Graph,
-} = require("./public/algorithms/graph.js");
-const {
+} from "./public/algorithms/graph.mjs";
+import {
   checkEdges,
   isomorphism,
   isComplete,
@@ -13,7 +13,7 @@ const {
   isButterflyGraph,
   getConnectedComponent,
   subGraph,
-} = require("./public/algorithms/graph_algs");
+} from "./public/algorithms/graph_algs.mjs";
 
 
 test("checks edges with empty graphs", () => {

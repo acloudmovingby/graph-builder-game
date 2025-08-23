@@ -1,9 +1,7 @@
-const {
-    Graph,
-} = require("./graph.js");
+import { Graph, Digraph } from "./graph.mjs";
 
 // Returns String of graph types
-function calculateGraphType(g) {
+export function calculateGraphType(g) {
   let types = [];
 
   if (g.nodeCount === 1) {
@@ -38,7 +36,7 @@ function calculateGraphType(g) {
 // this uses mostly brute force with basic pruning using simple invariants (e.g. degree sequence)
 // for small graphs I tested it on, it worked fine
 // will work poorly on graphs with lots of edges and with similar degree sequences
-function isomorphism(g1, g2) {
+export function isomorphism(g1, g2) {
   if (g1.length !== g2.length) {
     return false;
   } else {
@@ -50,7 +48,7 @@ function isomorphism(g1, g2) {
 }
 
 // TODO: uses recursion, maybe should be iterative to reduce memory in call stack?
-function bruteForce(level, used, perm, g1, g2) {
+export function bruteForce(level, used, perm, g1, g2) {
   let result = false;
 
   if (level === -1) {
@@ -71,8 +69,8 @@ function bruteForce(level, used, perm, g1, g2) {
 }
 
 // g1 and g2 are adjacency lists assumed to be the same length and are valid representations of bidirectional graphs
-// perm is a mapping from nodes in g1 to g2. This function checks whether this mapping is a correct isomorphism between the two graphs
-function checkEdges(perm, g1, g2) {
+// perm is a mapping from nodes in g1 to g2. This export function checks whether this mapping is a correct isomorphism between the two graphs
+export function checkEdges(perm, g1, g2) {
   for (let i = 0; i < g1.length; i++) {
     for (let j = 0; j < g1[i].length; j++) {
       let g1_target = g1[i][j];
@@ -92,32 +90,32 @@ function checkEdges(perm, g1, g2) {
 }
 
 // Complete graphs have (n*(n-1))/2 edges
-function isComplete(graph) {
+export function isComplete(graph) {
   return graph.edgeCount === (graph.nodeCount * (graph.nodeCount - 1)) / 2;
 }
 
 // The symbols K2,K3...Kn designate complete graphs of size n. This function generates a function to test if a graph is a complete graph of size n.
 // this is somewhat abstract, but it cuts down on a lot of code repetition (you don't have to define different functions like isK3(..) isK4(...), etc.)
-function completeGraphChecker(n) {
+export function completeGraphChecker(n) {
   return function (graph) {
     return graph.nodeCount === n && isComplete(graph);
   };
 }
 
 // Returns a function that checks if it's a *specific* cycle graph (say, C5).
-function cycleGraphChecker(n) {
+export function cycleGraphChecker(n) {
   return function (graph) {
     return graph.nodeCount === n && isCycleGraph(graph);
   };
 }
 
-function isCycleGraph(graph) {
+export function isCycleGraph(graph) {
     return isOnlyCycles(graph) && isOneCycle(graph);
 }
 
 // A graph is a 'cycle graph' if it has n nodes and n edges, and each node has degree 2.
 // In other words, the graph is a big circle.
-function isOnlyCycles(graph) {
+export function isOnlyCycles(graph) {
   return (
     graph.nodeCount >= 3 &&
     graph.nodeCount === graph.edgeCount &&
@@ -127,7 +125,7 @@ function isOnlyCycles(graph) {
 }
 
 // TODO (2025): Wait, what does this function do? How is it different from isOnlyCycles?
-function isOneCycle(graph) {
+export function isOneCycle(graph) {
   let adjList = graph.getAdjList();
   // starts at any connected node, walks edges exactly numConnected times. If it's a cycle graph, it should end up back at start without revisiting any nodes
   let start = adjList.findIndex((n) => n.length > 0);
@@ -157,7 +155,7 @@ function isOneCycle(graph) {
   return isCycle && cur === start;
 }
 
-function isPaw(graph) {
+export function isPaw(graph) {
   return (
     graph.nodeCount === 4 &&
     graph.edgeCount === 4 &&
@@ -165,7 +163,7 @@ function isPaw(graph) {
   );
 }
 
-function starGraphChecker(n) {
+export function starGraphChecker(n) {
   return function (graph) {
     return (
       graph.nodeCount === n &&
@@ -176,7 +174,7 @@ function starGraphChecker(n) {
   };
 }
 
-function isKayakPaddleGraph(graph) {
+export function isKayakPaddleGraph(graph) {
   if (graph.nodeCount != 6) {
     return false;
   }
@@ -191,7 +189,7 @@ function isKayakPaddleGraph(graph) {
   return isomorphism(kpg, graph.getAdjList(graph));
 }
 
-function isButterflyGraph(graph) {
+export function isButterflyGraph(graph) {
   if (graph.nodeCount != 5) {
     return false;
   } else {
@@ -208,7 +206,7 @@ function isButterflyGraph(graph) {
 
 // returns a new Graph representing the connected component to that node; returns an empty graph if the node doesn't exist in the graph
 // TODO: it's unclear if this copies the values stored at nodes or merely copies a reference
-function getConnectedComponent(node, graph) {
+export function getConnectedComponent(node, graph) {
   let visited = Array.from({ length: graph.nodeCount }).map((x) => false);
   if (!graph.nodeValues.has(node)) {
     return new Graph();
@@ -226,7 +224,7 @@ function getConnectedComponent(node, graph) {
 }
 
 // recursive helper for getConnectedComponent function
-function memoizeCC(nodeIx, adjList, visited) {
+export function memoizeCC(nodeIx, adjList, visited) {
   visited[nodeIx] = true;
 
   for (let i = 0; i < adjList[nodeIx].length; i++) {
@@ -240,7 +238,7 @@ function memoizeCC(nodeIx, adjList, visited) {
 
 // for a given set of node indices, returns the subgraph that contains all those nodes
 // if an index doesn't exist, it ignores it. (Maybe it should throw an error?)
-function subGraph(nodeIndices, graph) {
+export function subGraph(nodeIndices, graph) {
   let newGraph = new Graph();
   for (const index of nodeIndices) {
     if (graph.indices.has(index)) {
@@ -264,7 +262,7 @@ function subGraph(nodeIndices, graph) {
 // adds "n" to the beginning of the node label names because .dot format won't accept digits at the start of a label name
 // e.g. 3 gets turned into n3
 // TODO have user label graphs however they want
-function getDot(graph) {
+export function getDot(graph) {
   const edges = graph.getEdgeIndices();
   let ret = "graph {\n";
   for (const e of edges) {
@@ -280,16 +278,3 @@ function getDot(graph) {
   ret += "}";
   return ret;
 }
-
-exports.checkEdges = checkEdges;
-exports.isomorphism = isomorphism;
-exports.isComplete = isComplete;
-exports.completeGraphChecker = completeGraphChecker;
-exports.cycleGraphChecker = cycleGraphChecker;
-exports.isPaw = isPaw;
-exports.starGraphChecker = starGraphChecker;
-exports.isKayakPaddleGraph = isKayakPaddleGraph;
-exports.isButterflyGraph = isButterflyGraph;
-exports.getConnectedComponent = getConnectedComponent;
-exports.subGraph = subGraph;
-exports.getDot = getDot;
