@@ -242,9 +242,8 @@ function draw() {
 
     // draw edges
     edges = graph.getEdges();
-    drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
-
-
+    // TODO have an if here when it comes time to toggle back and forth between directed and undirected
+    //drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
     drawDirectedEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
 
     // draw nodes

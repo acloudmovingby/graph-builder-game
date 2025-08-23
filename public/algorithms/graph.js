@@ -11,7 +11,6 @@ class Graph {
     // This addNode function is used often to build up graphs for comparisons, tests, etc., so it should be lightweight
     // TODO: I'm noticing this is not at all thread-safe, not sure how much that'll matter for current use cases
     addNode(nodeValue) {
-        console.log(`Adding node with value ${nodeValue}`);
         this.adjList.push([]);
         // TODO: This is not actually checking if the node already exists in the graph; this would definitely cause problems
         this.nodeValues.set(nodeValue, this.adjList.length - 1);

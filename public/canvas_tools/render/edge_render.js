@@ -30,11 +30,11 @@ const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPa
 // =====================
 // Rendering Functions
 // =====================
-// The point of these functions is to isolate the canvas rendering code from the application logic.
+// These isolate the canvas rendering code from the graph/application logic.
+// They take the minimal graph data and calculate the points to draw, then call the canvas API to draw the shapes.
 
 // edges is an array of 4 integer arrays, i.e. [x1, y1, x2, y2]
 function drawSimpleEdges(ctx, edges) {
-    // This method is called to render the edge on the canvas
     ctx.lineWidth = simpleEdgeStrokeWidth;
     ctx.strokeStyle = simpleEdgeStrokeColor;
     ctx.beginPath();
