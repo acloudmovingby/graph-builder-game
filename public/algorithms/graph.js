@@ -38,14 +38,16 @@ class Graph {
             let oneTwoExists = this.adjList[index1].includes(index2);
             let twoOneExists = this.adjList[index2].includes(index1);
 
-            console.assert(
-                !(oneTwoExists ^ twoOneExists),
-                "graph had a directed edge; addEdge assumes graph is bidirectional; edge added anyway"
-            );
-            addedEdge = true;
-            this.adjList[index1].push(index2);
-            this.adjList[index2].push(index1);
-            this.edgeCount++;
+            if (!oneTwoExists || !twoOneExists) {
+                console.assert(
+                    !oneTwoExists && !twoOneExists,
+                    "graph had a directed edge; addEdge assumes graph is bidirectional; edge added anyway"
+                );
+                addedEdge = true;
+                this.adjList[index1].push(index2);
+                this.adjList[index2].push(index1);
+                this.edgeCount++;
+            }
         }
         return addedEdge;
     }

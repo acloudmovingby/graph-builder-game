@@ -1,3 +1,7 @@
+const {
+    Graph,
+} = require("./graph.js");
+
 // Returns String of graph types
 function calculateGraphType(g) {
   let types = [];

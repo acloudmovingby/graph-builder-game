@@ -1,7 +1,9 @@
 const {
+    Graph,
+} = require("./public/algorithms/graph.js");
+const {
   checkEdges,
   isomorphism,
-  Graph,
   isComplete,
   completeGraphChecker,
   cycleGraphChecker,
