@@ -108,11 +108,18 @@ export class Graph {
         return this.getAdjList()[index].map((node) => this.indices.get(node));
     }
 
+    assertInvariants() {
+
+    }
+
+    // used by subclasses to create new instance of the same type
+    init_clone() { return new Graph(); }
+
     // clones the graph
     // Needs nodeCopyFunction because Graph is unaware of the contents it is storing, so it cannot perform a deep copy on them without being given a function to do so.
     // This has a nice side effect of making it easy to "map" a graph. You can make nodeCopyFunction any kind of function you want, the graph structure won't be affected.
     clone(nodeCopyFunction) {
-        let clone = new Graph();
+        let clone = this.init_clone();
         let nodeMap = new Map(); // maps this graph's node values to the clone's new node values
         for (const node of this.getNodeValues()) {
             let nodeClone = nodeCopyFunction(node);
@@ -135,13 +142,14 @@ export class Graph {
         );
         return clone;
     }
-
 }
 
 export class Digraph extends Graph {
     constructor() {
         super();
     }
+
+    init_clone() { return new Digraph(); }
 
     // returns true only if the graph contains these nodes already and the edge didn't already exist;
     // does NOT allow parallel edges (multiple edges between two nodes)

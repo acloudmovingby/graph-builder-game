@@ -1,5 +1,6 @@
 import {
     Graph,
+    Digraph
 } from "./public/algorithms/graph.mjs";
 import {
   checkEdges,
@@ -936,4 +937,38 @@ test("Test addEdge returns boolean", () => {
   expect(g1.addEdge("B","C")).toBe(false);
   expect(g1.addEdge("A","B")).toBe(true);
   expect(g1.addEdge("A","B")).toBe(false); // after edge added you can't keep adding (no parallel edges)
+});
+
+test("Digraph invariants", () => {
+    let g1 = new Digraph();
+    expect(g1.nodeCount).toBe(0);
+    expect(g1.edgeCount).toBe(0);
+    g1.addNode("A");
+    expect(g1.nodeCount).toBe(1);
+    expect(g1.edgeCount).toBe(0);
+    g1.addNode("B");
+    expect(g1.nodeCount).toBe(2);
+    expect(g1.edgeCount).toBe(0);
+    g1.addEdge("A","B");
+    expect(g1.nodeCount).toBe(2);
+    expect(g1.edgeCount).toBe(1);
+    g1.addEdge("B","A");
+    expect(g1.nodeCount).toBe(2);
+    expect(g1.edgeCount).toBe(2);
+    expect(g1.addEdge("A","B") == false);
+    expect(g1.nodeCount).toBe(2);
+    expect(g1.edgeCount).toBe(2); // no parallel edges
+});
+
+test("Digraph clone", () => {
+    console.log("Digraph clone TEST!!!");
+    let g1 = new Digraph();
+    g1.addNode("A");
+    g1.addNode("B");
+    g1.addNode("C");
+    g1.addEdge("A","B");
+    g1.addEdge("B","A");
+    g1.addEdge("A","C");
+    let g2 = g1.clone(x => x);
+    expect(isomorphism(g1.getAdjList(), g2.getAdjList())).toBe(true);
 });
