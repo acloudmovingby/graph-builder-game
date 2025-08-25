@@ -48,27 +48,86 @@ export function drawSimpleEdges(ctx, edges) {
 
 const arrowRenderCache = new Map(); // map from "x1,y1,x2,y2" to pre-calculated points
 
+// I'm calling this function twice for directed edges, but perhaps this should just take a 'bidirectional' boolean parameter and
+// go ahead and trim both ends if true
+function trimEdges(trimStart, edges) {
+    const trimmedEdges = edges.map(e => {
+            const dx = e[2] - e[0];
+            const dy = e[3] - e[1];
+            const edgeLength = Math.sqrt(dx * dx + dy * dy);
+            // move start point to edge of node, -1 to avoid gap between edge and arrow due to anti-aliasing
+            const ratio = (arrowDisplacement - 1) / edgeLength;
+            const dxFromNode = dx * ratio;
+            const dyFromNode = dy * ratio;
+
+            if (trimStart) {
+                return [
+                    Math.floor(e[0] + dxFromNode),
+                    Math.floor(e[1] + dyFromNode),
+                    Math.floor(e[2]),
+                    Math.floor(e[3])
+                ];
+            } else {
+                return [
+                    Math.floor(e[0]),
+                    Math.floor(e[1]),
+                    Math.floor(e[2] - dxFromNode),
+                    Math.floor(e[3] - dyFromNode)
+                ];
+            }
+
+
+        });
+    return trimmedEdges;
+    }
+
+function DirectedEdge(bidirectional, startX, startY, endX, endY) {
+    // bidirectional is boolean
+    this.bidirectional = bidirectional;
+    this.startX = startX;
+    this.startY = startY;
+    this.endX = endX;
+    this.endY = endY;
+}
+
+function decideDirectionality(edges) {
+    // make list of DirectedEdge objects where if both directions are an edge are represented in the input edges, the DirectedEdge is bidirectional
+    const directedEdges = [];
+    const edgeSet = new Set(edges.map(e => `${e[0]},${e[1]},${e[2]},${e[3]}`));
+    const seen = new Set();
+    edges.forEach(e => {
+        const key = `${e[0]},${e[1]},${e[2]},${e[3]}`;
+        const reverseKey = `${e[2]},${e[3]},${e[0]},${e[1]}`;
+        if (!seen.has(key) && !seen.has(reverseKey)) {
+            const bidirectional = edgeSet.has(reverseKey);
+            directedEdges.push(new DirectedEdge(bidirectional, e[0], e[1], e[2], e[3]));
+            seen.add(key);
+            seen.add(reverseKey);
+        }
+    });
+    return directedEdges;
+}
+
+function trimEdgesBasedOnDirectionality(directedEdges) {
+    const trimmedEdges = directedEdges.map(de => {
+        if (de.bidirectional) {
+            // trim both ends
+            let frontTrimmed = trimEdges(true, [[de.startX, de.startY, de.endX, de.endY]])[0];
+            return trimEdges(false, [frontTrimmed])[0];
+        } else {
+            // trim only end
+            return trimEdges(false, [[de.startX, de.startY, de.endX, de.endY]])[0];
+        }
+    });
+    return trimmedEdges;
+}
+
 // edges is an array of 4 integer arrays, i.e. [[x1, y1, x2, y2], ...]. Each inner array is an edge represented by its start and end coordinates.
 export function drawDirectedEdges(ctx, edges) {
     // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
-    const trimmedEdges = edges.map(e => {
-        const dx = e[2] - e[0];
-        const dy = e[3] - e[1];
-        const edgeLength = Math.sqrt(dx * dx + dy * dy);
-        // move start point to edge of node, -1 to avoid gap between edge and arrow due to anti-aliasing
-        const ratio = (arrowDisplacement - 1) / edgeLength;
-        const dxFromStartNode = dx * ratio;
-        const dyFromStartNode = dy * ratio;
-        const newEndX = e[2] - dxFromStartNode;
-        const newEndY = e[3] - dyFromStartNode;
-
-        return [
-            Math.floor(e[0]),
-            Math.floor(e[1]),
-            Math.floor(newEndX),
-            Math.floor(newEndY)
-        ];
-    })
+    // determine directionality of each edge
+    const directedEdges = decideDirectionality(edges);
+    const trimmedEdges = trimEdgesBasedOnDirectionality(directedEdges);
     drawSimpleEdges(ctx, trimmedEdges);
 
     // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
