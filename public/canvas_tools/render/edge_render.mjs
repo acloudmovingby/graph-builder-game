@@ -14,7 +14,7 @@ export function Point(x, y) {
   this.x = x;
   this.y = y;
 }
-const triangleHeight = 9;
+const triangleHeight = 14;
 const triangleBase = 10;
 const tri_1 = new Point(0, -1 * triangleBase / 2);
 const tri_2 = new Point(0, triangleBase / 2);
@@ -50,8 +50,27 @@ const arrowRenderCache = new Map(); // map from "x1,y1,x2,y2" to pre-calculated 
 
 // edges is an array of 4 integer arrays, i.e. [[x1, y1, x2, y2], ...]. Each inner array is an edge represented by its start and end coordinates.
 export function drawDirectedEdges(ctx, edges) {
-    // TODO replace this with new function that draws edges terminating at the base of the arrow
-    drawSimpleEdges(ctx, edges);
+    // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
+    const trimmedEdges = edges.map(e => {
+        const dx = e[2] - e[0];
+        const dy = e[3] - e[1];
+        const edgeLength = Math.sqrt(dx * dx + dy * dy);
+        // move start point to edge of node, -1 to avoid gap between edge and arrow due to anti-aliasing
+        const ratio = (arrowDisplacement - 1) / edgeLength;
+        const dxFromStartNode = dx * ratio;
+        const dyFromStartNode = dy * ratio;
+        const newEndX = e[2] - dxFromStartNode;
+        const newEndY = e[3] - dyFromStartNode;
+
+        return [
+            Math.floor(e[0]),
+            Math.floor(e[1]),
+            Math.floor(newEndX),
+            Math.floor(newEndY)
+        ];
+    })
+    drawSimpleEdges(ctx, trimmedEdges);
+
     // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
     ctx.beginPath();
     edges.forEach((e) => {
