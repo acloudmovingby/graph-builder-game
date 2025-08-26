@@ -1,3 +1,8 @@
+import { Graph, Digraph } from "../algorithms/graph.mjs";
+import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
+import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
+import { nodeRadius } from "./render/node_render.mjs";
+
 // =====================
 // Class/Type Definitions
 // =====================
@@ -39,14 +44,13 @@ function Point(x, y) {
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
-let graph = new Graph();
+let graph = new Digraph();
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
 let infoPaneHover = false;
 let labelsVisible = true;
 const timeInit = new Date().getSeconds();
-const nodeRadius = 15;
 let printCounter = 0;
 let canvasWidth = window.innerWidth - infoPaneWidth;
 let canvasHeight = window.innerHeight;
@@ -242,19 +246,12 @@ function draw() {
     }
 
     // draw edges
-    edges = graph.getEdges();
-    edges.forEach((e) => {
-      ctx.beginPath();
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "orange";
-      ctx.moveTo(e[0].x, e[0].y);
-      ctx.lineTo(e[1].x, e[1].y);
-      ctx.closePath();
-      ctx.stroke();
-    });
+    const edges = graph.getEdges();
+    // TODO have an if here when it comes time to toggle back and forth between directed and undirected
+    //drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
+    drawDirectedEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
 
     // draw nodes
-
     let nodes = Array.from(graph.getNodeValues());
     for (let i = 0; i < nodes.length; i++) {
       const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
