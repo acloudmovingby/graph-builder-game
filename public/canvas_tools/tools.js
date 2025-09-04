@@ -3,6 +3,10 @@ import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
 import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
+TutorialApp.foo();
+const t = TestWrapper.createTest();
+console.log(t.saySomething());
+
 // =====================
 // Class/Type Definitions
 // =====================
@@ -148,7 +152,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graph, toolState);
+        refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
       },
       false
     );
@@ -376,7 +380,7 @@ function canvasClick(event) {
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
       basicTool.state.stillInNode = true;
-      refreshHtml(graph, toolState);
+      refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
@@ -386,7 +390,7 @@ function canvasClick(event) {
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
       }
       basicTool.state.edgeStart = nodeClicked;
-      refreshHtml(graph, toolState);
+      refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -407,7 +411,7 @@ function clearGraph() {
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graph, toolState);
+  refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
 }
 
 function mouseLeave(event) {
@@ -443,7 +447,7 @@ function mouseMove(event) {
       graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
     }
     magicPathTool.state.edgeStart = nodeHover;
-    refreshHtml(graph, toolState);
+    refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
   }
 
   if (toolState.curTool == moveTool) {
@@ -488,7 +492,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graph, toolState);
+  refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
 }
 
 // =====================
@@ -497,7 +501,7 @@ function mouseUp() {
 function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
-    refreshHtml(graph, toolState);
+    refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
   }
 }
 
@@ -544,19 +548,19 @@ function nodeAtPoint(x, y, nodes) {
   return null;
 }
 
-function refreshHtml(graph, toolState) {
+function refreshHtml(graph, nodeCount, edgeCount, toolState) {
   // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
   graphTypes = calculateGraphType(graph);
 
   refreshToolbarHtml(toolState);
-  refreshGraphInfoHtml(graph, graphTypes);
+  refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
   refreshAdjListHtml(graph);
   refreshAdjMatrixHtml(graph);
 }
 
-function refreshGraphInfoHtml(graph, graphTypes) {
-  document.getElementById("node-count").innerHTML = graph.nodeCount;
-  document.getElementById("edge-count").innerHTML = graph.edgeCount;
+function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
+  document.getElementById("node-count").innerHTML = nodeCount;
+  document.getElementById("edge-count").innerHTML = edgeCount;
   document.getElementById("graph-types").innerHTML = graphTypes;
 }
 
@@ -747,5 +751,5 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-refreshHtml(graph, toolState);
+refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
 
