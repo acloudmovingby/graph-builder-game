@@ -20,12 +20,18 @@ object TestWrapper {
     def createTest(): Test = new Test()
 }
 
+@JSExportTopLevel("GraphController")
 object GraphController {
     private var graph = new MapBasedSimpleGraphImmutable[String]()
     @JSExport
     def clearGraph(): Unit = {
         graph = new MapBasedSimpleGraphImmutable[String]()
     }
+    @JSExport
+    def nodeCount(): Int = graph.nodeCount
+    @JSExport
+    def edgeCount(): Int = graph.edgeCount
+    def add
 }
 
 // TODO: convert this Javascript code to Scala.js

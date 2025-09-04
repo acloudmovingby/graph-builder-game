@@ -152,7 +152,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+        refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
       },
       false
     );
@@ -380,7 +380,7 @@ function canvasClick(event) {
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
       basicTool.state.stillInNode = true;
-      refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
@@ -390,7 +390,7 @@ function canvasClick(event) {
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
       }
       basicTool.state.edgeStart = nodeClicked;
-      refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -411,7 +411,7 @@ function clearGraph() {
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -447,7 +447,7 @@ function mouseMove(event) {
       graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
     }
     magicPathTool.state.edgeStart = nodeHover;
-    refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 
   if (toolState.curTool == moveTool) {
@@ -492,7 +492,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 }
 
 // =====================
@@ -501,7 +501,9 @@ function mouseUp() {
 function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
-    refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+    console.log("undo performed, nodeCount: " + graph.nodeCount);
+    console.log("graphController.nodeCount: " + GraphController.nodeCount());
+    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 }
 
@@ -548,14 +550,13 @@ function nodeAtPoint(x, y, nodes) {
   return null;
 }
 
-function refreshHtml(graph, nodeCount, edgeCount, toolState) {
+function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList) {
   // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
-  graphTypes = calculateGraphType(graph);
 
   refreshToolbarHtml(toolState);
   refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
-  refreshAdjListHtml(graph);
-  refreshAdjMatrixHtml(graph);
+  refreshAdjListHtml(adjList);
+  refreshAdjMatrixHtml(nodeCount, adjList);
 }
 
 function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
@@ -564,17 +565,17 @@ function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
   document.getElementById("graph-types").innerHTML = graphTypes;
 }
 
-function refreshAdjListHtml(graph) {
+// adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
+function refreshAdjListHtml(adjListLabels) {
   let adjListElem = document.getElementById("adjacency-list");
   if (adjListElem) {
-    let graphAdj = graph.getAdjList();
     adjListElem.innerHTML = "";
-    for (let i = 0; i < graphAdj.length; i++) {
+    for (let i = 0; i < adjListLabels.length; i++) {
       var node = document.createElement("LI");
       var textnode = document.createTextNode(i + ":");
       node.appendChild(textnode);
-      for (let j = 0; j < graphAdj[i].length; j++) {
-        node.appendChild(document.createTextNode(" " + graphAdj[i][j]));
+      for (let j = 0; j < adjListLabels[i].length; j++) {
+        node.appendChild(document.createTextNode(" " + adjListLabels[i][j]));
       }
       adjListElem.appendChild(node);
     }
@@ -628,7 +629,7 @@ function inside(point, vs) {
   return inside;
 }
 
-function refreshAdjMatrixHtml(graph) {
+function refreshAdjMatrixHtml(nodeCount, adjList) {
   let matrixElem = document.getElementById("adj-matrix");
   if (matrixElem && matrixElem.getContext) {
     let totalWidth = matrixElem.offsetWidth;
@@ -636,9 +637,9 @@ function refreshAdjMatrixHtml(graph) {
     let ctx = matrixElem.getContext("2d");
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
-    let width = totalWidth / graph.nodeCount;
-    let height = totalHeight / graph.nodeCount;
-    let adjMatrix = generateAdjacencyMatrix(graph.getAdjList());
+    let width = totalWidth / nodeCount;
+    let height = totalHeight / nodeCount;
+    let adjMatrix = generateAdjacencyMatrix(adjList);
     for (let i = 0; i < adjMatrix.length; i++) {
       for (let j = 0; j < adjMatrix[i].length; j++) {
         if (adjMatrix[i][j]) {
@@ -751,5 +752,5 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-refreshHtml(graph, graph.nodeCount, graph.edgeCount, toolState);
+refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 
