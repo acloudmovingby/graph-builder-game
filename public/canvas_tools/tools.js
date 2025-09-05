@@ -3,6 +3,12 @@ import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
 import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
+// TODO
+// - Figure out all the ways NodeData is mutated
+// - add key to NodeData and use that when talking to GraphController
+// - every time you mutate NodeData, call graphController.updateNode(nodeData) to keep it in sync
+
+
 // =====================
 // Class/Type Definitions
 // =====================
@@ -23,14 +29,15 @@ class Tool {
   }
 }
 
-function NodeData(counter, x, y) {
+function NodeData(key, counter, x, y) {
+  this.key = key;
   this.counter = counter;
   this.x = x;
   this.y = y;
 }
 
 function cloneNodeData(nodeData) {
-  return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
+  return new NodeData(nodeData.key, nodeData.counter, nodeData.x, nodeData.y);
 }
 
 function Point(x, y) {
@@ -46,6 +53,7 @@ let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Digraph();
 const graphController = new GraphController();
+var graphKeyCounter = 0; // used to give each node a unique key when created
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -299,6 +307,7 @@ function draw() {
       // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
+        graphController.updateNodeData(nodes[i].key, nodes[i].counter, nodes[i].x, nodes[i].y);
       }
 
       // labels on nodes
@@ -375,9 +384,10 @@ function canvasClick(event) {
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
       addToUndo(undoGraphStates, graph);
-      let newNode = new NodeData(0, x, y);
+      let newNode = new NodeData(graphKeyCounter, 0, x, y);
       graph.addNode(newNode);
-      graphController.addNode(0, x, y);
+      graphController.addNode(graphKeyCounter, 0, x, y);
+      graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
@@ -388,7 +398,7 @@ function canvasClick(event) {
         addToUndo(undoGraphStates, graph);
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
         const startNode = basicTool.state.edgeStart;
-        graphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
+        graphController.addEdge(startNode.key, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
