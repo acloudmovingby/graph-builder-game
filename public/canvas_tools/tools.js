@@ -3,10 +3,6 @@ import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
 import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
-TutorialApp.foo();
-const t = TestWrapper.createTest();
-console.log(t.saySomething());
-
 // =====================
 // Class/Type Definitions
 // =====================
@@ -505,8 +501,6 @@ function mouseUp() {
 function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
-    console.log("undo performed, nodeCount: " + graph.nodeCount);
-    console.log("graphController.nodeCount: " + GraphController.nodeCount());
     refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 }

@@ -1,24 +1,7 @@
 package tutorial.webapp
 
 import scala.scalajs.js.annotation._
-
-import graphi.Test
 import graphi.MapBasedSimpleGraphImmutable
-
-@JSExportTopLevel("TutorialApp")
-object TutorialApp {
-  def main(args: Array[String]): Unit = {
-    println(s"Hello world? ${new Test().saySomething()}")
-  }
-  @JSExport
-  def foo(): String = "bar"
-}
-
-@JSExportTopLevel("TestWrapper")
-object TestWrapper {
-    @JSExport
-    def createTest(): Test = new Test()
-}
 
 case class NodeData(counter: Int, x: Int, y: Int)
 
