@@ -1,4 +1,4 @@
-package tutorial.webapp
+package scalagraph
 
 import scala.scalajs.js.annotation._
 import graphi.MapBasedSimpleGraphImmutable
@@ -6,7 +6,7 @@ import graphi.MapBasedSimpleGraphImmutable
 case class NodeData(counter: Int, x: Int, y: Int)
 
 @JSExportTopLevel("GraphController")
-object GraphController {
+class GraphController {
     private var graph = new MapBasedSimpleGraphImmutable[NodeData]()
     @JSExport
     def clearGraph(): Unit = {
@@ -26,9 +26,6 @@ object GraphController {
         val node2 = NodeData(counter2, x2, y2)
         graph = graph.addEdge(node1, node2)
     } catch {
-        case e: NoSuchElementException => println(s"Error adding edge: ${e.getMessage}")
+        case e: NoSuchElementException => println(s"Error adding edge (not yet implemented): ${e.getMessage}")
     }
 }
-
-
-

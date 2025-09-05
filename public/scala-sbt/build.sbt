@@ -1,9 +1,9 @@
 enablePlugins(ScalaJSPlugin)
 
-name := "Scala.js Tutorial"
-scalaVersion := "3.7.2" // or a newer version such as "3.4.2", if you like
+name := "Scala.js logic for graph-builder"
+scalaVersion := "3.7.2" 
 
 libraryDependencies += "acloudmovingby" %%% "graphi" % "0.0.1"
 
 // This is an application with a main method
-scalaJSUseMainModuleInitializer := true
+//scalaJSUseMainModuleInitializer := true

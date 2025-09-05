@@ -45,6 +45,7 @@ let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Digraph();
+const graphController = new GraphController();
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -376,7 +377,7 @@ function canvasClick(event) {
       addToUndo(undoGraphStates, graph);
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
-      GraphController.addNode(0, x, y);
+      graphController.addNode(0, x, y);
       basicTool.state.stillInNode = true;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
@@ -387,7 +388,7 @@ function canvasClick(event) {
         addToUndo(undoGraphStates, graph);
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
         const startNode = basicTool.state.edgeStart;
-        GraphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
+        graphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
       }
       basicTool.state.edgeStart = nodeClicked;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
