@@ -354,8 +354,9 @@ function draw() {
 
 function canvasClick(event) {
   let canvasBounds = canvas.getBoundingClientRect();
-  let x = event.x - canvasBounds.left;
-  let y = event.y - canvasBounds.top;
+  // floor values to keep everything as integers, better for canvas rendering and generally better to keep things as ints
+  let x = Math.floor(event.x - canvasBounds.left);
+  let y = Math.floor(event.y - canvasBounds.top);
 
   if (toolState.curTool === areaCompleteTool) {
     areaCompleteTool.state.mousePressed = true;
@@ -379,6 +380,7 @@ function canvasClick(event) {
       addToUndo(undoGraphStates, graph);
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
+      GraphController.addNode(0, x, y);
       basicTool.state.stillInNode = true;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
@@ -388,6 +390,8 @@ function canvasClick(event) {
       if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
         addToUndo(undoGraphStates, graph);
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+        const startNode = basicTool.state.edgeStart;
+        GraphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
       }
       basicTool.state.edgeStart = nodeClicked;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());

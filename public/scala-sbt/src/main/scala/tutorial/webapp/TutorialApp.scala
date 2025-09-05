@@ -20,34 +20,32 @@ object TestWrapper {
     def createTest(): Test = new Test()
 }
 
+case class NodeData(counter: Int, x: Int, y: Int)
+
 @JSExportTopLevel("GraphController")
 object GraphController {
-    private var graph = new MapBasedSimpleGraphImmutable[String]()
+    private var graph = new MapBasedSimpleGraphImmutable[NodeData]()
     @JSExport
     def clearGraph(): Unit = {
-        graph = new MapBasedSimpleGraphImmutable[String]()
+        graph = new MapBasedSimpleGraphImmutable[NodeData]()
     }
     @JSExport
     def nodeCount(): Int = graph.nodeCount
     @JSExport
     def edgeCount(): Int = graph.edgeCount
-    def add
+    @JSExport
+    def addNode(counter: Int, x: Int, y: Int): Unit = {
+        graph = graph.addNode(NodeData(counter, x, y))
+    }
+    @JSExport
+    def addEdge(counter1: Int, x1: Int, y1: Int, counter2: Int, x2: Int, y2: Int): Unit = try {
+        val node1 = NodeData(counter1, x1, y1)
+        val node2 = NodeData(counter2, x2, y2)
+        graph = graph.addEdge(node1, node2)
+    } catch {
+        case e: NoSuchElementException => println(s"Error adding edge: ${e.getMessage}")
+    }
 }
-
-// TODO: convert this Javascript code to Scala.js
-/*
-let graph = new Digraph();
-function clearGraph() {
-  addToUndo(undoGraphStates, graph);
-  graph = new Graph();
-  exitBasicEdgeMode();
-  exitMagicEdgeMode();
-  toolState.curTool = basicTool;
-  nodeHover = null;
-  basicTool.state.stillInNode = false;
-  refreshHtml(graph, toolState);
-}
- */
 
 
 
