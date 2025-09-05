@@ -45,6 +45,7 @@ let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Digraph();
+const graphController = new GraphController();
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -148,7 +149,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graph, toolState);
+        refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
       },
       false
     );
@@ -350,8 +351,9 @@ function draw() {
 
 function canvasClick(event) {
   let canvasBounds = canvas.getBoundingClientRect();
-  let x = event.x - canvasBounds.left;
-  let y = event.y - canvasBounds.top;
+  // floor values to keep everything as integers, better for canvas rendering and generally better to keep things as ints
+  let x = Math.floor(event.x - canvasBounds.left);
+  let y = Math.floor(event.y - canvasBounds.top);
 
   if (toolState.curTool === areaCompleteTool) {
     areaCompleteTool.state.mousePressed = true;
@@ -375,8 +377,9 @@ function canvasClick(event) {
       addToUndo(undoGraphStates, graph);
       let newNode = new NodeData(0, x, y);
       graph.addNode(newNode);
+      graphController.addNode(0, x, y);
       basicTool.state.stillInNode = true;
-      refreshHtml(graph, toolState);
+      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
@@ -384,9 +387,11 @@ function canvasClick(event) {
       if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
         addToUndo(undoGraphStates, graph);
         graph.addEdge(basicTool.state.edgeStart, nodeClicked);
+        const startNode = basicTool.state.edgeStart;
+        graphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
       }
       basicTool.state.edgeStart = nodeClicked;
-      refreshHtml(graph, toolState);
+      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -407,7 +412,7 @@ function clearGraph() {
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graph, toolState);
+  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -443,7 +448,7 @@ function mouseMove(event) {
       graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
     }
     magicPathTool.state.edgeStart = nodeHover;
-    refreshHtml(graph, toolState);
+    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 
   if (toolState.curTool == moveTool) {
@@ -488,7 +493,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graph, toolState);
+  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 }
 
 // =====================
@@ -497,7 +502,7 @@ function mouseUp() {
 function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
-    refreshHtml(graph, toolState);
+    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 }
 
@@ -544,33 +549,32 @@ function nodeAtPoint(x, y, nodes) {
   return null;
 }
 
-function refreshHtml(graph, toolState) {
+function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList) {
   // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
-  graphTypes = calculateGraphType(graph);
 
   refreshToolbarHtml(toolState);
-  refreshGraphInfoHtml(graph, graphTypes);
-  refreshAdjListHtml(graph);
-  refreshAdjMatrixHtml(graph);
+  refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
+  refreshAdjListHtml(adjList);
+  refreshAdjMatrixHtml(nodeCount, adjList);
 }
 
-function refreshGraphInfoHtml(graph, graphTypes) {
-  document.getElementById("node-count").innerHTML = graph.nodeCount;
-  document.getElementById("edge-count").innerHTML = graph.edgeCount;
+function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
+  document.getElementById("node-count").innerHTML = nodeCount;
+  document.getElementById("edge-count").innerHTML = edgeCount;
   document.getElementById("graph-types").innerHTML = graphTypes;
 }
 
-function refreshAdjListHtml(graph) {
+// adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
+function refreshAdjListHtml(adjListLabels) {
   let adjListElem = document.getElementById("adjacency-list");
   if (adjListElem) {
-    let graphAdj = graph.getAdjList();
     adjListElem.innerHTML = "";
-    for (let i = 0; i < graphAdj.length; i++) {
+    for (let i = 0; i < adjListLabels.length; i++) {
       var node = document.createElement("LI");
       var textnode = document.createTextNode(i + ":");
       node.appendChild(textnode);
-      for (let j = 0; j < graphAdj[i].length; j++) {
-        node.appendChild(document.createTextNode(" " + graphAdj[i][j]));
+      for (let j = 0; j < adjListLabels[i].length; j++) {
+        node.appendChild(document.createTextNode(" " + adjListLabels[i][j]));
       }
       adjListElem.appendChild(node);
     }
@@ -624,7 +628,7 @@ function inside(point, vs) {
   return inside;
 }
 
-function refreshAdjMatrixHtml(graph) {
+function refreshAdjMatrixHtml(nodeCount, adjList) {
   let matrixElem = document.getElementById("adj-matrix");
   if (matrixElem && matrixElem.getContext) {
     let totalWidth = matrixElem.offsetWidth;
@@ -632,9 +636,9 @@ function refreshAdjMatrixHtml(graph) {
     let ctx = matrixElem.getContext("2d");
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
-    let width = totalWidth / graph.nodeCount;
-    let height = totalHeight / graph.nodeCount;
-    let adjMatrix = generateAdjacencyMatrix(graph.getAdjList());
+    let width = totalWidth / nodeCount;
+    let height = totalHeight / nodeCount;
+    let adjMatrix = generateAdjacencyMatrix(adjList);
     for (let i = 0; i < adjMatrix.length; i++) {
       for (let j = 0; j < adjMatrix[i].length; j++) {
         if (adjMatrix[i][j]) {
@@ -747,5 +751,5 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-refreshHtml(graph, toolState);
+refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
 
