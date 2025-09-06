@@ -3,12 +3,6 @@ import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
 import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
-// TODO
-// - Figure out all the ways NodeData is mutated
-// - add key to NodeData and use that when talking to GraphController
-// - every time you mutate NodeData, call graphController.updateNode(nodeData) to keep it in sync
-
-
 // =====================
 // Class/Type Definitions
 // =====================
@@ -66,6 +60,13 @@ let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
+
+// =====================
+// Assertions About State
+// ====================
+function runAssertions() {
+    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match");
+}
 
 // =====================
 // Tool Definitions
@@ -307,7 +308,8 @@ function draw() {
       // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
-        graphController.updateNodeData(nodes[i].key, nodes[i].counter, nodes[i].x, nodes[i].y);
+        const nodeData = { counter: nodes[i].counter, x: nodes[i].x, y: nodes[i].y };
+        graphController.updateNodeData(nodes[i].key, nodeData);
       }
 
       // labels on nodes
@@ -355,6 +357,7 @@ function draw() {
       ctx.stroke();
     }
   }
+  runAssertions();
   window.requestAnimationFrame(draw);
 }
 
@@ -386,7 +389,11 @@ function canvasClick(event) {
       addToUndo(undoGraphStates, graph);
       let newNode = new NodeData(graphKeyCounter, 0, x, y);
       graph.addNode(newNode);
-      graphController.addNode(graphKeyCounter, 0, x, y);
+      graphController.addNode(graphKeyCounter, {
+            counter: 0,
+            x: x,
+            y: y
+      });
       graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
@@ -412,6 +419,7 @@ function canvasClick(event) {
     addToUndo(undoGraphStates, graph);
     moveTool.state.node = nodeClicked;
   }
+  runAssertions();
 }
 
 function clearGraph() {
