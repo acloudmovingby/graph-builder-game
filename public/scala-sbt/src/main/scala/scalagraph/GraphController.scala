@@ -4,21 +4,10 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import graphi.MapBasedSimpleGraphImmutable
 
-// g.addNode("A")
-// g.addNode("A", data = "some data")
-// g.addNode[Int]("B", data = 42)
-// g.addNode("C", data = List(1,2,3), label = "Node C")
-// g.addEdge("A", "B")
-// g.addEdge("A", "C", data = "edge data")
-// g.addEdge("B", "C", data = 3.14, label = "Edge BC")
-// g.addEdge("B", "C", data = 3.14, label = "Edge BC", weight = 2.0)
-// if I don't want to use weights, do I care about having to enter that? Or is it stranger
-// to have that or not have that depending
-
 case class NodeData(counter: Int, x: Int, y: Int)
 
 // This is a facade type for the JavaScript representation of NodeData, I think it has to be just raw values
-// without methods, so I put the conversion methods in a singleton object
+// without methods, so I put the conversion methods in the singleton NodeDataConverter
 @js.native
 trait NodeDataJS extends js.Object {
     val counter: Int
