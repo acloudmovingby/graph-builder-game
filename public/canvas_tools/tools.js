@@ -65,7 +65,8 @@ let graphTypes = [];
 // Assertions About State
 // ====================
 function runAssertions() {
-    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match");
+    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
+    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
 }
 
 // =====================
@@ -403,8 +404,8 @@ function canvasClick(event) {
       // add edge
       if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
         addToUndo(undoGraphStates, graph);
-        graph.addEdge(basicTool.state.edgeStart, nodeClicked);
         const startNode = basicTool.state.edgeStart;
+        graph.addEdge(startNode, nodeClicked);
         graphController.addEdge(startNode.key, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked;
@@ -463,7 +464,9 @@ function mouseMove(event) {
   ) {
     if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
       addToUndo(undoGraphStates, graph);
-      graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
+      const startNode = magicPathTool.state.edgeStart;
+      graph.addEdge(startNode, nodeHover);
+      graphController.addEdge(startNode.key, nodeHover.key);
     }
     magicPathTool.state.edgeStart = nodeHover;
     refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
@@ -501,6 +504,7 @@ function mouseUp() {
           if (i != j) {
             // don't allow self edges
             let edgeAdded = graph.addEdge(selected[i], selected[j]);
+            graphController.addEdge(selected[i].key, selected[j].key);
             anyEdgesAdded = anyEdgesAdded || edgeAdded;
           }
         }
