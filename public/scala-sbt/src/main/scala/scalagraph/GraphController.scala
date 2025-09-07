@@ -1,31 +1,60 @@
 package scalagraph
 
+import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import graphi.MapBasedSimpleGraphImmutable
 
 case class NodeData(counter: Int, x: Int, y: Int)
 
+// This is a facade type for the JavaScript representation of NodeData, I think it has to be just raw values
+// without methods, so I put the conversion methods in the singleton NodeDataConverter
+@js.native
+trait NodeDataJS extends js.Object {
+    val counter: Int
+    val x: Int
+    val y: Int
+}
+
+object NodeDataConverter {
+    def toJS(data: NodeData): NodeDataJS = {
+        js.Dynamic.literal(
+            counter = data.counter,
+            x = data.x,
+            y = data.y
+        ).asInstanceOf[NodeDataJS]
+    }
+    def toScala(js: NodeDataJS): NodeData = NodeData(js.counter, js.x, js.y)
+}
+
 @JSExportTopLevel("GraphController")
 class GraphController {
-    private var graph = new MapBasedSimpleGraphImmutable[NodeData]()
+    private var graph = new MapBasedSimpleGraphImmutable[Int]() // key is Int, data is NodeData
+    private var keyToData = Map[Int, NodeData]()
     @JSExport
     def clearGraph(): Unit = {
-        graph = new MapBasedSimpleGraphImmutable[NodeData]()
+        graph = new MapBasedSimpleGraphImmutable[Int]()
     }
     @JSExport
     def nodeCount(): Int = graph.nodeCount
     @JSExport
     def edgeCount(): Int = graph.edgeCount
     @JSExport
-    def addNode(counter: Int, x: Int, y: Int): Unit = {
-        graph = graph.addNode(NodeData(counter, x, y))
+    def addNode(key: Int, data: NodeDataJS): Unit = {
+        graph = graph.addNode(key)
+        keyToData += (key -> NodeDataConverter.toScala(data))
     }
     @JSExport
-    def addEdge(counter1: Int, x1: Int, y1: Int, counter2: Int, x2: Int, y2: Int): Unit = try {
-        val node1 = NodeData(counter1, x1, y1)
-        val node2 = NodeData(counter2, x2, y2)
-        graph = graph.addEdge(node1, node2)
+    def addEdge(to: Int, from: Int): Unit = try {
+        graph = graph.addEdge(to, from)
     } catch {
         case e: NoSuchElementException => println(s"Error adding edge (not yet implemented): ${e.getMessage}")
+    }
+
+    @JSExport
+    def updateNodeData(key: Int, data: NodeDataJS): Unit = {
+        keyToData.get(key) match {
+            case Some(_) => keyToData += (key -> NodeDataConverter.toScala(data))
+            case None => println(s"Error updating node data: Node $key does not exist")
+        }
     }
 }

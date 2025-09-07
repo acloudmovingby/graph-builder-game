@@ -23,14 +23,15 @@ class Tool {
   }
 }
 
-function NodeData(counter, x, y) {
+function NodeData(key, counter, x, y) {
+  this.key = key;
   this.counter = counter;
   this.x = x;
   this.y = y;
 }
 
 function cloneNodeData(nodeData) {
-  return new NodeData(nodeData.counter, nodeData.x, nodeData.y);
+  return new NodeData(nodeData.key, nodeData.counter, nodeData.x, nodeData.y);
 }
 
 function Point(x, y) {
@@ -46,6 +47,7 @@ let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Digraph();
 const graphController = new GraphController();
+var graphKeyCounter = 0; // used to give each node a unique key when created
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -58,6 +60,14 @@ let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
+
+// =====================
+// Assertions About State
+// ====================
+function runAssertions() {
+    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
+    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
+}
 
 // =====================
 // Tool Definitions
@@ -299,6 +309,8 @@ function draw() {
       // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
+        const nodeData = { counter: nodes[i].counter, x: nodes[i].x, y: nodes[i].y };
+        graphController.updateNodeData(nodes[i].key, nodeData);
       }
 
       // labels on nodes
@@ -346,6 +358,7 @@ function draw() {
       ctx.stroke();
     }
   }
+  runAssertions();
   window.requestAnimationFrame(draw);
 }
 
@@ -375,9 +388,14 @@ function canvasClick(event) {
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
       addToUndo(undoGraphStates, graph);
-      let newNode = new NodeData(0, x, y);
+      let newNode = new NodeData(graphKeyCounter, 0, x, y);
       graph.addNode(newNode);
-      graphController.addNode(0, x, y);
+      graphController.addNode(graphKeyCounter, {
+            counter: 0,
+            x: x,
+            y: y
+      });
+      graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
     } else if (!basicTool.state.edgeMode) {
@@ -386,9 +404,9 @@ function canvasClick(event) {
       // add edge
       if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
         addToUndo(undoGraphStates, graph);
-        graph.addEdge(basicTool.state.edgeStart, nodeClicked);
         const startNode = basicTool.state.edgeStart;
-        graphController.addEdge(startNode.counter, startNode.x, startNode.y, nodeClicked.counter, nodeClicked.x, nodeClicked.y);
+        graph.addEdge(startNode, nodeClicked);
+        graphController.addEdge(startNode.key, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked;
       refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
@@ -402,6 +420,7 @@ function canvasClick(event) {
     addToUndo(undoGraphStates, graph);
     moveTool.state.node = nodeClicked;
   }
+  runAssertions();
 }
 
 function clearGraph() {
@@ -445,7 +464,9 @@ function mouseMove(event) {
   ) {
     if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
       addToUndo(undoGraphStates, graph);
-      graph.addEdge(magicPathTool.state.edgeStart, nodeHover);
+      const startNode = magicPathTool.state.edgeStart;
+      graph.addEdge(startNode, nodeHover);
+      graphController.addEdge(startNode.key, nodeHover.key);
     }
     magicPathTool.state.edgeStart = nodeHover;
     refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
@@ -483,6 +504,7 @@ function mouseUp() {
           if (i != j) {
             // don't allow self edges
             let edgeAdded = graph.addEdge(selected[i], selected[j]);
+            graphController.addEdge(selected[i].key, selected[j].key);
             anyEdgesAdded = anyEdgesAdded || edgeAdded;
           }
         }
