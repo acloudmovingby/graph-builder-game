@@ -388,6 +388,7 @@ function canvasClick(event) {
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
       addToUndo(undoGraphStates, graph);
+      graphController.pushUndoState();
       let newNode = new NodeData(graphKeyCounter, 0, x, y);
       graph.addNode(newNode);
       graphController.addNode(graphKeyCounter, {
@@ -404,6 +405,7 @@ function canvasClick(event) {
       // add edge
       if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
         addToUndo(undoGraphStates, graph);
+        graphController.pushUndoState();
         const startNode = basicTool.state.edgeStart;
         graph.addEdge(startNode, nodeClicked);
         graphController.addEdge(startNode.key, nodeClicked.key);
@@ -418,6 +420,7 @@ function canvasClick(event) {
 
   if (toolState.curTool == moveTool) {
     addToUndo(undoGraphStates, graph);
+    graphController.pushUndoState();
     moveTool.state.node = nodeClicked;
   }
   runAssertions();
@@ -425,6 +428,7 @@ function canvasClick(event) {
 
 function clearGraph() {
   addToUndo(undoGraphStates, graph);
+  graphController.pushUndoState();
   graph = new Graph();
   exitBasicEdgeMode();
   exitMagicEdgeMode();
@@ -464,6 +468,7 @@ function mouseMove(event) {
   ) {
     if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
       addToUndo(undoGraphStates, graph);
+      graphController.pushUndoState();
       const startNode = magicPathTool.state.edgeStart;
       graph.addEdge(startNode, nodeHover);
       graphController.addEdge(startNode.key, nodeHover.key);
@@ -509,7 +514,10 @@ function mouseUp() {
           }
         }
       }
-      if (anyEdgesAdded) addToUndo(undoGraphStates, graphClone);
+      if (anyEdgesAdded) {
+        addToUndo(undoGraphStates, graphClone);
+        graphController.pushUndoState();
+      }
     }
   }
 
@@ -524,6 +532,7 @@ function mouseUp() {
 function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
+    graphController.popUndoState();
     refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
   }
 }
