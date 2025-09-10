@@ -757,7 +757,7 @@ for (const copyBtn of document.getElementsByClassName("copy-btn")) {
   copyBtn.addEventListener(
     "click",
     () => {
-      navigator.clipboard.writeText(getDot(graph)).then(
+      navigator.clipboard.writeText(graphController.getDot).then(
         function () {},
         function () {
           console.assert(false, "Clipboard write failed.");
