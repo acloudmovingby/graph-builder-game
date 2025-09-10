@@ -2,7 +2,7 @@ package scalagraph
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
-import graphi.SimpleMapGraph
+import graphi.DirectedMapGraph
 
 case class NodeData(counter: Int, x: Int, y: Int)
 
@@ -27,7 +27,7 @@ object NodeDataConverter {
 	def toScala(js: NodeDataJS): NodeData = NodeData(js.counter, js.x, js.y)
 }
 
-case class GraphState[A](graph: SimpleMapGraph[A], keyToData: Map[A, NodeData])
+case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
 object GraphState {
 	// Limit the number of undo states to avoid excessive memory usage
@@ -36,13 +36,13 @@ object GraphState {
 
 @JSExportTopLevel("GraphController")
 class GraphController {
-	private var graph = new SimpleMapGraph[Int]() // key is Int, data is NodeData
+	private var graph = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
 	private var undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
 	@JSExport
 	def clearGraph(): Unit = {
-		graph = new SimpleMapGraph[Int]()
+		graph = new DirectedMapGraph[Int]()
 	}
 
 	@JSExport
