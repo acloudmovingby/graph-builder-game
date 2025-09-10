@@ -92,4 +92,7 @@ class GraphController {
 			println("No undo states available")
 		}
 	}
+
+	@JSExport
+	def getDot: String = graph.toDot
 }
