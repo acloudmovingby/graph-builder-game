@@ -97,4 +97,17 @@ class GraphController {
 
 	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
+
+	/**
+	 * For now, this passes an array of 4-element arrays, comprised of: [from.x, from.y, to.x, to.y]
+	 * Later I may convert more of the node rendering logic as ScalaJS but for now this is what it is.
+	 * */
+	@JSExport
+	def getEdgesForRendering(): js.Array[js.Array[Int]] = {
+		graph.getEdges.map { case (from, to) =>
+			val fromData = keyToData(from)
+			val toData = keyToData(to)
+			Seq(fromData.x, fromData.y, toData.x, toData.y).toJSArray
+		}.toJSArray
+	}
 }
