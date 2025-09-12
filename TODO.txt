@@ -46,4 +46,11 @@ Plan/Structure:
     - coordinate possibilities:
         - relative "ideal" coordinates that are simply for the relative positioning of nodes in the graph, which would be unchanged if graph as a whole is zoomed, rotated, etc.
         - coordinates in the viewport, i.e. whatever the click event callback returns
-        - ??? 
+        - ???
+
+
+Toggle directedness:
+- start with a hardcoded flag in the vanilla JS code that just toggles the way to draw the edges but does nothing about the underlying graph (e.g. output to dot will still always be directed for now)
+- brainstorm with Gemini/Figma where to put toggle button
+- perhaps for now just have a little icon in the Graph Info list next to a new type called directionality or something
+- on the backend, implement for both graph types a way to do "toDirected"/"toUndirected" with maybe with an optional parameter called 'store underying' or 'loss-less conversion" or something which tells it whether to keep the original data so that undirected can always be converted back to the directed.
