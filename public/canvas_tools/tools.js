@@ -67,6 +67,20 @@ let graphTypes = [];
 function runAssertions() {
     console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
     console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
+    const nvFromScalaJS = graphController.getNodesWithData();
+    Array.from(graph.getNodeValues()).map((nv) => {
+        let found = false;
+        for (let i=0; i < nvFromScalaJS.length; i++) {
+            const nodeScala = nvFromScalaJS[i]
+            if (nodeScala[0] == nv.key) {
+                found = true;
+                console.assert(nodeScala[1] == nv.counter, "Counters don't match: " + nodeScala[1] + ", " + nv.counter);
+                console.assert(nodeScala[2] == nv.x, "X don't match");
+                console.assert(nodeScala[3] == nv.y, "Y don't match");
+            }
+        }
+        console.assert(found, "node not found: " + nv.key)
+    });
 }
 
 // =====================

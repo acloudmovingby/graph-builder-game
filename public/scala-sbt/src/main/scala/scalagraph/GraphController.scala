@@ -110,4 +110,12 @@ class GraphController {
 			Seq(fromData.x, fromData.y, toData.x, toData.y).toJSArray
 		}.toJSArray
 	}
+
+	/** Temporary while I transition JS graph to Scala graph */
+	@JSExport
+	def getNodesWithData(): js.Array[js.Array[Int]] = {
+		keyToData
+			.map { case (key, data) => Seq(key, data.counter, data.x, data.y).toJSArray }
+			.toJSArray
+	}
 }
