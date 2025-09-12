@@ -159,7 +159,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
       },
       false
     );
@@ -398,7 +398,7 @@ function canvasClick(event) {
       });
       graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
-      refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
@@ -411,7 +411,7 @@ function canvasClick(event) {
         graphController.addEdge(startNode.key, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked;
-      refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -429,13 +429,14 @@ function canvasClick(event) {
 function clearGraph() {
   addToUndo(undoGraphStates, graph);
   graphController.pushUndoState();
+  graphController.clearGraph();
   graph = new Graph();
   exitBasicEdgeMode();
   exitMagicEdgeMode();
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -474,7 +475,7 @@ function mouseMove(event) {
       graphController.addEdge(startNode.key, nodeHover.key);
     }
     magicPathTool.state.edgeStart = nodeHover;
-    refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 
   if (toolState.curTool == moveTool) {
@@ -523,7 +524,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 // =====================
@@ -533,7 +534,7 @@ function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
     graphController.popUndoState();
-    refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 }
 
@@ -782,5 +783,5 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-refreshHtml(graphController.nodeCount(), graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 

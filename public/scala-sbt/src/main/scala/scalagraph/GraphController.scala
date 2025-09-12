@@ -1,6 +1,7 @@
 package scalagraph
 
 import scala.scalajs.js
+import js.JSConverters._
 import scala.scalajs.js.annotation._
 import graphi.DirectedMapGraph
 
@@ -41,9 +42,7 @@ class GraphController {
 	private var undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
 	@JSExport
-	def clearGraph(): Unit = {
-		graph = new DirectedMapGraph[Int]()
-	}
+	def clearGraph(): Unit = graph = new DirectedMapGraph[Int]()
 
 	@JSExport
 	def nodeCount(): Int = graph.nodeCount
@@ -95,4 +94,7 @@ class GraphController {
 
 	@JSExport
 	def getDot: String = graph.toDot
+
+	@JSExport
+	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 }
