@@ -67,16 +67,16 @@ let graphTypes = [];
 function runAssertions() {
     console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
     console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
-    const nvFromScalaJS = graphController.getNodesWithData();
+    const nd = graphController.getFullNodeData();
     Array.from(graph.getNodeValues()).map((nv) => {
         let found = false;
-        for (let i=0; i < nvFromScalaJS.length; i++) {
-            const nodeScala = nvFromScalaJS[i]
-            if (nodeScala[0] == nv.key) {
+        for (let i=0; i < nd.length; i++) {
+            const nodeWithData = nd[i]
+            if (nodeWithData.key == nv.key) {
                 found = true;
-                console.assert(nodeScala[1] == nv.counter, "Counters don't match: " + nodeScala[1] + ", " + nv.counter);
-                console.assert(nodeScala[2] == nv.x, "X don't match");
-                console.assert(nodeScala[3] == nv.y, "Y don't match");
+                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
+                console.assert(nodeWithData.data.x == nv.x, "X don't match");
+                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
             }
         }
         console.assert(found, "node not found: " + nv.key)
@@ -277,9 +277,9 @@ function draw() {
     drawDirectedEdges(ctx, edges);
 
     // draw nodes
-    let nodes = Array.from(graph.getNodeValues());
+    let nodes = graphController.getFullNodeData();
     for (let i = 0; i < nodes.length; i++) {
-      const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
+      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart?.key;
       ctx.beginPath();
       ctx.lineWidth = 8;
       if (inBasicEdgeMode || inMagicPathEdgeMode) {
@@ -295,14 +295,14 @@ function draw() {
         ctx.fillStyle = "#32BFE3";
       }
 
-      let oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
-      let dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
-      let dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
+      let oscillator = Math.cos(nodes[i].data.counter / 2 + 8); // oscillates -1.0 to 1.0
+      let dampener = Math.min(1, 1 / (nodes[i].data.counter / 2)) + 0.05;
+      let dampener2 = Math.min(1, 1 / (nodes[i].data.counter / 10));
       let radius = Math.max(
         1,
         25 * oscillator * dampener * dampener2 + nodeRadius
       );
-      ctx.arc(nodes[i].x, nodes[i].y, radius, 0, Math.PI * 2, false);
+      ctx.arc(nodes[i].data.x, nodes[i].data.y, radius, 0, Math.PI * 2, false);
       ctx.stroke();
       ctx.fill();
 
@@ -312,18 +312,18 @@ function draw() {
         ctx.beginPath();
         if (!basicTool.state.edgeMode) {
           ctx.lineWidth = 4;
-          ctx.arc(nodes[i].x, nodes[i].y, radius + 10, 0, Math.PI * 2, false);
+          ctx.arc(nodes[i].data.x, nodes[i].data.y, radius + 10, 0, Math.PI * 2, false);
           ctx.stroke();
         } else {
           ctx.fillStyle = "#FA5750";
-          ctx.arc(nodes[i].x, nodes[i].y, radius - 4, 0, Math.PI * 2, false);
+          ctx.arc(nodes[i].data.x, nodes[i].data.y, radius - 4, 0, Math.PI * 2, false);
           ctx.fill();
         }
       }
       // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
-        const nodeData = { counter: nodes[i].counter, x: nodes[i].x, y: nodes[i].y };
+        const nodeData = { counter: nodes[i].data.counter, x: nodes[i].data.x, y: nodes[i].data.y };
         graphController.updateNodeData(nodes[i].key, nodeData);
       }
 
@@ -332,11 +332,11 @@ function draw() {
         ctx.font = "1rem Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i] != nodeHover;
+        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
         ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
-        let label = graph.nodeValues.get(nodes[i]);
+        let label = nodes[i].key; // graph.nodeValues.get(nodes[i]);
         const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
-        ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
+        ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
       }
     }
 

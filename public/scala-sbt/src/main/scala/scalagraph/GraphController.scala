@@ -28,6 +28,21 @@ object NodeDataConverter {
 	def toScala(js: NodeDataJS): NodeData = NodeData(js.counter, js.x, js.y)
 }
 
+trait KeyWithData extends js.Object {
+	val key: Int
+	val data: NodeDataJS
+}
+
+object KeyWithDataConverter {
+	def toJS(_key: Int, _data: NodeData): KeyWithData = {
+		val nodeDataJS = NodeDataConverter.toJS(_data)
+		js.Dynamic.literal(
+			key = _key,
+			data = nodeDataJS
+		).asInstanceOf[KeyWithData]
+	}
+}
+
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
 object GraphState {
@@ -111,11 +126,10 @@ class GraphController {
 		}.toJSArray
 	}
 
-	/** Temporary while I transition JS graph to Scala graph */
 	@JSExport
-	def getNodesWithData(): js.Array[js.Array[Int]] = {
+	def getFullNodeData(): js.Array[KeyWithData] = {
 		keyToData
-			.map { case (key, data) => Seq(key, data.counter, data.x, data.y).toJSArray }
+			.map { case (key, data) => KeyWithDataConverter.toJS(key, data) }
 			.toJSArray
 	}
 }
