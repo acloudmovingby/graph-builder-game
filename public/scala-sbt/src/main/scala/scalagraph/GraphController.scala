@@ -4,6 +4,7 @@ import scala.scalajs.js
 import js.JSConverters._
 import scala.scalajs.js.annotation._
 import graphi.DirectedMapGraph
+import scalagraph.{CanvasLine, Point}
 
 case class NodeData(counter: Int, x: Int, y: Int)
 
@@ -131,5 +132,11 @@ class GraphController {
 		keyToData
 			.map { case (key, data) => KeyWithDataConverter.toJS(key, data) }
 			.toJSArray
+	}
+
+	@JSExport
+	def testUsingCanvasLine(): Unit = {
+		val line = CanvasLine(Point(1, 2), Point(3, 4), 5, "#FF0000")
+		println(s"CanvasLine created: $line")
 	}
 }

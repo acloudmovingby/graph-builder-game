@@ -61,6 +61,8 @@ let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
 
+graphController.testUsingCanvasLine();
+
 // =====================
 // Assertions About State
 // ====================
@@ -798,4 +800,3 @@ labelVisibleBtn.addEventListener(
 );
 
 refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
-
