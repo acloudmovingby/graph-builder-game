@@ -61,7 +61,7 @@ let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
 
-graphController.testUsingCanvasLine();
+graphController.getCanvasLines();
 
 // =====================
 // Assertions About State

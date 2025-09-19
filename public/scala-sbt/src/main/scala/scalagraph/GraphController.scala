@@ -4,45 +4,7 @@ import scala.scalajs.js
 import js.JSConverters._
 import scala.scalajs.js.annotation._
 import graphi.DirectedMapGraph
-import scalagraph.{CanvasLine, Point}
-
-case class NodeData(counter: Int, x: Int, y: Int)
-
-// This is a facade type for the JavaScript representation of NodeData, I think it has to be just raw values
-// without methods, so I put the conversion methods in the singleton NodeDataConverter
-@js.native
-trait NodeDataJS extends js.Object {
-	val counter: Int
-	val x: Int
-	val y: Int
-}
-
-object NodeDataConverter {
-	def toJS(data: NodeData): NodeDataJS = {
-		js.Dynamic.literal(
-			counter = data.counter,
-			x = data.x,
-			y = data.y
-		).asInstanceOf[NodeDataJS]
-	}
-
-	def toScala(js: NodeDataJS): NodeData = NodeData(js.counter, js.x, js.y)
-}
-
-trait KeyWithData extends js.Object {
-	val key: Int
-	val data: NodeDataJS
-}
-
-object KeyWithDataConverter {
-	def toJS(_key: Int, _data: NodeData): KeyWithData = {
-		val nodeDataJS = NodeDataConverter.toJS(_data)
-		js.Dynamic.literal(
-			key = _key,
-			data = nodeDataJS
-		).asInstanceOf[KeyWithData]
-	}
-}
+import scalagraph.{CanvasLine, Point, PointJS, CanvasLineJS, EdgeRender}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -135,8 +97,16 @@ class GraphController {
 	}
 
 	@JSExport
-	def testUsingCanvasLine(): Unit = {
-		val line = CanvasLine(Point(1, 2), Point(3, 4), 5, "#FF0000")
-		println(s"CanvasLine created: $line")
+	def getCanvasLines(): js.Array[CanvasLineJS] = {
+		graph.getEdges.map { case (from, to) =>
+			val fromData = keyToData(from)
+			val toData = keyToData(to)
+			CanvasLine(
+				from = Point(fromData.x, fromData.y),
+				to = Point(toData.x, toData.y),
+				width = EdgeRender.simpleEdgeStrokeWidth,
+				color = EdgeRender.simpleEdgeStrokeColor
+			).toJS
+		}.toJSArray
 	}
 }
