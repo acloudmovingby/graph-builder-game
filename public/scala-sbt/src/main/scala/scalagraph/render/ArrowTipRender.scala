@@ -1,6 +1,7 @@
-package scalagraph
+package scalagraph.render
 
 import scalagraph.dataobject.{Edge, Point, Triangle}
+import scalagraph.render.properties.NodeRenderProperties
 import scalagraph.dataobject.canvas.{NodeCanvas, TriangleCanvas}
 
 case class ArrowRenderProperties(
@@ -21,11 +22,6 @@ case class ArrowRenderProperties(
 object ArrowRenderProperties {
 	// ratio of 5:7 for triangle makes it roughly equilateral
 	// the actual numbers and the scale factor are arbitrary from experimentation, could maybe be abstracted away better
-	/*
-	// how far back the arrow is moved from the end of the edge
-	const arrowPadding = 4; // how far arrow is moved back from the end of the edge of the node
-	const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPadding;
-	*/
 	private val defaultBase = 10
 	private val defaultHeight = 14
 	private val scaleFactor = 2
@@ -35,7 +31,7 @@ object ArrowRenderProperties {
 		ArrowRenderProperties(defaultHeight, defaultBase, 2, displacement)
 	}
 
-	val default: ArrowRenderProperties = default(NodeCanvas.defaultRadius)
+	val default: ArrowRenderProperties = default(NodeRenderProperties.default.nodeRadius)
 }
 /*
 const triangleHeight = 14;

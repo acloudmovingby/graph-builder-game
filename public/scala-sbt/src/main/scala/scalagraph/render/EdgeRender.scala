@@ -1,4 +1,4 @@
-package scalagraph
+package scalagraph.render
 
 import scala.math
 import graphi.DirectedMapGraph

@@ -5,7 +5,7 @@ import js.JSConverters._
 import scala.scalajs.js.annotation._
 import graphi.DirectedMapGraph
 
-import scalagraph.EdgeRender
+import scalagraph.render.EdgeRender
 import scalagraph.dataobject.{NodeData, NodeDataJS, KeyWithData, NodeDataConverter, KeyWithDataConverter}
 import scalagraph.dataobject.canvas.CanvasLineJS
 
