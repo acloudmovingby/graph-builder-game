@@ -3,6 +3,8 @@ package scalagraph.dataobject
 import scala.scalajs.js
 
 case class Point(x: Int, y: Int) {
+	def translate(vec2: Point) = Point(x + vec2.x, y + vec2.y)
+
 	def scaled(scaleFactor: Int): Point = Point(x * scaleFactor, y * scaleFactor)
 
 	def rotate(radians: Double): Point = {

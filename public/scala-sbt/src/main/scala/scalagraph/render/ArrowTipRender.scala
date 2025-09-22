@@ -1,6 +1,6 @@
 package scalagraph.render
 
-import scalagraph.dataobject.Edge
+import scalagraph.dataobject.{Edge, Point}
 import scalagraph.render.properties.ArrowRenderProperties
 import scalagraph.dataobject.canvas.TriangleCanvas
 
@@ -19,7 +19,7 @@ const trisScaledOrigin = originTriangle.map(pt => new Point(pt.x * scale_factor,
 object ArrowTipRender {
 
 	def getTriangles(edges: Seq[Edge]): Seq[TriangleCanvas] = {
-		val properties = ArrowRenderProperties.default
+		val arrowProperties = ArrowRenderProperties.default
 
 		// TODO finish this and delete Seq.empty a the bottom
 		edges.map { e =>
@@ -27,23 +27,17 @@ object ArrowTipRender {
 			val dy = e.to.y - e.from.y
 
 			val rotate_radians = math.atan2(dy, dx); // angle in radians
-			val rotatedTriangle = properties.triangle.rotate(rotate_radians)
+			val rotatedTriangle = arrowProperties.triangle.rotate(rotate_radians)
 
 			val edgeLength = math.sqrt(dx * dx + dy * dy)
+			val ratio = arrowProperties.displacement / edgeLength
+			val dxScaled = dx * ratio
+			val dyScaled = dy * ratio
+			val translateEndPoint = Point((-1 * dxScaled + e.to.x).toInt, (-1 * dyScaled + e.to.y).toInt)
 
-			()
+			val finalTriangle = rotatedTriangle.translate(translateEndPoint)
+			TriangleCanvas(finalTriangle, arrowProperties.color)
 		/*
-			// rotate
-				const dx = e.to.x - e.from.x;
-				const dy = e.to.y - e.from.y;
-				const rotate_radians = Math.atan2(dy, dx); // angle in radians
-				const rotateMatrix = [[Math.cos(rotate_radians), -Math.sin(rotate_radians)], [Math.sin(rotate_radians), Math.cos(rotate_radians)]];
-				tris = tris.map(pt => {
-					const rotatedX = pt.x * rotateMatrix[0][0] + pt.y * rotateMatrix[0][1];
-					const rotatedY = pt.x * rotateMatrix[1][0] + pt.y * rotateMatrix[1][1];
-					return new Point(rotatedX, rotatedY);
-				});
-
 				const edgeLength = Math.sqrt(dx * dx + dy * dy);
 				const ratio = arrowDisplacement / edgeLength;
 				const dxFromEndNode = dx * ratio;
@@ -61,6 +55,5 @@ object ArrowTipRender {
 				arrowRenderCache.set(key, tris);
 			 */
 		}
-		Seq.empty
 	}
 }

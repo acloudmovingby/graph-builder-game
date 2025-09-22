@@ -6,7 +6,8 @@ case class ArrowRenderProperties(
 	height: Int,
 	base: Int,
 	scaleFactor: Int,
-	displacement: Int
+	displacement: Int,
+	color: String
 ) {
 	val triangle: Triangle = {
 		val pt1 = Point(0, -1 * base / 2)
@@ -24,9 +25,10 @@ object ArrowRenderProperties {
 	private val defaultHeight = 14
 	private val scaleFactor = 2
 	private val arrowPadding = 4 // how far arrow is moved back from the end of the edge of the node
+	private val defaultColor = "orange"
 	private def default(nodeRadius: Int): ArrowRenderProperties = {
 		val displacement = nodeRadius + (defaultHeight * scaleFactor) + arrowPadding
-		ArrowRenderProperties(defaultHeight, defaultBase, 2, displacement)
+		ArrowRenderProperties(defaultHeight, defaultBase, 2, displacement, defaultColor)
 	}
 
 	val default: ArrowRenderProperties = default(NodeRenderProperties.default.nodeRadius)

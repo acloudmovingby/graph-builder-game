@@ -15,6 +15,8 @@ case class Triangle(
 		Triangle(pts.head, pts(1), pts(2))
 	}
 
+	def translate(vec: Point): Triangle = fromPoints(points.map(_.translate(vec)))
+
 	def scaled(scaleFactor: Int): Triangle =
 		Triangle(pt1.scaled(scaleFactor), pt2.scaled(scaleFactor), pt3.scaled(scaleFactor))
 
