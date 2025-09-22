@@ -5,10 +5,10 @@ import scala.scalajs.js
 import scalagraph.dataobject.{Point, PointJS}
 
 case class CanvasLine(
-						 from: Point,
-						 to: Point,
-						 width: Int,
-						 color: String // Hex string, e.g. "#FF0000"
+	from: Point,
+	to: Point,
+	width: Int,
+	color: String // Hex string, e.g. "#FF0000"
 ) {
 	def toJS: CanvasLineJS = js.Dynamic.literal(
 		from = this.from.toJS,
