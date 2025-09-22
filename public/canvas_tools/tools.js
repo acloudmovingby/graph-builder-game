@@ -277,6 +277,11 @@ function draw() {
     //drawSimpleEdges(ctx, edges);
     drawDirectedEdges(ctx, edges, []);
 
+
+    // It's beautiful (the clouds)
+    // like you
+
+
     // draw nodes
     let nodes = graphController.getFullNodeData();
     for (let i = 0; i < nodes.length; i++) {
