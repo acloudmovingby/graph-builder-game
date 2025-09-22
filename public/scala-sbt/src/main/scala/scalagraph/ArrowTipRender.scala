@@ -1,12 +1,13 @@
 package scalagraph
 
 import scalagraph.dataobject.{Edge, Point, Triangle}
-import scalagraph.dataobject.canvas.TriangleCanvas
+import scalagraph.dataobject.canvas.{NodeCanvas, TriangleCanvas}
 
 case class ArrowRenderProperties(
 	height: Int,
 	base: Int,
-	scaleFactor: Int
+	scaleFactor: Int,
+	displacement: Int
 ) {
 	val triangle: Triangle = {
 		val pt1 = Point(0, -1 * base / 2)
@@ -18,7 +19,23 @@ case class ArrowRenderProperties(
 }
 
 object ArrowRenderProperties {
-	val default: ArrowRenderProperties = ArrowRenderProperties(14, 10, 2)
+	// ratio of 5:7 for triangle makes it roughly equilateral
+	// the actual numbers and the scale factor are arbitrary from experimentation, could maybe be abstracted away better
+	/*
+	// how far back the arrow is moved from the end of the edge
+	const arrowPadding = 4; // how far arrow is moved back from the end of the edge of the node
+	const arrowDisplacement = nodeRadius + (triangleHeight * scale_factor) + arrowPadding;
+	*/
+	private val defaultBase = 10
+	private val defaultHeight = 14
+	private val scaleFactor = 2
+	private val arrowPadding = 4 // how far arrow is moved back from the end of the edge of the node
+	private def default(nodeRadius: Int): ArrowRenderProperties = {
+		val displacement = nodeRadius + (defaultHeight * scaleFactor) + arrowPadding
+		ArrowRenderProperties(defaultHeight, defaultBase, 2, displacement)
+	}
+
+	val default: ArrowRenderProperties = default(NodeCanvas.defaultRadius)
 }
 /*
 const triangleHeight = 14;
@@ -35,12 +52,20 @@ const trisScaledOrigin = originTriangle.map(pt => new Point(pt.x * scale_factor,
 object ArrowTipRender {
 
 	def getTriangles(edges: Seq[Edge]): Seq[TriangleCanvas] = {
+		val properties = ArrowRenderProperties.default
+
 		// TODO finish this and delete Seq.empty a the bottom
 		edges.map { e =>
 			val dx = e.to.x - e.from.x
 			val dy = e.to.y - e.from.y
+
 			val rotate_radians = math.atan2(dy, dx); // angle in radians
-		/*	
+			val rotatedTriangle = properties.triangle.rotate(rotate_radians)
+
+			val edgeLength = math.sqrt(dx * dx + dy * dy)
+
+			()
+		/*
 			// rotate
 				const dx = e.to.x - e.from.x;
 				const dy = e.to.y - e.from.y;
