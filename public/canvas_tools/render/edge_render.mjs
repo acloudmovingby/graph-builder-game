@@ -122,10 +122,9 @@ function trimEdgesBasedOnDirectionality(directedEdges) {
     return trimmedEdges;
 }
 
-// edges is an array of 4 integer arrays, i.e. [[x1, y1, x2, y2], ...]. Each inner array is an edge represented by its start and end coordinates.
-// TODO change edges to be the CanvasLine class
-export function drawDirectedEdges(ctx, edges, triangles) {
-    edges = edges.map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
+// edges is an array of the CanvasLineJS class
+export function drawDirectedEdges(ctx, newEdges, triangles) {
+    let edges = newEdges.map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
     // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
     // determine directionality of each edge
     const directedEdges = decideDirectionality(edges);
@@ -134,14 +133,14 @@ export function drawDirectedEdges(ctx, edges, triangles) {
 
     // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
     ctx.beginPath();
-    edges.forEach((e) => {
-        let key = `${e[0]},${e[1]},${e[2]},${e[3]}`;
+    newEdges.forEach((e) => {
+        let key = `${e.from.x},${e.from.y},${e.to.x},${e.to.y}`;
         let tris = trisScaledOrigin;
 
         if (!arrowRenderCache.has(key)) {
             // rotate
-            const dx = e[2] - e[0];
-            const dy = e[3] - e[1];
+            const dx = e.to.x - e.from.x;
+            const dy = e.to.y - e.from.y;
             const rotate_radians = Math.atan2(dy, dx); // angle in radians
             const rotateMatrix = [[Math.cos(rotate_radians), -Math.sin(rotate_radians)], [Math.sin(rotate_radians), Math.cos(rotate_radians)]];
             tris = tris.map(pt => {
@@ -155,8 +154,8 @@ export function drawDirectedEdges(ctx, edges, triangles) {
             const dxFromEndNode = dx * ratio;
             const dyFromEndNode = dy * ratio;
             const translateVec = new Point(
-                -1 * dxFromEndNode + e[2],
-                -1 * dyFromEndNode + e[3]
+                -1 * dxFromEndNode + e.to.x,
+                -1 * dyFromEndNode + e.to.y
             );
             tris = tris.map(pt => new Point(pt.x + translateVec.x, pt.y + translateVec.y));
 

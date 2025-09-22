@@ -81,21 +81,7 @@ class GraphController {
 	 * Later I may convert more of the node rendering logic as ScalaJS but for now this is what it is.
 	 * */
 	@JSExport
-	def getEdgesForRendering(): js.Array[CanvasLineJS] = {
-		graph.getEdges.map { case (from, to) =>
-			val fromData = keyToData(from)
-			val toData = keyToData(to)
-			val c = CanvasLine(
-				from = Point(fromData.x, fromData.y),
-				to = Point(toData.x, toData.y),
-				width = EdgeRender.simpleEdgeStrokeWidth,
-				color = EdgeRender.simpleEdgeStrokeColor
-			).toJS
-			val foo = c.to.x
-			val bar = c.to
-			c
-		}.toJSArray
-	}
+	def getEdgesForRendering(): js.Array[CanvasLineJS] = EdgeRender.getCanvasLines(graph, keyToData).map(_.toJS).toJSArray
 
 	@JSExport
 	def getFullNodeData(): js.Array[KeyWithData] = {
