@@ -3,8 +3,8 @@ package scalagraph
 import scala.math
 import graphi.DirectedMapGraph
 
-import scalagraph.{NodeData, Point}
-import scalagraph.dataobjects.canvas.{CanvasLine, TriangleCanvas}
+import scalagraph.dataobject.{NodeData, Point}
+import scalagraph.dataobject.canvas.{CanvasLine, TriangleCanvas}
 
 object EdgeRender {
 	// Parameters for styling the rendered shapes
@@ -120,7 +120,4 @@ object EdgeRender {
 		}
 	}
 
-	def getArrowTrianglesForCanvas(edges: Seq[DirectedEdge]): Seq[TriangleCanvas] = {
-		Seq.empty
-	}
 }

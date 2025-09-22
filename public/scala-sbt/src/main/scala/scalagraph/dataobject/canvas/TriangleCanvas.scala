@@ -1,8 +1,8 @@
-package scalagraph.dataobjects.canvas
+package scalagraph.dataobject.canvas
 
 import scala.scalajs.js
 
-import scalagraph.{Point, PointJS}
+import scalagraph.dataobject.{Point, PointJS}
 
 case class TriangleCanvas(
 	 pt1: Point,
