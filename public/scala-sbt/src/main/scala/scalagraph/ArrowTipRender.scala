@@ -6,16 +6,20 @@ import scalagraph.dataobject.canvas.TriangleCanvas
 case class ArrowRenderProperties(
 	height: Int,
 	base: Int,
-	scale: Int
+	scaleFactor: Int
 ) {
 	val triangle: Triangle = {
 		val pt1 = Point(0, -1 * base / 2)
 		val pt2 = Point(0, base / 2)
 		val pt3 = Point(height, 0)
 		Triangle(pt1, pt2, pt3)
+			.scaled(scaleFactor)
 	}
 }
 
+object ArrowRenderProperties {
+	val default: ArrowRenderProperties = ArrowRenderProperties(14, 10, 2)
+}
 /*
 const triangleHeight = 14;
 const triangleBase = 10;
@@ -36,11 +40,7 @@ object ArrowTipRender {
 			val dx = e.to.x - e.from.x
 			val dy = e.to.y - e.from.y
 			val rotate_radians = math.atan2(dy, dx); // angle in radians
-			val rotateMatrix = Array(
-				Array(math.cos(rotate_radians), -math.sin(rotate_radians)),
-				Array(math.sin(rotate_radians), math.cos(rotate_radians))
-			)
-			/*
+		/*	
 			// rotate
 				const dx = e.to.x - e.from.x;
 				const dy = e.to.y - e.from.y;
