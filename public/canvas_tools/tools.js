@@ -61,7 +61,9 @@ let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
 
-graphController.getCanvasLines();
+let cl = graphController.getCanvasLine();
+console.log("cl=" + cl.map((e) => e.to.x));
+
 
 // =====================
 // Assertions About State
@@ -273,8 +275,7 @@ function draw() {
     }
 
     // draw edges
-    //                           decideDirectionality(edges.map((dl) => [dl.from.x, dl.from.y, dl.to.x, dl.to.y]));
-    const edges = graphController.getEdgesForRendering().map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
+    const edges = graphController.getEdgesForRendering();
     // TODO have an if here when it comes time to toggle back and forth between directed and undirected
     //drawSimpleEdges(ctx, edges);
     drawDirectedEdges(ctx, edges);

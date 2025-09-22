@@ -85,12 +85,15 @@ class GraphController {
 		graph.getEdges.map { case (from, to) =>
 			val fromData = keyToData(from)
 			val toData = keyToData(to)
-			CanvasLine(
+			val c = CanvasLine(
 				from = Point(fromData.x, fromData.y),
 				to = Point(toData.x, toData.y),
 				width = EdgeRender.simpleEdgeStrokeWidth,
 				color = EdgeRender.simpleEdgeStrokeColor
 			).toJS
+			val foo = c.to.x
+			val bar = c.to
+			c
 		}.toJSArray
 	}
 
@@ -102,16 +105,13 @@ class GraphController {
 	}
 
 	@JSExport
-	def getCanvasLines(): js.Array[CanvasLineJS] = {
-		graph.getEdges.map { case (from, to) =>
-			val fromData = keyToData(from)
-			val toData = keyToData(to)
-			CanvasLine(
-				from = Point(fromData.x, fromData.y),
-				to = Point(toData.x, toData.y),
-				width = EdgeRender.simpleEdgeStrokeWidth,
-				color = EdgeRender.simpleEdgeStrokeColor
-			).toJS
-		}.toJSArray
+	def getCanvasLine(): js.Array[CanvasLineJS] = {
+		Seq(CanvasLine(
+			from = Point(1, 2),
+			to = Point(3, 4),
+			width = EdgeRender.simpleEdgeStrokeWidth,
+			color = EdgeRender.simpleEdgeStrokeColor
+		).toJS)
+			.toJSArray
 	}
 }
