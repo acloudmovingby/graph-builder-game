@@ -3,10 +3,10 @@ package scalagraph
 import scala.scalajs.js
 
 case class Point(x: Int, y: Int) {
-	def toJS: Unit = js.Dynamic.literal(
+	def toJS: PointJS = js.Dynamic.literal(
 		x = this.x,
 		y = this.y
-	)
+	).asInstanceOf[PointJS]
 }
 
 @js.native

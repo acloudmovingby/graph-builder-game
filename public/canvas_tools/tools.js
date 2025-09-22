@@ -273,7 +273,8 @@ function draw() {
     }
 
     // draw edges
-    const edges = graphController.getEdgesForRendering();
+    //                           decideDirectionality(edges.map((dl) => [dl.from.x, dl.from.y, dl.to.x, dl.to.y]));
+    const edges = graphController.getEdgesForRendering().map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
     // TODO have an if here when it comes time to toggle back and forth between directed and undirected
     //drawSimpleEdges(ctx, edges);
     drawDirectedEdges(ctx, edges);

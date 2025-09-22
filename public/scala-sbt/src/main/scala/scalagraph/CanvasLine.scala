@@ -18,6 +18,7 @@ case class CanvasLine(
 	).asInstanceOf[CanvasLineJS]
 }
 
+@js.native
 trait CanvasLineJS extends js.Object {
 	val from: PointJS
 	val to: PointJS

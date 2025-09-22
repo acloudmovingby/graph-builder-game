@@ -123,10 +123,11 @@ function trimEdgesBasedOnDirectionality(directedEdges) {
 }
 
 // edges is an array of 4 integer arrays, i.e. [[x1, y1, x2, y2], ...]. Each inner array is an edge represented by its start and end coordinates.
+// TODO change edges to be the CanvasLine class
 export function drawDirectedEdges(ctx, edges) {
     // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
     // determine directionality of each edge
-    const directedEdges = decideDirectionality(edges);
+    const directedEdges = decideDirectionality(edges);//.map((dl) => [dl.from.x, dl.from.y, dl.to.x, dl.to.y]));
     const trimmedEdges = trimEdgesBasedOnDirectionality(directedEdges);
     drawSimpleEdges(ctx, trimmedEdges);
 
