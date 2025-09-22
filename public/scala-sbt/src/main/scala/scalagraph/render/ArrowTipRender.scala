@@ -26,9 +26,12 @@ object ArrowTipRender {
 			val dx = e.to.x - e.from.x
 			val dy = e.to.y - e.from.y
 
+			// rotate the triangle to match the edge angle
 			val rotate_radians = math.atan2(dy, dx); // angle in radians
 			val rotatedTriangle = arrowProperties.triangle.rotate(rotate_radians)
 
+			// find the vector of edge endpoint ("to") and move the triangle back along that vector by the displacement amount
+			// this keeps the arrow tip from overlapping the node circle
 			val edgeLength = math.sqrt(dx * dx + dy * dy)
 			val ratio = arrowProperties.displacement / edgeLength
 			val dxScaled = dx * ratio
@@ -36,24 +39,11 @@ object ArrowTipRender {
 			val translateEndPoint = Point((-1 * dxScaled + e.to.x).toInt, (-1 * dyScaled + e.to.y).toInt)
 
 			val finalTriangle = rotatedTriangle.translate(translateEndPoint)
-			TriangleCanvas(finalTriangle, arrowProperties.color)
-		/*
-				const edgeLength = Math.sqrt(dx * dx + dy * dy);
-				const ratio = arrowDisplacement / edgeLength;
-				const dxFromEndNode = dx * ratio;
-				const dyFromEndNode = dy * ratio;
-				const translateVec = new Point(
-					-1 * dxFromEndNode + e.to.x,
-					-1 * dyFromEndNode + e.to.y
-				);
-				tris = tris.map(pt => new Point(pt.x + translateVec.x, pt.y + translateVec.y));
-
-				// floor values so we only pass integers to the canvas
-				// (recommended by canvas docs)
-				tris = tris.map(pt => new Point(Math.floor(pt.x), Math.floor(pt.y)));
-
-				arrowRenderCache.set(key, tris);
-			 */
+			
+			TriangleCanvas(
+				tri = finalTriangle,
+				color = arrowProperties.color
+			)
 		}
 	}
 }

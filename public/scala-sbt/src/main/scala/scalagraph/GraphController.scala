@@ -1,13 +1,12 @@
 package scalagraph
 
 import scala.scalajs.js
-import js.JSConverters._
-import scala.scalajs.js.annotation._
+import js.JSConverters.*
+import scala.scalajs.js.annotation.*
 import graphi.DirectedMapGraph
-
-import scalagraph.render.EdgeRender
-import scalagraph.dataobject.{NodeData, NodeDataJS, KeyWithData, NodeDataConverter, KeyWithDataConverter}
-import scalagraph.dataobject.canvas.CanvasLineJS
+import scalagraph.render.{ArrowTipRender, EdgeRender}
+import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataConverter, NodeDataJS, Point}
+import scalagraph.dataobject.canvas.{CanvasLineJS, TriangleCanvasJS}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -79,12 +78,28 @@ class GraphController {
 	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
+	private def getEdgeObjects: Seq[Edge] = graph.getEdges.toSeq.flatMap { case (from, to) =>
+			(for {
+				fromData <- keyToData.get(from)
+				toData <- keyToData.get(to)
+			} yield Edge(
+				from = Point(fromData.x, fromData.y),
+				to = Point(toData.x, toData.y)
+			)).toSeq
+		}
+
 	/**
 	 * For now, this passes an array of 4-element arrays, comprised of: [from.x, from.y, to.x, to.y]
 	 * Later I may convert more of the node rendering logic as ScalaJS but for now this is what it is.
 	 * */
 	@JSExport
 	def getEdgesForRendering(): js.Array[CanvasLineJS] = EdgeRender.getCanvasLines(graph, keyToData).map(_.toJS).toJSArray
+
+	/**
+	 * Returns data for rendering arrow tips on directed edges (as a list of triangles).
+	 * */
+	@JSExport
+	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] = ArrowTipRender.getTriangles(getEdgeObjects).map(_.toJS).toJSArray
 
 	@JSExport
 	def getFullNodeData(): js.Array[KeyWithData] = {

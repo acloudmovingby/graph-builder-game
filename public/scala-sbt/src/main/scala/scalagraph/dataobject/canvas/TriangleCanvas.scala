@@ -4,6 +4,7 @@ import scala.scalajs.js
 
 import scalagraph.dataobject.{Triangle, TriangleJS}
 
+/** Represents data necessary to draw a triangle with the HTML Canvas API */
 case class TriangleCanvas(
 	 tri: Triangle,
 	 color: String // Hex string, e.g. "#FF0000"
@@ -14,6 +15,7 @@ case class TriangleCanvas(
 	).asInstanceOf[TriangleCanvasJS]
 }
 
+/** JS compatible equivalent of TriangleCanvas */
 @js.native
 trait TriangleCanvasJS extends js.Object {
 	val tri: TriangleJS

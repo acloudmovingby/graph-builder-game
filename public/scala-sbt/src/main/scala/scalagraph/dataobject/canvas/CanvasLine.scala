@@ -4,6 +4,7 @@ import scala.scalajs.js
 
 import scalagraph.dataobject.{Point, PointJS}
 
+/** Represents data necessary to draw a line with the HTML Canvas API */
 case class CanvasLine(
 	from: Point,
 	to: Point,
@@ -18,6 +19,7 @@ case class CanvasLine(
 	).asInstanceOf[CanvasLineJS]
 }
 
+/** JS compatible equivalent of CanvasLine */
 @js.native
 trait CanvasLineJS extends js.Object {
 	val from: PointJS
