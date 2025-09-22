@@ -103,15 +103,4 @@ class GraphController {
 			.map { case (key, data) => KeyWithDataConverter.toJS(key, data) }
 			.toJSArray
 	}
-
-	@JSExport
-	def getCanvasLine(): js.Array[CanvasLineJS] = {
-		Seq(CanvasLine(
-			from = Point(1, 2),
-			to = Point(3, 4),
-			width = EdgeRender.simpleEdgeStrokeWidth,
-			color = EdgeRender.simpleEdgeStrokeColor
-		).toJS)
-			.toJSArray
-	}
 }

@@ -61,9 +61,6 @@ let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
 
-let cl = graphController.getCanvasLine();
-console.log("cl=" + cl.map((e) => e.to.x));
-
 
 // =====================
 // Assertions About State
@@ -278,7 +275,7 @@ function draw() {
     const edges = graphController.getEdgesForRendering();
     // TODO have an if here when it comes time to toggle back and forth between directed and undirected
     //drawSimpleEdges(ctx, edges);
-    drawDirectedEdges(ctx, edges);
+    drawDirectedEdges(ctx, edges, []);
 
     // draw nodes
     let nodes = graphController.getFullNodeData();
