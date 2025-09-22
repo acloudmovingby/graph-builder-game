@@ -275,7 +275,7 @@ function draw() {
     const edges = graphController.getEdgesForRendering();
     // TODO have an if here when it comes time to toggle back and forth between directed and undirected
     //drawSimpleEdges(ctx, edges);
-    drawDirectedEdges(ctx, edges, []);
+    drawDirectedEdges(ctx, edges, graphController.getArrowTrianglesForRendering());
 
 
     // It's beautiful (the clouds)

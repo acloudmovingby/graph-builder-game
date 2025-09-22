@@ -10,7 +10,7 @@ case class TriangleCanvas(
 	 color: String // Hex string, e.g. "#FF0000"
 ) {
 	def toJS: TriangleCanvasJS = js.Dynamic.literal(
-		pt1 = this.tri.toJS,
+		tri = this.tri.toJS,
 		color = this.color
 	).asInstanceOf[TriangleCanvasJS]
 }

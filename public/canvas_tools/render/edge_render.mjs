@@ -131,53 +131,16 @@ export function drawDirectedEdges(ctx, newEdges, triangles) {
     const trimmedEdges = trimEdgesBasedOnDirectionality(directedEdges);
     drawSimpleEdges(ctx, trimmedEdges);
 
-    // draw triangle (arrow) offset from end of each edge and rotated to match angle of edge
-    ctx.beginPath();
-    newEdges.forEach((e) => {
-        let key = `${e.from.x},${e.from.y},${e.to.x},${e.to.y}`;
-        let tris = trisScaledOrigin;
-
-        if (!arrowRenderCache.has(key)) {
-            // rotate
-            const dx = e.to.x - e.from.x;
-            const dy = e.to.y - e.from.y;
-            const rotate_radians = Math.atan2(dy, dx); // angle in radians
-            const rotateMatrix = [[Math.cos(rotate_radians), -Math.sin(rotate_radians)], [Math.sin(rotate_radians), Math.cos(rotate_radians)]];
-            tris = tris.map(pt => {
-                const rotatedX = pt.x * rotateMatrix[0][0] + pt.y * rotateMatrix[0][1];
-                const rotatedY = pt.x * rotateMatrix[1][0] + pt.y * rotateMatrix[1][1];
-                return new Point(rotatedX, rotatedY);
-            });
-
-            const edgeLength = Math.sqrt(dx * dx + dy * dy);
-            const ratio = arrowDisplacement / edgeLength;
-            const dxFromEndNode = dx * ratio;
-            const dyFromEndNode = dy * ratio;
-            const translateVec = new Point(
-                -1 * dxFromEndNode + e.to.x,
-                -1 * dyFromEndNode + e.to.y
-            );
-            tris = tris.map(pt => new Point(pt.x + translateVec.x, pt.y + translateVec.y));
-
-            // floor values so we only pass integers to the canvas
-            // (recommended by canvas docs)
-            tris = tris.map(pt => new Point(Math.floor(pt.x), Math.floor(pt.y)));
-
-            arrowRenderCache.set(key, tris);
-        }
-
-        tris = arrowRenderCache.get(key);
-
-        // style
+    triangles.forEach((triObject) => {
+        // triObject is a TriangleCanvasJS object
         ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
-        ctx.strokeStyle = "#32BFE3";
-        ctx.fillStyle = "#32BFE3";
-
-        // draw
-
-        ctx.moveTo(tris[0].x, tris[0].y);
-        ctx.lineTo(tris[1].x, tris[1].y);
-        ctx.lineTo(tris[2].x, tris[2].y);
+        ctx.strokeStyle = triObject.color;
+        ctx.fillStyle = triObject.color;
+        ctx.beginPath();
+        ctx.moveTo(triObject.tri.pt1.x, triObject.tri.pt1.y);
+        ctx.lineTo(triObject.tri.pt2.x, triObject.tri.pt2.y);
+        ctx.lineTo(triObject.tri.pt3.x, triObject.tri.pt3.y);
+        ctx.closePath();
+        ctx.fill();
     });
-    ctx.fill();
 }

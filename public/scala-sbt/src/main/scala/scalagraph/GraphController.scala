@@ -99,7 +99,8 @@ class GraphController {
 	 * Returns data for rendering arrow tips on directed edges (as a list of triangles).
 	 * */
 	@JSExport
-	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] = ArrowTipRender.getTriangles(getEdgeObjects).map(_.toJS).toJSArray
+	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] = 
+		ArrowTipRender.getTriangles(getEdgeObjects).map(_.toJS).toJSArray
 
 	@JSExport
 	def getFullNodeData(): js.Array[KeyWithData] = {
