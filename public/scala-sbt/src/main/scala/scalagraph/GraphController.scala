@@ -4,7 +4,8 @@ import scala.scalajs.js
 import js.JSConverters._
 import scala.scalajs.js.annotation._
 import graphi.DirectedMapGraph
-import scalagraph.{CanvasLine, Point, PointJS, CanvasLineJS, EdgeRender}
+import scalagraph.EdgeRender
+import scalagraph.dataobjects.canvas.CanvasLineJS
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
