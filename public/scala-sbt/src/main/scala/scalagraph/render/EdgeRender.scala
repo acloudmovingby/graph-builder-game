@@ -11,36 +11,6 @@ object EdgeRender {
 	val simpleEdgeStrokeColor: String = "orange"
 	val simpleEdgeStrokeWidth: Int = 8
 
-	/**
-	 * Given a DirectedMapGraph and a keyToData map, returns a List of CanvasLine representing the edges.
-	 * Each CanvasLine contains the start and end Point, width, and color.
-	 *
-	 * @param graph     The directed graph
-	 * @param keyToData Map from node key to NodeData (which contains x, y)
-	 * @param directed  If true, treat as directed, else as undirected
-	 * @return List of CanvasLine
-	 */
-	def getCanvasLines(
-		graph: DirectedMapGraph[Int],
-		keyToData: Map[Int, NodeData],
-		directed: Boolean = true,
-		color: String = simpleEdgeStrokeColor,
-		width: Int = simpleEdgeStrokeWidth
-	): List[CanvasLine] = {
-		val edges = graph.getEdges
-		edges.flatMap { case (from, to) =>
-			for {
-				fromData <- keyToData.get(from)
-				toData <- keyToData.get(to)
-			} yield CanvasLine(
-				from = Point(fromData.x, fromData.y),
-				to = Point(toData.x, toData.y),
-				width = width,
-				color = color
-			)
-		}
-	}.toList
-
 	case class DirectedEdge(bidirectional: Boolean, edge: Edge)
 
 	def decideDirectionality(edges: Seq[Edge]): List[DirectedEdge] = {
@@ -60,7 +30,7 @@ object EdgeRender {
 		directedEdges.toList
 	}
 
-	def trimEdge2(
+	def trimEdge(
 		trimStart: Boolean,
 		edge: Edge,
 		displacement: Double = 47.0
@@ -87,8 +57,8 @@ object EdgeRender {
 		displacement: Double = 47.0 // how much to cut off from end
 	): Seq[Edge] = {
 		directedEdges.map { de =>
-			val trimmedEdge = if (de.bidirectional) trimEdge2(trimStart = true, de.edge, displacement) else de.edge
-			trimEdge2(trimStart = false, trimmedEdge, displacement)
+			val trimmedEdge = if (de.bidirectional) trimEdge(trimStart = true, de.edge, displacement) else de.edge
+			trimEdge(trimStart = false, trimmedEdge, displacement)
 		}
 	}
 

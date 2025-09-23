@@ -24,6 +24,7 @@ case class ArrowRenderProperties(
 	displacement: Int,
 	color: String
 ) {
+	/** Base triangle for arrow. Changes to the size/proportion of this Triangle will be reflected in all arrow heads. */
 	val triangle: Triangle = {
 		val pt1 = Point(0, -1 * base / 2)
 		val pt2 = Point(0, base / 2)
