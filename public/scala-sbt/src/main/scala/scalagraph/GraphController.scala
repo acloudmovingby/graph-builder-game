@@ -19,7 +19,7 @@ object GraphState {
 class GraphController {
 	private var graph = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
-	private var undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
+	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
 	@JSExport
 	def clearGraph(): Unit = graph = new DirectedMapGraph[Int]()
@@ -79,40 +79,20 @@ class GraphController {
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
 	private def getEdgeObjects: Seq[Edge] = graph.getEdges.toSeq.flatMap { case (from, to) =>
-			(for {
-				fromData <- keyToData.get(from)
-				toData <- keyToData.get(to)
-			} yield Edge(
-				from = Point(fromData.x, fromData.y),
-				to = Point(toData.x, toData.y)
-			)).toSeq
-		}
-
-	/**
-	 * TODO: change this so we use it for simple directed lines once full rendering logic converted to ScalaJS (also rename getCanvasLines in EdgeRender)
-	 * The JS code will ultimately just take lines/triangles and will be empty of triangles when rendering non-directed graphs
-	 *
-	 * For now, this passes an array of 4-element arrays, comprised of: [from.x, from.y, to.x, to.y]
-	 * Later I may convert more of the node rendering logic as ScalaJS but for now this is what it is.
-	 * */
-	@JSExport protected
-	def getEdgesForRendering(): js.Array[CanvasLineJS] = EdgeRender.getCanvasLines(graph, keyToData).map(_.toJS).toJSArray
-
-	@JSExport
-	def getEdgesForRendering2(): js.Array[CanvasLineJS] =
-		EdgeRender.getDirectedEdgesForRendering(getEdgeObjects).map(_.toJS).toJSArray
-
-	/**
-	 * Returns data for rendering arrow tips on directed edges (as a list of triangles).
-	 * */
-	@JSExport
-	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] =
-		ArrowTipRender.getTriangles(getEdgeObjects).map(_.toJS).toJSArray
+		(for {
+			fromData <- keyToData.get(from)
+			toData <- keyToData.get(to)
+		} yield Edge(
+			from = Point(fromData.x, fromData.y),
+			to = Point(toData.x, toData.y)
+		)).toSeq
+	}
 
 	@JSExport
 	def getAllShapes(): MultiShapesCanvasJS = {
-		val lines = EdgeRender.getDirectedEdgesForRendering(getEdgeObjects)
-		val triangles = ArrowTipRender.getTriangles(getEdgeObjects)
+		val edges = getEdgeObjects
+		val lines = EdgeRender.getDirectedEdgesForRendering(edges)
+		val triangles = ArrowTipRender.getTriangles(edges)
 		val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
 		shapes.toJS
 	}
