@@ -1,6 +1,6 @@
 import { Graph, Digraph } from "../algorithms/graph.mjs";
 import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
-import { drawDirectedEdges, drawLines, drawSimpleEdges } from "./render/edge_render.mjs";
+import { drawTriangles, drawLines } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
 // =====================
@@ -271,14 +271,13 @@ function draw() {
       ctx.stroke();
     }
 
-    // draw edges
+    // draw edge shapes
     const shapes = graphController.getAllShapes();
     drawLines(ctx, shapes.lines);
-    drawDirectedEdges(ctx, shapes.triangles);
+    drawTriangles(ctx, shapes.triangles);
 
     // It's beautiful (the clouds)
     // like you
-
 
     // draw nodes
     let nodes = graphController.getFullNodeData();
