@@ -46,6 +46,18 @@ export function drawSimpleEdges(ctx, edges) {
     ctx.stroke();
 }
 
+// edges is an array of CanvasLineJS
+export function drawLines(ctx, lines) {
+    ctx.lineWidth = simpleEdgeStrokeWidth;
+    ctx.strokeStyle = simpleEdgeStrokeColor;
+    ctx.beginPath();
+    lines.forEach((e) => {
+        ctx.moveTo(e.from.x, e.from.y);
+        ctx.lineTo(e.to.x, e.to.y);
+    });
+    ctx.stroke();
+}
+
 const arrowRenderCache = new Map(); // map from "x1,y1,x2,y2" to pre-calculated points
 
 // I'm calling this function twice for directed edges, but perhaps this should just take a 'bidirectional' boolean parameter and
@@ -123,13 +135,14 @@ function trimEdgesBasedOnDirectionality(directedEdges) {
 }
 
 // edges is an array of the CanvasLineJS class
-export function drawDirectedEdges(ctx, newEdges, triangles) {
-    let edges = newEdges.map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
-    // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
-    // determine directionality of each edge
-    const directedEdges = decideDirectionality(edges);
-    const trimmedEdges = trimEdgesBasedOnDirectionality(directedEdges);
-    drawSimpleEdges(ctx, trimmedEdges);
+export function drawDirectedEdges(ctx, triangles) {
+//     let edges = newEdges.map((e) => [e.from.x, e.from.y, e.to.x, e.to.y]);
+//     // draw edges terminating at the base of the arrow (arrowDisplacement away from center of target node)
+//     // determine directionality of each edge
+//     const directedEdges = decideDirectionality(edges);
+//     const trimmedEdges = trimEdgesBasedOnDirectionality(directedEdges);
+//
+//     drawSimpleEdges(ctx, trimmedEdges);
 
     triangles.forEach((triObject) => {
         // triObject is a TriangleCanvasJS object

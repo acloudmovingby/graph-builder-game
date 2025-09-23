@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.*
 import graphi.DirectedMapGraph
 import scalagraph.render.{ArrowTipRender, EdgeRender}
 import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataConverter, NodeDataJS, Point}
-import scalagraph.dataobject.canvas.{CanvasLineJS, TriangleCanvasJS}
+import scalagraph.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -89,18 +89,33 @@ class GraphController {
 		}
 
 	/**
+	 * TODO: change this so we use it for simple directed lines once full rendering logic converted to ScalaJS (also rename getCanvasLines in EdgeRender)
+	 * The JS code will ultimately just take lines/triangles and will be empty of triangles when rendering non-directed graphs
+	 *
 	 * For now, this passes an array of 4-element arrays, comprised of: [from.x, from.y, to.x, to.y]
 	 * Later I may convert more of the node rendering logic as ScalaJS but for now this is what it is.
 	 * */
-	@JSExport
+	@JSExport protected
 	def getEdgesForRendering(): js.Array[CanvasLineJS] = EdgeRender.getCanvasLines(graph, keyToData).map(_.toJS).toJSArray
+
+	@JSExport
+	def getEdgesForRendering2(): js.Array[CanvasLineJS] =
+		EdgeRender.getDirectedEdgesForRendering(getEdgeObjects).map(_.toJS).toJSArray
 
 	/**
 	 * Returns data for rendering arrow tips on directed edges (as a list of triangles).
 	 * */
 	@JSExport
-	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] = 
+	def getArrowTrianglesForRendering(): js.Array[TriangleCanvasJS] =
 		ArrowTipRender.getTriangles(getEdgeObjects).map(_.toJS).toJSArray
+
+	@JSExport
+	def getAllShapes(): MultiShapesCanvasJS = {
+		val lines = EdgeRender.getDirectedEdgesForRendering(getEdgeObjects)
+		val triangles = ArrowTipRender.getTriangles(getEdgeObjects)
+		val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
+		shapes.toJS
+	}
 
 	@JSExport
 	def getFullNodeData(): js.Array[KeyWithData] = {

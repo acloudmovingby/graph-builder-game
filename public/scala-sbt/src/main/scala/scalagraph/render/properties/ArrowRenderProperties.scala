@@ -2,6 +2,21 @@ package scalagraph.render.properties
 
 import scalagraph.dataobject.{Point, Triangle}
 
+/*
+displacement = node radius + padding + triangle height
+
+			 |  .  |  <- node center
+			  \___/   <- edge of node
+				|
+				| <- arrowPadding (empty space)
+				|
+				/\    |
+			   /  \   | <- triangle height (i.e. arrow head)
+  			  /____\  |
+				|
+
+*/
+
 case class ArrowRenderProperties(
 	height: Int,
 	base: Int,
@@ -25,21 +40,9 @@ object ArrowRenderProperties {
 	private val defaultBase = 10
 	private val defaultHeight = 14
 	private val scaleFactor = 2
-	private val arrowPadding = 4 // how far arrow is moved back from the end of the edge of the node
+	private val arrowPadding = 4 // empty space for how far arrow is moved back from the end of the edge of the node (see diagram above)
 	private val defaultColor = "#32BFE3"
 	private def default(nodeRadius: Int): ArrowRenderProperties = {
-		/* displacement is based on node radius + padding + triangle height
-
-		      |  .  |  <- node center
-		 	   \___/   <- edge of node
-		 	     |
-		         | <- arrowPadding
-		         |
-		        /\    |
-		       /  \   | <- triangle height
-		      /____\  |
-		         |
-		*/
 		val displacement = nodeRadius + arrowPadding + (defaultHeight * scaleFactor)
 		ArrowRenderProperties(defaultHeight, defaultBase, 2, displacement, defaultColor)
 	}

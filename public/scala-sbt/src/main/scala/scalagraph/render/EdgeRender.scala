@@ -3,7 +3,7 @@ package scalagraph.render
 import scala.math
 import graphi.DirectedMapGraph
 
-import scalagraph.dataobject.{NodeData, Point}
+import scalagraph.dataobject.{Edge, NodeData, Point}
 import scalagraph.dataobject.canvas.{CanvasLine, TriangleCanvas}
 
 object EdgeRender {
@@ -41,23 +41,18 @@ object EdgeRender {
 		}
 	}.toList
 
-	case class DirectedEdge(bidirectional: Boolean, from: Point, to: Point)
+	case class DirectedEdge(bidirectional: Boolean, edge: Edge)
 
-	/**
-	 * Given a list of edges (as tuples of Points), returns a list of DirectedEdge objects.
-	 * If both (A,B) and (B,A) exist, the edge is bidirectional.
-	 * Each edge is only included once (either direction).
-	 */
-	def decideDirectionality(edges: List[(Point, Point)]): List[DirectedEdge] = {
-		val edgeSet = edges.toSet
+	def decideDirectionality(edges: Seq[Edge]): List[DirectedEdge] = {
+		val edgeSet = edges.map(e => (e.from, e.to)).toSet
 		var seen = Set.empty[(Point, Point)]
 		val directedEdges = scala.collection.mutable.ListBuffer[DirectedEdge]()
-		for ((from, to) <- edges) {
-			val key = (from, to)
-			val reverseKey = (to, from)
+		for (e <- edges) {
+			val key = (e.from, e.to)
+			val reverseKey = (e.to, e.from)
 			if (!seen.contains(key) && !seen.contains(reverseKey)) {
 				val bidirectional = edgeSet.contains(reverseKey)
-				directedEdges += DirectedEdge(bidirectional, from, to)
+				directedEdges += DirectedEdge(bidirectional, e)
 				seen += key
 				seen += reverseKey
 			}
@@ -65,58 +60,41 @@ object EdgeRender {
 		directedEdges.toList
 	}
 
-	/**
-	 * Trims the start or end of each edge by a given displacement, moving the start or end Point closer to the other.
-	 *
-	 * @param trimStart    If true, trims the start of the edge; if false, trims the end.
-	 * @param edges        List of (Point, Point) representing edges.
-	 * @param displacement How far to trim from the node (default: 47, matching JS logic for arrowDisplacement)
-	 * @return List of (Point, Point) with trimmed endpoints.
-	 */
-	def trimEdges(
+	def trimEdge2(
 		trimStart: Boolean,
-		edges: List[(Point, Point)],
-		displacement: Double = 47.0 // JS: nodeRadius + (triangleHeight * scale_factor) + arrowPadding
-	): List[(Point, Point)] = {
-		edges.map { case (from, to) =>
-			val dx = to.x - from.x
-			val dy = to.y - from.y
-			val edgeLength = math.sqrt(dx * dx + dy * dy)
-			if (edgeLength == 0) (from, to)
-			else {
-				val ratio = (displacement - 1) / edgeLength
-				val dxFromNode = (dx * ratio).toInt
-				val dyFromNode = (dy * ratio).toInt
-				if (trimStart) {
-					(Point(from.x + dxFromNode, from.y + dyFromNode), to)
-				} else {
-					(from, Point(to.x - dxFromNode, to.y - dyFromNode))
-				}
+		edge: Edge,
+		displacement: Double = 47.0
+	): Edge = {
+		val (from, to) = (edge.from, edge.to)
+		val dx = to.x - from.x
+		val dy = to.y - from.y
+		val edgeLength = math.sqrt(dx * dx + dy * dy)
+		if (edgeLength == 0) edge
+		else {
+			val ratio = (displacement - 1) / edgeLength
+			val dxFromNode = (dx * ratio).toInt
+			val dyFromNode = (dy * ratio).toInt
+			if (trimStart) {
+				Edge(Point(from.x + dxFromNode, from.y + dyFromNode), to)
+			} else {
+				Edge(from, Point(to.x - dxFromNode, to.y - dyFromNode))
 			}
 		}
 	}
 
-	/**
-	 * Trims edges based on directionality: if bidirectional, trims both ends; otherwise, trims only the end.
-	 * Mirrors the JS trimEdgesBasedOnDirectionality.
-	 *
-	 * @param directedEdges List of DirectedEdge
-	 * @param displacement  How far to trim from the node (default: 47.0)
-	 * @return List of (Point, Point) with trimmed endpoints
-	 */
 	def trimEdgesBasedOnDirectionality(
-		directedEdges: List[DirectedEdge],
-		displacement: Double = 47.0
-	): List[(Point, Point)] = {
+		directedEdges: Seq[DirectedEdge],
+		displacement: Double = 47.0 // how much to cut off from end
+	): Seq[Edge] = {
 		directedEdges.map { de =>
-			if (de.bidirectional) {
-				// trim both ends
-				val frontTrimmed = trimEdges(trimStart = true, List((de.from, de.to)), displacement).head
-				trimEdges(trimStart = false, List(frontTrimmed), displacement).head
-			} else {
-				// trim only end
-				trimEdges(trimStart = false, List((de.from, de.to)), displacement).head
-			}
+			val trimmedEdge = if (de.bidirectional) trimEdge2(trimStart = true, de.edge, displacement) else de.edge
+			trimEdge2(trimStart = false, trimmedEdge, displacement)
 		}
+	}
+
+	def getDirectedEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
+		val dirEdges = decideDirectionality(edges)
+		val trimmed = trimEdgesBasedOnDirectionality(dirEdges)
+		trimmed.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
 }

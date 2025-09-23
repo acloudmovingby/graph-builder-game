@@ -1,6 +1,6 @@
 import { Graph, Digraph } from "../algorithms/graph.mjs";
 import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
-import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
+import { drawDirectedEdges, drawLines, drawSimpleEdges } from "./render/edge_render.mjs";
 import { nodeRadius } from "./render/node_render.mjs";
 
 // =====================
@@ -272,11 +272,9 @@ function draw() {
     }
 
     // draw edges
-    const edges = graphController.getEdgesForRendering();
-    // TODO have an if here when it comes time to toggle back and forth between directed and undirected
-    //drawSimpleEdges(ctx, edges);
-    drawDirectedEdges(ctx, edges, graphController.getArrowTrianglesForRendering());
-
+    const shapes = graphController.getAllShapes();
+    drawLines(ctx, shapes.lines);
+    drawDirectedEdges(ctx, shapes.triangles);
 
     // It's beautiful (the clouds)
     // like you
