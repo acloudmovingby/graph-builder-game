@@ -1,7 +1,6 @@
 import { Graph, Digraph } from "../algorithms/graph.mjs";
 import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
-import { drawTriangles, drawLines } from "./render/edge_render.mjs";
-import { nodeRadius } from "./render/node_render.mjs";
+import { drawTriangles, drawLines } from "./render/draw_shapes_to_canvas.mjs";
 
 // =====================
 // Class/Type Definitions
@@ -42,6 +41,7 @@ function Point(x, y) {
 // =====================
 // State and Constants
 // =====================
+const nodeRadius = 15;
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;

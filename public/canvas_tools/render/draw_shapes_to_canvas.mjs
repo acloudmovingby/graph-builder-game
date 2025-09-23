@@ -1,7 +1,7 @@
 // =====================
 // Rendering Functions
 // =====================
-// Functions to draw basic shapes to the canvas (for historical reasons, for edges, ultimately will probably combine with node_render.mjs)
+// Functions to draw basic shapes to the canvas
 
 // lines is an array of CanvasLineJS
 export function drawLines(ctx, lines) {
