@@ -337,7 +337,7 @@ function draw() {
         ctx.textBaseline = "middle";
         const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
         ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
-        let label = nodes[i].key; // graph.nodeValues.get(nodes[i]);
+        let label = nodes[i].key;
         const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
         ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
       }

@@ -4,18 +4,6 @@ import scalagraph.dataobject.{Edge, Point}
 import scalagraph.render.properties.ArrowRenderProperties
 import scalagraph.dataobject.canvas.TriangleCanvas
 
-/*
-const triangleHeight = 14;
-const triangleBase = 10;
-const tri_1 = new Point(0, -1 * triangleBase / 2);
-const tri_2 = new Point(0, triangleBase / 2);
-const tri_3 = new Point(triangleHeight, 0);
-const originTriangle = [tri_1, tri_2, tri_3];
-// scaling
-const scale_factor = 2;;
-const trisScaledOrigin = originTriangle.map(pt => new Point(pt.x * scale_factor, pt.y * scale_factor));
- */
-
 object ArrowTipRender {
 
 	/** Given the list of (directed) edges, determines where to put the arrow (i.e. the Triangle).

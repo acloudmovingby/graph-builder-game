@@ -5,9 +5,8 @@
 
 // lines is an array of CanvasLineJS
 export function drawLines(ctx, lines) {
-//     ctx.lineWidth = simpleEdgeStrokeWidth;
-//     ctx.strokeStyle = simpleEdgeStrokeColor;
     ctx.beginPath();
+    ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
     lines.forEach((e) => {
         ctx.lineWidth = e.width;
         ctx.strokeStyle = e.color;
@@ -17,18 +16,17 @@ export function drawLines(ctx, lines) {
     ctx.stroke();
 }
 
-// edges is an array of the CanvasLineJS class
+// triangles is an array of TriangleCanvasJS
 export function drawTriangles(ctx, triangles) {
+    ctx.beginPath();
+    ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
     triangles.forEach((triObject) => {
-        // triObject is a TriangleCanvasJS object
-        ctx.setLineDash([]); // reset line dash to solid/normal TODO: make reset function for between every different shape section
         ctx.strokeStyle = triObject.color;
         ctx.fillStyle = triObject.color;
-        ctx.beginPath();
         ctx.moveTo(triObject.tri.pt1.x, triObject.tri.pt1.y);
         ctx.lineTo(triObject.tri.pt2.x, triObject.tri.pt2.y);
         ctx.lineTo(triObject.tri.pt3.x, triObject.tri.pt3.y);
-        ctx.closePath();
         ctx.fill();
     });
+    ctx.closePath();
 }

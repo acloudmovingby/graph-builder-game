@@ -5,7 +5,7 @@ import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.DirectedMapGraph
 import scalagraph.render.{ArrowTipRender, EdgeRender}
-import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataConverter, NodeDataJS, Point}
+import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
 import scalagraph.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
@@ -33,7 +33,7 @@ class GraphController {
 	@JSExport
 	def addNode(key: Int, data: NodeDataJS): Unit = {
 		graph = graph.addNode(key)
-		keyToData += (key -> NodeDataConverter.toScala(data))
+		keyToData += (key -> NodeData.fromJS(data))
 	}
 
 	@JSExport
@@ -46,7 +46,7 @@ class GraphController {
 	@JSExport
 	def updateNodeData(key: Int, data: NodeDataJS): Unit = {
 		keyToData.get(key) match {
-			case Some(_) => keyToData += (key -> NodeDataConverter.toScala(data))
+			case Some(_) => keyToData += (key -> NodeData.fromJS(data))
 			case None => println(s"Error updating node data: Node $key does not exist")
 		}
 	}
