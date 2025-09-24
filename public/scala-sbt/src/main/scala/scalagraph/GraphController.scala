@@ -1,31 +1,12 @@
 package scalagraph
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation._
+import js.JSConverters.*
+import scala.scalajs.js.annotation.*
 import graphi.DirectedMapGraph
-
-case class NodeData(counter: Int, x: Int, y: Int)
-
-// This is a facade type for the JavaScript representation of NodeData, I think it has to be just raw values
-// without methods, so I put the conversion methods in the singleton NodeDataConverter
-@js.native
-trait NodeDataJS extends js.Object {
-	val counter: Int
-	val x: Int
-	val y: Int
-}
-
-object NodeDataConverter {
-	def toJS(data: NodeData): NodeDataJS = {
-		js.Dynamic.literal(
-			counter = data.counter,
-			x = data.x,
-			y = data.y
-		).asInstanceOf[NodeDataJS]
-	}
-
-	def toScala(js: NodeDataJS): NodeData = NodeData(js.counter, js.x, js.y)
-}
+import scalagraph.render.{ArrowTipRender, EdgeRender}
+import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
+import scalagraph.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -38,12 +19,10 @@ object GraphState {
 class GraphController {
 	private var graph = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
-	private var undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
+	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
 	@JSExport
-	def clearGraph(): Unit = {
-		graph = new DirectedMapGraph[Int]()
-	}
+	def clearGraph(): Unit = graph = new DirectedMapGraph[Int]()
 
 	@JSExport
 	def nodeCount(): Int = graph.nodeCount
@@ -54,7 +33,7 @@ class GraphController {
 	@JSExport
 	def addNode(key: Int, data: NodeDataJS): Unit = {
 		graph = graph.addNode(key)
-		keyToData += (key -> NodeDataConverter.toScala(data))
+		keyToData += (key -> NodeData.fromJS(data))
 	}
 
 	@JSExport
@@ -67,7 +46,7 @@ class GraphController {
 	@JSExport
 	def updateNodeData(key: Int, data: NodeDataJS): Unit = {
 		keyToData.get(key) match {
-			case Some(_) => keyToData += (key -> NodeDataConverter.toScala(data))
+			case Some(_) => keyToData += (key -> NodeData.fromJS(data))
 			case None => println(s"Error updating node data: Node $key does not exist")
 		}
 	}
@@ -95,4 +74,33 @@ class GraphController {
 
 	@JSExport
 	def getDot: String = graph.toDot
+
+	@JSExport
+	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
+
+	private def getEdgeObjects: Seq[Edge] = graph.getEdges.toSeq.flatMap { case (from, to) =>
+		(for {
+			fromData <- keyToData.get(from)
+			toData <- keyToData.get(to)
+		} yield Edge(
+			from = Point(fromData.x, fromData.y),
+			to = Point(toData.x, toData.y)
+		)).toSeq
+	}
+
+	@JSExport
+	def getAllShapes(): MultiShapesCanvasJS = {
+		val edges = getEdgeObjects
+		val lines = EdgeRender.getDirectedEdgesForRendering(edges)
+		val triangles = ArrowTipRender.getTriangles(edges)
+		val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
+		shapes.toJS
+	}
+
+	@JSExport
+	def getFullNodeData(): js.Array[KeyWithData] = {
+		keyToData
+			.map { case (key, data) => KeyWithDataConverter.toJS(key, data) }
+			.toJSArray
+	}
 }

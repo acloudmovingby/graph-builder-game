@@ -1,7 +1,6 @@
 import { Graph, Digraph } from "../algorithms/graph.mjs";
 import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
-import { drawDirectedEdges, drawSimpleEdges } from "./render/edge_render.mjs";
-import { nodeRadius } from "./render/node_render.mjs";
+import { drawTriangles, drawLines } from "./render/draw_shapes_to_canvas.mjs";
 
 // =====================
 // Class/Type Definitions
@@ -42,6 +41,7 @@ function Point(x, y) {
 // =====================
 // State and Constants
 // =====================
+const nodeRadius = 15;
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
@@ -61,12 +61,27 @@ let scale = window.devicePixelRatio;
 let undoGraphStates = [];
 let graphTypes = [];
 
+
 // =====================
 // Assertions About State
 // ====================
 function runAssertions() {
     console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
     console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
+    const nd = graphController.getFullNodeData();
+    Array.from(graph.getNodeValues()).map((nv) => {
+        let found = false;
+        for (let i=0; i < nd.length; i++) {
+            const nodeWithData = nd[i]
+            if (nodeWithData.key == nv.key) {
+                found = true;
+                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
+                console.assert(nodeWithData.data.x == nv.x, "X don't match");
+                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
+            }
+        }
+        console.assert(found, "node not found: " + nv.key)
+    });
 }
 
 // =====================
@@ -159,7 +174,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
       },
       false
     );
@@ -238,7 +253,7 @@ function draw() {
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
     const welcome = document.getElementById('welcome-message');
-    welcome.style.visibility = graph.nodeCount === 0 ? "visible" : "hidden";
+    welcome.style.visibility = graphController.nodeCount() === 0 ? "visible" : "hidden";
 
     //edge mode, draw edge from edgeStart to mouse cursor
     let inBasicEdgeMode =
@@ -256,16 +271,18 @@ function draw() {
       ctx.stroke();
     }
 
-    // draw edges
-    const edges = graph.getEdges();
-    // TODO have an if here when it comes time to toggle back and forth between directed and undirected
-    //drawSimpleEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
-    drawDirectedEdges(ctx, edges.map(e => [e[0].x, e[0].y, e[1].x, e[1].y]));
+    // draw edge shapes
+    const shapes = graphController.getAllShapes();
+    drawLines(ctx, shapes.lines);
+    drawTriangles(ctx, shapes.triangles);
+
+    // It's beautiful (the clouds)
+    // like you
 
     // draw nodes
-    let nodes = Array.from(graph.getNodeValues());
+    let nodes = graphController.getFullNodeData();
     for (let i = 0; i < nodes.length; i++) {
-      const isEdgeStart = nodes[i] === toolState.curTool.state.edgeStart;
+      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart?.key;
       ctx.beginPath();
       ctx.lineWidth = 8;
       if (inBasicEdgeMode || inMagicPathEdgeMode) {
@@ -281,14 +298,14 @@ function draw() {
         ctx.fillStyle = "#32BFE3";
       }
 
-      let oscillator = Math.cos(nodes[i].counter / 2 + 8); // oscillates -1.0 to 1.0
-      let dampener = Math.min(1, 1 / (nodes[i].counter / 2)) + 0.05;
-      let dampener2 = Math.min(1, 1 / (nodes[i].counter / 10));
+      let oscillator = Math.cos(nodes[i].data.counter / 2 + 8); // oscillates -1.0 to 1.0
+      let dampener = Math.min(1, 1 / (nodes[i].data.counter / 2)) + 0.05;
+      let dampener2 = Math.min(1, 1 / (nodes[i].data.counter / 10));
       let radius = Math.max(
         1,
         25 * oscillator * dampener * dampener2 + nodeRadius
       );
-      ctx.arc(nodes[i].x, nodes[i].y, radius, 0, Math.PI * 2, false);
+      ctx.arc(nodes[i].data.x, nodes[i].data.y, radius, 0, Math.PI * 2, false);
       ctx.stroke();
       ctx.fill();
 
@@ -298,18 +315,18 @@ function draw() {
         ctx.beginPath();
         if (!basicTool.state.edgeMode) {
           ctx.lineWidth = 4;
-          ctx.arc(nodes[i].x, nodes[i].y, radius + 10, 0, Math.PI * 2, false);
+          ctx.arc(nodes[i].data.x, nodes[i].data.y, radius + 10, 0, Math.PI * 2, false);
           ctx.stroke();
         } else {
           ctx.fillStyle = "#FA5750";
-          ctx.arc(nodes[i].x, nodes[i].y, radius - 4, 0, Math.PI * 2, false);
+          ctx.arc(nodes[i].data.x, nodes[i].data.y, radius - 4, 0, Math.PI * 2, false);
           ctx.fill();
         }
       }
       // increment "time" counter on nodes for bouncy animation; to prevent overflow, don't increment indefinitely
       if (nodes[i].counter < 1000) {
         nodes[i].counter += 1;
-        const nodeData = { counter: nodes[i].counter, x: nodes[i].x, y: nodes[i].y };
+        const nodeData = { counter: nodes[i].data.counter, x: nodes[i].data.x, y: nodes[i].data.y };
         graphController.updateNodeData(nodes[i].key, nodeData);
       }
 
@@ -318,11 +335,11 @@ function draw() {
         ctx.font = "1rem Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i] != nodeHover;
+        const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
         ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
-        let label = graph.nodeValues.get(nodes[i]);
+        let label = nodes[i].key;
         const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
-        ctx.fillText(label, nodes[i].x, nodes[i].y + ADJUSTMENT);
+        ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
       }
     }
 
@@ -398,7 +415,7 @@ function canvasClick(event) {
       });
       graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
-      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
@@ -411,7 +428,7 @@ function canvasClick(event) {
         graphController.addEdge(startNode.key, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked;
-      refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -429,13 +446,14 @@ function canvasClick(event) {
 function clearGraph() {
   addToUndo(undoGraphStates, graph);
   graphController.pushUndoState();
+  graphController.clearGraph();
   graph = new Graph();
   exitBasicEdgeMode();
   exitMagicEdgeMode();
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -474,7 +492,7 @@ function mouseMove(event) {
       graphController.addEdge(startNode.key, nodeHover.key);
     }
     magicPathTool.state.edgeStart = nodeHover;
-    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 
   if (toolState.curTool == moveTool) {
@@ -523,7 +541,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 // =====================
@@ -533,7 +551,7 @@ function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
     graphController.popUndoState();
-    refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 }
 
@@ -683,8 +701,8 @@ function refreshAdjMatrixHtml(nodeCount, adjList) {
 // boolean 2d array; length of array is number of nodes; true means an edge exists between those nodes
 function generateAdjacencyMatrix(adjList) {
   // initialize 2d array with false
-  let adjMatrix = Array.from({ length: graph.nodeCount }).map((n) =>
-    Array.from({ length: graph.nodeCount }).map((x) => (x = false))
+  let adjMatrix = Array.from({ length: graphController.nodeCount() }).map((n) =>
+    Array.from({ length: graphController.nodeCount() }).map((x) => (x = false))
   );
   for (let i = 0; i < adjList.length; i++) {
     for (let j = 0; j < adjList[i].length; j++) {
@@ -782,5 +800,4 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-refreshHtml(graph.nodeCount, graph.edgeCount, toolState, calculateGraphType(graph), graph.getAdjList());
-
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
