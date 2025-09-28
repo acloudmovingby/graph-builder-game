@@ -1,0 +1,37 @@
+//| mill-version: 1.0.5
+package build
+
+import mill.*, scalalib.*, publish.*, scalajslib.*
+
+object scalagraph extends ScalaModule, ScalaJSModule {
+  def scalaVersion = "3.7.2"
+  def scalaJSVersion = "1.19.0"
+  def publishVersion = "0.1.0-SNAPSHOT"
+
+  def scalacOptions = super.scalacOptions() ++ Seq(
+                "-rewrite",
+                "-source", "3.7-migration",
+                "-deprecation",
+                "-explain",
+                "-Wvalue-discard",
+                "-Xfatal-warnings",
+  )
+
+  
+  def pomSettings = PomSettings(
+                description = "ScalaJS for graph builder website",
+                organization = "acloudmovingby",
+                url = "https://github.com/acloudmovingby/graph-builder-game",
+                licenses = Seq(License.MIT),
+                versionControl = VersionControl.github("acloudmovingby", "graph-builder-game"),
+                developers = Seq(Developer("acloudmovingby", "Chris Oates", "https://github.com/acloudmovingby"))
+        )
+
+
+  def mvnDeps = Seq(
+    mvn"acloudmovingby::graphi:0.0.1",
+    mvn"org.scala-js:scalajs-library_2.13:1.19.0",
+    mvn"org.scala-lang::scala3-library_sjs1:3.7.2"
+  )
+
+}
