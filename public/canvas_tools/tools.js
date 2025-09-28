@@ -287,7 +287,7 @@ function draw() {
     // draw nodes
     let nodes = graphController.getFullNodeData();
     for (let i = 0; i < nodes.length; i++) {
-      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart?.key;
+      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart;
       ctx.beginPath();
       ctx.lineWidth = 8;
       if (inBasicEdgeMode || inMagicPathEdgeMode) {
@@ -315,7 +315,7 @@ function draw() {
       ctx.fill();
 
       // hover effects
-      if (nodes[i] === nodeHover && !basicTool.state.stillInNode) {
+      if (nodes[i].key === nodeHover?.key && !basicTool.state.stillInNode) {
         ctx.closePath();
         ctx.beginPath();
         if (!basicTool.state.edgeMode) {
