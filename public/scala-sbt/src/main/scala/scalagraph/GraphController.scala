@@ -106,4 +106,8 @@ class GraphController {
 			.map { case (key, data) => KeyWithDataConverter.toJS(key, data) }
 			.toJSArray
 	}
+
+	/** First node will be labeled '0', next will be labeled '1', etc. */
+	@JSExport
+	def nextNodeKey(): Int = graph.nodeCount
 }
