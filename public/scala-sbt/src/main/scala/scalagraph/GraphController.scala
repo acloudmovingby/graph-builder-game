@@ -22,7 +22,10 @@ class GraphController {
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
 	@JSExport
-	def clearGraph(): Unit = graph = new DirectedMapGraph[Int]()
+	def clearGraph(): Unit = {
+		graph = new DirectedMapGraph[Int]()
+		keyToData = Map.empty
+	}
 
 	@JSExport
 	def nodeCount(): Int = graph.nodeCount
