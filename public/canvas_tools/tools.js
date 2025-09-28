@@ -65,22 +65,27 @@ let graphTypes = [];
 // Assertions About State
 // ====================
 function runAssertions() {
-    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
-    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
-    const nd = graphController.getFullNodeData();
-    Array.from(graph.getNodeValues()).map((nv) => {
-        let found = false;
-        for (let i=0; i < nd.length; i++) {
-            const nodeWithData = nd[i]
-            if (nodeWithData.key == nv.key) {
-                found = true;
-                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
-                console.assert(nodeWithData.data.x == nv.x, "X don't match");
-                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
-            }
-        }
-        console.assert(found, "node not found: " + nv.key)
-    });
+    // This was useful before but now as we really remove the final uses of the JS graph class
+    // it's becoming hard to maintain both correctly and it will be better to start asserting program
+    // correctness by introducing tests on the ScalaJS side...
+
+
+//    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
+//    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
+//    const nd = graphController.getFullNodeData();
+//    Array.from(graph.getNodeValues()).map((nv) => {
+//        let found = false;
+//        for (let i=0; i < nd.length; i++) {
+//            const nodeWithData = nd[i]
+//            if (nodeWithData.key == nv.key) {
+//                found = true;
+//                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
+//                console.assert(nodeWithData.data.x == nv.x, "X don't match");
+//                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
+//            }
+//        }
+//        console.assert(found, "node not found: " + nv.key)
+//    });
 }
 
 // =====================
@@ -96,7 +101,7 @@ let basicTool = new Tool(
   ),
   {
     edgeMode: false,
-    edgeStart: null,
+    edgeStart: null, // the node's key
     stillInNode: false,
   }
 );
@@ -264,7 +269,8 @@ function draw() {
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
       let edgeStart = toolState.curTool.state.edgeStart;
-      ctx.moveTo(edgeStart.x, edgeStart.y);
+      let data = graphController.getNodeData(edgeStart);
+      ctx.moveTo(data.x, data.y);
       ctx.lineTo(mouseX, mouseY);
       ctx.closePath();
       ctx.stroke();
@@ -419,14 +425,14 @@ function canvasClick(event) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
       // add edge
-      if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
+      if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked.key)) {
         addToUndo(undoGraphStates, graph);
         graphController.pushUndoState();
         const startNode = basicTool.state.edgeStart;
-        graph.addEdge(startNode, nodeClicked);
-        graphController.addEdge(startNode.key, nodeClicked.key);
+        //graph.addEdge(startNode, nodeClicked);
+        graphController.addEdge(startNode, nodeClicked.key);
       }
-      basicTool.state.edgeStart = nodeClicked;
+      basicTool.state.edgeStart = nodeClicked.key;
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else {
       // leave edge mode
@@ -437,7 +443,7 @@ function canvasClick(event) {
   if (toolState.curTool == moveTool) {
     addToUndo(undoGraphStates, graph);
     graphController.pushUndoState();
-    moveTool.state.node = nodeClicked;
+    moveTool.state.node = nodeClicked.key;
   }
   runAssertions();
 }
@@ -481,16 +487,16 @@ function mouseMove(event) {
     nodeHover &&
     toolState.curTool === magicPathTool &&
     magicPathTool.state.edgeMode &&
-    nodeHover !== magicPathTool.state.edgeStart
+    nodeHover.key !== magicPathTool.state.edgeStart
   ) {
-    if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
+    if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover.key)) {
       addToUndo(undoGraphStates, graph);
       graphController.pushUndoState();
       const startNode = magicPathTool.state.edgeStart;
-      graph.addEdge(startNode, nodeHover);
-      graphController.addEdge(startNode.key, nodeHover.key);
+      graph.addEdge(startNode, nodeHover.key);
+      graphController.addEdge(startNode, nodeHover.key);
     }
-    magicPathTool.state.edgeStart = nodeHover;
+    magicPathTool.state.edgeStart = nodeHover.key;
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 
@@ -715,7 +721,7 @@ function generateAdjacencyMatrix(adjList) {
 
 function enterBasicEdgeMode(node) {
   basicTool.state.edgeMode = true;
-  basicTool.state.edgeStart = node;
+  basicTool.state.edgeStart = node.key;
 }
 
 function exitBasicEdgeMode() {
@@ -732,7 +738,7 @@ function exitMagicEdgeMode() {
 
 function enterMagicEdgeMode(node) {
   magicPathTool.state.edgeMode = true;
-  magicPathTool.state.edgeStart = node;
+  magicPathTool.state.edgeStart = node.key;
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 

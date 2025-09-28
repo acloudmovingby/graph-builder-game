@@ -107,7 +107,13 @@ class GraphController {
 			.toJSArray
 	}
 
+	@JSExport
+	def getNodeData(key: Int): NodeDataJS = keyToData(key).toJS
+
 	/** First node will be labeled '0', next will be labeled '1', etc. */
 	@JSExport
 	def nextNodeKey(): Int = graph.nodeCount
+
+	@JSExport
+	def containsEdge(from: Int, to: Int): Boolean = graph.hasEdge(from, to)
 }
