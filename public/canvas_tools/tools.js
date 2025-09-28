@@ -389,7 +389,7 @@ function canvasClick(event) {
     return;
   }
 
-  let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
+  let nodeClicked = nodeAtPoint(x, y, graphController.getFullNodeData());
 
   if (toolState.curTool === magicPathTool) {
     if (nodeClicked && !magicPathTool.state.edgeMode) {
@@ -465,7 +465,7 @@ function mouseMove(event) {
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
 
-  nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
+  nodeHover = nodeAtPoint(mouseX, mouseY, graphController.getFullNodeData());
   if (!nodeHover) {
     basicTool.state.stillInNode = false;
   }
@@ -585,10 +585,11 @@ function printDimensions(headerMessage) {
   }
 }
 
+/** nodes is array of KeyWithData */
 function nodeAtPoint(x, y, nodes) {
   for (const node of nodes) {
-    let dx = x - node.x;
-    let dy = y - node.y;
+    let dx = x - node.data.x;
+    let dy = y - node.data.y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     if (distFromCent < nodeRadius * 2) {
       return node;
