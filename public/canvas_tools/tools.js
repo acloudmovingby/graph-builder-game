@@ -62,33 +62,6 @@ let graphTypes = [];
 
 
 // =====================
-// Assertions About State
-// ====================
-function runAssertions() {
-    // This was useful before but now as we really remove the final uses of the JS graph class
-    // it's becoming hard to maintain both correctly and it will be better to start asserting program
-    // correctness by introducing tests on the ScalaJS side...
-
-
-//    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
-//    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
-//    const nd = graphController.getFullNodeData();
-//    Array.from(graph.getNodeValues()).map((nv) => {
-//        let found = false;
-//        for (let i=0; i < nd.length; i++) {
-//            const nodeWithData = nd[i]
-//            if (nodeWithData.key == nv.key) {
-//                found = true;
-//                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
-//                console.assert(nodeWithData.data.x == nv.x, "X don't match");
-//                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
-//            }
-//        }
-//        console.assert(found, "node not found: " + nv.key)
-//    });
-}
-
-// =====================
 // Tool Definitions
 // =====================
 let basicTool = new Tool(
@@ -380,7 +353,6 @@ function draw() {
       ctx.stroke();
     }
   }
-  runAssertions();
   window.requestAnimationFrame(draw);
 }
 
@@ -445,7 +417,6 @@ function canvasClick(event) {
     graphController.pushUndoState();
     moveTool.state.node = nodeClicked.key;
   }
-  runAssertions();
 }
 
 function clearGraph() {
