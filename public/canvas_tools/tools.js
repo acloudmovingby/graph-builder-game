@@ -47,7 +47,6 @@ let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
 let graph = new Digraph();
 const graphController = new GraphController();
-var graphKeyCounter = 0; // used to give each node a unique key when created
 let mouseX = 0;
 let mouseY = 0;
 let nodeHover = null;
@@ -338,7 +337,7 @@ function draw() {
         const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
         ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
         let label = nodes[i].key;
-        const ADJUSTMENT = 2; // textBaseline above doesn't help center on node properly so this makes it more centered
+        const ADJUSTMENT = 2; // Ugh, textBaseline above doesn't help center on node properly so this makes it more centered
         ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
       }
     }
@@ -406,14 +405,14 @@ function canvasClick(event) {
       // create new Node
       addToUndo(undoGraphStates, graph);
       graphController.pushUndoState();
-      let newNode = new NodeData(graphKeyCounter, 0, x, y);
+      const nextKey = graphController.nextNodeKey();
+      let newNode = new NodeData(nextKey, 0, x, y);
       graph.addNode(newNode);
-      graphController.addNode(graphKeyCounter, {
+      graphController.addNode(nextKey, {
             counter: 0,
             x: x,
             y: y
       });
-      graphKeyCounter += 1;
       basicTool.state.stillInNode = true;
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else if (!basicTool.state.edgeMode) {
