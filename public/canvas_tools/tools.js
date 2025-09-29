@@ -397,14 +397,13 @@ function canvasClick(event) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
       // add edge
-      if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked.key)) {
+      if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked?.key)) {
         addToUndo(undoGraphStates, graph);
         graphController.pushUndoState();
         const startNode = basicTool.state.edgeStart;
-        //graph.addEdge(startNode, nodeClicked);
         graphController.addEdge(startNode, nodeClicked.key);
       }
-      basicTool.state.edgeStart = nodeClicked.key;
+      basicTool.state.edgeStart = nodeClicked?.key;
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else {
       // leave edge mode
@@ -415,7 +414,7 @@ function canvasClick(event) {
   if (toolState.curTool == moveTool) {
     addToUndo(undoGraphStates, graph);
     graphController.pushUndoState();
-    moveTool.state.node = nodeClicked.key;
+    moveTool.state.node = nodeClicked?.key;
   }
 }
 
