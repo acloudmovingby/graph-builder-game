@@ -103,7 +103,7 @@ let magicPathTool = new Tool(
   ),
   {
     edgeMode: false,
-    edgeStart: null,
+    edgeStart: null, // the node's key
     normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
     noneCursor: "none",
   }
@@ -395,7 +395,7 @@ function canvasClick(event) {
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
-    } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
+    } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
       // add edge
       if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked.key)) {
         addToUndo(undoGraphStates, graph);
