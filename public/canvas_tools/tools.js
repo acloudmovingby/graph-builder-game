@@ -62,28 +62,6 @@ let graphTypes = [];
 
 
 // =====================
-// Assertions About State
-// ====================
-function runAssertions() {
-    console.assert(graphController.nodeCount() == graph.nodeCount, "GraphController and Graph node counts don't match (" + graphController.nodeCount() + " vs " + graph.nodeCount + ")");
-    console.assert(graphController.edgeCount() == graph.edgeCount, "GraphController and Graph edge counts don't match (" + graphController.edgeCount() + " vs " + graph.edgeCount + ")");
-    const nd = graphController.getFullNodeData();
-    Array.from(graph.getNodeValues()).map((nv) => {
-        let found = false;
-        for (let i=0; i < nd.length; i++) {
-            const nodeWithData = nd[i]
-            if (nodeWithData.key == nv.key) {
-                found = true;
-                console.assert(nodeWithData.data.counter == nv.counter, "Counters don't match: " + nodeWithData.data.counter + ", " + nv.counter);
-                console.assert(nodeWithData.data.x == nv.x, "X don't match");
-                console.assert(nodeWithData.data.y == nv.y, "Y don't match");
-            }
-        }
-        console.assert(found, "node not found: " + nv.key)
-    });
-}
-
-// =====================
 // Tool Definitions
 // =====================
 let basicTool = new Tool(
@@ -96,7 +74,7 @@ let basicTool = new Tool(
   ),
   {
     edgeMode: false,
-    edgeStart: null,
+    edgeStart: null, // the node's key
     stillInNode: false,
   }
 );
@@ -125,7 +103,7 @@ let magicPathTool = new Tool(
   ),
   {
     edgeMode: false,
-    edgeStart: null,
+    edgeStart: null, // the node's key
     normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
     noneCursor: "none",
   }
@@ -264,7 +242,8 @@ function draw() {
       ctx.lineWidth = 8;
       ctx.strokeStyle = "#ffdc7a";
       let edgeStart = toolState.curTool.state.edgeStart;
-      ctx.moveTo(edgeStart.x, edgeStart.y);
+      let data = graphController.getNodeData(edgeStart);
+      ctx.moveTo(data.x, data.y);
       ctx.lineTo(mouseX, mouseY);
       ctx.closePath();
       ctx.stroke();
@@ -281,7 +260,7 @@ function draw() {
     // draw nodes
     let nodes = graphController.getFullNodeData();
     for (let i = 0; i < nodes.length; i++) {
-      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart?.key;
+      const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart;
       ctx.beginPath();
       ctx.lineWidth = 8;
       if (inBasicEdgeMode || inMagicPathEdgeMode) {
@@ -309,7 +288,7 @@ function draw() {
       ctx.fill();
 
       // hover effects
-      if (nodes[i] === nodeHover && !basicTool.state.stillInNode) {
+      if (nodes[i].key === nodeHover?.key && !basicTool.state.stillInNode) {
         ctx.closePath();
         ctx.beginPath();
         if (!basicTool.state.edgeMode) {
@@ -374,7 +353,6 @@ function draw() {
       ctx.stroke();
     }
   }
-  runAssertions();
   window.requestAnimationFrame(draw);
 }
 
@@ -389,7 +367,7 @@ function canvasClick(event) {
     return;
   }
 
-  let nodeClicked = nodeAtPoint(x, y, graph.getNodeValues());
+  let nodeClicked = nodeAtPoint(x, y, graphController.getFullNodeData());
 
   if (toolState.curTool === magicPathTool) {
     if (nodeClicked && !magicPathTool.state.edgeMode) {
@@ -417,16 +395,15 @@ function canvasClick(event) {
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
-    } else if (nodeClicked && nodeClicked != basicTool.state.edgeStart) {
+    } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
       // add edge
-      if (!graph.containsEdge(basicTool.state.edgeStart, nodeClicked)) {
+      if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked?.key)) {
         addToUndo(undoGraphStates, graph);
         graphController.pushUndoState();
         const startNode = basicTool.state.edgeStart;
-        graph.addEdge(startNode, nodeClicked);
-        graphController.addEdge(startNode.key, nodeClicked.key);
+        graphController.addEdge(startNode, nodeClicked.key);
       }
-      basicTool.state.edgeStart = nodeClicked;
+      basicTool.state.edgeStart = nodeClicked?.key;
       refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     } else {
       // leave edge mode
@@ -437,9 +414,8 @@ function canvasClick(event) {
   if (toolState.curTool == moveTool) {
     addToUndo(undoGraphStates, graph);
     graphController.pushUndoState();
-    moveTool.state.node = nodeClicked;
+    moveTool.state.node = nodeClicked?.key;
   }
-  runAssertions();
 }
 
 function clearGraph() {
@@ -465,7 +441,7 @@ function mouseMove(event) {
   mouseX = event.x - canvasBounds.left;
   mouseY = event.y - canvasBounds.top;
 
-  nodeHover = nodeAtPoint(mouseX, mouseY, graph.getNodeValues());
+  nodeHover = nodeAtPoint(mouseX, mouseY, graphController.getFullNodeData());
   if (!nodeHover) {
     basicTool.state.stillInNode = false;
   }
@@ -481,16 +457,16 @@ function mouseMove(event) {
     nodeHover &&
     toolState.curTool === magicPathTool &&
     magicPathTool.state.edgeMode &&
-    nodeHover !== magicPathTool.state.edgeStart
+    nodeHover.key !== magicPathTool.state.edgeStart
   ) {
-    if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover)) {
+    if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover.key)) {
       addToUndo(undoGraphStates, graph);
       graphController.pushUndoState();
       const startNode = magicPathTool.state.edgeStart;
-      graph.addEdge(startNode, nodeHover);
-      graphController.addEdge(startNode.key, nodeHover.key);
+      graph.addEdge(startNode, nodeHover.key);
+      graphController.addEdge(startNode, nodeHover.key);
     }
-    magicPathTool.state.edgeStart = nodeHover;
+    magicPathTool.state.edgeStart = nodeHover.key;
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
   }
 
@@ -585,10 +561,11 @@ function printDimensions(headerMessage) {
   }
 }
 
+/** nodes is array of KeyWithData */
 function nodeAtPoint(x, y, nodes) {
   for (const node of nodes) {
-    let dx = x - node.x;
-    let dy = y - node.y;
+    let dx = x - node.data.x;
+    let dy = y - node.data.y;
     let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     if (distFromCent < nodeRadius * 2) {
       return node;
@@ -714,7 +691,7 @@ function generateAdjacencyMatrix(adjList) {
 
 function enterBasicEdgeMode(node) {
   basicTool.state.edgeMode = true;
-  basicTool.state.edgeStart = node;
+  basicTool.state.edgeStart = node.key;
 }
 
 function exitBasicEdgeMode() {
@@ -731,7 +708,7 @@ function exitMagicEdgeMode() {
 
 function enterMagicEdgeMode(node) {
   magicPathTool.state.edgeMode = true;
-  magicPathTool.state.edgeStart = node;
+  magicPathTool.state.edgeStart = node.key;
   magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 
