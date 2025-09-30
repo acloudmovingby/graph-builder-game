@@ -8,4 +8,4 @@ public/scala-sbt/project/target/
 public/scala-sbt/project/project/target
 .bsp/
 .bsp
-
+.DS_Store
