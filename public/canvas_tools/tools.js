@@ -41,7 +41,7 @@ function Point(x, y) {
 // =====================
 // State and Constants
 // =====================
-const nodeRadius = 15;
+const nodeRadius = 18;
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
@@ -316,7 +316,7 @@ function draw() {
         const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
         ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
         let label = nodes[i].key;
-        const ADJUSTMENT = 2; // Ugh, textBaseline above doesn't help center on node properly so this makes it more centered
+        const ADJUSTMENT = 1.5; // Ugh, textBaseline above doesn't help center on node properly so this makes it more centered
         ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
       }
     }
