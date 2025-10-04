@@ -1,12 +1,12 @@
-package scalagraph
+package graphcontroller
 
 import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.DirectedMapGraph
-import scalagraph.render.{ArrowTipRender, EdgeRender}
-import scalagraph.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
-import scalagraph.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
+import graphcontroller.render.{ArrowTipRender, EdgeRender}
+import graphcontroller.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
+import graphcontroller.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 
 case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
 

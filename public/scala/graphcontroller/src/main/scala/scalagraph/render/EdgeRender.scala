@@ -1,10 +1,10 @@
-package scalagraph.render
+package graphcontroller.render
 
 import scala.math
 import graphi.DirectedMapGraph
 
-import scalagraph.dataobject.{Edge, NodeData, Point}
-import scalagraph.dataobject.canvas.{CanvasLine, TriangleCanvas}
+import graphcontroller.dataobject.{Edge, NodeData, Point}
+import graphcontroller.dataobject.canvas.{CanvasLine, TriangleCanvas}
 
 object EdgeRender {
 	// Parameters for styling the rendered shapes

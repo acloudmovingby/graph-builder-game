@@ -1,5 +1,5 @@
-package scalagraph.dataobject
+package graphcontroller.dataobject
 
-import scalagraph.dataobject.Point
+import graphcontroller.dataobject.Point
 
 case class Edge(from: Point, to: Point)

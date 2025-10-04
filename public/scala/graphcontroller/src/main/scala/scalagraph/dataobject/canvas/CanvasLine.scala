@@ -1,8 +1,8 @@
-package scalagraph.dataobject.canvas
+package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
 
-import scalagraph.dataobject.{Point, PointJS}
+import graphcontroller.dataobject.{Point, PointJS}
 
 /** Represents data necessary to draw a line with the HTML Canvas API */
 case class CanvasLine(

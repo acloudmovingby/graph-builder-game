@@ -1,6 +1,6 @@
-package scalagraph.dataobject
+package graphcontroller.dataobject
 
-import scalagraph.dataobject.{Point, PointJS}
+import graphcontroller.dataobject.{Point, PointJS}
 
 import scala.scalajs.js
 

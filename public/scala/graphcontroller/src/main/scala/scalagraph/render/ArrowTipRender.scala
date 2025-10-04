@@ -1,8 +1,8 @@
-package scalagraph.render
+package graphcontroller.render
 
-import scalagraph.dataobject.{Edge, Point}
-import scalagraph.render.properties.ArrowRenderProperties
-import scalagraph.dataobject.canvas.TriangleCanvas
+import graphcontroller.dataobject.{Edge, Point}
+import graphcontroller.render.properties.ArrowRenderProperties
+import graphcontroller.dataobject.canvas.TriangleCanvas
 
 object ArrowTipRender {
 

@@ -1,8 +1,8 @@
-package scalagraph.dataobject.canvas
+package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
 
-import scalagraph.dataobject.{Triangle, TriangleJS}
+import graphcontroller.dataobject.{Triangle, TriangleJS}
 
 /** Represents data necessary to draw a triangle with the HTML Canvas API */
 case class TriangleCanvas(

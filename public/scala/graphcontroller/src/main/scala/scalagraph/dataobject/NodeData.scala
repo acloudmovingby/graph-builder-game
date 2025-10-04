@@ -1,4 +1,4 @@
-package scalagraph.dataobject
+package graphcontroller.dataobject
 
 import scala.scalajs.js
 
