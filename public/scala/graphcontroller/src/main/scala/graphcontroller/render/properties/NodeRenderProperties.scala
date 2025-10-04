@@ -1,4 +1,4 @@
-package scalagraph.render.properties
+package graphcontroller.render.properties
 
 case class NodeRenderProperties(nodeRadius: Int)
 

@@ -1,6 +1,6 @@
-package scalagraph.render.properties
+package graphcontroller.render.properties
 
-import scalagraph.dataobject.{Point, Triangle}
+import graphcontroller.dataobject.{Point, Triangle}
 
 /*
 displacement = node radius + padding + triangle height

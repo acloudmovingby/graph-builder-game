@@ -1,4 +1,4 @@
-package scalagraph.dataobject.canvas
+package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
 import js.JSConverters.*
