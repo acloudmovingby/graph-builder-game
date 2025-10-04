@@ -9,3 +9,5 @@ public/scala-sbt/project/project/target
 .bsp/
 .bsp
 .DS_Store
+out
+out/
