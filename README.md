@@ -6,12 +6,14 @@ Install dependencies:
 1. `npm install express`
 2. `npm install --save-dev cross-env`
 3. `npm install jest` (?)
+4. Install things necessary for Scala...
 Run:
-1. `node app.js`
-2. (for tests) `npm run test`
+1. `cd public/scala && ./mill graphcontroller.fastLinkJS && ./mill graphcontroller.test && cd -` Build and test ScalaJS code. 
+2. `node app.js` Start server
+3. (deprecated, for old vanill JS tests) `npm run test`
 See in browser: 
 1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
-2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
+2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It may no longer work. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
 
 ## About
 
