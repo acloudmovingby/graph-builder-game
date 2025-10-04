@@ -8,4 +8,9 @@ object graphcontroller extends ScalaModule, ScalaJSModule {
   def mvnDeps = Seq(
     mvn"acloudmovingby::graphi::0.0.1" 
   )
+
+  object test extends ScalaJSTests {
+    def mvnDeps = Seq(mvn"com.lihaoyi::utest::0.9.1")
+    def testFramework = "utest.runner.Framework"
+  }
 }
