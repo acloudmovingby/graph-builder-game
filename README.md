@@ -16,6 +16,7 @@ See in browser:
 
 ## Docker
 Build image with: `docker build -t graph-builder .`
+Start container: `docker run -p 3000:3000 --rm graph-builder`
 
 ## About
 
