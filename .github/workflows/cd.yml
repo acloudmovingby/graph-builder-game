@@ -24,7 +24,9 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+        tags: |
+          ghcr.io/${{ github.repository }}:latest
+          ghcr.io/${{ github.repository }}:${{ github.sha }}
 
     - name: Trigger Render deploy
       run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
