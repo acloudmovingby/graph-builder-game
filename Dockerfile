@@ -25,4 +25,4 @@ COPY . .
 COPY --from=scala-builder /app/public/scala/out /app/public/scala/out
 
 EXPOSE 3000
-CMD [ "node", "app.js" ]
+CMD [ "bash", "start.sh" ]
