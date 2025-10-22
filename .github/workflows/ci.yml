@@ -19,4 +19,4 @@ jobs:
         distribution: 'temurin'
 
     - name: Build Docker image
-      run: docker build . --file Dockerfile --blahhhhh
+      run: docker build . --file Dockerfile
