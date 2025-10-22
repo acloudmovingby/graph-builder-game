@@ -1,8 +1,7 @@
-# .github/workflows/cd.yml
-name: Deploy to Render
+name: Deploy
 
 on:
-  pull_request:
+  push:
     branches: [ master ]
 
 jobs:

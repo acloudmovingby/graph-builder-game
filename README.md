@@ -1,5 +1,15 @@
 ## How to run
 
+### Docker
+Build image with: `docker build -t graph-builder .`
+Start container: `docker run -p 3000:3000 --rm graph-builder`
+See in browser at `localhost:3000/tools`
+
+### Build natively
+Prerequisites:
+1. [NodeJS](https://nodejs.org/en/download/) (v16 or later)
+2. [Scala](https://www.scala-lang.org/download/) (v3 or later)
+3. [Mill build tool](https://www.lihaoyi.com/mill/) (v1.0.6 or later)
 Install dependencies:
 1. `npm install express`
 2. `npm install --save-dev cross-env`
@@ -8,15 +18,10 @@ Install dependencies:
 Run:
 1. `cd public/scala && ./mill graphcontroller.fastLinkJS && ./mill graphcontroller.test && cd -` Build and test ScalaJS code. 
 2. `node app.js` Start server
-3. (deprecated, for old vanill JS tests) `npm run test`
+3. (deprecated, for old vanilla JS tests) `npm run test`
 See in browser: 
 1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
 2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It may no longer work. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
-
-
-## Docker
-Build image with: `docker build -t graph-builder .`
-Start container: `docker run -p 3000:3000 --rm graph-builder`
 
 ## About
 
