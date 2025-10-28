@@ -2,6 +2,8 @@ import { Graph, Digraph } from "../algorithms/graph.mjs";
 import { calculateGraphType, getDot } from "../algorithms/graph_algs.mjs";
 import { drawTriangles, drawLines } from "./render/draw_shapes_to_canvas.mjs";
 
+console.log("Starting graph builder...")
+
 // =====================
 // Class/Type Definitions
 // =====================
@@ -211,7 +213,7 @@ if (undoElem) {
 }
 
 if (canvas.getContext) {
-  canvas.addEventListener("mousedown", canvasClick, false);
+  canvas.addEventListener("mousedown", mouseDown, false);
   canvas.addEventListener("mousemove", mouseMove, false);
   canvas.addEventListener("mouseleave", mouseLeave, false);
   canvas.addEventListener("mouseup", mouseUp, false);
@@ -356,7 +358,8 @@ function draw() {
   window.requestAnimationFrame(draw);
 }
 
-function canvasClick(event) {
+// What happens when the mouse is clicked (on the canvas)
+function mouseDown(event) {
   let canvasBounds = canvas.getBoundingClientRect();
   // floor values to keep everything as integers, better for canvas rendering and generally better to keep things as ints
   let x = Math.floor(event.x - canvasBounds.left);
@@ -412,9 +415,9 @@ function canvasClick(event) {
   }
 
   if (toolState.curTool == moveTool) {
-    addToUndo(undoGraphStates, graph);
-    graphController.pushUndoState();
+    console.log("move tool clicked");
     moveTool.state.node = nodeClicked?.key;
+    console.log("move tool node: " + moveTool.state.node);
   }
 }
 
@@ -471,16 +474,24 @@ function mouseMove(event) {
   }
 
   if (toolState.curTool == moveTool) {
-    if (moveTool.state.node) {
-      moveTool.state.node.x = mouseX;
-      moveTool.state.node.y = mouseY;
+    if (moveTool.state.node != null) {
+        // TODO: only save undo state if node actually is moved. Requires saving a 'pending' state before pushing it to the undo stack
+        addToUndo(undoGraphStates, graph);
+        graphController.pushUndoState();
+        // preserve counter value while updating position
+        const counter = graphController.getNodeData(moveTool.state.node).counter;
+        const updatedNodeData = { counter: counter, x: mouseX, y: mouseY };
+        graphController.updateNodeData(moveTool.state.node, updatedNodeData);
     }
   }
 }
 
+// What happens when the mouse is released (on the canvas)
 function mouseUp() {
-  if (toolState.curTool == moveTool && moveTool.state.node) {
-    moveTool.state.node = null;
+  if (toolState.curTool == moveTool) {
+    if (moveTool.state.node != null) {
+        moveTool.state.node = null;
+    }
   }
 
   if (toolState.curTool == areaCompleteTool) {
