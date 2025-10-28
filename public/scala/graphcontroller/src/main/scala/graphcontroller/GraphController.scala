@@ -12,7 +12,7 @@ case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData]
 
 object GraphState {
 	// Limit the number of undo states to avoid excessive memory usage
-	val UNDO_SIZE_LIMIT = 25
+	val UNDO_SIZE_LIMIT = 35
 }
 
 @JSExportTopLevel("GraphController")
