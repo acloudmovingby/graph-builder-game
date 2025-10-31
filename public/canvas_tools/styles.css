@@ -104,6 +104,14 @@ p, a,
   background-color: lightgray;
 }
 
+#directed-btn {
+    background-color: #ebfaff;
+}
+
+#directed-btn:hover {
+  background-color: #cce8f0;
+}
+
 .visible-icon {
   display: inline;
   height: 10px;

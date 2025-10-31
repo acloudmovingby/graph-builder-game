@@ -52,6 +52,7 @@ let mouseY = 0;
 let nodeHover = null;
 let infoPaneHover = false;
 let labelsVisible = true;
+let directedToggle = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
 let canvasWidth = window.innerWidth - infoPaneWidth;
@@ -778,6 +779,49 @@ labelVisibleBtn.addEventListener(
         ? "images/invisible-icon.svg"
         : "images/node-label-visible.svg";
       labelsVisible = !labelsVisible;
+    }
+  },
+  false
+);
+
+let directedBtn = document.getElementById("directed-btn");
+directedBtn.addEventListener(
+  "click",
+  () => {
+    directedToggle = !directedToggle;
+    if (document.getElementById("directed-icon")) {
+      document.getElementById("directed-icon").src = directedToggle
+        ? "images/arrow-small-1-blue.svg"
+        : "images/arrow-small-1.svg";
+    }
+    if (document.getElementById("directed-btn")) {
+        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        ? "#cff5ff"
+        : "white";
+    }
+  },
+  false
+);
+
+directedBtn.addEventListener(
+  "mouseenter",
+  () => {
+    if (document.getElementById("directed-btn")) {
+        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        ? "#cce8f0"
+        : "lightgray";
+    }
+  },
+  false
+);
+
+directedBtn.addEventListener(
+  "mouseleave",
+  () => {
+    if (document.getElementById("directed-btn")) {
+        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        ? "#ebfaff"
+        : "white";
     }
   },
   false
