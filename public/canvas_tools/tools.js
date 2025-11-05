@@ -477,7 +477,7 @@ function mouseMove(event) {
     if (moveTool.state.node != null) {
         // preserve counter value while updating position
         const counter = graphController.getNodeData(moveTool.state.node).counter;
-        const updatedNodeData = { counter: counter, x: mouseX, y: mouseY };
+        const updatedNodeData = { counter: counter, x: Math.floor(mouseX), y: Math.floor(mouseY) };
         graphController.updateNodeData(moveTool.state.node, updatedNodeData);
     }
   }
