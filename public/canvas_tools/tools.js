@@ -799,6 +799,7 @@ directedBtn.addEventListener(
         ? "#cff5ff"
         : "white";
     }
+    graphController.toggleDirectionality()
   },
   false
 );
