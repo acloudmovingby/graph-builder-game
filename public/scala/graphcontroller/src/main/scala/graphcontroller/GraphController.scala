@@ -12,7 +12,7 @@ case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToDa
 
 object GraphState {
 	// Limit the number of undo states to avoid excessive memory usage
-	val UNDO_SIZE_LIMIT = 35
+	val UNDO_SIZE_LIMIT = 50
 }
 
 @JSExportTopLevel("GraphController")
@@ -20,6 +20,12 @@ class GraphController {
 	private var graph: DirectedMapGraph[Int] | SimpleMapGraph[Int] = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
+
+	@JSExport
+	def isDirected(): Boolean = graph match {
+		case _: DirectedMapGraph[Int] => true
+		case _: SimpleMapGraph[Int] => false
+	}
 
 	@JSExport
 	def clearGraph(): Unit = {
@@ -64,16 +70,19 @@ class GraphController {
 		}
 	}
 
+	/**	No-op if no states in undo stack */
 	@JSExport
 	def popUndoState(): Unit = {
 		if (undoGraphStates.nonEmpty) {
 			val prevState = undoGraphStates.pop()
 			graph = prevState.graph
 			keyToData = prevState.keyToData
-		} else {
-			println("No undo states available")
 		}
 	}
+
+	/** For graying-out the undo button if can't undo anymore */
+	@JSExport
+	def canUndo(): Boolean = undoGraphStates.nonEmpty
 
 	@JSExport
 	def getDot: String = graph.toDot
@@ -161,5 +170,10 @@ class GraphController {
 			case g: SimpleMapGraph[Int] =>
 				graph = new DirectedMapGraph[Int](g.adjMap)
 		}
+	}
+
+	@JSExport
+	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
+		println(s"Hovering over ($col, $row)")
 	}
 }

@@ -52,13 +52,11 @@ let mouseY = 0;
 let nodeHover = null;
 let infoPaneHover = false;
 let labelsVisible = true;
-let directedToggle = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
 let canvasWidth = window.innerWidth - infoPaneWidth;
 let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio;
-let undoGraphStates = [];
 let graphTypes = [];
 
 
@@ -383,7 +381,6 @@ function mouseDown(event) {
   if (toolState.curTool == basicTool) {
     if (!basicTool.state.edgeMode && !nodeClicked) {
       // create new Node
-      addToUndo(undoGraphStates, graph);
       graphController.pushUndoState();
       const nextKey = graphController.nextNodeKey();
       let newNode = new NodeData(nextKey, 0, x, y);
@@ -400,7 +397,6 @@ function mouseDown(event) {
     } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
       // add edge
       if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked?.key)) {
-        addToUndo(undoGraphStates, graph);
         graphController.pushUndoState();
         const startNode = basicTool.state.edgeStart;
         graphController.addEdge(startNode, nodeClicked.key);
@@ -415,14 +411,12 @@ function mouseDown(event) {
 
   if (toolState.curTool == moveTool) {
     // TODO: only save undo state if node actually is moved. Requires saving a 'pending' state before pushing it to the undo stack
-    addToUndo(undoGraphStates, graph);
     graphController.pushUndoState();
     moveTool.state.node = nodeClicked?.key;
   }
 }
 
 function clearGraph() {
-  addToUndo(undoGraphStates, graph);
   graphController.pushUndoState();
   graphController.clearGraph();
   graph = new Graph();
@@ -463,7 +457,6 @@ function mouseMove(event) {
     nodeHover.key !== magicPathTool.state.edgeStart
   ) {
     if (!graph.containsEdge(magicPathTool.state.edgeStart, nodeHover.key)) {
-      addToUndo(undoGraphStates, graph);
       graphController.pushUndoState();
       const startNode = magicPathTool.state.edgeStart;
       graph.addEdge(startNode, nodeHover.key);
@@ -516,7 +509,6 @@ function mouseUp() {
         }
       }
       if (anyEdgesAdded) {
-        addToUndo(undoGraphStates, graphClone);
         graphController.pushUndoState();
       }
     }
@@ -531,19 +523,8 @@ function mouseUp() {
 // Undo/Redo
 // =====================
 function undo() {
-  if (undoGraphStates.length > 0) {
-    graph = undoGraphStates.pop();
     graphController.popUndoState();
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
-  }
-}
-
-function addToUndo(undoGraphStates, graph) {
-  const UNDO_SIZE_LIMIT = 25;
-  undoGraphStates.push(graph.clone(cloneNodeData));
-  if (undoGraphStates.length > UNDO_SIZE_LIMIT) {
-    undoGraphStates.shift(1);
-  }
 }
 
 // =====================
@@ -589,6 +570,7 @@ function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList, adjac
   refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
   refreshAdjListHtml(adjList);
   refreshAdjMatrixHtml(adjList, adjacencyMatrix);
+  refreshDirectedButtonIcon();
 }
 
 function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
@@ -626,9 +608,9 @@ function refreshToolbarHtml(toolState) {
   let undoElem = document.getElementById("undo");
   if (undoElem) {
     undoElem.style.backgroundImage =
-      undoGraphStates.length === 0
-        ? 'url("images/undo-icon-gray.svg")'
-        : 'url("images/undo-icon.svg")';
+      graphController.canUndo()
+        ? 'url("images/undo-icon.svg")'
+        : 'url("images/undo-icon-gray.svg")';
   }
 }
 
@@ -680,6 +662,25 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
       }
     }
   }
+}
+
+let matrixElem = document.getElementById("adj-matrix");
+if (matrixElem) {
+    matrixElem.addEventListener("mousemove", function(event) {
+      const rect = matrixElem.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const n = matrixElem.width; // number of pixels, not nodes
+      // Get node count from Scala
+        const nodeCount = graphController.nodeCount();
+        if (nodeCount > 0) {
+            const cellWidth = matrixElem.width / nodeCount;
+            const cellHeight = matrixElem.height / nodeCount;
+            const col = Math.floor(x / cellWidth);
+            const row = Math.floor(y / cellHeight);
+            graphController.hoverAdjMatrixCell(col, row);
+        }
+});
 }
 
 function enterBasicEdgeMode(node) {
@@ -769,22 +770,25 @@ labelVisibleBtn.addEventListener(
   false
 );
 
-let directedBtn = document.getElementById("directed-btn");
-directedBtn.addEventListener(
-  "click",
-  () => {
-    directedToggle = !directedToggle;
+function refreshDirectedButtonIcon() {
     if (document.getElementById("directed-icon")) {
-      document.getElementById("directed-icon").src = directedToggle
+      document.getElementById("directed-icon").src = graphController.isDirected()
         ? "images/arrow-small-1-blue.svg"
         : "images/arrow-small-1.svg";
     }
     if (document.getElementById("directed-btn")) {
-        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected()
         ? "#cff5ff"
         : "white";
     }
-    graphController.toggleDirectionality()
+}
+
+let directedBtn = document.getElementById("directed-btn");
+directedBtn.addEventListener(
+  "click",
+  () => {
+    graphController.pushUndoState();
+    graphController.toggleDirectionality();
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
   },
   false
@@ -794,7 +798,7 @@ directedBtn.addEventListener(
   "mouseenter",
   () => {
     if (document.getElementById("directed-btn")) {
-        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected()
         ? "#cce8f0"
         : "lightgray";
     }
@@ -806,12 +810,33 @@ directedBtn.addEventListener(
   "mouseleave",
   () => {
     if (document.getElementById("directed-btn")) {
-        document.getElementById("directed-btn").style.backgroundColor = directedToggle
+        document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected()
         ? "#ebfaff"
         : "white";
     }
   },
   false
 );
+
+// Listener for cmd+Z undo. This listens for key presses on the entire document.
+document.addEventListener('keydown', function(event) {
+  // Check if the 'z' key was pressed (case-insensitive)
+  if (event.key.toLowerCase() === 'z') {
+
+    // Check if the Command key (on Mac) or Control key (on Windows/Linux)
+    // is being held down at the same time.
+    const isUndo = event.metaKey || event.ctrlKey;
+
+    if (isUndo) {
+      // This is the "undo" command.
+
+      // Prevent the browser's default undo action (e.g., in a text field)
+      event.preventDefault();
+
+      // Call your custom function
+      undo();
+    }
+  }
+});
 
 refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
