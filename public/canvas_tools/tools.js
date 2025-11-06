@@ -152,7 +152,7 @@ for (const tool of toolState.allTools) {
       "click",
       () => {
         toolState.curTool = tool;
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
       },
       false
     );
@@ -394,7 +394,7 @@ function mouseDown(event) {
             y: y
       });
       basicTool.state.stillInNode = true;
-      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
     } else if (!basicTool.state.edgeMode) {
       enterBasicEdgeMode(nodeClicked);
     } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
@@ -406,7 +406,7 @@ function mouseDown(event) {
         graphController.addEdge(startNode, nodeClicked.key);
       }
       basicTool.state.edgeStart = nodeClicked?.key;
-      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+      refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
     } else {
       // leave edge mode
       exitBasicEdgeMode();
@@ -431,7 +431,7 @@ function clearGraph() {
   toolState.curTool = basicTool;
   nodeHover = null;
   basicTool.state.stillInNode = false;
-  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
 }
 
 function mouseLeave(event) {
@@ -470,7 +470,7 @@ function mouseMove(event) {
       graphController.addEdge(startNode, nodeHover.key);
     }
     magicPathTool.state.edgeStart = nodeHover.key;
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
   }
 
   if (toolState.curTool == moveTool) {
@@ -524,7 +524,7 @@ function mouseUp() {
 
   areaCompleteTool.state.mousePressed = false;
   areaCompleteTool.state.drawPoints = [];
-  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+  refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
 }
 
 // =====================
@@ -534,7 +534,7 @@ function undo() {
   if (undoGraphStates.length > 0) {
     graph = undoGraphStates.pop();
     graphController.popUndoState();
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
   }
 }
 
@@ -582,13 +582,13 @@ function nodeAtPoint(x, y, nodes) {
   return null;
 }
 
-function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList) {
+function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList, adjacencyMatrix) {
   // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
 
   refreshToolbarHtml(toolState);
   refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
   refreshAdjListHtml(adjList);
-  refreshAdjMatrixHtml(nodeCount, adjList);
+  refreshAdjMatrixHtml(adjList, adjacencyMatrix);
 }
 
 function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
@@ -661,7 +661,7 @@ function inside(point, vs) {
   return inside;
 }
 
-function refreshAdjMatrixHtml(nodeCount, adjList) {
+function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
   let matrixElem = document.getElementById("adj-matrix");
   if (matrixElem && matrixElem.getContext) {
     let totalWidth = matrixElem.offsetWidth;
@@ -669,9 +669,9 @@ function refreshAdjMatrixHtml(nodeCount, adjList) {
     let ctx = matrixElem.getContext("2d");
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
-    let width = totalWidth / nodeCount;
-    let height = totalHeight / nodeCount;
-    let adjMatrix = generateAdjacencyMatrix(adjList);
+    let width = totalWidth / adjList.length;
+    let height = totalHeight / adjList.length;
+    let adjMatrix = adjacencyMatrix;
     for (let i = 0; i < adjMatrix.length; i++) {
       for (let j = 0; j < adjMatrix[i].length; j++) {
         if (adjMatrix[i][j]) {
@@ -680,21 +680,6 @@ function refreshAdjMatrixHtml(nodeCount, adjList) {
       }
     }
   }
-}
-
-// boolean 2d array; length of array is number of nodes; true means an edge exists between those nodes
-function generateAdjacencyMatrix(adjList) {
-  // initialize 2d array with false
-  let adjMatrix = Array.from({ length: graphController.nodeCount() }).map((n) =>
-    Array.from({ length: graphController.nodeCount() }).map((x) => (x = false))
-  );
-  for (let i = 0; i < adjList.length; i++) {
-    for (let j = 0; j < adjList[i].length; j++) {
-      let targetIndex = adjList[i][j];
-      adjMatrix[i][targetIndex] = true;
-    }
-  }
-  return adjMatrix;
 }
 
 function enterBasicEdgeMode(node) {
@@ -800,6 +785,7 @@ directedBtn.addEventListener(
         : "white";
     }
     graphController.toggleDirectionality()
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());
   },
   false
 );
@@ -828,4 +814,4 @@ directedBtn.addEventListener(
   false
 );
 
-refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix());

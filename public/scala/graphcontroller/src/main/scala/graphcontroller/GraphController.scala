@@ -17,7 +17,6 @@ object GraphState {
 
 @JSExportTopLevel("GraphController")
 class GraphController {
-	private var isDirected = true
 	private var graph: DirectedMapGraph[Int] | SimpleMapGraph[Int] = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
@@ -90,6 +89,23 @@ class GraphController {
 			from = Point(fromData.x, fromData.y),
 			to = Point(toData.x, toData.y)
 		)).toSeq
+	}
+
+	@JSExport
+	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
+		val size = graph.nodeCount
+		// initialize size x size matrix with 0s
+		val matrix = Array.fill(size, size)(0)
+		for {
+			(from, to) <- graph.getEdges.toSeq.sorted
+		} {
+			matrix(from)(to) = 1
+			graph match {
+				case _: SimpleMapGraph[_] => matrix(to)(from) = 1
+				case _ => ()
+			}
+		}
+		matrix.map(_.toJSArray).toJSArray
 	}
 
 	@JSExport
