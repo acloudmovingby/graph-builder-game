@@ -67,4 +67,8 @@ object EdgeRender {
 		val trimmed = trimEdgesBasedOnDirectionality(dirEdges)
 		trimmed.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
+
+	def getSimpleEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
+		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
+	}
 }

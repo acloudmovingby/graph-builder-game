@@ -3,12 +3,12 @@ package graphcontroller
 import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
-import graphi.DirectedMapGraph
+import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.render.{ArrowTipRender, EdgeRender}
 import graphcontroller.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
 import graphcontroller.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 
-case class GraphState[A](graph: DirectedMapGraph[A], keyToData: Map[A, NodeData])
+case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
 
 object GraphState {
 	// Limit the number of undo states to avoid excessive memory usage
@@ -17,7 +17,7 @@ object GraphState {
 
 @JSExportTopLevel("GraphController")
 class GraphController {
-	private var graph = new DirectedMapGraph[Int]() // key is Int, data is NodeData
+	private var graph: DirectedMapGraph[Int] | SimpleMapGraph[Int] = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 
@@ -92,12 +92,35 @@ class GraphController {
 	}
 
 	@JSExport
-	def getAllShapes(): MultiShapesCanvasJS = {
-		val edges = getEdgeObjects
-		val lines = EdgeRender.getDirectedEdgesForRendering(edges)
-		val triangles = ArrowTipRender.getTriangles(edges)
-		val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
-		shapes.toJS
+	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
+		val size = graph.nodeCount
+		// initialize size x size matrix with 0s
+		val matrix = Array.fill(size, size)(0)
+		for {
+			(from, to) <- graph.getEdges.toSeq.sorted
+		} {
+			matrix(from)(to) = 1
+			graph match {
+				case _: SimpleMapGraph[_] => matrix(to)(from) = 1
+				case _ => ()
+			}
+		}
+		matrix.map(_.toJSArray).toJSArray
+	}
+
+	@JSExport
+	def getAllShapes(): MultiShapesCanvasJS = graph match {
+		case _: SimpleMapGraph[Int] =>
+			val edges = getEdgeObjects
+			val lines = EdgeRender.getSimpleEdgesForRendering(edges)
+			val shapes = MultiShapesCanvas(lines = lines, triangles = Seq.empty)
+			shapes.toJS
+		case _: DirectedMapGraph[Int] =>
+			val edges = getEdgeObjects
+			val lines = EdgeRender.getDirectedEdgesForRendering(edges)
+			val triangles = ArrowTipRender.getTriangles(edges)
+			val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
+			shapes.toJS
 	}
 
 	@JSExport
@@ -116,4 +139,27 @@ class GraphController {
 
 	@JSExport
 	def containsEdge(from: Int, to: Int): Boolean = graph.hasEdge(from, to)
+
+	@JSExport
+	def toggleDirectionality(): Unit = {
+		graph match {
+			case g: DirectedMapGraph[Int] =>
+				var undirectedGraph = new SimpleMapGraph[Int]()
+				// add all nodes
+				for (node <- g.adjMap.keys) {
+					undirectedGraph = undirectedGraph.addNode(node)
+				}
+				// add all edges in undirected manner
+				for {
+					(from, neighbors) <- g.adjMap
+					to <- neighbors
+				} {
+					undirectedGraph = undirectedGraph.addEdge(from, to)
+				}
+				undirectedGraph
+				graph = undirectedGraph
+			case g: SimpleMapGraph[Int] =>
+				graph = new DirectedMapGraph[Int](g.adjMap)
+		}
+	}
 }
