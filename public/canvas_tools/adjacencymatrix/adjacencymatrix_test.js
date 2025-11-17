@@ -1,4 +1,3 @@
-console.log("Hey")
 let matrixElem = document.getElementById("adj-matrix");
 
 const adjMatrix = [
@@ -9,6 +8,7 @@ const adjMatrix = [
 
 function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 	if (matrixElem && matrixElem.getContext) {
+		// calculate dimensions, and clear rectangle	
 		let totalWidth = matrixElem.offsetWidth;
 		let totalHeight = matrixElem.offsetHeight;
 		let ctx = matrixElem.getContext("2d");
@@ -19,6 +19,7 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 		const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels	
 		const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
 
+		// draw cells
 		for (let i = 0; i < adjMatrix.length; i++) {
 			for (let j = 0; j < adjMatrix[i].length; j++) {
 				if (adjMatrix[i][j]) {
@@ -33,6 +34,8 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 			}
 		}
 
+
+		// draw numbers on the left/top of the grid
 		ctx.font = "0.8rem Arial";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
@@ -49,6 +52,11 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 
 drawAdjacencyMatrix(adjMatrix, null, null);
 
+// any way to avoid mutable state?
+var col = null;
+var row = null;
+
+
 if (matrixElem) {
 	matrixElem.addEventListener("mousemove", function(event) {
 			const rect = matrixElem.getBoundingClientRect();
@@ -64,10 +72,13 @@ if (matrixElem) {
 			const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels	
 			const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
 
-			const col = Math.floor((x - cellWidth) / cellWidth);
-			const row = Math.floor((y - cellHeight) / cellHeight);
-			console.log("hovering over (" + col + ", " + row + ")");	
-			drawAdjacencyMatrix(adjMatrix, row, col);
+			const _col = Math.floor((x - cellWidth) / cellWidth);
+			const _row = Math.floor((y - cellHeight) / cellHeight);
+			col = _col;
+			row = _row;	
+			
+			console.log("hovering over (" + _col + ", " + _row + ")");	
+			drawAdjacencyMatrix(adjMatrix, _row, _col);
 			});
 
 	matrixElem.addEventListener("mouseleave", function(event) {
@@ -75,9 +86,11 @@ if (matrixElem) {
 			});
 
 	matrixElem.addEventListener("mousedown", function(event) {
+			console.log("mousedown on (" + col + ", " + row + ")");	
 			console.log("mousedown");	
 			});
 	matrixElem.addEventListener("mouseup", function(event) {
+			console.log("mouseup on (" + col + ", " + row + ")");	
 			console.log("mouseup");	
 			});
 }
