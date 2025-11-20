@@ -6,6 +6,35 @@ const adjMatrix = [
     [false, true, true]
 ];
 
+function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn) {
+    for (let i = 0; i < adjMatrix.length; i++) {
+        for (let j = 0; j < adjMatrix[i].length; j++) {
+            if (adjMatrix[i][j]) {
+                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "orange";
+                ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
+                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "black";
+            } else if (i == hoverColumn && j == hoverRow) {
+                ctx.fillStyle = "#cff5ff";
+                ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
+                ctx.fillStyle = "black";
+            }
+        }
+    }
+}
+
+function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn) {
+    ctx.font = "0.8rem Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "orange";
+    for (let i = 0; i < adjMatrix.length; i++) {
+        const label = i;
+        const ADJUSTMENT = 1.5;
+        if (i == hoverRow) ctx.fillText(label, cellWidth / 2, cellHeight * (i + 1.5) + ADJUSTMENT);
+        if (i == hoverColumn) ctx.fillText(label, cellWidth * (i + 1.5), cellHeight / 2 + ADJUSTMENT);
+    }
+}
+
 function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
     if (matrixElem && matrixElem.getContext) {
         // calculate dimensions, and clear rectangle
@@ -19,34 +48,8 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
         const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels
         const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
 
-        // draw cells
-        for (let i = 0; i < adjMatrix.length; i++) {
-            for (let j = 0; j < adjMatrix[i].length; j++) {
-                if (adjMatrix[i][j]) {
-                    if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "orange";
-                    ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                    if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "black";
-                } else if (i == hoverColumn && j == hoverRow) {
-                    if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "#cff5ff";
-                    ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                    if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "black";
-                }
-            }
-        }
-
-
-        // draw numbers on the left/top of the grid
-        ctx.font = "0.8rem Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "orange";
-
-        for (let i = 0; i < adjMatrix.length; i++) {
-            const label = i;
-            const ADJUSTMENT = 1.5; // Ugh, textBaseline above doesn't help center on node properly so this makes it more centered
-            if (i == hoverRow) ctx.fillText(label, cellWidth / 2, cellHeight * (i + 1.5) + ADJUSTMENT);
-            if (i == hoverColumn) ctx.fillText(label, cellWidth * (i + 1.5), cellHeight / 2 + ADJUSTMENT);
-        }
+        drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
+        drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
     }
 }
 
