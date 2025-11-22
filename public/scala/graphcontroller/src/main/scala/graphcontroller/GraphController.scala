@@ -171,4 +171,9 @@ class GraphController {
 				graph = new DirectedMapGraph[Int](g.adjMap)
 		}
 	}
+
+	@JSExport
+	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
+		println(s"Hovering over ($col, $row)")
+	}
 }
