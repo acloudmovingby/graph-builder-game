@@ -38,20 +38,41 @@ function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverCo
 function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
     ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
+    // Convert cells to a Set for fast lookup
+    const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
     for (const [row, col] of cells) {
-        // Only draw borders for cells within the valid inner area
         if (
-            row >= 0 && row < numNodes &&
-            col >= 0 && col < numNodes
-        ) {
-            const x = cellWidth * (col + 1);
-            const y = cellHeight * (row + 1);
+            row < 0 || row >= numNodes ||
+            col < 0 || col >= numNodes
+        ) continue;
+        const x = cellWidth * (col + 1);
+        const y = cellHeight * (row + 1);
+        // Top edge
+        if (!cellSet.has(`${row-1},${col}`)) {
             ctx.beginPath();
-            ctx.moveTo(x, y); // top-left
-            ctx.lineTo(x + cellWidth, y); // top-right
-            ctx.lineTo(x + cellWidth, y + cellHeight); // bottom-right
-            ctx.lineTo(x, y + cellHeight); // bottom-left
-            ctx.lineTo(x, y); // close
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + cellWidth, y);
+            ctx.stroke();
+        }
+        // Right edge
+        if (!cellSet.has(`${row},${col+1}`)) {
+            ctx.beginPath();
+            ctx.moveTo(x + cellWidth, y);
+            ctx.lineTo(x + cellWidth, y + cellHeight);
+            ctx.stroke();
+        }
+        // Bottom edge
+        if (!cellSet.has(`${row+1},${col}`)) {
+            ctx.beginPath();
+            ctx.moveTo(x + cellWidth, y + cellHeight);
+            ctx.lineTo(x, y + cellHeight);
+            ctx.stroke();
+        }
+        // Left edge
+        if (!cellSet.has(`${row},${col-1}`)) {
+            ctx.beginPath();
+            ctx.moveTo(x, y + cellHeight);
+            ctx.lineTo(x, y);
             ctx.stroke();
         }
     }
