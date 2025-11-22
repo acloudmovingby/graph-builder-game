@@ -35,6 +35,28 @@ function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverCo
     }
 }
 
+function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    for (const [row, col] of cells) {
+        // Only draw borders for cells within the valid inner area
+        if (
+            row >= 0 && row < numNodes &&
+            col >= 0 && col < numNodes
+        ) {
+            const x = cellWidth * (col + 1);
+            const y = cellHeight * (row + 1);
+            ctx.beginPath();
+            ctx.moveTo(x, y); // top-left
+            ctx.lineTo(x + cellWidth, y); // top-right
+            ctx.lineTo(x + cellWidth, y + cellHeight); // bottom-right
+            ctx.lineTo(x, y + cellHeight); // bottom-left
+            ctx.lineTo(x, y); // close
+            ctx.stroke();
+        }
+    }
+}
+
 function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
     if (matrixElem && matrixElem.getContext) {
         // calculate dimensions, and clear rectangle
@@ -50,6 +72,12 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 
         drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
         drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
+        // Draw border around hovered cell, only if valid
+        if (
+            hoverRow !== null && hoverColumn !== null
+        ) {
+            drawCellBorders(ctx, [[hoverRow, hoverColumn]], cellWidth, cellHeight, adjMatrix.length);
+        }
     }
 }
 
