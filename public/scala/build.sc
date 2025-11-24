@@ -6,7 +6,7 @@ object graphcontroller extends ScalaModule, ScalaJSModule {
   def scalaJSVersion = "1.20.1"
   
   def mvnDeps = Seq(
-    mvn"io.github.acloudmovingby::graphi::0.0.1" // if using the version published to Maven Central
+    mvn"io.github.acloudmovingby::graphi::0.0.2" // if using the version published to Maven Central
     //mvn"acloudmovingby::graphi::0.0.1" // if using a version built locally but not yet published
   )
 

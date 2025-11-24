@@ -664,6 +664,25 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
   }
 }
 
+let matrixElem = document.getElementById("adj-matrix");
+if (matrixElem) {
+    matrixElem.addEventListener("mousemove", function(event) {
+      const rect = matrixElem.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const n = matrixElem.width; // number of pixels, not nodes
+      // Get node count from Scala
+        const nodeCount = graphController.nodeCount();
+        if (nodeCount > 0) {
+            const cellWidth = matrixElem.width / nodeCount;
+            const cellHeight = matrixElem.height / nodeCount;
+            const col = Math.floor(x / cellWidth);
+            const row = Math.floor(y / cellHeight);
+            graphController.hoverAdjMatrixCell(col, row);
+        }
+});
+}
+
 function enterBasicEdgeMode(node) {
   basicTool.state.edgeMode = true;
   basicTool.state.edgeStart = node.key;
