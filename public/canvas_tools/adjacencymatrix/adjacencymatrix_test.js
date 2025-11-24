@@ -2,8 +2,8 @@ let matrixElem = document.getElementById("adj-matrix");
 
 const adjMatrix = [
     [true, false, true],
-    [true, false, false],
-    [false, true, true]
+    [false, false, true],
+    [true, true, false]
 ];
 
 // Global flags and colors
@@ -11,6 +11,8 @@ const COLORS = {
     inactiveHover: "#F3F4F6",
     activeHover: "#3B82F6",
     activeDefault: "#2563EB",
+    activePressed: "#1D4ED8",
+    inactivePressed: "#D1D5DB",
     nodeLabel: "orange",
     border: "red"
 };
@@ -18,24 +20,27 @@ let DRAW_CELL_BORDER_SINGLE = false;
 let DRAW_CELL_BORDER_ROWCOL = false;
 // Add global flag for row/column highlight
 let DRAW_ROW_COL_HIGHLIGHT = true;
+let mousePressedCell = null;
 
 function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn, highlightCells = []) {
-    // Convert highlightCells to a Set for fast lookup
     const highlightSet = new Set(highlightCells.map(([r, c]) => `${r},${c}`));
-    for (let i = 0; i < adjMatrix.length; i++) {
-        for (let j = 0; j < adjMatrix[i].length; j++) {
-            let isHighlighted = highlightSet.has(`${j},${i}`);
-            if (adjMatrix[i][j]) {
-                if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
+    for (let row = 0; row < adjMatrix.length; row++) {
+        for (let col = 0; col < adjMatrix[row].length; col++) {
+            let isHighlighted = highlightSet.has(`${row},${col}`);
+            let isPressed = mousePressedCell && mousePressedCell[0] === row && mousePressedCell[1] === col;
+            if (adjMatrix[row][col]) {
+                if (isPressed) {
+                    ctx.fillStyle = COLORS.activePressed;
+                } else if ((row == hoverRow && col == hoverColumn) || isHighlighted) {
                     ctx.fillStyle = COLORS.activeHover;
                 } else {
                     ctx.fillStyle = COLORS.activeDefault;
                 }
-                ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                if ((i == hoverColumn && j == hoverRow) || isHighlighted) ctx.fillStyle = COLORS.activeDefault;
-            } else if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
-                ctx.fillStyle = COLORS.inactiveHover;
-                ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
+                ctx.fillRect(cellWidth * (col + 1), cellHeight * (row + 1), cellWidth, cellHeight);
+                if ((row == hoverRow && col == hoverColumn) || isHighlighted || isPressed) ctx.fillStyle = COLORS.activeDefault;
+            } else if ((row == hoverRow && col == hoverColumn) || isHighlighted || isPressed) {
+                ctx.fillStyle = isPressed ? COLORS.inactivePressed : COLORS.inactiveHover;
+                ctx.fillRect(cellWidth * (col + 1), cellHeight * (row + 1), cellWidth, cellHeight);
                 ctx.fillStyle = COLORS.activeDefault;
             }
         }
@@ -187,11 +192,28 @@ if (matrixElem) {
     });
 
     matrixElem.addEventListener("mousedown", function(event) {
-        console.log("mousedown on (" + col + ", " + row + ")");
-        console.log("mousedown");
+        // Only register press if inside valid cell
+        if (col !== null && row !== null && col >= 0 && row >= 0 && col < adjMatrix.length && row < adjMatrix.length) {
+            mousePressedCell = [row, col];
+            drawAdjacencyMatrix(adjMatrix, row, col);
+        }
     });
     matrixElem.addEventListener("mouseup", function(event) {
-        console.log("mouseup on (" + col + ", " + row + ")");
-        console.log("mouseup");
+        if (mousePressedCell) {
+            const [row, col] = mousePressedCell;
+            toggleCellState(adjMatrix, row, col);
+        }
+        mousePressedCell = null;
+        drawAdjacencyMatrix(adjMatrix, row, col);
     });
+}
+
+function toggleCellState(adjMatrix, row, col) {
+    if (
+        row !== null && col !== null &&
+        row >= 0 && row < adjMatrix.length &&
+        col >= 0 && col < adjMatrix.length
+    ) {
+        adjMatrix[row][col] = !adjMatrix[row][col];
+    }
 }
