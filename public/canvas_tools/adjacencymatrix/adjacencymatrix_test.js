@@ -14,18 +14,26 @@ const COLORS = {
     nodeLabel: "orange",
     border: "red"
 };
-let DRAW_CELL_BORDER = true;
+let DRAW_CELL_BORDER_SINGLE = true;
+let DRAW_CELL_BORDER_ROWCOL = true;
 // Add global flag for row/column highlight
 let DRAW_ROW_COL_HIGHLIGHT = true;
 
-function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn) {
+function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn, highlightCells = []) {
+    // Convert highlightCells to a Set for fast lookup
+    const highlightSet = new Set(highlightCells.map(([r, c]) => `${r},${c}`));
     for (let i = 0; i < adjMatrix.length; i++) {
         for (let j = 0; j < adjMatrix[i].length; j++) {
+            let isHighlighted = highlightSet.has(`${j},${i}`);
             if (adjMatrix[i][j]) {
-                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = COLORS.cellActive;
+                if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
+                    ctx.fillStyle = COLORS.cellActive;
+                } else {
+                    ctx.fillStyle = COLORS.cellDefault;
+                }
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = COLORS.cellDefault;
-            } else if (i == hoverColumn && j == hoverRow) {
+                if ((i == hoverColumn && j == hoverRow) || isHighlighted) ctx.fillStyle = COLORS.cellDefault;
+            } else if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
                 ctx.fillStyle = COLORS.cellFill;
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
                 ctx.fillStyle = COLORS.cellDefault;
@@ -48,7 +56,7 @@ function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverCo
 }
 
 function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
-    if (!DRAW_CELL_BORDER) return;
+    //if (!DRAW_CELL_BORDER_SINGLE) return;
     ctx.strokeStyle = COLORS.border;
     ctx.lineWidth = 2;
     const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
@@ -104,8 +112,9 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn, highlightRowCol =
         const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels
         const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
         let highlightCells = [];
-        // Highlight logic for top/left label areas
+        let drawBorderFlag = false;
         if (highlightRowCol && DRAW_ROW_COL_HIGHLIGHT) {
+            drawBorderFlag = DRAW_CELL_BORDER_ROWCOL;
             if (hoverRow !== null && hoverRow >= 0 && hoverRow < adjMatrix.length) {
                 for (let col = 0; col < adjMatrix.length; col++) {
                     highlightCells.push([hoverRow, col]);
@@ -117,8 +126,9 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn, highlightRowCol =
             }
         } else if (hoverRow !== null && hoverColumn !== null && hoverRow >= 0 && hoverRow < adjMatrix.length && hoverColumn >= 0 && hoverColumn < adjMatrix.length) {
             highlightCells = [[hoverRow, hoverColumn]];
+            drawBorderFlag = DRAW_CELL_BORDER_SINGLE;
         }
-        drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
+        drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn, highlightCells);
         // Only draw node labels if not hovering over right/bottom label areas
         let showLabels = true;
         if (hoverRow !== null && hoverRow >= adjMatrix.length) showLabels = false;
@@ -127,7 +137,7 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn, highlightRowCol =
             drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
         }
         // Draw border around highlighted cells
-        if (highlightCells.length > 0) {
+        if (highlightCells.length > 0 && drawBorderFlag) {
             drawCellBorders(ctx, highlightCells, cellWidth, cellHeight, adjMatrix.length);
         }
     }
