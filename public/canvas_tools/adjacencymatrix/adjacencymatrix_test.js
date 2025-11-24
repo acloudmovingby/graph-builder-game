@@ -8,14 +8,14 @@ const adjMatrix = [
 
 // Global flags and colors
 const COLORS = {
-    cellFill: "#cff5ff",
-    cellActive: "orange",
-    cellDefault: "black",
+    inactiveHover: "#F3F4F6",
+    activeHover: "#3B82F6",
+    activeDefault: "#2563EB",
     nodeLabel: "orange",
     border: "red"
 };
-let DRAW_CELL_BORDER_SINGLE = true;
-let DRAW_CELL_BORDER_ROWCOL = true;
+let DRAW_CELL_BORDER_SINGLE = false;
+let DRAW_CELL_BORDER_ROWCOL = false;
 // Add global flag for row/column highlight
 let DRAW_ROW_COL_HIGHLIGHT = true;
 
@@ -27,16 +27,16 @@ function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn,
             let isHighlighted = highlightSet.has(`${j},${i}`);
             if (adjMatrix[i][j]) {
                 if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
-                    ctx.fillStyle = COLORS.cellActive;
+                    ctx.fillStyle = COLORS.activeHover;
                 } else {
-                    ctx.fillStyle = COLORS.cellDefault;
+                    ctx.fillStyle = COLORS.activeDefault;
                 }
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                if ((i == hoverColumn && j == hoverRow) || isHighlighted) ctx.fillStyle = COLORS.cellDefault;
+                if ((i == hoverColumn && j == hoverRow) || isHighlighted) ctx.fillStyle = COLORS.activeDefault;
             } else if ((i == hoverColumn && j == hoverRow) || isHighlighted) {
-                ctx.fillStyle = COLORS.cellFill;
+                ctx.fillStyle = COLORS.inactiveHover;
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                ctx.fillStyle = COLORS.cellDefault;
+                ctx.fillStyle = COLORS.activeDefault;
             }
         }
     }
