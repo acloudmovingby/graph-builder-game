@@ -176,4 +176,13 @@ class GraphController {
 	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
 		println(s"Hovering over ($col, $row)")
 	}
+
+	@JSExport
+	def removeEdge(from: Int, to: Int): Unit = {
+		try {
+			graph = graph.removeEdge(from, to)
+		} catch {
+			case e: NoSuchElementException => println(s"Error removing edge (not yet implemented): ${e.getMessage}")
+		}
+	}
 }
