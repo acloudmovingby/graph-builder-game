@@ -51,8 +51,8 @@ function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
     if (!DRAW_CELL_BORDER) return;
     ctx.strokeStyle = COLORS.border;
     ctx.lineWidth = 2;
-    // Convert cells to a Set for fast lookup
     const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
+    const offset = 1; // 1px offset for outer border
     for (const [row, col] of cells) {
         if (
             row < 0 || row >= numNodes ||
@@ -63,29 +63,29 @@ function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
         // Top edge
         if (!cellSet.has(`${row-1},${col}`)) {
             ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + cellWidth, y);
+            ctx.moveTo(x - offset, y - offset);
+            ctx.lineTo(x + cellWidth + offset, y - offset);
             ctx.stroke();
         }
         // Right edge
         if (!cellSet.has(`${row},${col+1}`)) {
             ctx.beginPath();
-            ctx.moveTo(x + cellWidth, y);
-            ctx.lineTo(x + cellWidth, y + cellHeight);
+            ctx.moveTo(x + cellWidth + offset, y - offset);
+            ctx.lineTo(x + cellWidth + offset, y + cellHeight + offset);
             ctx.stroke();
         }
         // Bottom edge
         if (!cellSet.has(`${row+1},${col}`)) {
             ctx.beginPath();
-            ctx.moveTo(x + cellWidth, y + cellHeight);
-            ctx.lineTo(x, y + cellHeight);
+            ctx.moveTo(x + cellWidth + offset, y + cellHeight + offset);
+            ctx.lineTo(x - offset, y + cellHeight + offset);
             ctx.stroke();
         }
         // Left edge
         if (!cellSet.has(`${row},${col-1}`)) {
             ctx.beginPath();
-            ctx.moveTo(x, y + cellHeight);
-            ctx.lineTo(x, y);
+            ctx.moveTo(x - offset, y + cellHeight + offset);
+            ctx.lineTo(x - offset, y - offset);
             ctx.stroke();
         }
     }
