@@ -6,17 +6,27 @@ const adjMatrix = [
     [false, true, true]
 ];
 
+// Global flags and colors
+const COLORS = {
+    cellFill: "#cff5ff",
+    cellActive: "orange",
+    cellDefault: "black",
+    nodeLabel: "orange",
+    border: "red"
+};
+let DRAW_CELL_BORDER = true;
+
 function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn) {
     for (let i = 0; i < adjMatrix.length; i++) {
         for (let j = 0; j < adjMatrix[i].length; j++) {
             if (adjMatrix[i][j]) {
-                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "orange";
+                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = COLORS.cellActive;
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = "black";
+                if (i == hoverColumn && j == hoverRow) ctx.fillStyle = COLORS.cellDefault;
             } else if (i == hoverColumn && j == hoverRow) {
-                ctx.fillStyle = "#cff5ff";
+                ctx.fillStyle = COLORS.cellFill;
                 ctx.fillRect(cellWidth * (i + 1), cellHeight * (j + 1), cellWidth, cellHeight);
-                ctx.fillStyle = "black";
+                ctx.fillStyle = COLORS.cellDefault;
             }
         }
     }
@@ -26,7 +36,7 @@ function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverCo
     ctx.font = "0.8rem Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "orange";
+    ctx.fillStyle = COLORS.nodeLabel;
     for (let i = 0; i < adjMatrix.length; i++) {
         const label = i;
         const ADJUSTMENT = 1.5;
@@ -36,7 +46,8 @@ function drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverCo
 }
 
 function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
-    ctx.strokeStyle = "red";
+    if (!DRAW_CELL_BORDER) return;
+    ctx.strokeStyle = COLORS.border;
     ctx.lineWidth = 2;
     // Convert cells to a Set for fast lookup
     const cellSet = new Set(cells.map(([r, c]) => `${r},${c}`));
