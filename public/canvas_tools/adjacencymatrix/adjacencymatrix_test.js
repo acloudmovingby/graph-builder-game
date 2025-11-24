@@ -9,10 +9,10 @@ const adjMatrix = [
 // Global flags and colors
 const COLORS = {
     inactiveHover: "#F3F4F6",
-    activeHover: "#3B82F6",
-    activeDefault: "#2563EB",
-    activePressed: "#1D4ED8",
     inactivePressed: "#D1D5DB",
+    activeHover: "#62d7f5",
+    activeDefault: "#32BFE3",
+    activePressed: "#31accc",
     nodeLabel: "orange",
     border: "red"
 };
