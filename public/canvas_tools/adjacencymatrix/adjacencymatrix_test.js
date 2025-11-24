@@ -15,6 +15,8 @@ const COLORS = {
     border: "red"
 };
 let DRAW_CELL_BORDER = true;
+// Add global flag for row/column highlight
+let DRAW_ROW_COL_HIGHLIGHT = true;
 
 function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn) {
     for (let i = 0; i < adjMatrix.length; i++) {
@@ -89,7 +91,7 @@ function drawCellBorders(ctx, cells, cellWidth, cellHeight, numNodes) {
     }
 }
 
-function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
+function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn, highlightRowCol = false) {
     if (matrixElem && matrixElem.getContext) {
         // calculate dimensions, and clear rectangle
         let totalWidth = matrixElem.offsetWidth;
@@ -101,14 +103,32 @@ function drawAdjacencyMatrix(adjMatrix, hoverRow, hoverColumn) {
 
         const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels
         const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
-
+        let highlightCells = [];
+        // Highlight logic for top/left label areas
+        if (highlightRowCol && DRAW_ROW_COL_HIGHLIGHT) {
+            if (hoverRow !== null && hoverRow >= 0 && hoverRow < adjMatrix.length) {
+                for (let col = 0; col < adjMatrix.length; col++) {
+                    highlightCells.push([hoverRow, col]);
+                }
+            } else if (hoverColumn !== null && hoverColumn >= 0 && hoverColumn < adjMatrix.length) {
+                for (let row = 0; row < adjMatrix.length; row++) {
+                    highlightCells.push([row, hoverColumn]);
+                }
+            }
+        } else if (hoverRow !== null && hoverColumn !== null && hoverRow >= 0 && hoverRow < adjMatrix.length && hoverColumn >= 0 && hoverColumn < adjMatrix.length) {
+            highlightCells = [[hoverRow, hoverColumn]];
+        }
         drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
-        drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
-        // Draw border around hovered cell, only if valid
-        if (
-            hoverRow !== null && hoverColumn !== null
-        ) {
-            drawCellBorders(ctx, [[hoverRow, hoverColumn]], cellWidth, cellHeight, adjMatrix.length);
+        // Only draw node labels if not hovering over right/bottom label areas
+        let showLabels = true;
+        if (hoverRow !== null && hoverRow >= adjMatrix.length) showLabels = false;
+        if (hoverColumn !== null && hoverColumn >= adjMatrix.length) showLabels = false;
+        if (showLabels) {
+            drawNodeLabels(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn);
+        }
+        // Draw border around highlighted cells
+        if (highlightCells.length > 0) {
+            drawCellBorders(ctx, highlightCells, cellWidth, cellHeight, adjMatrix.length);
         }
     }
 }
@@ -125,23 +145,31 @@ if (matrixElem) {
         const rect = matrixElem.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        const n = matrixElem.width; // number of pixels, not nodes
-        // Get node count from Scala
-
-        // by defining these in the event listener it means it's not responsive to screen size changes...but whatever...
         let totalWidth = matrixElem.offsetWidth;
         let totalHeight = matrixElem.offsetHeight;
-
         const cellWidth = totalWidth / (adjMatrix.length + 2); // +2 for padding for node labels
         const cellHeight = totalHeight / (adjMatrix.length + 2); // +2 for padding for node labels
-
-        const _col = Math.floor((x - cellWidth) / cellWidth);
-        const _row = Math.floor((y - cellHeight) / cellHeight);
+        let _col = Math.floor((x - cellWidth) / cellWidth);
+        let _row = Math.floor((y - cellHeight) / cellHeight);
         col = _col;
         row = _row;
-
-        console.log("hovering over (" + _col + ", " + _row + ")");
-        drawAdjacencyMatrix(adjMatrix, _row, _col);
+        // Determine if hovering over top/left label area
+        let highlightRowCol = false;
+        if (x >= 0 && x < cellWidth) {
+            // left label area
+            highlightRowCol = true;
+            _col = null;
+        } else if (y >= 0 && y < cellHeight) {
+            // top label area
+            highlightRowCol = true;
+            _row = null;
+        }
+        // If hovering over right/bottom label area, do not highlight or show labels
+        if (x > cellWidth * (adjMatrix.length + 1) || y > cellHeight * (adjMatrix.length + 1)) {
+            drawAdjacencyMatrix(adjMatrix, _row, _col, false);
+        } else {
+            drawAdjacencyMatrix(adjMatrix, _row, _col, highlightRowCol);
+        }
     });
 
     matrixElem.addEventListener("mouseleave", function(event) {
