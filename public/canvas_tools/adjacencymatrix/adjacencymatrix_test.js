@@ -195,17 +195,30 @@ if (matrixElem) {
 
     matrixElem.addEventListener("mousedown", function(event) {
         let pressedCells = [];
+        let totalWidth = matrixElem.offsetWidth;
+        let totalHeight = matrixElem.offsetHeight;
+        const cellWidth = totalWidth / (adjMatrix.length + 2);
+        const cellHeight = totalHeight / (adjMatrix.length + 2);
+        // Only allow row/col highlight if mouse is in left/top label area
         if (col !== null && row !== null && col >= 0 && row >= 0 && col < adjMatrix.length && row < adjMatrix.length) {
             pressedCells = [[row, col]];
         } else if (DRAW_ROW_COL_HIGHLIGHT) {
-            // If highlighting a row or column
-            if (row !== null && row >= 0 && row < adjMatrix.length) {
-                for (let c = 0; c < adjMatrix.length; c++) {
-                    pressedCells.push([row, c]);
+            // Only allow if mouse is in left/top label area
+            const mouseX = event.clientX - matrixElem.getBoundingClientRect().left;
+            const mouseY = event.clientY - matrixElem.getBoundingClientRect().top;
+            if (mouseX >= 0 && mouseX < cellWidth) {
+                // left label area
+                if (row !== null && row >= 0 && row < adjMatrix.length) {
+                    for (let c = 0; c < adjMatrix.length; c++) {
+                        pressedCells.push([row, c]);
+                    }
                 }
-            } else if (col !== null && col >= 0 && col < adjMatrix.length) {
-                for (let r = 0; r < adjMatrix.length; r++) {
-                    pressedCells.push([r, col]);
+            } else if (mouseY >= 0 && mouseY < cellHeight) {
+                // top label area
+                if (col !== null && col >= 0 && col < adjMatrix.length) {
+                    for (let r = 0; r < adjMatrix.length; r++) {
+                        pressedCells.push([r, col]);
+                    }
                 }
             }
         }
@@ -214,7 +227,12 @@ if (matrixElem) {
     });
     matrixElem.addEventListener("mouseup", function(event) {
         if (mousePressedCells.length > 0) {
-            toggleCellsState(adjMatrix, mousePressedCells);
+            // If more than one cell, use smart toggle
+            if (mousePressedCells.length > 1) {
+                toggleCellsStateSmart(adjMatrix, mousePressedCells);
+            } else {
+                toggleCellsState(adjMatrix, mousePressedCells);
+            }
         }
         mousePressedCells = [];
         drawAdjacencyMatrix(adjMatrix, row, col);
@@ -234,4 +252,21 @@ function toggleCellsState(adjMatrix, cells) {
     for (const [row, col] of cells) {
         toggleCellState(adjMatrix, row, col);
     }
+}
+function setCellsState(adjMatrix, cells, newState) {
+    for (const [row, col] of cells) {
+        if (
+            row !== null && col !== null &&
+            row >= 0 && row < adjMatrix.length &&
+            col >= 0 && col < adjMatrix.length
+        ) {
+            adjMatrix[row][col] = newState;
+        }
+    }
+}
+
+function toggleCellsStateSmart(adjMatrix, cells) {
+    // Check if all cells are active
+    let allActive = cells.every(([row, col]) => adjMatrix[row][col]);
+    setCellsState(adjMatrix, cells, !allActive);
 }
