@@ -21,13 +21,15 @@ let DRAW_CELL_BORDER_ROWCOL = false;
 // Add global flag for row/column highlight
 let DRAW_ROW_COL_HIGHLIGHT = true;
 let mousePressedCell = null;
+let mousePressedCells = [];
 
 function drawCells(ctx, adjMatrix, cellWidth, cellHeight, hoverRow, hoverColumn, highlightCells = []) {
     const highlightSet = new Set(highlightCells.map(([r, c]) => `${r},${c}`));
+    const pressedSet = new Set(mousePressedCells.map(([r, c]) => `${r},${c}`));
     for (let row = 0; row < adjMatrix.length; row++) {
         for (let col = 0; col < adjMatrix[row].length; col++) {
             let isHighlighted = highlightSet.has(`${row},${col}`);
-            let isPressed = mousePressedCell && mousePressedCell[0] === row && mousePressedCell[1] === col;
+            let isPressed = pressedSet.has(`${row},${col}`);
             if (adjMatrix[row][col]) {
                 if (isPressed) {
                     ctx.fillStyle = COLORS.activePressed;
@@ -192,18 +194,29 @@ if (matrixElem) {
     });
 
     matrixElem.addEventListener("mousedown", function(event) {
-        // Only register press if inside valid cell
+        let pressedCells = [];
         if (col !== null && row !== null && col >= 0 && row >= 0 && col < adjMatrix.length && row < adjMatrix.length) {
-            mousePressedCell = [row, col];
-            drawAdjacencyMatrix(adjMatrix, row, col);
+            pressedCells = [[row, col]];
+        } else if (DRAW_ROW_COL_HIGHLIGHT) {
+            // If highlighting a row or column
+            if (row !== null && row >= 0 && row < adjMatrix.length) {
+                for (let c = 0; c < adjMatrix.length; c++) {
+                    pressedCells.push([row, c]);
+                }
+            } else if (col !== null && col >= 0 && col < adjMatrix.length) {
+                for (let r = 0; r < adjMatrix.length; r++) {
+                    pressedCells.push([r, col]);
+                }
+            }
         }
+        mousePressedCells = pressedCells;
+        drawAdjacencyMatrix(adjMatrix, row, col);
     });
     matrixElem.addEventListener("mouseup", function(event) {
-        if (mousePressedCell) {
-            const [row, col] = mousePressedCell;
-            toggleCellState(adjMatrix, row, col);
+        if (mousePressedCells.length > 0) {
+            toggleCellsState(adjMatrix, mousePressedCells);
         }
-        mousePressedCell = null;
+        mousePressedCells = [];
         drawAdjacencyMatrix(adjMatrix, row, col);
     });
 }
@@ -215,5 +228,10 @@ function toggleCellState(adjMatrix, row, col) {
         col >= 0 && col < adjMatrix.length
     ) {
         adjMatrix[row][col] = !adjMatrix[row][col];
+    }
+}
+function toggleCellsState(adjMatrix, cells) {
+    for (const [row, col] of cells) {
+        toggleCellState(adjMatrix, row, col);
     }
 }
