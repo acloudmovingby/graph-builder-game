@@ -1,22 +1,28 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif; /* why is this here? */
+}
+
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
+.navbar {
+  background-color: rgb(45, 45, 45);
+  display: flex;
+  align-items: center;
+  height: auto;
 }
 
-.main-content-area {
+.canvas-and-right-pane {
   display: flex;
   flex: 1; /* Takes remaining vertical space */
-  overflow: hidden; /* Crucial for contained scrolling */
 }
 
 #clear-btn {
@@ -40,13 +46,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
   position: relative; /* For absolute positioning inside */
   background-color: #f0f0f0;
 }
 
 #canvas {
-  box-sizing: border-box;
   background-color: #f0f0f0;
 }
 
@@ -62,14 +66,13 @@ body {
     pointer-events: none; /* makes it not clickable so doesn't interfere with adding nodes */
 }
 
-.info-panel {
+.right-pane {
   width: 300px;
   overflow-y: auto; /* Enables vertical scrolling if content overflows */
   background-color: white;
-  box-sizing: border-box;
 }
 
-.info-section {
+.right-pane-section {
   padding: 1.2rem 1.2rem;
   height: auto;
   border-bottom: 1px solid #f0f0f0;
@@ -215,14 +218,6 @@ p, a,
 #commentary {
   font-style: italic;
   color: #4a4a4a;
-}
-
-.navbar {
-  background-color: rgb(45, 45, 45);
-  width: 100vw;
-  height: auto;
-  display: flex;
-  align-items: center;
 }
 
 .toolbar {

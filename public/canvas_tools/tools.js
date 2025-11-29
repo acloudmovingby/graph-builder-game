@@ -44,7 +44,7 @@ function Point(x, y) {
 const nodeRadius = 18;
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
-const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
+const infoPaneWidth = document.getElementsByClassName("right-pane")?.[0].offsetWidth;
 let graph = new Digraph();
 const graphController = new GraphController();
 let mouseX = 0;
