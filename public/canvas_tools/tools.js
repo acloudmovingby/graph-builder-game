@@ -54,8 +54,6 @@ let infoPaneHover = false;
 let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
-let canvasWidth = window.innerWidth - infoPaneWidth;
-let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio;
 let graphTypes = [];
 
@@ -129,9 +127,15 @@ const toolState = {
 // =====================
 // Canvas Setup
 // =====================
+// TODO: Things don't work if I don't do this, but I suspect if I set up the css properly, this shouldn't be necessary?
+// (except for the scale issue, I'm not sure that can be solved with css alone)
 function setCanvasSize() {
+  const canvasWidth = window.innerWidth - infoPaneWidth;
+  const canvasHeight = window.innerHeight;
   canvas.style.width = canvasWidth + "px";
   canvas.style.height = canvasHeight + "px";
+
+  // Set actual canvas size to scaled size for high-DPI displays (keeps edges looking sharp)
   canvas.width = canvasWidth * scale;
   canvas.height = canvasHeight * scale;
   if (canvas.getContext) {
@@ -144,6 +148,10 @@ setCanvasSize();
 // =====================
 // Event Listeners
 // =====================
+window.addEventListener('resize', function(event) {
+        setCanvasSize()
+});
+
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
     document.getElementById(tool.id).addEventListener(
@@ -223,8 +231,6 @@ if (canvas.getContext) {
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
-
-    setCanvasSize()
 
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
