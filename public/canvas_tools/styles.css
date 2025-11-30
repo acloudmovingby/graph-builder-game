@@ -23,6 +23,7 @@ body {
 .canvas-and-right-pane {
   display: flex;
   flex: 1; /* Takes remaining vertical space */
+  height: 200px;
 }
 
 #clear-btn {

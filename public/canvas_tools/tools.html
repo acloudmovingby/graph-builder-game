@@ -33,48 +33,53 @@
         <canvas id="canvas"></canvas>
     </div>
     <div class="right-pane">
+        <!-- selector at the top of the right pane       -->
         <div class="right-pane-section">
             <p id="info-pane-select" class="info-pane-header">Info</p>
             <p id="export-pane-select" class="info-pane-header">Export</p>
         </div>
+        <!-- info pane section, starts visible       -->
+        <div>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Graph Info</p>
+                <div class="info-area">
+                    <p class="info-name">Nodes:</p>
+                    <p id="node-count">0</p>
+                    <br/>
+                    <p class="info-name">Edges:</p>
+                    <p id="edge-count">0</p>
+                    <br>
+                    <p class="info-name">Graph types:</p>
+                    <p id="graph-types"></p>
+                    <br>
+                    <p class="info-name">Directed</p>
+                    <div id="directed-btn" class="visible-btn">
+                        <img id="directed-icon" class="visible-icon" src="images/arrow-small-1-blue.svg">
+                    </div>
+                    <br>
+                    <p class="info-name">Node labels:</p>
+                    <div id="label-visible-btn" class="visible-btn">
+                        <img id="visible-icon" class="visible-icon" src="images/node-label-visible.svg">
+                    </div>
+                </div>
+            </div>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Adjacency List</p>
+                <div class="info-area adj-list-area">
+                    <ul id="adjacency-list"></ul>
+                </div>
+            </div>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Adjacency Matrix</p>
+                <div class="info-area">
+                    <canvas id="adj-matrix" width="180" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- export pane section, defaults to being hidden       -->
         <div id="export-pane" class="right-pane-section export-pane-only">
             <p class="info-name">DOT Format ---> </p>
             <button class="copy-btn">Copy</button>
-        </div>
-        <div class="right-pane-section info-pane-only">
-            <p class="header">Graph Info</p>
-            <div class="info-area">
-                <p class="info-name">Nodes:</p>
-                <p id="node-count">0</p>
-                <br/>
-                <p class="info-name">Edges:</p>
-                <p id="edge-count">0</p>
-                <br>
-                <p class="info-name">Graph types:</p>
-                <p id="graph-types"></p>
-                <br>
-                <p class="info-name">Directed</p>
-                <div id="directed-btn" class="visible-btn">
-                    <img id="directed-icon" class="visible-icon" src="images/arrow-small-1-blue.svg">
-                </div>
-                <br>
-                <p class="info-name">Node labels:</p>
-                <div id="label-visible-btn" class="visible-btn">
-                    <img id="visible-icon" class="visible-icon" src="images/node-label-visible.svg">
-                </div>
-            </div>
-        </div>
-        <div class="right-pane-section info-pane-only">
-            <p class="header">Adjacency List</p>
-            <div class="info-area adj-list-area">
-                <ul id="adjacency-list"></ul>
-            </div>
-        </div>
-        <div class="right-pane-section info-pane-only">
-            <p class="header">Adjacency Matrix</p>
-            <div class="info-area">
-                <canvas id="adj-matrix" width="180" height="180"></canvas>
-            </div>
         </div>
         <div class="right-pane-section feedback">
             <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback</a>
