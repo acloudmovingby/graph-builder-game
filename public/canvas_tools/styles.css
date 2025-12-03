@@ -361,6 +361,8 @@ p, a,
 
 #adj-matrix {
   border: 1px solid lightgray;
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 #export-pane {

@@ -129,6 +129,7 @@ const toolState = {
 // =====================
 // TODO: Things don't work if I don't do this, but I suspect if I set up the css properly, this shouldn't be necessary?
 // (except for the scale issue, I'm not sure that can be solved with css alone)
+// TODO: Also let's combine this with (1) the resize listener and maybe (2) adj-matrix canvas set up as well
 function setCanvasSize() {
   const canvasWidth = window.innerWidth - infoPaneWidth;
   const canvasHeight = window.innerHeight;
@@ -144,6 +145,18 @@ function setCanvasSize() {
   }
 }
 setCanvasSize();
+
+let matrixElem = document.getElementById("adj-matrix");
+if (matrixElem) {
+    matrixElem.width = matrixElem.offsetWidth * scale;
+    matrixElem.height = matrixElem.offsetHeight * scale;
+    matrixElem.style.width = matrixElem.offsetWidth + "px";
+    matrixElem.style.height = matrixElem.offsetHeight + "px";
+    if (matrixElem.getContext) {
+        let ctx = matrixElem.getContext("2d");
+        ctx.scale(scale, scale);
+    }
+}
 
 // =====================
 // Event Listeners
@@ -670,13 +683,13 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
   }
 }
 
-let matrixElem = document.getElementById("adj-matrix");
 if (matrixElem) {
     matrixElem.addEventListener("mousemove", function(event) {
       const rect = matrixElem.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const n = matrixElem.width; // number of pixels, not nodes
+      console.log(`Mouse position in matrix canvas: x=${x}, y=${y}, canvas width=${matrixElem.width}, canvas height=${matrixElem.height}`);
       // Get node count from Scala
         const nodeCount = graphController.nodeCount();
         if (nodeCount > 0) {
