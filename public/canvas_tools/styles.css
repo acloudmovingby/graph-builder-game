@@ -2,7 +2,7 @@
 *:before,
 *:after {
   box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif; /* why is this here? */
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
