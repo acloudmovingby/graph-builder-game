@@ -8,79 +8,81 @@
     <title>Document</title>
 </head>
 <body>
-<div class="navbar">
-    <div class="toolbar">
-        <button id="basic" class="tool-btn selected"></button>
-        <button id="area-complete" class="tool-btn"></button>
-        <button id="magic-path" class="tool-btn"></button>
-        <button id="move" class="tool-btn"></button>
-        <div id="hover-info-pane">
-            <div class="hover-info-text">
-                <p id="hover-header" class="header">Tool</p>
-                <p id="hover-description">
-                    This is info about the tools.
-                </p>
+<div class="app-layout">
+    <div class="top-nav">
+        <div class="toolbar">
+            <button id="basic" class="tool-btn selected"></button>
+            <button id="area-complete" class="tool-btn"></button>
+            <button id="magic-path" class="tool-btn"></button>
+            <button id="move" class="tool-btn"></button>
+            <div id="hover-info-pane">
+                <div class="hover-info-text">
+                    <p id="hover-header" class="header">Tool</p>
+                    <p id="hover-description">
+                        This is info about the tools.
+                    </p>
+                </div>
+                <img id="hover-info-img" src="images/paw.png"/>
             </div>
-            <img id="hover-info-img" src="images/paw.png"/>
         </div>
+        <button id="undo" class="tool-btn"></button>
     </div>
-    <button id="undo" class="tool-btn"></button>
-</div>
-<div class="main-content-area">
     <div id="canvas-area">
         <p id="clear-btn">clear</p>
         <p id="welcome-message">"Welcome! To start, try clicking somewhere"</p>
         <canvas id="canvas"></canvas>
     </div>
-    <div class="info-panel">
-        <div class="info-section">
+    <div class="right-pane">
+        <!-- selector at the top of the right pane       -->
+        <div class="right-pane-section">
             <p id="info-pane-select" class="info-pane-header">Info</p>
             <p id="export-pane-select" class="info-pane-header">Export</p>
         </div>
-        <div id="export-pane" class="info-section export-pane-only">
-            <p class="info-name">DOT Format ---> </p>
-            <button class="copy-btn">Copy</button>
-        </div>
-        <div class="info-section info-pane-only">
-            <p class="header">Graph Info</p>
-            <div class="info-area">
-                <p class="info-name">Nodes:</p>
-                <p id="node-count">0</p>
-                <br/>
-                <p class="info-name">Edges:</p>
-                <p id="edge-count">0</p>
-                <br>
-                <p class="info-name">Graph types:</p>
-                <p id="graph-types"></p>
-                <br>
-                <p class="info-name">Directed</p>
-                <div id="directed-btn" class="visible-btn">
-                    <img id="directed-icon" class="visible-icon" src="images/arrow-small-1-blue.svg">
+        <!-- info pane section, starts visible       -->
+        <div class="right-pane-scrollable-content">
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Graph Info</p>
+                <div class="info-area">
+                    <p class="info-name">Nodes:</p>
+                    <p id="node-count">0</p>
+                    <br/>
+                    <p class="info-name">Edges:</p>
+                    <p id="edge-count">0</p>
+                    <br>
+                    <p class="info-name">Graph types:</p>
+                    <p id="graph-types"></p>
+                    <br>
+                    <p class="info-name">Directed</p>
+                    <div id="directed-btn" class="visible-btn">
+                        <img id="directed-icon" class="visible-icon" src="images/arrow-small-1-blue.svg">
+                    </div>
+                    <br>
+                    <p class="info-name">Node labels:</p>
+                    <div id="label-visible-btn" class="visible-btn">
+                        <img id="visible-icon" class="visible-icon" src="images/node-label-visible.svg">
+                    </div>
                 </div>
-                <br>
-                <p class="info-name">Node labels:</p>
-                <div id="label-visible-btn" class="visible-btn">
-                    <img id="visible-icon" class="visible-icon" src="images/node-label-visible.svg">
+            </div>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Adjacency List</p>
+                <div class="info-area adj-list-area">
+                    <ul id="adjacency-list"></ul>
                 </div>
             </div>
-        </div>
-        <div class="info-section info-pane-only">
-            <p class="header">Adjacency List</p>
-            <div class="info-area adj-list-area">
-                <ul id="adjacency-list"></ul>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Adjacency Matrix</p>
+                <div class="info-area">
+                    <canvas id="adj-matrix"></canvas>
+                </div>
             </div>
-        </div>
-        <div class="info-section info-pane-only">
-            <p class="header">Adjacency Matrix</p>
-            <div class="info-area">
-                <canvas id="adj-matrix" width="180" height="180"></canvas>
+            <!-- export pane section, defaults to being hidden       -->
+            <div id="export-pane" class="right-pane-section export-pane-only">
+                <p class="info-name">DOT Format ---> </p>
+                <button class="copy-btn">Copy</button>
             </div>
-        </div>
-        <div class="info-section feedback">
-            <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback</a>
-        </div>
-        <div class="info-section bottom">
-            <p id="commentary"></p>
+            <div class="right-pane-section feedback">
+                <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback</a>
+            </div>
         </div>
     </div>
 </div>

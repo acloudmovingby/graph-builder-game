@@ -44,7 +44,7 @@ function Point(x, y) {
 const nodeRadius = 18;
 let canvas = document.getElementById("canvas");
 let canvasArea = document.getElementById("canvas-area");
-const infoPaneWidth = document.getElementsByClassName("info-panel")?.[0].offsetWidth;
+const infoPaneWidth = document.getElementsByClassName("right-pane")?.[0].offsetWidth;
 let graph = new Digraph();
 const graphController = new GraphController();
 let mouseX = 0;
@@ -54,8 +54,6 @@ let infoPaneHover = false;
 let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
-let canvasWidth = window.innerWidth - infoPaneWidth;
-let canvasHeight = window.innerHeight;
 let scale = window.devicePixelRatio;
 let graphTypes = [];
 
@@ -129,9 +127,16 @@ const toolState = {
 // =====================
 // Canvas Setup
 // =====================
+// TODO: Things don't work if I don't do this, but I suspect if I set up the css properly, this shouldn't be necessary?
+// (except for the scale issue, I'm not sure that can be solved with css alone)
+// TODO: Also let's combine this with (1) the resize listener and maybe (2) adj-matrix canvas set up as well
 function setCanvasSize() {
+  const canvasWidth = window.innerWidth - infoPaneWidth;
+  const canvasHeight = window.innerHeight;
   canvas.style.width = canvasWidth + "px";
   canvas.style.height = canvasHeight + "px";
+
+  // Set actual canvas size to scaled size for high-DPI displays (keeps edges looking sharp)
   canvas.width = canvasWidth * scale;
   canvas.height = canvasHeight * scale;
   if (canvas.getContext) {
@@ -141,9 +146,25 @@ function setCanvasSize() {
 }
 setCanvasSize();
 
+const adjMatrixElem = document.getElementById("adj-matrix");
+if (adjMatrixElem) {
+    adjMatrixElem.width = adjMatrixElem.offsetWidth * scale;
+    adjMatrixElem.height = adjMatrixElem.offsetHeight * scale;
+    adjMatrixElem.style.width = adjMatrixElem.offsetWidth + "px";
+    adjMatrixElem.style.height = adjMatrixElem.offsetHeight + "px";
+    if (adjMatrixElem.getContext) {
+        let ctx = adjMatrixElem.getContext("2d");
+        ctx.scale(scale, scale);
+    }
+}
+
 // =====================
 // Event Listeners
 // =====================
+window.addEventListener('resize', function(event) {
+        setCanvasSize()
+});
+
 for (const tool of toolState.allTools) {
   if (document.getElementById(tool.id)) {
     document.getElementById(tool.id).addEventListener(
@@ -223,8 +244,6 @@ if (canvas.getContext) {
 function draw() {
   if (canvas.getContext) {
     let ctx = canvas.getContext("2d");
-
-    setCanvasSize()
 
     ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
 
@@ -644,11 +663,11 @@ function inside(point, vs) {
 }
 
 function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
-  let matrixElem = document.getElementById("adj-matrix");
-  if (matrixElem && matrixElem.getContext) {
-    let totalWidth = matrixElem.offsetWidth;
-    let totalHeight = matrixElem.offsetHeight;
-    let ctx = matrixElem.getContext("2d");
+  let adjMatrixElem = document.getElementById("adj-matrix");
+  if (adjMatrixElem && adjMatrixElem.getContext) {
+    let totalWidth = adjMatrixElem.offsetWidth;
+    let totalHeight = adjMatrixElem.offsetHeight;
+    let ctx = adjMatrixElem.getContext("2d");
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
     let width = totalWidth / adjList.length;
@@ -664,23 +683,20 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
   }
 }
 
-let matrixElem = document.getElementById("adj-matrix");
-if (matrixElem) {
-    matrixElem.addEventListener("mousemove", function(event) {
-      const rect = matrixElem.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const n = matrixElem.width; // number of pixels, not nodes
-      // Get node count from Scala
+if (adjMatrixElem) {
+    adjMatrixElem.addEventListener("mousemove", function(event) {
+        const rect = adjMatrixElem.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
         const nodeCount = graphController.nodeCount();
         if (nodeCount > 0) {
-            const cellWidth = matrixElem.width / nodeCount;
-            const cellHeight = matrixElem.height / nodeCount;
+            const cellWidth = adjMatrixElem.width / (nodeCount * scale);
+            const cellHeight = adjMatrixElem.height / (nodeCount * scale);
             const col = Math.floor(x / cellWidth);
             const row = Math.floor(y / cellHeight);
             graphController.hoverAdjMatrixCell(col, row);
         }
-});
+    });
 }
 
 function enterBasicEdgeMode(node) {
