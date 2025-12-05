@@ -146,14 +146,14 @@ function setCanvasSize() {
 }
 setCanvasSize();
 
-let matrixElem = document.getElementById("adj-matrix");
-if (matrixElem) {
-    matrixElem.width = matrixElem.offsetWidth * scale;
-    matrixElem.height = matrixElem.offsetHeight * scale;
-    matrixElem.style.width = matrixElem.offsetWidth + "px";
-    matrixElem.style.height = matrixElem.offsetHeight + "px";
-    if (matrixElem.getContext) {
-        let ctx = matrixElem.getContext("2d");
+const adjMatrixElem = document.getElementById("adj-matrix");
+if (adjMatrixElem) {
+    adjMatrixElem.width = adjMatrixElem.offsetWidth * scale;
+    adjMatrixElem.height = adjMatrixElem.offsetHeight * scale;
+    adjMatrixElem.style.width = adjMatrixElem.offsetWidth + "px";
+    adjMatrixElem.style.height = adjMatrixElem.offsetHeight + "px";
+    if (adjMatrixElem.getContext) {
+        let ctx = adjMatrixElem.getContext("2d");
         ctx.scale(scale, scale);
     }
 }
@@ -663,11 +663,11 @@ function inside(point, vs) {
 }
 
 function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
-  let matrixElem = document.getElementById("adj-matrix");
-  if (matrixElem && matrixElem.getContext) {
-    let totalWidth = matrixElem.offsetWidth;
-    let totalHeight = matrixElem.offsetHeight;
-    let ctx = matrixElem.getContext("2d");
+  let adjMatrixElem = document.getElementById("adj-matrix");
+  if (adjMatrixElem && adjMatrixElem.getContext) {
+    let totalWidth = adjMatrixElem.offsetWidth;
+    let totalHeight = adjMatrixElem.offsetHeight;
+    let ctx = adjMatrixElem.getContext("2d");
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
     let width = totalWidth / adjList.length;
@@ -683,23 +683,20 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
   }
 }
 
-if (matrixElem) {
-    matrixElem.addEventListener("mousemove", function(event) {
-      const rect = matrixElem.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const n = matrixElem.width; // number of pixels, not nodes
-      console.log(`Mouse position in matrix canvas: x=${x}, y=${y}, canvas width=${matrixElem.width}, canvas height=${matrixElem.height}`);
-      // Get node count from Scala
+if (adjMatrixElem) {
+    adjMatrixElem.addEventListener("mousemove", function(event) {
+        const rect = adjMatrixElem.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
         const nodeCount = graphController.nodeCount();
         if (nodeCount > 0) {
-            const cellWidth = matrixElem.width / nodeCount;
-            const cellHeight = matrixElem.height / nodeCount;
+            const cellWidth = adjMatrixElem.width / (nodeCount * scale);
+            const cellHeight = adjMatrixElem.height / (nodeCount * scale);
             const col = Math.floor(x / cellWidth);
             const row = Math.floor(y / cellHeight);
             graphController.hoverAdjMatrixCell(col, row);
         }
-});
+    });
 }
 
 function enterBasicEdgeMode(node) {
