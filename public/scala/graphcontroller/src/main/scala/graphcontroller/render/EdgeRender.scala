@@ -71,4 +71,15 @@ object EdgeRender {
 	def getSimpleEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
 		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
+	
+	
+	def edgeShapes(
+		edges: Seq[Edge], 
+		style: String // TODO ! Once I'm off the plane, lookup Scala 3 enum syntax
+	): Seq[CanvasLine] = {
+		style match {
+			case "simple" => getSimpleEdgesForRendering(edges)
+			case "directed" => getDirectedEdgesForRendering(edges)
+		}
+	}
 }
