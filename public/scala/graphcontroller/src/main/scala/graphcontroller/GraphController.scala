@@ -91,15 +91,16 @@ class GraphController {
 	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
-	private def getEdgeObjects: Seq[Edge] = graph.getEdges.toSeq.flatMap { case (from, to) =>
-		(for {
-			fromData <- keyToData.get(from)
-			toData <- keyToData.get(to)
-		} yield Edge(
-			from = Point(fromData.x, fromData.y),
-			to = Point(toData.x, toData.y)
-		)).toSeq
-	}
+	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Edge] =
+		g.getEdges.toSeq.flatMap { case (from, to) =>
+			(for {
+				fromData <- keyToData.get(from)
+				toData <- keyToData.get(to)
+			} yield Edge(
+				from = Point(fromData.x, fromData.y),
+				to = Point(toData.x, toData.y)
+			)).toSeq
+		}
 
 	@JSExport
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
@@ -124,18 +125,19 @@ class GraphController {
 			.getOrElse(new js.Array)
 
 	@JSExport
-	def getAllShapes(): MultiShapesCanvasJS = graph match {
-		case _: SimpleMapGraph[Int] =>
-			val edges = getEdgeObjects
-			val lines = EdgeRender.getSimpleEdgesForRendering(edges)
-			val shapes = MultiShapesCanvas(lines = lines, triangles = Seq.empty)
-			shapes.toJS
-		case _: DirectedMapGraph[Int] =>
-			val edges = getEdgeObjects
-			val lines = EdgeRender.getDirectedEdgesForRendering(edges)
-			val triangles = ArrowTipRender.getTriangles(edges)
-			val shapes = MultiShapesCanvas(lines = lines, triangles = triangles)
-			shapes.toJS
+	def getAllShapes(): MultiShapesCanvasJS = {
+		val edges = getEdgeObjects(graph)
+		val (lines, triangles) = graph match {
+			case _: SimpleMapGraph[Int] =>
+				val lines = EdgeRender.edgeShapes(edges, "simple")
+				(lines, Seq.empty)
+			case _: DirectedMapGraph[Int] =>
+				val lines = EdgeRender.edgeShapes(edges, "directed")
+				val triangles = ArrowTipRender.getTriangles(edges)
+				(lines, triangles)
+		}
+		val shapes = MultiShapesCanvas(lines, triangles)
+		shapes.toJS
 	}
 
 	@JSExport
@@ -171,7 +173,6 @@ class GraphController {
 				} {
 					undirectedGraph = undirectedGraph.addEdge(from, to)
 				}
-				undirectedGraph
 				graph = undirectedGraph
 			case g: SimpleMapGraph[Int] =>
 				graph = new DirectedMapGraph[Int](g.adjMap)
@@ -188,17 +189,14 @@ class GraphController {
 	}
 
 	@JSExport
-	def leaveAdjMatrix(): Unit = {
-		println("Leaving adjacency matrix area")
-		matrixHoverCell = None
-	}
+	def leaveAdjMatrix(): Unit = { matrixHoverCell = None }
 
 	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
 		try {
 			graph = graph.removeEdge(from, to)
 		} catch {
-			case e: NoSuchElementException => println(s"Error removing edge (not yet implemented): ${e.getMessage}")
+			case e: NoSuchElementException => println(s"Error removing edge: ${e.getMessage}")
 		}
 	}
 }
