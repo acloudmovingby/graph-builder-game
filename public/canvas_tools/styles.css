@@ -109,10 +109,6 @@ body {
     min-height: 0;
 }
 
-.bottom {
-  border: none;
-}
-
 .info-area {
   padding: 0rem 1rem;
 }
@@ -167,20 +163,6 @@ p, a,
   color:black;
 }
 
-.text-center {
-  text-align: center;
-}
-
-/*
- TODO: remove easter-egg specific styles since we don't need that no more...I think...
- (already removed one part of it, check commits
- */
-#easter-eggs {
-  display: none;
-  animation-duration: 0.5s;
-  animation-name: expand;
-}
-
 @keyframes expand {
   from {
     padding: 0;
@@ -193,15 +175,6 @@ p, a,
   }
 }
 
-#egg-slider {
-  position: relative;
-  left: 400px;
-  animation-delay: 0.5s;
-  animation-duration: 0.35s;
-  animation-fill-mode: forwards;
-  animation-name: slidein;
-}
-
 @keyframes slidein {
   from {
     left: 400px;
@@ -210,18 +183,6 @@ p, a,
   to {
     left: 0px;
   }
-}
-
-.egg {
-  display: inline-block;
-  text-align: left;
-  line-height: 200%;
-  width: 25px;
-  margin: 0;
-}
-
-.note {
-  color: gray;
 }
 
 #node-count,
@@ -235,19 +196,9 @@ p, a,
   font-weight:bold;
 }
 
-.inline{
-  display:inline;
-  padding-right:1.2rem;
-}
-
 #adjacency-list {
   list-style-type: none;
   padding-left: 0;
-}
-
-#commentary {
-  font-style: italic;
-  color: #4a4a4a;
 }
 
 .toolbar {
@@ -377,6 +328,6 @@ p, a,
   text-decoration: none;
 }
 
-.copy-btn { 
+.copy-btn {
   display: inline;
 }
