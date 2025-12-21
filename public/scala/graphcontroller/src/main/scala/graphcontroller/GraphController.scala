@@ -20,6 +20,7 @@ class GraphController {
 	private var graph: DirectedMapGraph[Int] | SimpleMapGraph[Int] = new DirectedMapGraph[Int]() // key is Int, data is NodeData
 	private var keyToData = Map[Int, NodeData]()
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
+	private var matrixHoverCell: Option[(Int, Int)] = None
 
 	@JSExport
 	def isDirected(): Boolean = graph match {
@@ -118,6 +119,11 @@ class GraphController {
 	}
 
 	@JSExport
+	def getMatrixHoverCell(): js.Array[Int] = matrixHoverCell
+			.map { case (col, row) => js.Array.apply(col, row) }
+			.getOrElse(new js.Array)
+
+	@JSExport
 	def getAllShapes(): MultiShapesCanvasJS = graph match {
 		case _: SimpleMapGraph[Int] =>
 			val edges = getEdgeObjects
@@ -174,7 +180,17 @@ class GraphController {
 
 	@JSExport
 	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
-		println(s"Hovering over ($col, $row)")
+		// the mouseover listener can sometimes report negative coordinates if you move the mouse fast enough, so check for that
+		def withinBounds(x: Int) = x >= 0 && x < graph.nodeCount
+		if (withinBounds(col) && withinBounds(row)) {
+			matrixHoverCell = Some((col, row))
+		} else matrixHoverCell = None
+	}
+
+	@JSExport
+	def leaveAdjMatrix(): Unit = {
+		println("Leaving adjacency matrix area")
+		matrixHoverCell = None
 	}
 
 	@JSExport
