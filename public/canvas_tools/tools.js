@@ -673,6 +673,23 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix) {
     let width = totalWidth / adjList.length;
     let height = totalHeight / adjList.length;
     let adjMatrix = adjacencyMatrix;
+
+    ctx.beginPath();
+    // draw grid lines, start i=1 (no need to draw on 0th, i.e. edge of canvas)
+    for (let i = 1; i < adjMatrix.length; i++) {
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "lightgray";
+          // vertical lines
+          ctx.moveTo(width * i, 0);
+          ctx.lineTo(width * i, totalWidth);
+          // horizontal lines
+          ctx.moveTo(0, height * i);
+          ctx.lineTo(totalHeight, height * i);
+    }
+    ctx.closePath();
+    ctx.stroke();
+
+    // fill in grid cells for each connected edge
     for (let i = 0; i < adjMatrix.length; i++) {
       for (let j = 0; j < adjMatrix[i].length; j++) {
         if (adjMatrix[i][j]) {
