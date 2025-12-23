@@ -181,8 +181,8 @@ class GraphController {
 
 	@JSExport
 	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
-		// the mouseover listener can sometimes report negative coordinates if you move the mouse fast enough, so check for that
-		def withinBounds(x: Int) = x >= 0 && x < graph.nodeCount
+		// the mouseover listener can sometimes report negative coordinates if you move the mouse fast enough, so check it's not negative
+		def withinBounds(x: Int) = { x >= 0 && x < graph.nodeCount }
 		if (withinBounds(col) && withinBounds(row)) {
 			matrixHoverCell = Some((col, row))
 		} else matrixHoverCell = None
