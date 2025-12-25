@@ -4,9 +4,10 @@ import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.render.{ArrowTipRender, EdgeRender}
+import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
 import graphcontroller.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
-import graphcontroller.dataobject.canvas.{CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
+import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 
 case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -21,6 +22,9 @@ class GraphController {
 	private var keyToData = Map[Int, NodeData]()
 	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
 	private var matrixHoverCell: Option[(Int, Int)] = None
+	private def hoveredEdge: Option[(Int, Int)] = matrixHoverCell.flatMap { case (from, to) =>
+		if (graph.hasEdge(from, to)) Some((from, to)) else None
+	}
 
 	@JSExport
 	def isDirected(): Boolean = graph match {
@@ -91,16 +95,16 @@ class GraphController {
 	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
+	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Edge] = for {
+		fromData <- keyToData.get(fromIndex)
+		toData <- keyToData.get(toIndex)
+	} yield Edge(
+		from = Point(fromData.x, fromData.y),
+		to = Point(toData.x, toData.y)
+	)
+
 	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Edge] =
-		g.getEdges.toSeq.flatMap { case (from, to) =>
-			(for {
-				fromData <- keyToData.get(from)
-				toData <- keyToData.get(to)
-			} yield Edge(
-				from = Point(fromData.x, fromData.y),
-				to = Point(toData.x, toData.y)
-			)).toSeq
-		}
+		g.getEdges.toSeq.flatMap { case (from, to) => getEdgeCoordinates(from, to).toSeq }
 
 	@JSExport
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
@@ -125,18 +129,28 @@ class GraphController {
 			.getOrElse(new js.Array)
 
 	@JSExport
-	def getAllShapes(): MultiShapesCanvasJS = {
+	def getShapesForMainCanvas(): MultiShapesCanvasJS = {
 		val edges = getEdgeObjects(graph)
-		val (lines, triangles) = graph match {
+		val normalEdges = graph.getEdges.toSeq
+			.filterNot(e => matrixHoverCell.exists(h => e._1 == h._1 && e._2 == h._2))
+			.map {
+				case (from, to) => getEdgeCoordinates(from, to).get // blow up, the coordinate should defintely exist
+			}
+		val highlightedEdges = hoveredEdge.toSeq
+			.map {
+				case (from, to) => getEdgeCoordinates(from, to).get // blow up, the coordinate should defintely exist
+			}
+
+		val shapes = graph match {
 			case _: SimpleMapGraph[Int] =>
-				val lines = EdgeRender.edgeShapes(edges, "simple")
-				(lines, Seq.empty)
+				val normalLines = EdgeRender.edgeShapes(normalEdges, Simple)
+				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, SimpleHighlighted)
+				normalLines ++ highlightedLines
 			case _: DirectedMapGraph[Int] =>
-				val lines = EdgeRender.edgeShapes(edges, "directed")
-				val triangles = ArrowTipRender.getTriangles(edges)
-				(lines, triangles)
+				val normalLines = EdgeRender.edgeShapes(normalEdges, Directed)
+				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, DirectedHighlighted)
+				normalLines ++ highlightedLines
 		}
-		val shapes = MultiShapesCanvas(lines, triangles)
 		shapes.toJS
 	}
 
