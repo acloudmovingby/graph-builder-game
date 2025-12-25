@@ -676,25 +676,6 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
     let height = totalHeight / adjList.length;
     let adjMatrix = adjacencyMatrix;
 
-    const isHovering = matrixHoverCell.length > 0
-
-    // draw grid lines, start i=1 (no need to draw on 0th, i.e. edge of canvas)
-    if (isHovering) {
-        ctx.beginPath();
-        for (let i = 1; i < adjMatrix.length; i++) {
-              ctx.lineWidth = 1;
-              ctx.strokeStyle = "lightgray";
-              // vertical lines
-              ctx.moveTo(width * i, 0);
-              ctx.lineTo(width * i, totalWidth);
-              // horizontal lines
-              ctx.moveTo(0, height * i);
-              ctx.lineTo(totalHeight, height * i);
-        }
-        ctx.closePath();
-        ctx.stroke();
-    }
-
     // colors
     const edgePresentColor = "black";
     const hoverEdgePresentColor = "#F2813B"; // "#45ABD3"; // orange, or darker blue
@@ -710,8 +691,11 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
       }
     }
 
-    // color hovered cell (draws over previous edge)
-    if (isHovering) {
+    const isHovering = matrixHoverCell.length > 0
+
+    // Color hovered cell (draws over previous coloring)
+    // Check we have >1 node, since adding hover over 1 node is confusing since we can't do anything with it anyways (currently self-loops not allowed)
+    if (isHovering && adjacencyMatrix.length > 1) {
         if (adjMatrix[matrixHoverCell[0]][matrixHoverCell[1]]) {
             ctx.fillStyle = hoverEdgePresentColor;
         } else {
@@ -720,6 +704,22 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
         ctx.fillRect(width * matrixHoverCell[0], height * matrixHoverCell[1], width, height);
     }
     ctx.fillStyle = edgePresentColor; // reset color
+
+  if (isHovering) {
+          ctx.beginPath();
+          for (let i = 1; i < adjMatrix.length; i++) {
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "lightgray";
+                // vertical lines
+                ctx.moveTo(width * i, 0);
+                ctx.lineTo(width * i, totalWidth);
+                // horizontal lines
+                ctx.moveTo(0, height * i);
+                ctx.lineTo(totalHeight, height * i);
+          }
+          ctx.closePath();
+          ctx.stroke();
+      }
   }
 }
 
