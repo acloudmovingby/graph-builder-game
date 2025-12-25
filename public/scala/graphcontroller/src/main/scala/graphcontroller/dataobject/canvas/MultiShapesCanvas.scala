@@ -12,6 +12,8 @@ case class MultiShapesCanvas(
 		lines = this.lines.map(_.toJS).toJSArray,
 		triangles = this.triangles.map(_.toJS).toJSArray
 	).asInstanceOf[MultiShapesCanvasJS]
+
+	def ++(m: MultiShapesCanvas): MultiShapesCanvas = MultiShapesCanvas(this.lines ++ m.lines, this.triangles ++ m.triangles)
 }
 
 /** JS compatible equivalent of MultiShapesCanvas */

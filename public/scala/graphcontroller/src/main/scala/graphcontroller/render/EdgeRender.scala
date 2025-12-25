@@ -2,13 +2,18 @@ package graphcontroller.render
 
 import scala.math
 import graphi.DirectedMapGraph
-
 import graphcontroller.dataobject.{Edge, NodeData, Point}
-import graphcontroller.dataobject.canvas.{CanvasLine, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, MultiShapesCanvas, TriangleCanvas}
+import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
+
+enum EdgeStyle {
+	case Simple, Directed, SimpleHighlighted, DirectedHighlighted
+}
 
 object EdgeRender {
 	// Parameters for styling the rendered shapes
 	val simpleEdgeStrokeColor: String = "orange"
+	val edgeHighlightColor: String = "#F2813B"
 	val simpleEdgeStrokeWidth: Int = 8
 
 	case class DirectedEdge(bidirectional: Boolean, edge: Edge)
@@ -71,15 +76,20 @@ object EdgeRender {
 	def getSimpleEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
 		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
-	
-	
+
 	def edgeShapes(
-		edges: Seq[Edge], 
-		style: String // TODO ! Once I'm off the plane, lookup Scala 3 enum syntax
-	): Seq[CanvasLine] = {
-		style match {
-			case "simple" => getSimpleEdgesForRendering(edges)
-			case "directed" => getDirectedEdgesForRendering(edges)
+		edges: Seq[Edge],
+		style: EdgeStyle
+	): MultiShapesCanvas = {
+		val (lines, triangles) = style match {
+			case Simple => (getSimpleEdgesForRendering(edges), Seq.empty)
+			case Directed =>(getDirectedEdgesForRendering(edges), ArrowTipRender.getTriangles(edges))
+			case SimpleHighlighted => (getSimpleEdgesForRendering(edges).map(e => e.copy(color = edgeHighlightColor)), Seq.empty)
+			case DirectedHighlighted =>
+				val lines = getDirectedEdgesForRendering(edges).map(e => e.copy(color = edgeHighlightColor))
+				val triangles = ArrowTipRender.getTriangles(edges).map(t => t.copy(color = edgeHighlightColor))
+				(lines, triangles)
 		}
+		MultiShapesCanvas(lines, triangles)
 	}
 }

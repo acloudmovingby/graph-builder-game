@@ -273,7 +273,7 @@ function draw() {
         }
 
         // draw edge shapes
-        const shapes = graphController.getAllShapes();
+        const shapes = graphController.getShapesForMainCanvas();
         drawLines(ctx, shapes.lines);
         drawTriangles(ctx, shapes.triangles);
 
