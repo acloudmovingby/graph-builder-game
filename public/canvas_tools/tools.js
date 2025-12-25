@@ -676,25 +676,31 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
     let height = totalHeight / adjList.length;
     let adjMatrix = adjacencyMatrix;
 
-    ctx.beginPath();
-    // draw grid lines, start i=1 (no need to draw on 0th, i.e. edge of canvas)
-    for (let i = 1; i < adjMatrix.length; i++) {
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = "lightgray";
-          // vertical lines
-          ctx.moveTo(width * i, 0);
-          ctx.lineTo(width * i, totalWidth);
-          // horizontal lines
-          ctx.moveTo(0, height * i);
-          ctx.lineTo(totalHeight, height * i);
-    }
-    ctx.closePath();
-    ctx.stroke();
+    const isHovering = matrixHoverCell.length > 0
 
-    // fill in grid cells for each connected edge
-    const edgePresentColor = "#61bcdf"; // TODO this is wrong color but is close? (from screenshot in Figma)
+    // draw grid lines, start i=1 (no need to draw on 0th, i.e. edge of canvas)
+    if (isHovering) {
+        ctx.beginPath();
+        for (let i = 1; i < adjMatrix.length; i++) {
+              ctx.lineWidth = 1;
+              ctx.strokeStyle = "lightgray";
+              // vertical lines
+              ctx.moveTo(width * i, 0);
+              ctx.lineTo(width * i, totalWidth);
+              // horizontal lines
+              ctx.moveTo(0, height * i);
+              ctx.lineTo(totalHeight, height * i);
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    // colors
+    const edgePresentColor = "black";
     const hoverEdgePresentColor = "#F2813B"; // "#45ABD3"; // orange, or darker blue
     const hoverNoEdgeColor = "#E2E2E2";
+
+    // fill in grid cells for each connected edge
     ctx.fillStyle = edgePresentColor;
     for (let i = 0; i < adjMatrix.length; i++) {
       for (let j = 0; j < adjMatrix[i].length; j++) {
@@ -705,7 +711,7 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
     }
 
     // color hovered cell (draws over previous edge)
-    if (matrixHoverCell.length > 0) {
+    if (isHovering) {
         if (adjMatrix[matrixHoverCell[0]][matrixHoverCell[1]]) {
             ctx.fillStyle = hoverEdgePresentColor;
         } else {
@@ -732,9 +738,12 @@ if (adjMatrixElem) {
         }
         refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
     });
+
     adjMatrixElem.addEventListener("mouseleave", function(event) {
         graphController.leaveAdjMatrix();
-    })
+        // need to refresh html or hover color will linger
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+    });
 }
 
 function enterBasicEdgeMode(node) {
