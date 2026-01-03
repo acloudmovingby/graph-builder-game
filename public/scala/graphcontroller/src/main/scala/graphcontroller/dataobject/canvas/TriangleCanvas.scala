@@ -8,7 +8,7 @@ import graphcontroller.dataobject.{Triangle, TriangleJS}
 case class TriangleCanvas(
 	 tri: Triangle,
 	 color: String // Hex string, e.g. "#FF0000"
-) {
+) extends RenderOp {
 	def toJS: TriangleCanvasJS = js.Dynamic.literal(
 		tri = this.tri.toJS,
 		color = this.color

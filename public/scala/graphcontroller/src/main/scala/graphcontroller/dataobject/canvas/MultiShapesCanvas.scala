@@ -3,6 +3,9 @@ package graphcontroller.dataobject.canvas
 import scala.scalajs.js
 import js.JSConverters.*
 
+// TODO just move CanvasLine and TriangleCanvas into this one file and make this a sealed trait
+trait RenderOp
+
 /** Dataobject to hold a variety of shapes for drawing on the Canvas */
 case class MultiShapesCanvas(
 	lines: Seq[CanvasLine],

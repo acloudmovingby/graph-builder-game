@@ -8,6 +8,7 @@ import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
 import graphcontroller.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
 import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
+import graphcontroller.render.MainCanvas
 
 case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -108,6 +109,9 @@ class GraphController {
 
 	@JSExport
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
+		// trigger draw on canvas as test TODO: delete this
+		MainCanvas.start()
+
 		val size = graph.nodeCount
 		// initialize size x size matrix with 0s
 		val matrix = Array.fill(size, size)(0)
@@ -141,17 +145,19 @@ class GraphController {
 				case (from, to) => getEdgeCoordinates(from, to).get // blow up, the coordinate should defintely exist
 			}
 
-		val shapes = graph match {
+		val (normal, highlighted) = graph match {
 			case _: SimpleMapGraph[Int] =>
 				val normalLines = EdgeRender.edgeShapes(normalEdges, Simple)
 				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, SimpleHighlighted)
-				normalLines ++ highlightedLines
+				(normalLines, highlightedLines)
 			case _: DirectedMapGraph[Int] =>
 				val normalLines = EdgeRender.edgeShapes(normalEdges, Directed)
 				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, DirectedHighlighted)
-				normalLines ++ highlightedLines
+				(normalLines, highlightedLines)
 		}
-		shapes.toJS
+		MainCanvas.setShapes(highlighted.lines ++ highlighted.triangles)
+
+		normal.toJS
 	}
 
 	@JSExport

@@ -3,12 +3,16 @@ package graphcontroller.render
 import scala.math
 import graphi.DirectedMapGraph
 import graphcontroller.dataobject.{Edge, NodeData, Point}
-import graphcontroller.dataobject.canvas.{CanvasLine, MultiShapesCanvas, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, MultiShapesCanvas, RenderOp, TriangleCanvas}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 
 enum EdgeStyle {
 	case Simple, Directed, SimpleHighlighted, DirectedHighlighted
 }
+
+// make new pipeline that turns graph edge list into list of DirectedEdges, then further function that turns it into RenderedDirectedEdge
+case class DirectedEdge(e: Edge, isBidirectional: Boolean)
+case class RenderedDirectedEdge(line: CanvasLine, srcArrow: TriangleCanvas, targetArrow: TriangleCanvas) extends RenderOp
 
 object EdgeRender {
 	// Parameters for styling the rendered shapes

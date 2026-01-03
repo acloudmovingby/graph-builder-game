@@ -66,6 +66,20 @@ body {
   position: relative; /* For absolute positioning inside */
 }
 
+#canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+#overlay-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+
 #welcome-message {
     font: 25px "Arial";
     color: grey;

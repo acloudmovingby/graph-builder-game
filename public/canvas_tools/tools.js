@@ -236,10 +236,10 @@ if (undoElem) {
 }
 
 if (canvas.getContext) {
-    canvas.addEventListener("mousedown", mouseDown, false);
-    canvas.addEventListener("mousemove", mouseMove, false);
-    canvas.addEventListener("mouseleave", mouseLeave, false);
-    canvas.addEventListener("mouseup", mouseUp, false);
+    canvasArea.addEventListener("mousedown", mouseDown, false);
+    canvasArea.addEventListener("mousemove", mouseMove, false);
+    canvasArea.addEventListener("mouseleave", mouseLeave, false);
+    canvasArea.addEventListener("mouseup", mouseUp, false);
     window.requestAnimationFrame(draw);
 }
 

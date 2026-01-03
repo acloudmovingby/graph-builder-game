@@ -10,7 +10,7 @@ case class CanvasLine(
 	to: Point,
 	width: Int,
 	color: String // Hex string, e.g. "#FF0000"
-) {
+) extends RenderOp {
 	def toJS: CanvasLineJS = js.Dynamic.literal(
 		from = this.from.toJS,
 		to = this.to.toJS,
