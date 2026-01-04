@@ -272,10 +272,8 @@ function draw() {
             ctx.stroke();
         }
 
-        // draw edge shapes
-        const shapes = graphController.getShapesForMainCanvas();
-        drawLines(ctx, shapes.lines);
-        drawTriangles(ctx, shapes.triangles);
+        // trigger drawing of edge shapes in the ScalaJS code
+        const shapes = graphController.renderMainCanvas();
 
         // It's beautiful (the clouds)
         // like you
@@ -758,6 +756,10 @@ if (adjMatrixElem) {
         // need to refresh html or hover color will linger
         refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
     });
+
+    adjMatrixElem.addEventListener("mouseup", function(event) {
+            graphController.adjMatrixClick();
+        });
 }
 
 function enterBasicEdgeMode(node) {

@@ -2,16 +2,18 @@ package graphcontroller.render
 
 import scala.math
 import graphi.DirectedMapGraph
-import graphcontroller.dataobject.{Edge, NodeData, Point}
+import graphcontroller.dataobject.{Line, NodeData, Point}
 import graphcontroller.dataobject.canvas.{CanvasLine, MultiShapesCanvas, RenderOp, TriangleCanvas}
+import graphcontroller.render.ArrowTipRender.getArrowTriangle
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
+import graphcontroller.render.properties.ArrowRenderProperties
 
 enum EdgeStyle {
 	case Simple, Directed, SimpleHighlighted, DirectedHighlighted
 }
 
 // make new pipeline that turns graph edge list into list of DirectedEdges, then further function that turns it into RenderedDirectedEdge
-case class DirectedEdge(e: Edge, isBidirectional: Boolean)
+case class DirectedEdge(e: Line, isBidirectional: Boolean)
 case class RenderedDirectedEdge(line: CanvasLine, srcArrow: TriangleCanvas, targetArrow: TriangleCanvas) extends RenderOp
 
 object EdgeRender {
@@ -20,9 +22,9 @@ object EdgeRender {
 	val edgeHighlightColor: String = "#F2813B"
 	val simpleEdgeStrokeWidth: Int = 8
 
-	case class DirectedEdge(bidirectional: Boolean, edge: Edge)
+	case class DirectedEdge(bidirectional: Boolean, edge: Line)
 
-	def decideDirectionality(edges: Seq[Edge]): List[DirectedEdge] = {
+	def decideDirectionality(edges: Seq[Line]): List[DirectedEdge] = {
 		val edgeSet = edges.map(e => (e.from, e.to)).toSet
 		var seen = Set.empty[(Point, Point)]
 		val directedEdges = scala.collection.mutable.ListBuffer[DirectedEdge]()
@@ -41,9 +43,9 @@ object EdgeRender {
 
 	def trimEdge(
 		trimStart: Boolean,
-		edge: Edge,
+		edge: Line,
 		displacement: Double = 47.0
-	): Edge = {
+	): Line = {
 		val (from, to) = (edge.from, edge.to)
 		val dx = to.x - from.x
 		val dy = to.y - from.y
@@ -54,9 +56,9 @@ object EdgeRender {
 			val dxFromNode = (dx * ratio).toInt
 			val dyFromNode = (dy * ratio).toInt
 			if (trimStart) {
-				Edge(Point(from.x + dxFromNode, from.y + dyFromNode), to)
+				Line(Point(from.x + dxFromNode, from.y + dyFromNode), to)
 			} else {
-				Edge(from, Point(to.x - dxFromNode, to.y - dyFromNode))
+				Line(from, Point(to.x - dxFromNode, to.y - dyFromNode))
 			}
 		}
 	}
@@ -64,25 +66,25 @@ object EdgeRender {
 	def trimEdgesBasedOnDirectionality(
 		directedEdges: Seq[DirectedEdge],
 		displacement: Double = 47.0 // how much to cut off from end
-	): Seq[Edge] = {
+	): Seq[Line] = {
 		directedEdges.map { de =>
 			val trimmedEdge = if (de.bidirectional) trimEdge(trimStart = true, de.edge, displacement) else de.edge
 			trimEdge(trimStart = false, trimmedEdge, displacement)
 		}
 	}
 
-	def getDirectedEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
+	def getDirectedEdgesForRendering(edges: Seq[Line]): Seq[CanvasLine] = {
 		val dirEdges = decideDirectionality(edges)
 		val trimmed = trimEdgesBasedOnDirectionality(dirEdges)
 		trimmed.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
 
-	def getSimpleEdgesForRendering(edges: Seq[Edge]): Seq[CanvasLine] = {
+	def getSimpleEdgesForRendering(edges: Seq[Line]): Seq[CanvasLine] = {
 		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
 	}
 
 	def edgeShapes(
-		edges: Seq[Edge],
+		edges: Seq[Line],
 		style: EdgeStyle
 	): MultiShapesCanvas = {
 		val (lines, triangles) = style match {
@@ -95,5 +97,34 @@ object EdgeRender {
 				(lines, triangles)
 		}
 		MultiShapesCanvas(lines, triangles)
+	}
+
+	def simpleEdge(e: Line, strokeWidth: Int, color: String): CanvasLine = {
+		CanvasLine(e.from, e.to, strokeWidth, color)
+	}
+
+	/** Takes all the information needed to render the directed edge. Returns tuple of (line, arrows) */
+	def directedEdge(
+		e: Line,
+		lineWidth: Int,
+		lineColor: String,
+		shortenFromSrc: Boolean,
+		shortenFromDest: Boolean,
+		shortenAmount: Double,
+		srcToDestArrow: Option[ArrowRenderProperties],
+		destToSrcArrow: Option[ArrowRenderProperties]
+	): (CanvasLine, Seq[TriangleCanvas]) = {
+		// shorten the edge from the source and/or destination as needed
+		var shortenedEdge = e
+		shortenedEdge = if (!shortenFromSrc) shortenedEdge else trimEdge(trimStart = true, shortenedEdge, shortenAmount)
+		shortenedEdge = if (!shortenFromDest) shortenedEdge else trimEdge(trimStart = false, shortenedEdge, shortenAmount)
+		// create the line
+		val line = CanvasLine(shortenedEdge.from, shortenedEdge.to, lineWidth, lineColor)
+
+		// create the arrows as needed
+		val s2dArrow = srcToDestArrow.map { props => getArrowTriangle(e, props) }
+		val d2sArrow = destToSrcArrow.map { props => getArrowTriangle(Line(e.to, e.from), props) } // reverse the line for arrow pointing back to source
+
+		(line, s2dArrow.toSeq ++ d2sArrow.toSeq)
 	}
 }

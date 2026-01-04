@@ -10,13 +10,24 @@ object MainCanvas {
 	private var _shapes: Seq[RenderOp] = Seq.empty
 	val canvas = dom.document.getElementById("overlay-canvas").asInstanceOf[html.Canvas]
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+	val scale = dom.window.devicePixelRatio.toInt
 
-	// Resize handling (optional but recommended)
-	canvas.width = dom.window.innerWidth.toInt
-	canvas.height = dom.window.innerHeight.toInt
+	// now do that in ScalaJS instead of vanilla Javascript:
+	private def setCanvasSize(): Unit = {
+		val canvasWidth = dom.window.innerWidth - 300 // infoPaneWidth is 300px
+		val canvasHeight = dom.window.innerHeight
+		canvas.style.width = s"${canvasWidth}px"
+		canvas.style.height = s"${canvasHeight}px"
+
+		// Set actual canvas size to scaled size for high-DPI displays (keeps edges looking sharp)
+		canvas.width = (canvasWidth * scale).toInt
+		canvas.height = (canvasHeight * scale).toInt
+		ctx.scale(scale.toDouble, scale.toDouble)
+	}
 
 	/** Kickstart the requestAnimationFrame loop */
 	def start(): Unit = {
+		setCanvasSize()
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 

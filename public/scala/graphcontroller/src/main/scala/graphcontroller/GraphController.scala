@@ -5,10 +5,12 @@ import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
-import graphcontroller.dataobject.{Edge, KeyWithData, KeyWithDataConverter, NodeData, NodeDataJS, Point}
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, TriangleCanvasJS}
+import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Point}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
+import graphcontroller.render.EdgeRender.{edgeHighlightColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.MainCanvas
+import graphcontroller.render.properties.ArrowRenderProperties
 
 case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -96,15 +98,15 @@ class GraphController {
 	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
-	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Edge] = for {
+	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
 		fromData <- keyToData.get(fromIndex)
 		toData <- keyToData.get(toIndex)
-	} yield Edge(
+	} yield Line(
 		from = Point(fromData.x, fromData.y),
 		to = Point(toData.x, toData.y)
 	)
 
-	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Edge] =
+	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Line] =
 		g.getEdges.toSeq.flatMap { case (from, to) => getEdgeCoordinates(from, to).toSeq }
 
 	@JSExport
@@ -132,32 +134,62 @@ class GraphController {
 			.map { case (col, row) => js.Array.apply(col, row) }
 			.getOrElse(new js.Array)
 
+	// TODO move a lot of the logic here to its own file outside of GraphController (e.g., EdgeRenderer)
 	@JSExport
-	def getShapesForMainCanvas(): MultiShapesCanvasJS = {
-		val edges = getEdgeObjects(graph)
-		val normalEdges = graph.getEdges.toSeq
-			.filterNot(e => matrixHoverCell.exists(h => e._1 == h._1 && e._2 == h._2))
-			.map {
-				case (from, to) => getEdgeCoordinates(from, to).get // blow up, the coordinate should defintely exist
-			}
-		val highlightedEdges = hoveredEdge.toSeq
-			.map {
-				case (from, to) => getEdgeCoordinates(from, to).get // blow up, the coordinate should defintely exist
+	def renderMainCanvas(): Unit = {
+		val (lines, arrows) = graph.uniqueEdgesWithDirection.toSeq
+			.map { case ((from, to), isBidirectional) =>
+				val line = getEdgeCoordinates(from, to).get
+				val (canvasLine, arrowTriangles) = graph match {
+					case _: SimpleMapGraph[Int] =>
+						val canvasLine = EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, simpleEdgeStrokeColor)
+						(canvasLine, Seq.empty)
+					case _: DirectedMapGraph[Int] =>
+						EdgeRender.directedEdge(
+							e = line,
+							lineWidth = simpleEdgeStrokeWidth,
+							lineColor = simpleEdgeStrokeColor,
+							shortenFromSrc = isBidirectional,
+							shortenFromDest = true,
+							shortenAmount = 47.0,
+							srcToDestArrow = Some(ArrowRenderProperties.default),
+							destToSrcArrow = if (isBidirectional) Some(ArrowRenderProperties.default) else None
+						)
+				}
+				(canvasLine, arrowTriangles)
+			}.foldLeft((Seq.empty[CanvasLine], Seq.empty[TriangleCanvas])) {
+				case ((linesAcc, trianglesAcc), (line, triangles)) =>
+					(linesAcc :+ line, trianglesAcc ++ triangles)
 			}
 
-		val (normal, highlighted) = graph match {
-			case _: SimpleMapGraph[Int] =>
-				val normalLines = EdgeRender.edgeShapes(normalEdges, Simple)
-				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, SimpleHighlighted)
-				(normalLines, highlightedLines)
-			case _: DirectedMapGraph[Int] =>
-				val normalLines = EdgeRender.edgeShapes(normalEdges, Directed)
-				val highlightedLines = EdgeRender.edgeShapes(highlightedEdges, DirectedHighlighted)
-				(normalLines, highlightedLines)
+		// TODO: this is very similar but not identical to the code above. Refactor to avoid duplication?
+		val highlightedEdge = hoveredEdge match {
+			case Some((from, to)) =>
+				val line = getEdgeCoordinates(from, to).get
+				val isBidirectional = graph.hasEdge(to, from)
+				graph match {
+					case _: SimpleMapGraph[Int] =>
+						Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, edgeHighlightColor))
+					case _: DirectedMapGraph[Int] =>
+						val (highlightedLine, highlightedArrows) = EdgeRender.directedEdge(
+							e = line,
+							lineWidth = simpleEdgeStrokeWidth,
+							lineColor = edgeHighlightColor,
+							shortenFromSrc = isBidirectional,
+							shortenFromDest = true,
+							shortenAmount = 47.0,
+							srcToDestArrow = Some(ArrowRenderProperties.default.copy(color = edgeHighlightColor)),
+							destToSrcArrow = None
+						)
+						Seq(highlightedLine) ++ highlightedArrows
+				}
+			case None =>
+				Seq.empty[RenderOp]
 		}
-		MainCanvas.setShapes(highlighted.lines ++ highlighted.triangles)
 
-		normal.toJS
+		// we want to draw the shapes in the correct order, with arrows on top of lines, etc.
+		val orderedShapes =  lines ++ arrows ++ highlightedEdge
+		MainCanvas.setShapes(orderedShapes) // draw arrows after lines so they appear on top
 	}
 
 	@JSExport
@@ -210,6 +242,9 @@ class GraphController {
 
 	@JSExport
 	def leaveAdjMatrix(): Unit = { matrixHoverCell = None }
+
+	@JSExport
+	def adjMatrixClick(): Unit = println("Adjacency matrix cell clicked at " + matrixHoverCell)
 
 	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
