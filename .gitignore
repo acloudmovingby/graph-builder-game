@@ -11,3 +11,5 @@ public/scala-sbt/project/project/target
 .DS_Store
 out
 out/
+.scala-build
+.scala-build/
