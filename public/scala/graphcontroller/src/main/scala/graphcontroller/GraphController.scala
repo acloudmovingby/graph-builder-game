@@ -7,7 +7,7 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Point}
 import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
-import graphcontroller.render.EdgeRender.{edgeHighlightColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
+import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.MainCanvas
 import graphcontroller.render.properties.ArrowRenderProperties
@@ -162,6 +162,7 @@ class GraphController {
 					(linesAcc :+ line, trianglesAcc ++ triangles)
 			}
 
+		// Get shapes for highlighted edge (which will get drawn on top of existing edge)
 		// TODO: this is very similar but not identical to the code above. Refactor to avoid duplication?
 		val highlightedEdge = hoveredEdge match {
 			case Some((from, to)) =>
@@ -187,8 +188,32 @@ class GraphController {
 				Seq.empty[RenderOp]
 		}
 
+		// get potential edge shape
+		val potentialEdgeOpt: Option[Seq[RenderOp]] = matrixHoverCell.flatMap { case (from, to) =>
+			if (!graph.hasEdge(from, to) && from != to) { // disallow self-loops
+				getEdgeCoordinates(from, to).map { line =>
+					graph match {
+						case _: SimpleMapGraph[Int] =>
+							Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, "rgba(0, 0, 255, 0.5)")) // semi-transparent blue
+						case _: DirectedMapGraph[Int] =>
+							val (canvasLine, arrowTriangles) = EdgeRender.directedEdge(
+								e = line,
+								lineWidth = simpleEdgeStrokeWidth,
+								lineColor = potentialEdgeStrokeColor, // semi-transparent blue
+								shortenFromSrc = false,
+								shortenFromDest = true,
+								shortenAmount = 47.0,
+								srcToDestArrow = Some(ArrowRenderProperties.default.copy(color = potentialArrowColor)),
+								destToSrcArrow = None
+							)
+							Seq(canvasLine) ++ arrowTriangles
+					}
+				}
+			} else None
+		}
+
 		// we want to draw the shapes in the correct order, with arrows on top of lines, etc.
-		val orderedShapes =  lines ++ arrows ++ highlightedEdge
+		val orderedShapes =  lines ++ arrows ++ highlightedEdge ++ potentialEdgeOpt.toSeq.flatten
 		MainCanvas.setShapes(orderedShapes) // draw arrows after lines so they appear on top
 	}
 
@@ -244,7 +269,9 @@ class GraphController {
 	def leaveAdjMatrix(): Unit = { matrixHoverCell = None }
 
 	@JSExport
-	def adjMatrixClick(): Unit = println("Adjacency matrix cell clicked at " + matrixHoverCell)
+	def adjMatrixClick(): Unit = {
+		println("Adjacency matrix cell clicked at " + matrixHoverCell)
+	}
 
 	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
