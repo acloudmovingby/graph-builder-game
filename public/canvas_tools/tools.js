@@ -6,10 +6,6 @@ import {
     calculateGraphType,
     getDot
 } from "../algorithms/graph_algs.mjs";
-import {
-    drawTriangles,
-    drawLines
-} from "./render/draw_shapes_to_canvas.mjs";
 
 // =====================
 // Class/Type Definitions
@@ -251,6 +247,7 @@ function draw() {
         let ctx = canvas.getContext("2d");
 
         ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+        ctx.setLineDash([])
 
         const welcome = document.getElementById('welcome-message');
         welcome.style.visibility = graphController.nodeCount() === 0 ? "visible" : "hidden";
