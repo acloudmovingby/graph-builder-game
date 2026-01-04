@@ -14,10 +14,10 @@ const COLORS = {
     activeDefault: "#32BFE3",
     activePressed: "#31accc",
     nodeLabel: "orange",
-    border: "red"
+    border: "orange"
 };
-let DRAW_CELL_BORDER_SINGLE = false;
-let DRAW_CELL_BORDER_ROWCOL = false;
+let DRAW_CELL_BORDER_SINGLE = true;
+let DRAW_CELL_BORDER_ROWCOL = true;
 // Add global flag for row/column highlight
 let DRAW_ROW_COL_HIGHLIGHT = true;
 let mousePressedCell = null;
