@@ -269,16 +269,27 @@ class GraphController {
 	def leaveAdjMatrix(): Unit = { matrixHoverCell = None }
 
 	@JSExport
-	def adjMatrixClick(): Unit = {
-		println("Adjacency matrix cell clicked at " + matrixHoverCell)
-	}
-
-	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
 		try {
 			graph = graph.removeEdge(from, to)
 		} catch {
 			case e: NoSuchElementException => println(s"Error removing edge: ${e.getMessage}")
+		}
+	}
+
+	@JSExport
+	def adjMatrixClick(): Unit = {
+		println("Adjacency matrix cell clicked at " + matrixHoverCell)
+		matrixHoverCell.foreach { case (from, to) =>
+			(from == to, graph.hasEdge(from, to)) match {
+				case (true, _) => println("Self-loops are not allowed.")
+				case (false, true) =>
+					pushUndoState()
+					removeEdge(from, to)
+				case (false, false) =>
+					pushUndoState()
+					addEdge(from, to)
+			}
 		}
 	}
 }
