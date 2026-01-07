@@ -12,14 +12,36 @@ case class Hover(edge: (Int, Int)) extends AdjMatrixSelectionState
 case class Clicked(edge: (Int, Int), isAdd: Boolean) extends AdjMatrixSelectionState
 /** Mouse is currently dragging to select/deselect cells */
 case class DragSelecting(
-	cells: ListSet[(Int, Int)], // set of cells currently selected in drag, use ListSet to maintain order of selection
-	isHorizontal: Boolean, // true = horizontal drag, false = vertical drag
+	startCell: (Int, Int),
+	currentHoveredCell: (Int, Int),
 	isAdd: Boolean // true = adding selection, false = removing selection
-) extends AdjMatrixSelectionState
+) extends AdjMatrixSelectionState {
+	def selectedCells: Set[(Int, Int)] = {
+		if (startCell._1 == currentHoveredCell._1) {
+			// horizontal drag
+			val row = startCell._1
+			val colRange = if (currentHoveredCell._2 >= startCell._2) {
+				startCell._2 to currentHoveredCell._2
+			} else {
+				currentHoveredCell._2 to startCell._2
+			}
+			colRange.map(col => (row, col)).toSet
+		} else {
+			// vertical drag
+			val col = startCell._2
+			val rowRange = if (currentHoveredCell._1 >= startCell._1) {
+				startCell._1 to currentHoveredCell._1
+			} else {
+				currentHoveredCell._1 to startCell._1
+			}
+			rowRange.map(row => (row, col)).toSet
+		}
+	}
+}
 /** When we release the selection and actually want to apply its addition/removal. State
  * is essentially treated like NoSelection apart from that (since now the selection has been released) */
 case class ReleaseSelection(
-	cells: ListSet[(Int, Int)], // set of cells selected on release
+	cells: Set[(Int, Int)], // set of cells selected on release
 	isAdd: Boolean // true = adding selection, false = removing selection
 ) extends AdjMatrixSelectionState
 
@@ -66,52 +88,9 @@ class AdjMatrixClickDragLogic {
 			case NoSelection | Hover(_) | ReleaseSelection(_, _) =>
 				throw new Exception("Invalid state: mouseUp called but mousedown was never called")
 			case Clicked(cell, isAdd) =>
-				ReleaseSelection(ListSet(cell), isAdd) // selection is 1 cell
-			case DragSelecting(cells, isHorizontal, isAdd) =>
-				ReleaseSelection(cells, isAdd) // finalize selection
+				ReleaseSelection(Set(cell), isAdd) // selection is 1 cell
+			case d: DragSelecting =>
+				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 		}
 	}
-
-	def mouseMove(
-		currentState: AdjMatrixSelectionState,
-		hoveredCell: (Int, Int)
-	): AdjMatrixSelectionState = {
-		currentState match {
-			case NoSelection =>
-				Hover(hoveredCell)
-			case Hover(_) =>
-				Hover(hoveredCell)
-			case Clicked(startCell, isAdd) =>
-				// determine if horizontal or vertical drag
-				val isHorizontal = startCell._1 == hoveredCell._1
-				DragSelecting(ListSet(startCell, hoveredCell), isHorizontal, isAdd)
-			case DragSelecting(cells, isHorizontal, isAdd) =>
-				// extend selection
-				val lastCell = cells.last
-				val newCells = if (isHorizontal) {
-					// horizontal drag, fix row index
-					val row = lastCell._1
-					val colRange = if (hoveredCell._2 >= lastCell._2) {
-						(lastCell._2 + 1) to hoveredCell._2
-					} else {
-						hoveredCell._2 to (lastCell._2 - 1)
-					}
-					colRange.map(col => (row, col))
-				} else {
-					// vertical drag, fix column index
-					val col = lastCell._2
-					val rowRange = if (hoveredCell._1 >= lastCell._1) {
-						(lastCell._1 + 1) to hoveredCell._1
-					} else {
-						hoveredCell._1 to (lastCell._1 - 1)
-					}
-					rowRange.map(row => (row, col))
-				}
-				DragSelecting(cells ++ newCells, isHorizontal, isAdd)
-			case ReleaseSelection(_, _) =>
-				// once released, treat as no selection and start hover anew
-				Hover(hoveredCell)
-		}
-	}
-
 }

@@ -12,7 +12,6 @@ object MainCanvas {
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	val scale = dom.window.devicePixelRatio.toInt
 
-	// now do that in ScalaJS instead of vanilla Javascript:
 	private def setCanvasSize(): Unit = {
 		val canvasWidth = dom.window.innerWidth - 300 // infoPaneWidth is 300px
 		val canvasHeight = dom.window.innerHeight
