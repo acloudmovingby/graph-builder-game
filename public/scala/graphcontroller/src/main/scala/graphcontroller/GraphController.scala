@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Point}
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, MultiShapesCanvas, MultiShapesCanvasJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
 import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.MainCanvas

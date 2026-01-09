@@ -1,8 +1,8 @@
 package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
-
 import graphcontroller.dataobject.{Point, PointJS}
+import org.scalajs.dom
 
 /** Represents data necessary to draw a line with the HTML Canvas API */
 case class CanvasLine(
@@ -17,6 +17,15 @@ case class CanvasLine(
 		width = this.width,
 		color = this.color
 	).asInstanceOf[CanvasLineJS]
+
+	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {
+		ctx.beginPath()
+		ctx.moveTo(from.x, from.y)
+		ctx.lineTo(to.x, to.y)
+		ctx.lineWidth = width
+		ctx.strokeStyle = color
+		ctx.stroke()
+	}
 }
 
 /** JS compatible equivalent of CanvasLine */

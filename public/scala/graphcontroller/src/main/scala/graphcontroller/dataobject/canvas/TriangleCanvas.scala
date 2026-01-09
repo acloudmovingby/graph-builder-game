@@ -1,8 +1,8 @@
 package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
-
 import graphcontroller.dataobject.{Triangle, TriangleJS}
+import org.scalajs.dom
 
 /** Represents data necessary to draw a triangle with the HTML Canvas API */
 case class TriangleCanvas(
@@ -13,6 +13,16 @@ case class TriangleCanvas(
 		tri = this.tri.toJS,
 		color = this.color
 	).asInstanceOf[TriangleCanvasJS]
+	
+	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {
+		ctx.beginPath()
+		ctx.moveTo(tri.pt1.x, tri.pt1.y)
+		ctx.lineTo(tri.pt2.x, tri.pt2.y)
+		ctx.lineTo(tri.pt3.x, tri.pt3.y)
+		ctx.closePath()
+		ctx.fillStyle = color
+		ctx.fill()
+	}
 }
 
 /** JS compatible equivalent of TriangleCanvas */

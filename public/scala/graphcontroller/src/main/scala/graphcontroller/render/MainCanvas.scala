@@ -60,11 +60,11 @@ object MainCanvas {
 		// TODO delete this once I understand / use it
 		// Update your game state here
 		// For demo, let's just make a moving line based on time
-		val offset = ((timestamp / 10) % 500).toInt
-		val shapes = List(
-			CanvasLine(from = Point(10 + offset, 10), to = Point(100 + offset, 100), 3, "red"),
-			TriangleCanvas(Triangle(Point(200, 200), Point(250, 300), Point(150, 300)), "blue")
-		)
+//		val offset = ((timestamp / 10) % 500).toInt
+//		val shapes = List(
+//			CanvasLine(from = Point(10 + offset, 10), to = Point(100 + offset, 100), 3, "red"),
+//			TriangleCanvas(Triangle(Point(200, 200), Point(250, 300), Point(150, 300)), "blue")
+//		)
 
 		render(_shapes)
 

@@ -3,7 +3,7 @@ package graphcontroller.render
 import scala.math
 import graphi.DirectedMapGraph
 import graphcontroller.dataobject.{Line, NodeData, Point}
-import graphcontroller.dataobject.canvas.{CanvasLine, MultiShapesCanvas, RenderOp, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
 import graphcontroller.render.ArrowTipRender.getArrowTriangle
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.properties.ArrowRenderProperties
@@ -12,9 +12,7 @@ enum EdgeStyle {
 	case Simple, Directed, SimpleHighlighted, DirectedHighlighted
 }
 
-// make new pipeline that turns graph edge list into list of DirectedEdges, then further function that turns it into RenderedDirectedEdge
 case class DirectedEdge(e: Line, isBidirectional: Boolean)
-case class RenderedDirectedEdge(line: CanvasLine, srcArrow: TriangleCanvas, targetArrow: TriangleCanvas) extends RenderOp
 
 object EdgeRender {
 	// Parameters for styling the rendered shapes
@@ -83,22 +81,6 @@ object EdgeRender {
 
 	def getSimpleEdgesForRendering(edges: Seq[Line]): Seq[CanvasLine] = {
 		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
-	}
-
-	def edgeShapes(
-		edges: Seq[Line],
-		style: EdgeStyle
-	): MultiShapesCanvas = {
-		val (lines, triangles) = style match {
-			case Simple => (getSimpleEdgesForRendering(edges), Seq.empty)
-			case Directed =>(getDirectedEdgesForRendering(edges), ArrowTipRender.getTriangles(edges))
-			case SimpleHighlighted => (getSimpleEdgesForRendering(edges).map(e => e.copy(color = edgeHighlightColor)), Seq.empty)
-			case DirectedHighlighted =>
-				val lines = getDirectedEdgesForRendering(edges).map(e => e.copy(color = edgeHighlightColor))
-				val triangles = ArrowTipRender.getTriangles(edges).map(t => t.copy(color = edgeHighlightColor))
-				(lines, triangles)
-		}
-		MultiShapesCanvas(lines, triangles)
 	}
 
 	def simpleEdge(e: Line, strokeWidth: Int, color: String): CanvasLine = {
