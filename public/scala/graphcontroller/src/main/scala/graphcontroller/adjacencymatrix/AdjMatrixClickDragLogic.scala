@@ -1,4 +1,4 @@
-package graphcontroller
+package main.scala.graphcontroller.adjacencymatrix
 
 import scala.collection.immutable.ListSet
 
@@ -38,8 +38,7 @@ case class DragSelecting(
 		}
 	}
 }
-/** When we release the selection and actually want to apply its addition/removal. State
- * is essentially treated like NoSelection apart from that (since now the selection has been released) */
+/** When we release the selection and actually want to apply its addition/removal. */
 case class ReleaseSelection(
 	cells: Set[(Int, Int)], // set of cells selected on release
 	isAdd: Boolean // true = adding selection, false = removing selection
@@ -85,7 +84,7 @@ class AdjMatrixClickDragLogic {
 		currentState: AdjMatrixSelectionState
 	): AdjMatrixSelectionState = {
 		currentState match {
-			case NoSelection | Hover(_) | ReleaseSelection(_, _) =>
+			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
 				throw new Exception("Invalid state: mouseUp called but mousedown was never called")
 			case Clicked(cell, isAdd) =>
 				ReleaseSelection(Set(cell), isAdd) // selection is 1 cell

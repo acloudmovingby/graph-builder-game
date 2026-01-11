@@ -1,7 +1,6 @@
 import scala.collection.immutable.ListSet
 import utest.*
-
-import graphcontroller.{AdjMatrixClickDragLogic, AdjMatrixSelectionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection}
+import main.scala.graphcontroller.adjacencymatrix.{AdjMatrixClickDragLogic, AdjMatrixSelectionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection}
 
 object AdjMatrixClickDragLogicTests extends TestSuite {
 	def tests = Tests {

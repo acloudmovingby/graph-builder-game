@@ -4,13 +4,13 @@ import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle}
+import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle, MainCanvas}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Point}
 import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
 import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
-import graphcontroller.render.MainCanvas
 import graphcontroller.render.properties.ArrowRenderProperties
+import graphcontroller.adjacencymatrix.AdjMatrixCanvas
 
 case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
 
@@ -112,7 +112,6 @@ class GraphController {
 	@JSExport
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
 		// trigger draw on canvas as test TODO: delete this
-		MainCanvas.start()
 
 		val size = graph.nodeCount
 		// initialize size x size matrix with 0s
