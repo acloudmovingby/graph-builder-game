@@ -18,7 +18,6 @@ import graphcontroller.controller.Controller
 class GraphController {
 	private def state = Controller.state
 	private var keyToData = Map[Int, NodeData]()
-	private val undoStack = scala.collection.mutable.Stack[GraphUndoState[Int]]()
 	private var matrixHoverCell: Option[(Int, Int)] = None
 	private def hoveredEdge: Option[(Int, Int)] = matrixHoverCell.flatMap { case (from, to) =>
 		if (state.graph.hasEdge(from, to)) Some((from, to)) else None
@@ -65,19 +64,23 @@ class GraphController {
 
 	@JSExport
 	def pushUndoState(): Unit = {
+		// TODO get rid of this clone thing, it doesn't make sense
 		val nodeCopyFunction = (i: Int) => i // identity function for Int keys
-		undoStack.push(GraphUndoState(state.graph.clone(nodeCopyFunction), keyToData)) // clone keyToData too?
+		val newUndoState = GraphUndoState(state.graph.clone(nodeCopyFunction), keyToData)
+		Controller.state = state.copy(undoStack = newUndoState :: Controller.state.undoStack)
 		// if we exceed the limit, remove the oldest state
-		if (undoStack.size > GraphUndoState.UNDO_SIZE_LIMIT) {
-			undoStack.remove(0)
+		if (Controller.state.undoStack.size > GraphUndoState.UNDO_SIZE_LIMIT) {
+			val newStack = Controller.state.undoStack.take(GraphUndoState.UNDO_SIZE_LIMIT)
+			Controller.state = Controller.state.copy(undoStack = newStack)
 		}
 	}
 
 	/**	No-op if no states in undo stack */
 	@JSExport
 	def popUndoState(): Unit = {
-		if (undoStack.nonEmpty) {
-			val prevState = undoStack.pop()
+		// if it's non-empty, pop the top state and restore it
+		Controller.state.undoStack.headOption.foreach { prevState =>
+			Controller.state = Controller.state.copy(undoStack = Controller.state.undoStack.tail)
 			Controller.state = state.copy(graph = prevState.graph)
 			keyToData = prevState.keyToData
 		}
@@ -85,7 +88,7 @@ class GraphController {
 
 	/** For graying-out the undo button if can't undo anymore */
 	@JSExport
-	def canUndo(): Boolean = undoStack.nonEmpty
+	def canUndo(): Boolean = Controller.state.undoStack.nonEmpty
 
 	@JSExport
 	def getDot: String = state.graph.toDot
