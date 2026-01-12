@@ -1,10 +1,9 @@
-package graphcontroller
+package graphcontroller.controller
 
-import graphcontroller.GraphController
 import org.scalajs.dom
 import org.scalajs.dom.html
 
-class AdjMatrixEventListeners(graphController: GraphController) {
+class AdjMatrixEventListeners {
 	private val adjMatrixCanvas = dom.document.getElementById("adj-matrix").asInstanceOf[html.Canvas]
 	private val scale = dom.window.devicePixelRatio
 
@@ -16,25 +15,34 @@ class AdjMatrixEventListeners(graphController: GraphController) {
 	}
 
 	private def canvasWidth: Int = (adjMatrixCanvas.width / scale).toInt
+
 	private def canvasHeight: Int = (adjMatrixCanvas.height / scale).toInt
 
 	private def inBounds(x: Int, y: Int): Boolean = {
 		x >= 0 && x <= canvasWidth && y >= 0 && y <= canvasHeight
 	}
 
-	def setupEventListeners(): Unit = {
+	def addEventListeners(): Unit = {
 		// Resize listener
 		adjMatrixCanvas.addEventListener("mousemove", (e: dom.Event) => {
 			val (x, y) = calculateEventCoordinates(e.asInstanceOf[dom.MouseEvent])
-				if (inBounds(x, y)) println(s"AdjMatrixEventListeners - mousemove event detected: x=$x, y=$y, canvasWidth=${adjMatrixCanvas.width}, canvasHeight=${adjMatrixCanvas.height}")
+			if (inBounds(x, y)) {
+				//println(s"AdjMatrixEventListeners - mousemove event detected: x=$x, y=$y, canvasWidth=${adjMatrixCanvas.width}, canvasHeight=${adjMatrixCanvas.height}")
+				val event = AdjMatrixMouseMove(x, y)
+				Controller.handleEvent(event)
+			}
 		})
 
 		adjMatrixCanvas.addEventListener("mouseleave", (e: dom.Event) => {
-			println(s"AdjMatrixEventListeners - mouseleave event detected: ${e.asInstanceOf[dom.MouseEvent]}")
+			Controller.handleEvent(AdjMatrixMouseLeave)
 		})
 
 		adjMatrixCanvas.addEventListener("mouseup", (_: dom.Event) => {
-			println("AdjMatrixEventListeners - mouseup event detected")
+			Controller.handleEvent(AdjMatrixMouseUp)
+		})
+
+		adjMatrixCanvas.addEventListener("mousedown", (_: dom.Event) => {
+			Controller.handleEvent(AdjMatrixMouseDown)
 		})
 	}
 }

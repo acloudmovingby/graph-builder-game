@@ -11,51 +11,46 @@ import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColo
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.properties.ArrowRenderProperties
 import graphcontroller.adjacencymatrix.AdjMatrixCanvas
-
-case class GraphState[A](graph: DirectedMapGraph[A] | SimpleMapGraph[A], keyToData: Map[A, NodeData])
-
-object GraphState {
-	// Limit the number of undo states to avoid excessive memory usage
-	val UNDO_SIZE_LIMIT = 50
-}
+import graphcontroller.model.GraphUndoState
+import graphcontroller.controller.Controller
 
 @JSExportTopLevel("GraphController")
 class GraphController {
-	private var graph: DirectedMapGraph[Int] | SimpleMapGraph[Int] = new DirectedMapGraph[Int]() // key is Int, data is NodeData
+	private def state = Controller.state
 	private var keyToData = Map[Int, NodeData]()
-	private val undoGraphStates = scala.collection.mutable.Stack[GraphState[Int]]()
+	private val undoStack = scala.collection.mutable.Stack[GraphUndoState[Int]]()
 	private var matrixHoverCell: Option[(Int, Int)] = None
 	private def hoveredEdge: Option[(Int, Int)] = matrixHoverCell.flatMap { case (from, to) =>
-		if (graph.hasEdge(from, to)) Some((from, to)) else None
+		if (state.graph.hasEdge(from, to)) Some((from, to)) else None
 	}
 
 	@JSExport
-	def isDirected(): Boolean = graph match {
+	def isDirected(): Boolean = state.graph match {
 		case _: DirectedMapGraph[Int] => true
 		case _: SimpleMapGraph[Int] => false
 	}
 
 	@JSExport
 	def clearGraph(): Unit = {
-		graph = new DirectedMapGraph[Int]()
+		Controller.state = state.copy(graph = new DirectedMapGraph[Int]())
 		keyToData = Map.empty
 	}
 
 	@JSExport
-	def nodeCount(): Int = graph.nodeCount
+	def nodeCount(): Int = state.graph.nodeCount
 
 	@JSExport
-	def edgeCount(): Int = graph.edgeCount
+	def edgeCount(): Int = state.graph.edgeCount
 
 	@JSExport
 	def addNode(key: Int, data: NodeDataJS): Unit = {
-		graph = graph.addNode(key)
+		Controller.state = state.copy(graph = state.graph.addNode(key))
 		keyToData += (key -> NodeData.fromJS(data))
 	}
 
 	@JSExport
 	def addEdge(to: Int, from: Int): Unit = try {
-		graph = graph.addEdge(to, from)
+		Controller.state = state.copy(graph = state.graph.addEdge(to, from))
 	} catch {
 		case e: NoSuchElementException => println(s"Error adding edge (not yet implemented): ${e.getMessage}")
 	}
@@ -71,32 +66,32 @@ class GraphController {
 	@JSExport
 	def pushUndoState(): Unit = {
 		val nodeCopyFunction = (i: Int) => i // identity function for Int keys
-		undoGraphStates.push(GraphState(graph.clone(nodeCopyFunction), keyToData)) // clone keyToData too?
+		undoStack.push(GraphUndoState(state.graph.clone(nodeCopyFunction), keyToData)) // clone keyToData too?
 		// if we exceed the limit, remove the oldest state
-		if (undoGraphStates.size > GraphState.UNDO_SIZE_LIMIT) {
-			undoGraphStates.remove(0)
+		if (undoStack.size > GraphUndoState.UNDO_SIZE_LIMIT) {
+			undoStack.remove(0)
 		}
 	}
 
 	/**	No-op if no states in undo stack */
 	@JSExport
 	def popUndoState(): Unit = {
-		if (undoGraphStates.nonEmpty) {
-			val prevState = undoGraphStates.pop()
-			graph = prevState.graph
+		if (undoStack.nonEmpty) {
+			val prevState = undoStack.pop()
+			Controller.state = state.copy(graph = prevState.graph)
 			keyToData = prevState.keyToData
 		}
 	}
 
 	/** For graying-out the undo button if can't undo anymore */
 	@JSExport
-	def canUndo(): Boolean = undoGraphStates.nonEmpty
+	def canUndo(): Boolean = undoStack.nonEmpty
 
 	@JSExport
-	def getDot: String = graph.toDot
+	def getDot: String = state.graph.toDot
 
 	@JSExport
-	def getAdjList(): js.Array[js.Array[Int]] = graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
+	def getAdjList(): js.Array[js.Array[Int]] = state.graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
 	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
 		fromData <- keyToData.get(fromIndex)
@@ -113,14 +108,14 @@ class GraphController {
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
 		// trigger draw on canvas as test TODO: delete this
 
-		val size = graph.nodeCount
+		val size = state.graph.nodeCount
 		// initialize size x size matrix with 0s
 		val matrix = Array.fill(size, size)(0)
 		for {
-			(from, to) <- graph.getEdges.toSeq.sorted
+			(from, to) <- state.graph.getEdges.toSeq.sorted
 		} {
 			matrix(from)(to) = 1
-			graph match {
+			state.graph match {
 				case _: SimpleMapGraph[_] => matrix(to)(from) = 1
 				case _ => ()
 			}
@@ -136,10 +131,10 @@ class GraphController {
 	// TODO move a lot of the logic here to its own file outside of GraphController (e.g., EdgeRenderer)
 	@JSExport
 	def renderMainCanvas(): Unit = {
-		val (lines, arrows) = graph.uniqueEdgesWithDirection.toSeq
+		val (lines, arrows) = state.graph.uniqueEdgesWithDirection.toSeq
 			.map { case ((from, to), isBidirectional) =>
 				val line = getEdgeCoordinates(from, to).get
-				val (canvasLine, arrowTriangles) = graph match {
+				val (canvasLine, arrowTriangles) = state.graph match {
 					case _: SimpleMapGraph[Int] =>
 						val canvasLine = EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, simpleEdgeStrokeColor)
 						(canvasLine, Seq.empty)
@@ -166,8 +161,8 @@ class GraphController {
 		val highlightedEdge = hoveredEdge match {
 			case Some((from, to)) =>
 				val line = getEdgeCoordinates(from, to).get
-				val isBidirectional = graph.hasEdge(to, from)
-				graph match {
+				val isBidirectional = state.graph.hasEdge(to, from)
+				state.graph match {
 					case _: SimpleMapGraph[Int] =>
 						Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, edgeHighlightColor))
 					case _: DirectedMapGraph[Int] =>
@@ -189,9 +184,9 @@ class GraphController {
 
 		// get potential edge shape
 		val potentialEdgeOpt: Option[Seq[RenderOp]] = matrixHoverCell.flatMap { case (from, to) =>
-			if (!graph.hasEdge(from, to) && from != to) { // disallow self-loops
+			if (!state.graph.hasEdge(from, to) && from != to) { // disallow self-loops
 				getEdgeCoordinates(from, to).map { line =>
-					graph match {
+					state.graph match {
 						case _: SimpleMapGraph[Int] =>
 							Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, "rgba(0, 0, 255, 0.5)")) // semi-transparent blue
 						case _: DirectedMapGraph[Int] =>
@@ -228,14 +223,14 @@ class GraphController {
 
 	/** First node will be labeled '0', next will be labeled '1', etc. */
 	@JSExport
-	def nextNodeKey(): Int = graph.nodeCount
+	def nextNodeKey(): Int = state.graph.nodeCount
 
 	@JSExport
-	def containsEdge(from: Int, to: Int): Boolean = graph.hasEdge(from, to)
+	def containsEdge(from: Int, to: Int): Boolean = state.graph.hasEdge(from, to)
 
 	@JSExport
 	def toggleDirectionality(): Unit = {
-		graph match {
+		state.graph match {
 			case g: DirectedMapGraph[Int] =>
 				var undirectedGraph = new SimpleMapGraph[Int]()
 				// add all nodes
@@ -249,16 +244,16 @@ class GraphController {
 				} {
 					undirectedGraph = undirectedGraph.addEdge(from, to)
 				}
-				graph = undirectedGraph
+				Controller.state = state.copy(graph = undirectedGraph)
 			case g: SimpleMapGraph[Int] =>
-				graph = new DirectedMapGraph[Int](g.adjMap)
+				Controller.state = state.copy(graph = new DirectedMapGraph[Int](g.adjMap))
 		}
 	}
 
 	@JSExport
 	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
 		// the mouseover listener can sometimes report negative coordinates if you move the mouse fast enough, so check it's not negative
-		def withinBounds(x: Int) = { x >= 0 && x < graph.nodeCount }
+		def withinBounds(x: Int) = { x >= 0 && x < state.graph.nodeCount }
 		if (withinBounds(col) && withinBounds(row)) {
 			matrixHoverCell = Some((col, row))
 		} else matrixHoverCell = None
@@ -270,7 +265,7 @@ class GraphController {
 	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
 		try {
-			graph = graph.removeEdge(from, to)
+			Controller.state = state.copy(graph = state.graph.removeEdge(from, to))
 		} catch {
 			case e: NoSuchElementException => println(s"Error removing edge: ${e.getMessage}")
 		}
@@ -280,7 +275,7 @@ class GraphController {
 	def adjMatrixClick(): Unit = {
 		println("Adjacency matrix cell clicked at " + matrixHoverCell)
 		matrixHoverCell.foreach { case (from, to) =>
-			(from == to, graph.hasEdge(from, to)) match {
+			(from == to, state.graph.hasEdge(from, to)) match {
 				case (true, _) => println("Self-loops are not allowed.")
 				case (false, true) =>
 					pushUndoState()

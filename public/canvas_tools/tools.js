@@ -732,32 +732,33 @@ function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
     }
 }
 
-if (adjMatrixElem) {
-    adjMatrixElem.addEventListener("mousemove", function(event) {
-        const rect = adjMatrixElem.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const nodeCount = graphController.nodeCount();
-        if (nodeCount > 0) {
-            const cellWidth = adjMatrixElem.width / (nodeCount * scale);
-            const cellHeight = adjMatrixElem.height / (nodeCount * scale);
-            const col = Math.floor(x / cellWidth);
-            const row = Math.floor(y / cellHeight);
-            graphController.hoverAdjMatrixCell(col, row);
-        }
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
-    });
-
-    adjMatrixElem.addEventListener("mouseleave", function(event) {
-        graphController.leaveAdjMatrix();
-        // need to refresh html or hover color will linger
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
-    });
-
-    adjMatrixElem.addEventListener("mouseup", function(event) {
-            graphController.adjMatrixClick();
-        });
-}
+// TODO delete this entirely once we have ported it fully to ScalaJS
+//if (adjMatrixElem) {
+//    adjMatrixElem.addEventListener("mousemove", function(event) {
+//        const rect = adjMatrixElem.getBoundingClientRect();
+//        const x = event.clientX - rect.left;
+//        const y = event.clientY - rect.top;
+//        const nodeCount = graphController.nodeCount();
+//        if (nodeCount > 0) {
+//            const cellWidth = adjMatrixElem.width / (nodeCount * scale);
+//            const cellHeight = adjMatrixElem.height / (nodeCount * scale);
+//            const col = Math.floor(x / cellWidth);
+//            const row = Math.floor(y / cellHeight);
+//            graphController.hoverAdjMatrixCell(col, row);
+//        }
+//        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+//    });
+//
+//    adjMatrixElem.addEventListener("mouseleave", function(event) {
+//        graphController.leaveAdjMatrix();
+//        // need to refresh html or hover color will linger
+//        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+//    });
+//
+//    adjMatrixElem.addEventListener("mouseup", function(event) {
+//            graphController.adjMatrixClick();
+//        });
+//}
 
 function enterBasicEdgeMode(node) {
     basicTool.state.edgeMode = true;
