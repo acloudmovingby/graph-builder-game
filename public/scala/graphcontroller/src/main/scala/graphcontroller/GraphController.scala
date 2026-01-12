@@ -17,7 +17,7 @@ import graphcontroller.controller.Controller
 @JSExportTopLevel("GraphController")
 class GraphController {
 	private def state = Controller.state
-	private var keyToData = Map[Int, NodeData]()
+	private def keyToData = state.keyToData
 	private var matrixHoverCell: Option[(Int, Int)] = None
 	private def hoveredEdge: Option[(Int, Int)] = matrixHoverCell.flatMap { case (from, to) =>
 		if (state.graph.hasEdge(from, to)) Some((from, to)) else None
@@ -32,7 +32,7 @@ class GraphController {
 	@JSExport
 	def clearGraph(): Unit = {
 		Controller.state = state.copy(graph = new DirectedMapGraph[Int]())
-		keyToData = Map.empty
+		Controller.state = state.copy(keyToData = Map.empty)
 	}
 
 	@JSExport
@@ -44,7 +44,7 @@ class GraphController {
 	@JSExport
 	def addNode(key: Int, data: NodeDataJS): Unit = {
 		Controller.state = state.copy(graph = state.graph.addNode(key))
-		keyToData += (key -> NodeData.fromJS(data))
+		Controller.state = state.copy(keyToData = keyToData + (key -> NodeData.fromJS(data)))
 	}
 
 	@JSExport
@@ -57,7 +57,7 @@ class GraphController {
 	@JSExport
 	def updateNodeData(key: Int, data: NodeDataJS): Unit = {
 		keyToData.get(key) match {
-			case Some(_) => keyToData += (key -> NodeData.fromJS(data))
+			case Some(_) => Controller.state = state.copy(keyToData = keyToData + (key -> NodeData.fromJS(data)))
 			case None => println(s"Error updating node data: Node $key does not exist")
 		}
 	}
@@ -82,7 +82,7 @@ class GraphController {
 		Controller.state.undoStack.headOption.foreach { prevState =>
 			Controller.state = Controller.state.copy(undoStack = Controller.state.undoStack.tail)
 			Controller.state = state.copy(graph = prevState.graph)
-			keyToData = prevState.keyToData
+			Controller.state = state.copy(keyToData = prevState.keyToData)
 		}
 	}
 
