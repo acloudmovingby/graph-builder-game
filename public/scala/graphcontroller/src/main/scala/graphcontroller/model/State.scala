@@ -8,7 +8,8 @@ case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
 	keyToData: Map[Int, NodeData],
 	undoStack: List[GraphUndoState[Int]],
-	adjMatrixState: AdjMatrixInteractionState
+	adjMatrixState: AdjMatrixInteractionState,
+	adjMatrixDimensions: (Int, Int)
 )
 
 object State {
@@ -20,6 +21,7 @@ object State {
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
 		undoStack = List.empty,
-		adjMatrixState = NoSelection
+		adjMatrixState = NoSelection,
+		adjMatrixDimensions = (100, 100) // override in Controller.init after loading settings
 	)
 }

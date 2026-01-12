@@ -1,16 +1,19 @@
-package graphcontroller.adjacencymatrix
+package graphcontroller.render
 
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
 import graphcontroller.dataobject.{Point, Triangle}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
+// TODO:
+//  (1) align this better with the general Controller => Model => View architecture and have requestAnimationFrame calls be Tick events
+//  (2) Make parent trait that both MainCanvas and this extend
 object AdjMatrixCanvas {
 	/** Things to render on each animation frame callback */
-	private var _shapes: Seq[RenderOp] = Seq.empty
+	private var shapes: Seq[RenderOp] = Seq.empty
 	val canvas = dom.document.getElementById("adj-matrix").asInstanceOf[html.Canvas]
-	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-	val scale = dom.window.devicePixelRatio.toInt
+	private val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+	private val scale = dom.window.devicePixelRatio.toInt
 
 	private def setCanvasSize(): Unit = {
 		val canvasWidth = canvas.offsetWidth
@@ -26,34 +29,19 @@ object AdjMatrixCanvas {
 	def start(): Unit = {
 		println("Adj matrix starting...")
 		setCanvasSize()
+		// TODO move this to the controller as a Tick event
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
-	def render(shapes: Seq[RenderOp]): Unit = {
-		// Clear the screen every frame
-		ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-		shapes.foreach(_.draw(ctx))
-	}
-
-	// 4. The Loop
-	// The timestamp is passed automatically by the browser (high-precision time)
+	// Not using timestamp for now, but will be useful later for animations
 	def loop(timestamp: Double): Unit = {
-
-		// TODO delete this once I understand / use it
-		// Update your game state here
-		// For demo, let's just make a moving line based on time
-		val offset = ((timestamp / 10) % 500).toInt
-		val shapes = List(
-			CanvasLine(from = Point(10 + offset, 10), to = Point(100 + offset, 100), 3, "red"),
-			TriangleCanvas(Triangle(Point(200, 200), Point(250, 300), Point(150, 300)), "blue")
-		)
-
-		render(shapes)
+		// Clear the screen every frame (for now)
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		shapes.foreach(_.draw(ctx))
 
 		// Schedule the next frame
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
-	def setShapes(shapes: Seq[RenderOp]): Unit = { _shapes = shapes }
+	def setShapes(shapes: Seq[RenderOp]): Unit = { this.shapes = shapes }
 }

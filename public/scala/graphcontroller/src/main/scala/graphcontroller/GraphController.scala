@@ -10,7 +10,6 @@ import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, Tr
 import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
 import graphcontroller.render.properties.ArrowRenderProperties
-import graphcontroller.adjacencymatrix.AdjMatrixCanvas
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
 

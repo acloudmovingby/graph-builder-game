@@ -1,16 +1,14 @@
 package graphcontroller.model.adjacencymatrix
 
 import scala.collection.immutable.ListSet
-import graphcontroller.controller.{AdjacencyMatrixEvent, AdjMatrixMouseUp}
+import graphcontroller.controller.{
+	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
+}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState,
-	Clicked,
-	DragSelecting,
-	Hover,
-	NoSelection,
-	ReleaseSelection
+	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
 }
 
+// TODO: I hate this name
 object AdjMatrixClickDragLogic {
 	def handleEvent(
 		event: AdjacencyMatrixEvent,
@@ -18,9 +16,9 @@ object AdjMatrixClickDragLogic {
 	): AdjMatrixInteractionState = {
 		event match {
 			case AdjMatrixMouseUp => mouseUp(currentState)
-			case _ =>
-				println("Not yet implemented: " + event)
-				currentState // other events not implemented yet
+			case AdjMatrixMouseMove(x, y) => mouseMove(x, y, currentState)
+			case AdjMatrixMouseLeave => mouseLeave(currentState)
+			case _ => currentState // other events not implemented yet
 		}
 	}
 	/* events that can happen:
@@ -71,4 +69,30 @@ object AdjMatrixClickDragLogic {
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 		}
 	}
+
+	def mouseMove(
+		x: Int,
+		y: Int,
+		currentState: AdjMatrixInteractionState
+	): AdjMatrixInteractionState = {
+		currentState match {
+			case NoSelection =>
+				Hover((x, y)) // hovering over cell
+			case Hover(_) =>
+				Hover((x, y)) // update hover position
+			case Clicked(startCell, isAdd) =>
+				// start drag selection
+				DragSelecting(startCell, (x, y), isAdd)
+			case d: DragSelecting =>
+				// update drag selection
+				d.copy(currentHoveredCell = (x, y))
+			case r: ReleaseSelection =>
+				// do nothing, selection already made
+				NoSelection
+		}
+	}
+
+	def mouseLeave(
+		currentState: AdjMatrixInteractionState
+	): AdjMatrixInteractionState = NoSelection
 }
