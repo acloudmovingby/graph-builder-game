@@ -1,19 +1,16 @@
 package graphcontroller.controller
 
-import graphcontroller.model.State
+import graphcontroller.model.{Model, State}
 
+/**
+ * The one place in the code that mutates the application state and renders the view.
+ */
 object Controller {
-
+	// this can be private once we stop using old GraphController logic
 	var state: State = State.init
 
 	def handleEvent(event: Event): Unit = {
-		event match {
-			case AdjMatrixMouseMove(x, y) =>
-				// Handle mouse move event
-				//println(s"Mouse moved to position: ($x, $y)")
-			// Add more event cases as needed
-			case _ =>
-				println("Unhandled event type")
-		}
+		val newState = Model.handleEvent(event, state)
+		state = newState
 	}
 }

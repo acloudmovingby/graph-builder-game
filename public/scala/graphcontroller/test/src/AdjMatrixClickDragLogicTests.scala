@@ -1,11 +1,13 @@
 import scala.collection.immutable.ListSet
 import utest.*
-import main.scala.graphcontroller.adjacencymatrix.{AdjMatrixClickDragLogic, AdjMatrixSelectionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection}
+import graphcontroller.model.adjacencymatrix.{
+	AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
+}
 
 object AdjMatrixClickDragLogicTests extends TestSuite {
 	def tests = Tests {
+		val logic = AdjMatrixClickDragLogic
 		test("mouseUp") {
-			val logic = new AdjMatrixClickDragLogic()
 			// these three states will result in thrown exception since they should never happen (you can't release a
 			// mouse click if you never clicked in the first place)
 			Seq(NoSelection, Hover((0, 0)), ReleaseSelection(Set((0, 0)), true)).foreach { state =>
@@ -28,14 +30,13 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			assert(result2 == ReleaseSelection(Set((3, 4)), isAdd = false))
 		}
 		test("mouseup - Releasing when selection is two cells side-by (horizontally)") {
-			// ASCI I art of the selection:
+			// ASCII art of the selection:
 			//   0 1 2 3 4
 			// 0 . . . . .
 			// 1 . X X . .
 			// 2 . . . . .
 			// 3 . . . . .
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((1, 1), (2, 1), isAdd = true)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((1, 1), (2, 1)), isAdd = true))
@@ -48,7 +49,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . X . . .
 			// 3 . X . . .
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((1, 1), (1, 3), isAdd = false)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((1, 1), (1, 2), (1, 3)), isAdd = false))
@@ -61,7 +61,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . . . . .
 			// 3 . . . . .
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((1, 1), (1, 1), isAdd = true)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((1, 1)), isAdd = true))
@@ -74,7 +73,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . . X . .
 			// 3 . . . . .
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((1, 1), (2, 2), isAdd = false)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((1, 1), (2, 1)), isAdd = false))
@@ -90,7 +88,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// o  3 . . X . .
 			// m  4 . . . . .
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((1, 1), (3, 2), isAdd = false)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((1, 1), (2, 1), (3, 1)), isAdd = false))
@@ -108,7 +105,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// o  3 . . . . .
 			// m  4 . . . . X
 
-			val logic = new AdjMatrixClickDragLogic()
 			val dragState = DragSelecting((0, 0), (4,4), isAdd = false)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((0, 0), (1,0), (2,0), (3,0), (4,0)), isAdd = false))

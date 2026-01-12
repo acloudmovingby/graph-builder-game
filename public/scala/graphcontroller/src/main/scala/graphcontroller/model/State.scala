@@ -1,12 +1,14 @@
 package graphcontroller.model
 
-import graphcontroller.dataobject.NodeData
 import graphi.{DirectedMapGraph, SimpleMapGraph}
+import graphcontroller.dataobject.NodeData
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 
 case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
 	keyToData: Map[Int, NodeData],
-	undoStack: List[GraphUndoState[Int]]
+	undoStack: List[GraphUndoState[Int]],
+	adjMatrixState: AdjMatrixInteractionState
 )
 
 object State {
@@ -17,6 +19,7 @@ object State {
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
-		undoStack = List.empty
+		undoStack = List.empty,
+		adjMatrixState = NoSelection
 	)
 }

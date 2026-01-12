@@ -1,50 +1,28 @@
-package main.scala.graphcontroller.adjacencymatrix
+package graphcontroller.model.adjacencymatrix
 
 import scala.collection.immutable.ListSet
+import graphcontroller.controller.{AdjacencyMatrixEvent, AdjMatrixMouseUp}
+import graphcontroller.model.adjacencymatrix.{
+	AdjMatrixInteractionState,
+	Clicked,
+	DragSelecting,
+	Hover,
+	NoSelection,
+	ReleaseSelection
+}
 
-sealed trait AdjMatrixSelectionState
-
-/** Mouse is currently not hovering over adjacency matrix at all */
-case object NoSelection extends AdjMatrixSelectionState
-/** Mouse is hovering over a cell but not clicked/pressed */
-case class Hover(edge: (Int, Int)) extends AdjMatrixSelectionState
-/** Mouse is clicked/pressed on a cell but not yet moved. Caller is responsible for deciding if this will add an edge or remove one */
-case class Clicked(edge: (Int, Int), isAdd: Boolean) extends AdjMatrixSelectionState
-/** Mouse is currently dragging to select/deselect cells */
-case class DragSelecting(
-	startCell: (Int, Int),
-	currentHoveredCell: (Int, Int),
-	isAdd: Boolean // true = adding selection, false = removing selection
-) extends AdjMatrixSelectionState {
-	def selectedCells: Set[(Int, Int)] = {
-		if (startCell._1 == currentHoveredCell._1) {
-			// horizontal drag
-			val row = startCell._1
-			val colRange = if (currentHoveredCell._2 >= startCell._2) {
-				startCell._2 to currentHoveredCell._2
-			} else {
-				currentHoveredCell._2 to startCell._2
-			}
-			colRange.map(col => (row, col)).toSet
-		} else {
-			// vertical drag
-			val col = startCell._2
-			val rowRange = if (currentHoveredCell._1 >= startCell._1) {
-				startCell._1 to currentHoveredCell._1
-			} else {
-				currentHoveredCell._1 to startCell._1
-			}
-			rowRange.map(row => (row, col)).toSet
+object AdjMatrixClickDragLogic {
+	def handleEvent(
+		event: AdjacencyMatrixEvent,
+		currentState: AdjMatrixInteractionState
+	): AdjMatrixInteractionState = {
+		event match {
+			case AdjMatrixMouseUp => mouseUp(currentState)
+			case _ =>
+				println("Not yet implemented: " + event)
+				currentState // other events not implemented yet
 		}
 	}
-}
-/** When we release the selection and actually want to apply its addition/removal. */
-case class ReleaseSelection(
-	cells: Set[(Int, Int)], // set of cells selected on release
-	isAdd: Boolean // true = adding selection, false = removing selection
-) extends AdjMatrixSelectionState
-
-class AdjMatrixClickDragLogic {
 	/* events that can happen:
 	- mousedown on cell
 		- start selection process
@@ -77,14 +55,15 @@ class AdjMatrixClickDragLogic {
 	Option 2: Internal mutable state and power to change graph state
 	- this class responsible for storing state
 	- this class responsible for doing permanent state changes by directly modifying graph controller or underlying graph model
-
 	 */
 
 	def mouseUp(
-		currentState: AdjMatrixSelectionState
-	): AdjMatrixSelectionState = {
+		currentState: AdjMatrixInteractionState
+	): AdjMatrixInteractionState = {
 		currentState match {
 			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
+				// TODO I think this is actually possible and we should think about what to do here
+				// (you can mousedown outside the matrix, then move the cursor onto the matrix, then mouseup)
 				throw new Exception("Invalid state: mouseUp called but mousedown was never called")
 			case Clicked(cell, isAdd) =>
 				ReleaseSelection(Set(cell), isAdd) // selection is 1 cell
