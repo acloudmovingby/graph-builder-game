@@ -5,6 +5,6 @@ import graphcontroller.render.AdjMatrixCanvas
 
 object ViewUpdater {
 	def updateView(viewData: ViewData): Unit = {
-		AdjMatrixCanvas.setShapes(viewData.adjMatrix.lines)
+		AdjMatrixCanvas.setShapes(viewData.adjMatrix.shapes)
 	}
 }

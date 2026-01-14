@@ -4,8 +4,8 @@ import graphcontroller.model.{Model, State}
 import graphcontroller.view.View
 
 /**
- * The ONE place in the code that mutates the application state and renders the view. Well, probably not 100%, but
- * that's the idea.
+ * (Theoretically) the ONE impure place in the code that mutates the application state. It then passes the view state
+ * to the ViewUpdater which performs the side-effect of actually rendering the changes
  */
 object Controller {
 	// This can be private once we stop using old GraphController logic

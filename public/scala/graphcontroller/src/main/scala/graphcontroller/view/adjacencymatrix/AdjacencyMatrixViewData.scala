@@ -1,7 +1,7 @@
 package graphcontroller.view
 
-import graphcontroller.dataobject.canvas.CanvasLine
+import graphcontroller.dataobject.canvas.RenderOp
 
 case class AdjacencyMatrixViewData(
-	lines: Seq[CanvasLine]
+	shapes: Seq[RenderOp]
 )
