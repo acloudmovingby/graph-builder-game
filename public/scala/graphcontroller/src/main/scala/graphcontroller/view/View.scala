@@ -6,6 +6,8 @@ import graphcontroller.view.adjacencymatrix.AdjacencyMatrixView
 
 object View {
 	def render(state: State): ViewData = {
-		ViewData(AdjacencyMatrixView.render(state))
+		ViewData(
+			AdjacencyMatrixView.render(state)
+		)
 	}
 }

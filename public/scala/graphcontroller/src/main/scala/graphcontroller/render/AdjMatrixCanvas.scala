@@ -7,6 +7,7 @@ import org.scalajs.dom.html
 
 // TODO:
 //  (1) align this better with the general Controller => Model => View architecture and have requestAnimationFrame calls be Tick events
+//      have width/height come from initialization or resize events rather than reading from the DOM element directly
 //  (2) Make parent trait that both MainCanvas and this extend
 object AdjMatrixCanvas {
 	/** Things to render on each animation frame callback */

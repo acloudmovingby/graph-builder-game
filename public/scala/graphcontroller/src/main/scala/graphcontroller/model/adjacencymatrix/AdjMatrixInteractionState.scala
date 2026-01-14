@@ -6,7 +6,7 @@ sealed trait AdjMatrixInteractionState
 case object NoSelection extends AdjMatrixInteractionState
 /** Mouse is hovering over a cell but not clicked/pressed */
 case class Hover(edge: (Int, Int)) extends AdjMatrixInteractionState
-/** Mouse is clicked/pressed on a cell but not yet moved. Caller is responsible for deciding if this will add an edge or remove one */
+/** Mouse is clicked/pressed on a cell but not yet moved. */
 case class Clicked(edge: (Int, Int), isAdd: Boolean) extends AdjMatrixInteractionState
 /** Mouse is currently dragging to select/deselect cells */
 case class DragSelecting(
