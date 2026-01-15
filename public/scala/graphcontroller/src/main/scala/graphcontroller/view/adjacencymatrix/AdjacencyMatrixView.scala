@@ -14,26 +14,29 @@ object AdjacencyMatrixView {
     private val hoverNoEdgeColor = "#E2E2E2"
 
 
-    private def gridLines(nodeCount: Int, adjMatrixWidth: Int, adjMatrixHeight: Int) = {
-        val width = adjMatrixWidth / nodeCount
-        val height = adjMatrixHeight / nodeCount
+    private def gridLines(nodeCount: Int, adjMatrixWidth: Int, adjMatrixHeight: Int): Seq[CanvasLine] = {
+        // check this first to avoid division by zero
+        if (nodeCount == 0) Seq.empty else {
+            val width = adjMatrixWidth / nodeCount
+            val height = adjMatrixHeight / nodeCount
 
-        for {
-            i <- 1 until nodeCount
-            verticalLine = CanvasLine(
-                from = Point(x = width * i, y = 0),
-                to = Point(x = width * i, y = adjMatrixHeight),
-                width = 1,
-                color = "lightgray"
-            )
-            horizontalLine = CanvasLine(
-                from = Point(x = 0, y = height * i),
-                to = Point(x = adjMatrixWidth, y = height * i),
-                width = 1,
-                color = "lightgray"
-            )
-            lines <- Seq(verticalLine, horizontalLine)
-        } yield lines
+            for {
+                i <- 1 until nodeCount
+                verticalLine = CanvasLine(
+                    from = Point(x = width * i, y = 0),
+                    to = Point(x = width * i, y = adjMatrixHeight),
+                    width = 1,
+                    color = "lightgray"
+                )
+                horizontalLine = CanvasLine(
+                    from = Point(x = 0, y = height * i),
+                    to = Point(x = adjMatrixWidth, y = height * i),
+                    width = 1,
+                    color = "lightgray"
+                )
+                lines <- Seq(verticalLine, horizontalLine)
+            } yield lines
+        }
     }
 
     /** Render data for matrix cells representing existing edges */

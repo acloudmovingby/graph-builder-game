@@ -2,6 +2,8 @@ package graphcontroller.controller
 
 sealed trait Event
 
+case object NoOp extends Event
+
 sealed trait AdjacencyMatrixEvent extends Event
 
 // Params gathered at program startup
