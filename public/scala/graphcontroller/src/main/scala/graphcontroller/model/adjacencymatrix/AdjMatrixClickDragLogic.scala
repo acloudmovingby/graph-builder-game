@@ -1,6 +1,8 @@
 package graphcontroller.model.adjacencymatrix
 
 import scala.collection.immutable.ListSet
+
+import graphi.MapGraph
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
@@ -12,13 +14,24 @@ import graphcontroller.model.adjacencymatrix.{
 object AdjMatrixClickDragLogic {
 	def handleEvent(
 		event: AdjacencyMatrixEvent,
-		currentState: AdjMatrixInteractionState
+		currentState: AdjMatrixInteractionState,
+		adjMatrixDimensions: (Int, Int),
+		nodeCount: Int,
+		filledInCells: Set[(Int, Int)]
 	): AdjMatrixInteractionState = {
-		event match {
-			case AdjMatrixMouseUp => mouseUp(currentState)
-			case AdjMatrixMouseMove(x, y) => mouseMove(x, y, currentState)
-			case AdjMatrixMouseLeave => mouseLeave(currentState)
-			case _ => currentState // other events not implemented yet
+		if (nodeCount == 0 || nodeCount == 1) {
+			// with 0 or 1 node, no edges are possible so no interaction
+			NoSelection
+		} else {
+			event match {
+				case AdjMatrixMouseUp => mouseUp(currentState)
+				case AdjMatrixMouseMove(mouseX, mouseY) =>
+					val (row, col) = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
+					mouseMove(row, col, currentState, nodeCount)
+				case AdjMatrixMouseLeave => mouseLeave(currentState)
+				case AdjMatrixMouseDown =>
+					mouseDown(currentState, nodeCount, filledInCells)
+			}
 		}
 	}
 	/* events that can happen:
@@ -70,29 +83,73 @@ object AdjMatrixClickDragLogic {
 		}
 	}
 
-	def mouseMove(
-		x: Int,
-		y: Int,
-		currentState: AdjMatrixInteractionState
+	def mouseDown(
+		currentState: AdjMatrixInteractionState,
+		nodeCount: Int,
+		filledInCells: Set[(Int, Int)],
 	): AdjMatrixInteractionState = {
 		currentState match {
-			case NoSelection =>
-				Hover((x, y)) // hovering over cell
-			case Hover(_) =>
-				Hover((x, y)) // update hover position
-			case Clicked(startCell, isAdd) =>
-				// start drag selection
-				DragSelecting(startCell, (x, y), isAdd)
-			case d: DragSelecting =>
-				// update drag selection
-				d.copy(currentHoveredCell = (x, y))
-			case r: ReleaseSelection =>
-				// do nothing, selection already made
+			case Hover((row, col)) =>
+				// Note how we reverse row/col here because graph edges are (from, to) = (row, col)
+				// I found it more intuitive to have the matrix with rows as "from" and columns as "to"
+				// that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
+				// or drag vertically to add/remove edges to a single node from multiple nodes
+				val isAdd = if (filledInCells.contains((col, row))) {
+					println("Edge EXISTS, so preparing to REMOVE it")
+					false
+				} else {
+					println("Edge does NOT exist, so preparing to ADD it")
+					true
+				}
+				Clicked((row, col), isAdd = isAdd)
+			case _ =>
 				NoSelection
+		}
+	}
+
+	def mouseMove(
+		row: Int,
+		col: Int,
+		currentState: AdjMatrixInteractionState,
+		nodeCount: Int
+	): AdjMatrixInteractionState = {
+		if (col < 0 || col >= nodeCount || row < 0 || row >= nodeCount) {
+			// out of bounds (I think it's handled higher up in logic as well, but doesn't hurt to double check)
+			NoSelection
+		} else {
+			currentState match {
+				case NoSelection =>
+					Hover((row, col)) // hovering over cell
+				case Hover(_) =>
+					Hover((row, col)) // update hover position
+				case Clicked(startCell, isAdd) =>
+					// start drag selection
+					DragSelecting(startCell, (row, col), isAdd)
+				case d: DragSelecting =>
+					// update drag selection
+					d.copy(currentHoveredCell = (row, col))
+				case r: ReleaseSelection =>
+					// do nothing, selection already made
+					NoSelection
+			}
 		}
 	}
 
 	def mouseLeave(
 		currentState: AdjMatrixInteractionState
 	): AdjMatrixInteractionState = NoSelection
+
+	def convertMouseCoordinatesToCell(
+		mouseX: Int,
+		mouseY: Int,
+		adjMatrixDimensions: (Int, Int),
+		nodeCount: Int
+	): (Int, Int) = {
+		if (nodeCount == 0) throw new Exception("No nodes in graph, cannot convert mouse coords to cell")
+		val cellWidth = adjMatrixDimensions._1 / nodeCount
+		val cellHeight = adjMatrixDimensions._2 / nodeCount
+		val col = mouseX / cellWidth
+		val row = mouseY / cellHeight
+		(row, col)
+	}
 }

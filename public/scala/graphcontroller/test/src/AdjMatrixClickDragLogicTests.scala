@@ -1,5 +1,8 @@
 import scala.collection.immutable.ListSet
 import utest.*
+import graphcontroller.controller.{
+	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
+}
 import graphcontroller.model.adjacencymatrix.{
 	AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
 }
@@ -108,6 +111,81 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			val dragState = DragSelecting((0, 0), (4,4), isAdd = false)
 			val result = logic.mouseUp(dragState)
 			assert(result == ReleaseSelection(Set((0, 0), (1,0), (2,0), (3,0), (4,0)), isAdd = false))
+		}
+		test("hovering over cells within bounds from a NoSelection state") {
+			val result = logic.mouseMove(2, 3, NoSelection, 5)
+			assert(result == Hover((2, 3)))
+		}
+		test("hovering over cells out of bounds from a NoSelection state") {
+			val result1 = logic.mouseMove(-1, 0, NoSelection, 5)
+			assert(result1 == NoSelection)
+			val result2 = logic.mouseMove(0, -1, NoSelection, 5)
+			assert(result2 == NoSelection)
+			val result3 = logic.mouseMove(5, 0, NoSelection, 5)
+			assert(result3 == NoSelection)
+			val result4 = logic.mouseMove(0, 5, NoSelection, 5)
+			assert(result4 == NoSelection)
+		}
+		test("hovering over cells within bounds from a Hover state") {
+			val result = logic.mouseMove(1, 4, Hover((2, 3)), 5)
+			assert(result == Hover((1, 4)))
+		}
+		test("convertMouseCoordinatesToCell") {
+			val adjMatrixDimensions = (500, 500)
+			val nodeCount = 5
+			// cell (0,0)
+			val cell1 = logic.convertMouseCoordinatesToCell(0, 0, adjMatrixDimensions, nodeCount)
+			assert(cell1 == (0, 0))
+			// cell (2,3)
+			val cell2 = logic.convertMouseCoordinatesToCell(250, 350, adjMatrixDimensions, nodeCount)
+			assert(cell2 == (3, 2))
+			// cell (4,4)
+			val cell3 = logic.convertMouseCoordinatesToCell(499, 499, adjMatrixDimensions, nodeCount)
+			assert(cell3 == (4, 4))
+		}
+		test("end-to-end handleEvent: NoSelection now Hover") {
+			val initialState = NoSelection
+			val mouseX = 120
+			val mouseY = 80
+			val adjMatrixDimensions = (500, 500)
+			val nodeCount = 5
+			val newState = logic.handleEvent(
+				AdjMatrixMouseMove(mouseX, mouseY),
+				initialState,
+				adjMatrixDimensions,
+				nodeCount,
+				Set.empty // doesn't matter for this test
+			)
+			assert(newState == Hover((0, 1)))
+		}
+		test("end-to-end handleEvent: Hover now Clicked") {
+			val initialState = Hover((2, 3))
+			val adjMatrixDimensions = (500, 500)
+			val nodeCount = 5
+
+			// test with no existing edge
+			val filledInCells = Set.empty[(Int, Int)]
+			val newState = logic.handleEvent(
+				AdjMatrixMouseDown,
+				initialState,
+				adjMatrixDimensions,
+				nodeCount,
+				filledInCells
+			)
+			// since no edge exists, isAdd should be true (we are preparing to add the edge)
+			assert(newState == Clicked((2, 3), isAdd = true))
+
+			// test with an existing edge
+			val filledInCells2 = Set((3, 2)) // edge exists from 2->3
+			val newState2 = logic.handleEvent(
+				AdjMatrixMouseDown,
+				initialState,
+				adjMatrixDimensions,
+				nodeCount,
+				filledInCells2
+			)
+			// since edge exists, isAdd should be false (we are preparing to remove the edge)
+			assert(newState2 == Clicked((2, 3), isAdd = false))
 		}
 	}
 }

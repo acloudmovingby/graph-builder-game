@@ -4,10 +4,10 @@ sealed trait AdjMatrixInteractionState
 
 /** Mouse is currently not hovering over adjacency matrix at all */
 case object NoSelection extends AdjMatrixInteractionState
-/** Mouse is hovering over a cell but not clicked/pressed */
-case class Hover(edge: (Int, Int)) extends AdjMatrixInteractionState
+/** Mouse is hovering over a cell but not clicked/pressed. */
+case class Hover(cell: (Int, Int)) extends AdjMatrixInteractionState
 /** Mouse is clicked/pressed on a cell but not yet moved. */
-case class Clicked(edge: (Int, Int), isAdd: Boolean) extends AdjMatrixInteractionState
+case class Clicked(cell: (Int, Int), isAdd: Boolean) extends AdjMatrixInteractionState
 /** Mouse is currently dragging to select/deselect cells */
 case class DragSelecting(
 	startCell: (Int, Int),

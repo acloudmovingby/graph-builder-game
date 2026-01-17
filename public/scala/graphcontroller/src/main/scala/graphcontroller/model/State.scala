@@ -10,7 +10,18 @@ case class State(
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: (Int, Int)
-)
+) {
+	/**
+	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
+	 * it's used by both Model and View code, but it depends on the graph stored in State.
+	 *
+	 * Note how we reverse row/col here.
+	 * I found it more intuitive to have the matrix with rows as "from" and columns as "to"
+	 * that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
+	 * or drag vertically to add/remove edges to a single node from multiple nodes.
+	 */
+	def filledInCells: Set[(Int, Int)] = graph.getEdges.map { (from, to) => (to, from) }
+}
 
 object State {
 	def init: State = State(
