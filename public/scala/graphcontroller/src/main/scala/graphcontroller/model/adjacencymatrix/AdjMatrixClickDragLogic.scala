@@ -7,7 +7,7 @@ import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
+	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection, Cell
 }
 
 // TODO: I hate this name
@@ -17,7 +17,7 @@ object AdjMatrixClickDragLogic {
 		currentState: AdjMatrixInteractionState,
 		adjMatrixDimensions: (Int, Int),
 		nodeCount: Int,
-		filledInCells: Set[(Int, Int)]
+		filledInCells: Set[Cell]
 	): AdjMatrixInteractionState = {
 		if (nodeCount == 0 || nodeCount == 1) {
 			// with 0 or 1 node, no edges are possible so no interaction
@@ -26,8 +26,8 @@ object AdjMatrixClickDragLogic {
 			event match {
 				case AdjMatrixMouseUp => mouseUp(currentState)
 				case AdjMatrixMouseMove(mouseX, mouseY) =>
-					val (row, col) = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
-					mouseMove(row, col, currentState, nodeCount)
+					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
+					mouseMove(cell, currentState, nodeCount)
 				case AdjMatrixMouseLeave => mouseLeave(currentState)
 				case AdjMatrixMouseDown =>
 					mouseDown(currentState, nodeCount, filledInCells)
@@ -86,48 +86,43 @@ object AdjMatrixClickDragLogic {
 	def mouseDown(
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int,
-		filledInCells: Set[(Int, Int)],
+		filledInCells: Set[Cell],
 	): AdjMatrixInteractionState = {
 		currentState match {
-			case Hover((row, col)) =>
-				// Note how we reverse row/col here because graph edges are (from, to) = (row, col)
-				// I found it more intuitive to have the matrix with rows as "from" and columns as "to"
-				// that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
-				// or drag vertically to add/remove edges to a single node from multiple nodes
-				val isAdd = if (filledInCells.contains((col, row))) {
+			case Hover(cell) =>
+				val isAdd = if (filledInCells.contains(cell)) {
 					println("Edge EXISTS, so preparing to REMOVE it")
 					false
 				} else {
 					println("Edge does NOT exist, so preparing to ADD it")
 					true
 				}
-				Clicked((row, col), isAdd = isAdd)
+				Clicked(cell, isAdd = isAdd)
 			case _ =>
 				NoSelection
 		}
 	}
 
 	def mouseMove(
-		row: Int,
-		col: Int,
+		cell: Cell,
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int
 	): AdjMatrixInteractionState = {
-		if (col < 0 || col >= nodeCount || row < 0 || row >= nodeCount) {
+		if (cell.col < 0 || cell.col >= nodeCount || cell.row < 0 || cell.row >= nodeCount) {
 			// out of bounds (I think it's handled higher up in logic as well, but doesn't hurt to double check)
 			NoSelection
 		} else {
 			currentState match {
 				case NoSelection =>
-					Hover((row, col)) // hovering over cell
+					Hover(cell) // hovering over cell
 				case Hover(_) =>
-					Hover((row, col)) // update hover position
+					Hover(cell) // update hover position
 				case Clicked(startCell, isAdd) =>
 					// start drag selection
-					DragSelecting(startCell, (row, col), isAdd)
+					DragSelecting(startCell, cell, isAdd)
 				case d: DragSelecting =>
 					// update drag selection
-					d.copy(currentHoveredCell = (row, col))
+					d.copy(currentHoveredCell = cell)
 				case r: ReleaseSelection =>
 					// do nothing, selection already made
 					NoSelection
@@ -144,12 +139,12 @@ object AdjMatrixClickDragLogic {
 		mouseY: Int,
 		adjMatrixDimensions: (Int, Int),
 		nodeCount: Int
-	): (Int, Int) = {
+	): Cell = {
 		if (nodeCount == 0) throw new Exception("No nodes in graph, cannot convert mouse coords to cell")
 		val cellWidth = adjMatrixDimensions._1 / nodeCount
 		val cellHeight = adjMatrixDimensions._2 / nodeCount
 		val col = mouseX / cellWidth
 		val row = mouseY / cellHeight
-		(row, col)
+		Cell(row, col)
 	}
 }

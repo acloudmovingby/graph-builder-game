@@ -2,7 +2,7 @@ package graphcontroller.model
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.NodeData
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, Cell, NoSelection}
 
 case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
@@ -20,7 +20,7 @@ case class State(
 	 * that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
 	 * or drag vertically to add/remove edges to a single node from multiple nodes.
 	 */
-	def filledInCells: Set[(Int, Int)] = graph.getEdges.map { (from, to) => (to, from) }
+	def filledInCells: Set[Cell] = graph.getEdges.map { (from, to) => Cell.fromEdge(from, to) }
 }
 
 object State {

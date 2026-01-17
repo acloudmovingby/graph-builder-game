@@ -2,7 +2,7 @@ package graphcontroller.view.adjacencymatrix
 
 import graphi.MapGraph
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.{Hover, NoSelection}
+import graphcontroller.model.adjacencymatrix.{Cell, Hover, NoSelection}
 import graphcontroller.dataobject.Point
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.view.AdjacencyMatrixViewData
@@ -42,21 +42,19 @@ object AdjacencyMatrixView {
 		}
 	}
 
-	private def hoveredCellHighlight(state: State): Option[RectangleCanvas] = {
-		(state.graph.nodeCount, state.adjMatrixState) match {
-			case (0, _) => None
-			case (nodeCount, Hover((row, col))) =>
-				val cellWidth = state.adjMatrixDimensions._1 / nodeCount
-				val cellHeight = state.adjMatrixDimensions._2 / nodeCount
-				val color = if (state.graph.getEdges.contains((row, col))) hoverEdgePresentColor else hoverNoEdgeColor
-				Some(RectangleCanvas(
-					x = col * cellWidth,
-					y = row * cellHeight,
-					width = cellWidth,
-					height = cellHeight,
-					color = color
-				))
-			case _ => None
+	private def hoveredCellHighlight(state: State, hoveredCell: Cell): Option[RectangleCanvas] = {
+		val nodeCount = state.graph.nodeCount
+		if (nodeCount == 0) None else {
+			val cellWidth = state.adjMatrixDimensions._1 / nodeCount
+			val cellHeight = state.adjMatrixDimensions._2 / nodeCount
+			val color = if (state.graph.getEdges.contains(hoveredCell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			Some(RectangleCanvas(
+				x = hoveredCell.col * cellWidth,
+				y = hoveredCell.row * cellHeight,
+				width = cellWidth,
+				height = cellHeight,
+				color = color
+			))
 		}
 	}
 
@@ -84,10 +82,10 @@ object AdjacencyMatrixView {
 			case NoSelection => // fill in cells only, no grid lines
 				val cells = filledInCells(state)
 				cells
-			case Hover((col, row)) => // fill in cells + hovered cell highlight + grid lines
+			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
 				val cells = filledInCells(state)
 				val gridLines = calculateGridLines(state)
-				val hoveredCell = hoveredCellHighlight(state)
+				val hoveredCell = hoveredCellHighlight(state, cell)
 				cells ++ hoveredCell.toSeq ++ gridLines
 			case _ =>
 				val cells = filledInCells(state)

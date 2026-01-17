@@ -1,43 +1,45 @@
 package graphcontroller.model.adjacencymatrix
 
+import graphcontroller.model.adjacencymatrix.Cell
+
 sealed trait AdjMatrixInteractionState
 
 /** Mouse is currently not hovering over adjacency matrix at all */
 case object NoSelection extends AdjMatrixInteractionState
 /** Mouse is hovering over a cell but not clicked/pressed. */
-case class Hover(cell: (Int, Int)) extends AdjMatrixInteractionState
+case class Hover(cell: Cell) extends AdjMatrixInteractionState
 /** Mouse is clicked/pressed on a cell but not yet moved. */
-case class Clicked(cell: (Int, Int), isAdd: Boolean) extends AdjMatrixInteractionState
+case class Clicked(cell: Cell, isAdd: Boolean) extends AdjMatrixInteractionState
 /** Mouse is currently dragging to select/deselect cells */
 case class DragSelecting(
-	startCell: (Int, Int),
-	currentHoveredCell: (Int, Int),
+	startCell: Cell,
+	currentHoveredCell: Cell,
 	isAdd: Boolean // true = adding selection, false = removing selection
 ) extends AdjMatrixInteractionState {
-	def selectedCells: Set[(Int, Int)] = {
-		if (startCell._1 == currentHoveredCell._1) {
+	def selectedCells: Set[Cell] = {
+		if (startCell.row == currentHoveredCell.row) {
 			// horizontal drag
-			val row = startCell._1
-			val colRange = if (currentHoveredCell._2 >= startCell._2) {
-				startCell._2 to currentHoveredCell._2
+			val row = startCell.row
+			val colRange = if (currentHoveredCell.col >= startCell.col) {
+				startCell.col to currentHoveredCell.col
 			} else {
-				currentHoveredCell._2 to startCell._2
+				currentHoveredCell.col to startCell.col
 			}
-			colRange.map(col => (row, col)).toSet
+			colRange.map(col => Cell(row, col)).toSet
 		} else {
 			// vertical drag
-			val col = startCell._2
-			val rowRange = if (currentHoveredCell._1 >= startCell._1) {
-				startCell._1 to currentHoveredCell._1
+			val col = startCell.col
+			val rowRange = if (currentHoveredCell.row >= startCell.row) {
+				startCell.row to currentHoveredCell.row
 			} else {
-				currentHoveredCell._1 to startCell._1
+				currentHoveredCell.row to startCell.row
 			}
-			rowRange.map(row => (row, col)).toSet
+			rowRange.map(row => Cell(row, col)).toSet
 		}
 	}
 }
 /** When we release the selection and actually want to apply its addition/removal. */
 case class ReleaseSelection(
-	cells: Set[(Int, Int)], // set of cells selected on release
+	cells: Set[Cell], // set of cells selected on release
 	isAdd: Boolean // true = adding selection, false = removing selection
 ) extends AdjMatrixInteractionState
