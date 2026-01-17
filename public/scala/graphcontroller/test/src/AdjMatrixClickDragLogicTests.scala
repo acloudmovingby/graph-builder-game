@@ -160,13 +160,14 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 		}
 		test("end-to-end handleEvent: Hover now Clicked") {
 			val initialState = Hover(Cell(2, 3))
+			val (mouseX, mouseY) = (320, 220) // still within cell (2,3)
 			val adjMatrixDimensions = (500, 500)
 			val nodeCount = 5
 
 			// test with no existing edge
 			val filledInCells = Set.empty[Cell]
 			val newState = logic.handleEvent(
-				AdjMatrixMouseDown,
+				AdjMatrixMouseDown(mouseX, mouseY),
 				initialState,
 				adjMatrixDimensions,
 				nodeCount,
@@ -178,7 +179,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// test with an existing edge
 			val filledInCells2 = Set(Cell(2, 3))
 			val newState2 = logic.handleEvent(
-				AdjMatrixMouseDown,
+				AdjMatrixMouseDown(mouseX, mouseY),
 				initialState,
 				adjMatrixDimensions,
 				nodeCount,

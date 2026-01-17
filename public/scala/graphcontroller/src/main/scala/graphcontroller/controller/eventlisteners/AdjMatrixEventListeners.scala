@@ -4,22 +4,27 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 
 import graphcontroller.controller.{
-    AdjMatrixMouseDown, AdjMatrixMouseMove, AdjMatrixMouseUp, AdjMatrixMouseLeave, Controller, Event, NoOp
+	AdjMatrixMouseDown, AdjMatrixMouseMove, AdjMatrixMouseUp, AdjMatrixMouseLeave, Controller, Event, NoOp
 }
 
 class AdjMatrixEventListeners extends CanvasEventListeners {
-    protected val elementId: String = "adj-matrix"
+	protected val elementId: String = "adj-matrix"
 
-    def mouseMove(e: dom.MouseEvent): Event = {
-        val (x, y) = relativeCoordinates(e)
-        if (inBounds(x, y)) {
-            AdjMatrixMouseMove(x, y)
-        } else NoOp
-    }
+	def mouseMove(e: dom.MouseEvent): Event = {
+		getInBoundsCoordinates(e) match {
+			case Some((x, y)) => AdjMatrixMouseMove(x, y)
+			case None => NoOp
+		}
+	}
 
-    def mouseDown(e: dom.MouseEvent): Event = AdjMatrixMouseDown
+	def mouseDown(e: dom.MouseEvent): Event = {
+		getInBoundsCoordinates(e) match {
+			case Some((x, y)) => AdjMatrixMouseDown(x, y)
+			case None => NoOp
+		}
+	}
 
-    def mouseUp(e: dom.MouseEvent): Event = AdjMatrixMouseUp
+	def mouseUp(e: dom.MouseEvent): Event = AdjMatrixMouseUp
 
-    def mouseLeave(e: dom.MouseEvent): Event = AdjMatrixMouseLeave
+	def mouseLeave(e: dom.MouseEvent): Event = AdjMatrixMouseLeave
 }

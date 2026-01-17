@@ -10,6 +10,6 @@ sealed trait AdjacencyMatrixEvent extends Event
 case class Initialization(adjMatrixWidth: Int, adjMatrixHeight: Int) extends Event
 
 case class AdjMatrixMouseMove(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
-case object AdjMatrixMouseDown extends AdjacencyMatrixEvent
+case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 case object AdjMatrixMouseLeave extends AdjacencyMatrixEvent
 case object AdjMatrixMouseUp extends AdjacencyMatrixEvent

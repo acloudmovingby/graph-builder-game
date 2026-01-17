@@ -29,8 +29,9 @@ object AdjMatrixClickDragLogic {
 					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
 					mouseMove(cell, currentState, nodeCount)
 				case AdjMatrixMouseLeave => mouseLeave(currentState)
-				case AdjMatrixMouseDown =>
-					mouseDown(currentState, nodeCount, filledInCells)
+				case AdjMatrixMouseDown(mouseX, mouseY) =>
+					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
+					mouseDown(currentState, nodeCount, filledInCells, cell)
 			}
 		}
 	}
@@ -87,20 +88,17 @@ object AdjMatrixClickDragLogic {
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int,
 		filledInCells: Set[Cell],
+		clickedCell: Cell
 	): AdjMatrixInteractionState = {
-		currentState match {
-			case Hover(cell) =>
-				val isAdd = if (filledInCells.contains(cell)) {
-					println("Edge EXISTS, so preparing to REMOVE it")
-					false
-				} else {
-					println("Edge does NOT exist, so preparing to ADD it")
-					true
-				}
-				Clicked(cell, isAdd = isAdd)
-			case _ =>
-				NoSelection
+		// TODO get rid of this logging once we're confident it's working
+		val isAdd = if (filledInCells.contains(clickedCell)) {
+			println("Edge EXISTS, so preparing to REMOVE it")
+			false
+		} else {
+			println("Edge does NOT exist, so preparing to ADD it")
+			true
 		}
+		Clicked(clickedCell, isAdd = isAdd)
 	}
 
 	def mouseMove(
