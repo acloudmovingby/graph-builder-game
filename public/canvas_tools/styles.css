@@ -53,6 +53,7 @@ body {
     position: absolute;
     margin: 0;
     cursor: inherit; /* Indicates that this button is disabled */
+    z-index: 3;
 }
 
 #clear-btn:hover {
