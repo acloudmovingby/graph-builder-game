@@ -24,7 +24,9 @@ object AdjMatrixClickDragLogic {
 			NoSelection
 		} else {
 			event match {
-				case AdjMatrixMouseUp => mouseUp(currentState)
+				case AdjMatrixMouseUp(mouseX, mouseY) =>
+					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
+					mouseUp(currentState, cell)
 				case AdjMatrixMouseMove(mouseX, mouseY) =>
 					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
 					mouseMove(cell, currentState, nodeCount)
@@ -70,13 +72,13 @@ object AdjMatrixClickDragLogic {
 	 */
 
 	def mouseUp(
-		currentState: AdjMatrixInteractionState
+		currentState: AdjMatrixInteractionState,
+		hoveredCell: Cell
 	): AdjMatrixInteractionState = {
 		currentState match {
 			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
-				// TODO I think this is actually possible and we should think about what to do here
-				// (you can mousedown outside the matrix, then move the cursor onto the matrix, then mouseup)
-				throw new Exception("Invalid state: mouseUp called but mousedown was never called")
+				// This situation can happen when someone clicks down outside the matrix then moves the mouse inside, then releases
+				Hover(hoveredCell) // just go to hover state
 			case Clicked(cell, isAdd) =>
 				ReleaseSelection(Set(cell), isAdd) // selection is 1 cell
 			case d: DragSelecting =>
@@ -123,7 +125,7 @@ object AdjMatrixClickDragLogic {
 					d.copy(currentHoveredCell = cell)
 				case r: ReleaseSelection =>
 					// do nothing, selection already made
-					NoSelection
+					Hover(cell)
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 package graphcontroller.model
 
 import graphcontroller.controller.{AdjMatrixMouseDown, AdjacencyMatrixEvent, Event, Initialization, NoOp}
-import graphcontroller.model.adjacencymatrix.AdjMatrixClickDragLogic
+import graphcontroller.model.adjacencymatrix.{AdjMatrixClickDragLogic, ReleaseSelection}
 
 /** Pure function that takes current state and the input event and then calculates the new state */
 object Model {
@@ -27,6 +27,22 @@ object Model {
 			state.graph.nodeCount,
 			state.filledInCells
 		)
-		state.copy(adjMatrixState = newAdjMatrixState)
+		newAdjMatrixState match {
+			case ReleaseSelection(cells, isAdd) =>
+				val newGraph = cells.foldLeft(state.graph) { (graph, cell) =>
+					if (cell.row != cell.col) { // Currently I don't allow self-loops
+						if (isAdd) {
+							graph.addEdge(cell.row, cell.col)
+						} else {
+							graph.removeEdge(cell.row, cell.col)
+						}
+					} else graph
+				}
+				state.copy(
+					graph = newGraph,
+					adjMatrixState = newAdjMatrixState
+				)
+			case _ => state.copy(adjMatrixState = newAdjMatrixState)
+		}
 	}
 }

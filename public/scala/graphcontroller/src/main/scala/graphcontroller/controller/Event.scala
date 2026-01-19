@@ -11,5 +11,5 @@ case class Initialization(adjMatrixWidth: Int, adjMatrixHeight: Int) extends Eve
 
 case class AdjMatrixMouseMove(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 case object AdjMatrixMouseLeave extends AdjacencyMatrixEvent
-case object AdjMatrixMouseUp extends AdjacencyMatrixEvent
