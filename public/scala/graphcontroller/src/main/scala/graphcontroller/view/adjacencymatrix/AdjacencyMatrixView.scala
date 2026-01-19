@@ -15,8 +15,15 @@ object AdjacencyMatrixView {
 	private val clickedEdgePresentColor = "#ffb78a"  // lighter shade
 	private val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
 
-	private var _temp: AdjMatrixInteractionState = State.init.adjMatrixState
-
+	/** Use Floats for intermediate calculations so we don't get rounding errors when dividing then multiplying again later */
+	def cellWidthHeight(nodeCount: Int, adjMatrixDimensions: (Int, Int)): (Float, Float) = {
+		if (nodeCount == 0) (0, 0)
+		else {
+			val cellWidth = adjMatrixDimensions._1.toFloat / nodeCount.toFloat
+			val cellHeight = adjMatrixDimensions._2.toFloat / nodeCount.toFloat
+			(cellWidth, cellHeight)
+		}
+	}
 
 	private def calculateGridLines(state: State): Seq[CanvasLine] = {
 		val nodeCount = state.graph.nodeCount
@@ -24,20 +31,19 @@ object AdjacencyMatrixView {
 		val adjMatrixHeight = state.adjMatrixDimensions._2
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			val width = adjMatrixWidth / nodeCount
-			val height = adjMatrixHeight / nodeCount
+			val (width, height) = cellWidthHeight(nodeCount, state.adjMatrixDimensions)
 
 			for {
 				i <- 1 until nodeCount
 				verticalLine = CanvasLine(
-					from = Point(x = width * i, y = 0),
-					to = Point(x = width * i, y = adjMatrixHeight),
+					from = Point(x = (width * i).toInt, y = 0),
+					to = Point(x = (width * i).toInt, y = adjMatrixHeight),
 					width = 1,
 					color = "lightgray"
 				)
 				horizontalLine = CanvasLine(
-					from = Point(x = 0, y = height * i),
-					to = Point(x = adjMatrixWidth, y = height * i),
+					from = Point(x = 0, y = (height * i).toInt),
+					to = Point(x = adjMatrixWidth, y = (height * i).toInt),
 					width = 1,
 					color = "lightgray"
 				)
@@ -49,14 +55,13 @@ object AdjacencyMatrixView {
 	private def hoveredCellHighlight(state: State, hoveredCell: Cell): Option[RectangleCanvas] = {
 		val nodeCount = state.graph.nodeCount
 		if (nodeCount == 0) None else {
-			val cellWidth = state.adjMatrixDimensions._1 / nodeCount
-			val cellHeight = state.adjMatrixDimensions._2 / nodeCount
+			val (cellWidth, cellHeight) = cellWidthHeight(nodeCount, state.adjMatrixDimensions)
 			val color = if (state.graph.getEdges.contains(hoveredCell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
 			Some(RectangleCanvas(
-				x = hoveredCell.col * cellWidth,
-				y = hoveredCell.row * cellHeight,
-				width = cellWidth,
-				height = cellHeight,
+				x = (hoveredCell.col * cellWidth).toInt,
+				y = (hoveredCell.row * cellHeight).toInt,
+				width = cellWidth.toInt,
+				height = cellHeight.toInt,
 				color = color
 			))
 		}
@@ -64,14 +69,13 @@ object AdjacencyMatrixView {
 
 	private def clickedCellHighlight(state: State, cell: Cell, isAdd: Boolean): RectangleCanvas = {
 		val nodeCount = state.graph.nodeCount
-		val cellWidth = state.adjMatrixDimensions._1 / nodeCount
-		val cellHeight = state.adjMatrixDimensions._2 / nodeCount
+		val (cellWidth, cellHeight) = cellWidthHeight(nodeCount, state.adjMatrixDimensions)
 		val color = if (isAdd) clickedNoEdgeColor else clickedEdgePresentColor
 		RectangleCanvas(
-			x = cell.col * cellWidth,
-			y = cell.row * cellHeight,
-			width = cellWidth,
-			height = cellHeight,
+			x = (cell.col * cellWidth).toInt,
+			y = (cell.row * cellHeight).toInt,
+			width = cellWidth.toInt,
+			height = cellHeight.toInt,
 			color = color
 		)
 	}
@@ -81,14 +85,13 @@ object AdjacencyMatrixView {
 		val nodeCount = state.graph.nodeCount
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			val cellWidth = state.adjMatrixDimensions._1 / nodeCount
-			val cellHeight = state.adjMatrixDimensions._2 / nodeCount
+			val (cellWidth, cellHeight) = cellWidthHeight(nodeCount, state.adjMatrixDimensions)
 			state.graph.getEdges.toSeq.map { case (from, to) =>
 				RectangleCanvas(
-					x = to * cellWidth,
-					y = from * cellHeight,
-					width = cellWidth,
-					height = cellHeight,
+					x = (to * cellWidth).toInt,
+					y = (from * cellHeight).toInt,
+					width = cellWidth.toInt,
+					height = cellHeight.toInt,
 					color = edgePresentColor
 				)
 			}
@@ -96,12 +99,6 @@ object AdjacencyMatrixView {
 	}
 
 	def render(state: State): AdjacencyMatrixViewData = {
-
-		// TODO delete this _temp thing
-		if (_temp != state.adjMatrixState) {
-			_temp = state.adjMatrixState
-			println(s"${state.adjMatrixState}, ${state.adjMatrixDimensions}")
-		}
 
 		val cells = filledInCells(state)
 		val gridLines = calculateGridLines(state)

@@ -13,14 +13,15 @@ case class TriangleCanvas(
 		tri = this.tri.toJS,
 		color = this.color
 	).asInstanceOf[TriangleCanvasJS]
-	
+
 	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {
+		println(s"color=$color")
+		ctx.fillStyle = color
 		ctx.beginPath()
 		ctx.moveTo(tri.pt1.x, tri.pt1.y)
 		ctx.lineTo(tri.pt2.x, tri.pt2.y)
 		ctx.lineTo(tri.pt3.x, tri.pt3.y)
 		ctx.closePath()
-		ctx.fillStyle = color
 		ctx.fill()
 	}
 }

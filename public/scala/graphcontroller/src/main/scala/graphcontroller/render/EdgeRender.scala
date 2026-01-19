@@ -20,7 +20,7 @@ object EdgeRender {
 	val edgeHighlightColor: String = "#F2813B"
 	val simpleEdgeStrokeWidth: Int = 8
 	val potentialEdgeStrokeColor: String = "rgba(255, 165, 0, 0.5)" // orange with 50% opacity
-	val potentialArrowColor: String = "rgba(50 191 227, 0.5)" // blue arrow head with 50% opacity
+	val potentialArrowColor: String = "rgba(50, 191, 227, 0.5)" // blue arrow head with 50% opacity
 
 	case class DirectedEdge(bidirectional: Boolean, edge: Line)
 
