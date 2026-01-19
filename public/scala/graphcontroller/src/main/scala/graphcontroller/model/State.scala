@@ -1,7 +1,7 @@
 package graphcontroller.model
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.dataobject.NodeData
+import graphcontroller.dataobject.{Line, NodeData, Point}
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, Cell, NoSelection}
 
 case class State(
@@ -21,6 +21,14 @@ case class State(
 	 * or drag vertically to add/remove edges to a single node from multiple nodes.
 	 */
 	def filledInCells: Set[Cell] = graph.getEdges.map { (from, to) => Cell.fromEdge(from, to) }
+
+	def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
+		fromData <- keyToData.get(fromIndex)
+		toData <- keyToData.get(toIndex)
+	} yield Line(
+		from = Point(fromData.x, fromData.y),
+		to = Point(toData.x, toData.y)
+	)
 }
 
 object State {

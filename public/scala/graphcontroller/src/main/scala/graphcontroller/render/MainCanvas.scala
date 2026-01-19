@@ -8,6 +8,8 @@ import graphcontroller.dataobject.{Point, Triangle}
 object MainCanvas {
 	/** Things to render on each animation frame callback */
 	private var _shapes: Seq[RenderOp] = Seq.empty
+	private var newShapes: Seq[RenderOp] = Seq.empty
+	private def getShapes = _shapes ++ newShapes
 	val canvas = dom.document.getElementById("overlay-canvas").asInstanceOf[html.Canvas]
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	val scale = dom.window.devicePixelRatio.toInt
@@ -50,11 +52,13 @@ object MainCanvas {
 //			TriangleCanvas(Triangle(Point(200, 200), Point(250, 300), Point(150, 300)), "blue")
 //		)
 
-		render(_shapes)
+		render(getShapes)
 
 		// Schedule the next frame
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
+	// TODO once we totally convert to new way, we'll only need one of these
+	def setShapesNew(shapes: Seq[RenderOp]): Unit = { newShapes = shapes }
 	def setShapes(shapes: Seq[RenderOp]): Unit = { _shapes = shapes }
 }

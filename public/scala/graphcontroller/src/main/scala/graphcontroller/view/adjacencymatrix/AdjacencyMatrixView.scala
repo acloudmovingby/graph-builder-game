@@ -97,6 +97,7 @@ object AdjacencyMatrixView {
 
 	def render(state: State): AdjacencyMatrixViewData = {
 
+		// TODO delete this _temp thing
 		if (_temp != state.adjMatrixState) {
 			_temp = state.adjMatrixState
 			println(s"${state.adjMatrixState}, ${state.adjMatrixDimensions}")
