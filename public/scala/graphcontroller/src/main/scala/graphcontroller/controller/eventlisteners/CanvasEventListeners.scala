@@ -34,9 +34,12 @@ trait CanvasEventListeners {
 	}
 
 	def addEventListeners(): Unit = {
+		// helper to reduce code duplication
+		// Take the dom event (dom.Event) and turn it into our internal Event type, then pass that to the Controller
+		// By making Events, we can then isolate our app logic from the DOM API and make it more testable
 		def passEventToController(e: dom.Event)(f: dom.MouseEvent => Event): Unit = {
 			Controller.handleEvent {
-				f(e.asInstanceOf[dom.MouseEvent])
+				f(e.asInstanceOf[dom.MouseEvent]) // not sure why I need to cast here
 			}
 		}
 

@@ -130,7 +130,6 @@ const toolState = {
 // =====================
 // TODO: Things don't work if I don't do this, but I suspect if I set up the css properly, this shouldn't be necessary?
 // (except for the scale issue, I'm not sure that can be solved with css alone)
-// TODO: Also let's combine this with (1) the resize listener and maybe (2) adj-matrix canvas set up as well
 function setCanvasSize() {
     const canvasWidth = window.innerWidth - infoPaneWidth;
     const canvasHeight = window.innerHeight;
@@ -146,18 +145,6 @@ function setCanvasSize() {
     }
 }
 setCanvasSize();
-
-const adjMatrixElem = document.getElementById("adj-matrix");
-if (adjMatrixElem) {
-    adjMatrixElem.width = adjMatrixElem.offsetWidth * scale;
-    adjMatrixElem.height = adjMatrixElem.offsetHeight * scale;
-    adjMatrixElem.style.width = adjMatrixElem.offsetWidth + "px";
-    adjMatrixElem.style.height = adjMatrixElem.offsetHeight + "px";
-    if (adjMatrixElem.getContext) {
-        let ctx = adjMatrixElem.getContext("2d");
-        ctx.scale(scale, scale);
-    }
-}
 
 // =====================
 // Event Listeners
@@ -598,7 +585,6 @@ function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList, adjac
     refreshToolbarHtml(toolState);
     refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
     refreshAdjListHtml(adjList);
-    refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell);
     refreshDirectedButtonIcon();
 }
 
@@ -670,66 +656,6 @@ function inside(point, vs) {
         if (intersect) inside = !inside;
     }
     return inside;
-}
-
-function refreshAdjMatrixHtml(adjList, adjacencyMatrix, matrixHoverCell) {
-    let adjMatrixElem = document.getElementById("adj-matrix");
-    if (adjMatrixElem && adjMatrixElem.getContext) {
-        let totalWidth = adjMatrixElem.offsetWidth;
-        let totalHeight = adjMatrixElem.offsetHeight;
-        let ctx = adjMatrixElem.getContext("2d");
-        ctx.clearRect(0, 0, totalWidth, totalHeight);
-
-        let width = totalWidth / adjList.length;
-        let height = totalHeight / adjList.length;
-        let adjMatrix = adjacencyMatrix;
-
-        // colors
-        const edgePresentColor = "black";
-        const hoverEdgePresentColor = "#F2813B"; // "#45ABD3"; // orange, or darker blue
-        const hoverNoEdgeColor = "#E2E2E2";
-
-        // fill in grid cells for each connected edge
-        ctx.fillStyle = edgePresentColor;
-        for (let i = 0; i < adjMatrix.length; i++) {
-            for (let j = 0; j < adjMatrix[i].length; j++) {
-                if (adjMatrix[i][j]) {
-                    ctx.fillRect(width * i, height * j, width, height);
-                }
-            }
-        }
-
-        const isHovering = matrixHoverCell.length > 0
-
-        // Color hovered cell (draws over previous coloring)
-        // Check we have >1 node, since adding hover over 1 node is confusing since we can't do anything with it anyways (currently self-loops not allowed)
-        if (isHovering && adjacencyMatrix.length > 1) {
-            if (adjMatrix[matrixHoverCell[0]][matrixHoverCell[1]]) {
-                ctx.fillStyle = hoverEdgePresentColor;
-            } else {
-                ctx.fillStyle = hoverNoEdgeColor;
-            }
-            ctx.fillRect(width * matrixHoverCell[0], height * matrixHoverCell[1], width, height);
-        }
-        ctx.fillStyle = edgePresentColor; // reset color
-
-        // draw grid lines (but only when hovering)
-        if (isHovering) {
-            ctx.beginPath();
-            for (let i = 1; i < adjMatrix.length; i++) {
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "lightgray";
-                // vertical lines
-                ctx.moveTo(width * i, 0);
-                ctx.lineTo(width * i, totalWidth);
-                // horizontal lines
-                ctx.moveTo(0, height * i);
-                ctx.lineTo(totalHeight, height * i);
-            }
-            ctx.closePath();
-            ctx.stroke();
-        }
-    }
 }
 
 // TODO delete this entirely once we have ported it fully to ScalaJS

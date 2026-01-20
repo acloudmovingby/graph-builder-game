@@ -19,7 +19,7 @@ case class DragSelecting(
 	isAdd: Boolean // true = adding selection, false = removing selection
 ) extends AdjMatrixInteractionState {
 	def selectedCells: Set[Cell] = {
-		if (startCell.row == currentHoveredCell.row) {
+		if (Math.abs(currentHoveredCell.row - startCell.row) <= Math.abs(currentHoveredCell.col - startCell.col)) {
 			// horizontal drag
 			val row = startCell.row
 			val colRange = if (currentHoveredCell.col >= startCell.col) {
@@ -40,8 +40,11 @@ case class DragSelecting(
 		}
 	}
 }
-/** When we release the selection and actually want to apply its addition/removal. */
+
+/**
+ * When we release the selection and actually want to apply its addition/removal.
+ * */
 case class ReleaseSelection(
 	cells: Set[Cell], // set of cells selected on release
-	isAdd: Boolean // true = adding selection, false = removing selection
+	isAdd: Boolean // true = adding selection to graph, false = removing selection
 ) extends AdjMatrixInteractionState

@@ -108,8 +108,6 @@ class GraphController {
 
 	@JSExport
 	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
-		// trigger draw on canvas as test TODO: delete this
-
 		val size = state.graph.nodeCount
 		// initialize size x size matrix with 0s
 		val matrix = Array.fill(size, size)(0)

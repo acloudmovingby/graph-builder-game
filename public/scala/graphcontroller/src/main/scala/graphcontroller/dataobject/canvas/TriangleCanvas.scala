@@ -15,7 +15,6 @@ case class TriangleCanvas(
 	).asInstanceOf[TriangleCanvasJS]
 
 	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {
-		println(s"color=$color")
 		ctx.fillStyle = color
 		ctx.beginPath()
 		ctx.moveTo(tri.pt1.x, tri.pt1.y)
