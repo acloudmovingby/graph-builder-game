@@ -1,6 +1,6 @@
 package graphcontroller.model.adjacencymatrix
 
-import graphcontroller.model.adjacencymatrix.Cell
+import graphcontroller.dataobject.Cell
 
 sealed trait AdjMatrixInteractionState
 

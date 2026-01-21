@@ -6,8 +6,9 @@ import graphi.MapGraph
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
+import graphcontroller.dataobject.Cell
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection, Cell
+	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
 }
 
 // TODO: I hate this name

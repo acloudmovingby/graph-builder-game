@@ -1,6 +1,8 @@
-import graphcontroller.model.adjacencymatrix.{AdjMatrixCoordinateConverter, AdjMatrixZone, Cell, Corner, Row, Column}
-import AdjMatrixCoordinateConverter.padding
 import utest.*
+
+import graphcontroller.shared.AdjMatrixCoordinateConverter
+import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Row}
+import AdjMatrixCoordinateConverter.padding
 
 object AdjMatrixCoordinateConverterTests extends TestSuite {
 	def tests = Tests {
@@ -95,7 +97,7 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 				adjMatrixCanvasDimensions = (120, 120),
 				nodeCount = 0
 			)
-			assert(result == graphcontroller.model.adjacencymatrix.NoCell)
+			assert(result == NoCell)
 		}
 		test("Corner (upper right)") {
 			val result = convertCoordinatesToZone(

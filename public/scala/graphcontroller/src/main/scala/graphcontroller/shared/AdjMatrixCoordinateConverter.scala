@@ -1,8 +1,7 @@
-package graphcontroller.model.adjacencymatrix
+package graphcontroller.shared
 
-import graphcontroller.dataobject.{Point, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Point, Row, Rectangle}
 import graphcontroller.dataobject.canvas.{RectangleCanvas, RenderOp}
-import graphcontroller.model.adjacencymatrix.AdjMatrixZone
 import graphi.MapGraph
 
 import scala.collection.immutable.ListSet

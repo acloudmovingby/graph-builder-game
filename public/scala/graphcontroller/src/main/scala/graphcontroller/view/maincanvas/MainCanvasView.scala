@@ -1,6 +1,6 @@
 package graphcontroller.view.maincanvas
 
-import graphcontroller.dataobject.Point
+import graphcontroller.dataobject.{Cell, Point}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.*

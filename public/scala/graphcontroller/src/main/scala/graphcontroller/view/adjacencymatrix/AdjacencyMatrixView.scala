@@ -2,9 +2,10 @@ package graphcontroller.view.adjacencymatrix
 
 import graphi.MapGraph
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, AdjMatrixCoordinateConverter, Cell, Clicked, DragSelecting, Hover, NoSelection}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection}
+import graphcontroller.shared.AdjMatrixCoordinateConverter
 import AdjMatrixClickDragLogic.padding
-import graphcontroller.dataobject.{Point, Rectangle}
+import graphcontroller.dataobject.{Cell, Point, Rectangle}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.view.AdjacencyMatrixViewData
 

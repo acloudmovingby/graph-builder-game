@@ -3,8 +3,9 @@ import utest.*
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
+import graphcontroller.dataobject.{Cell, NoCell}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection, Cell
+	AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
 }
 
 object AdjMatrixClickDragLogicTests extends TestSuite {
@@ -126,6 +127,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			val result = logic.mouseMove(Cell(1, 4), Hover(Cell(2, 3)), 5)
 			assert(result == Hover(Cell(1, 4)))
 		}
+
 		test("end-to-end handleEvent: NoSelection now Hover") {
 			val initialState = NoSelection
 			val mouseX = 120

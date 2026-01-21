@@ -1,4 +1,4 @@
-package graphcontroller.model.adjacencymatrix
+package graphcontroller.dataobject
 
 /**
  * Represents either a Cell or some area around the matrix

@@ -1,8 +1,8 @@
 package graphcontroller.model
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.dataobject.{Line, NodeData, Point}
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, Cell, NoSelection}
+import graphcontroller.dataobject.{Cell, Line, NodeData, Point}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 
 case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
