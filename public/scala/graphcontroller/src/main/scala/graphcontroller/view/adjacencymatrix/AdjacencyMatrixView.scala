@@ -4,8 +4,7 @@ import graphi.MapGraph
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
-import AdjMatrixClickDragLogic.padding
-import graphcontroller.dataobject.{Cell, Point, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Point, Rectangle}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.view.AdjacencyMatrixViewData
 
@@ -17,28 +16,32 @@ object AdjacencyMatrixView {
 	private val clickedEdgePresentColor = "#ffb78a" // lighter shade
 	private val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
 
-	private def calculateGridLines(state: State): Seq[CanvasLine] = {
-		val nodeCount = state.graph.nodeCount
+	def calculateGridLines(nodeCount: Int, dimensions: AdjMatrixDimensions): Seq[CanvasLine] = {
+		val padding = dimensions.padding
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			val (width, height) = (state.adjMatrixDimensions.cellWidth(nodeCount), state.adjMatrixDimensions.cellHeight(nodeCount))
+			val (width, height) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
 
 			for {
-				i <- 1 until nodeCount
+				i <- 0 to nodeCount
+				// first calculate lines without padding, then translate by padding afterward
 				verticalLine = CanvasLine(
 					from = Point(x = (width * i).toInt, y = 0),
-					to = Point(x = (width * i).toInt, y = (state.adjMatrixDimensions.matrixHeight - (padding * 2))),
+					to = Point(x = (width * i).toInt, y = dimensions.matrixHeight),
 					width = 1,
 					color = "lightgray"
 				)
 				horizontalLine = CanvasLine(
 					from = Point(x = 0, y = (height * i).toInt),
-					to = Point(x = (state.adjMatrixDimensions.matrixWidth - (padding * 2)), y = (height * i).toInt),
+					to = Point(x = dimensions.matrixWidth, y = (height * i).toInt),
 					width = 1,
 					color = "lightgray"
 				)
-				lines <- Seq(verticalLine, horizontalLine)
-			} yield lines
+				line <- Seq(verticalLine, horizontalLine)
+				// shift down and right by padding amount
+				vector = Point(padding, padding)
+				withPadding = line.copy(from = line.from.translate(vector), to = line.to.translate(vector))
+			} yield withPadding
 		}
 	}
 
@@ -90,7 +93,7 @@ object AdjacencyMatrixView {
 	def render(state: State): AdjacencyMatrixViewData = {
 
 		val cells = filledInCells(state)
-		val gridLines = calculateGridLines(state)
+		val gridLines = calculateGridLines(state.graph.nodeCount, state.adjMatrixDimensions)
 
 		val shapes: Seq[RenderOp] = state.adjMatrixState match {
 			case NoSelection => // fill in cells only, no grid lines

@@ -13,7 +13,6 @@ import graphcontroller.model.adjacencymatrix.{
 
 // TODO: I hate this name
 object AdjMatrixClickDragLogic {
-	val padding = 10 // pixels of padding around the adjacency matrix
 
 	def handleEvent(
 		event: AdjacencyMatrixEvent,
