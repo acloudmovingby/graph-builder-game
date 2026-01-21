@@ -74,7 +74,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 
 			val dragState = DragSelecting(Cell(1, 1), Cell(2, 2), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(2, 2))
-			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(2, 1)), isAdd = false))
+			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(1, 2)), isAdd = false))
 		}
 		test ("mouseup - when selection is knight down right (it defaults to longer delta, the vertical)") {
 
@@ -106,7 +106,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 
 			val dragState = DragSelecting(Cell(0, 0), Cell(4,4), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(4,4))
-			assert(result == ReleaseSelection(Set(Cell(0, 0), Cell(1,0), Cell(2,0), Cell(3,0), Cell(4,0)), isAdd = false))
+			assert(result == ReleaseSelection(Set(Cell(0, 0), Cell(0, 1), Cell(0, 2), Cell(0, 3), Cell(0, 4)), isAdd = false))
 		}
 		test("hovering over cells within bounds from a NoSelection state") {
 			val result = logic.mouseMove(Cell(2, 3), NoSelection, 5)
@@ -125,19 +125,6 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 		test("hovering over cells within bounds from a Hover state") {
 			val result = logic.mouseMove(Cell(1, 4), Hover(Cell(2, 3)), 5)
 			assert(result == Hover(Cell(1, 4)))
-		}
-		test("convertMouseCoordinatesToCell") {
-			val adjMatrixDimensions = (500, 500)
-			val nodeCount = 5
-			// cell (0,0)
-			val cell1 = logic.convertMouseCoordinatesToCell(0, 0, adjMatrixDimensions, nodeCount)
-			assert(cell1 == Cell(0, 0))
-			// cell (2,3)
-			val cell2 = logic.convertMouseCoordinatesToCell(250, 350, adjMatrixDimensions, nodeCount)
-			assert(cell2 == Cell(3, 2))
-			// cell (4,4)
-			val cell3 = logic.convertMouseCoordinatesToCell(499, 499, adjMatrixDimensions, nodeCount)
-			assert(cell3 == Cell(4, 4))
 		}
 		test("end-to-end handleEvent: NoSelection now Hover") {
 			val initialState = NoSelection

@@ -12,6 +12,8 @@ import graphcontroller.model.adjacencymatrix.{
 
 // TODO: I hate this name
 object AdjMatrixClickDragLogic {
+	val padding = 10 // pixels of padding around the adjacency matrix
+
 	def handleEvent(
 		event: AdjacencyMatrixEvent,
 		currentState: AdjMatrixInteractionState,
@@ -30,7 +32,7 @@ object AdjMatrixClickDragLogic {
 				case AdjMatrixMouseMove(mouseX, mouseY) =>
 					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
 					mouseMove(cell, currentState, nodeCount)
-				case AdjMatrixMouseLeave => mouseLeave(currentState)
+				case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState)
 				case AdjMatrixMouseDown(mouseX, mouseY) =>
 					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
 					mouseDown(currentState, nodeCount, filledInCells, cell)
@@ -116,10 +118,10 @@ object AdjMatrixClickDragLogic {
 		nodeCount: Int
 	): Cell = {
 		if (nodeCount == 0) throw new Exception("No nodes in graph, cannot convert mouse coords to cell")
-		val cellWidth = adjMatrixDimensions._1 / nodeCount
-		val cellHeight = adjMatrixDimensions._2 / nodeCount
-		val col = mouseX / cellWidth
-		val row = mouseY / cellHeight
+		val cellWidth = (adjMatrixDimensions._1 - (padding * 2)) / nodeCount
+		val cellHeight = (adjMatrixDimensions._2 - (padding * 2)) / nodeCount
+		val col = (mouseX - padding) / cellWidth
+		val row = (mouseY - padding) / cellHeight
 		Cell(row, col)
 	}
 }

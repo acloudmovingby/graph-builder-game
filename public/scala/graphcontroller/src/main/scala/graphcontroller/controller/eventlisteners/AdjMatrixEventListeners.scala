@@ -32,5 +32,9 @@ class AdjMatrixEventListeners extends CanvasEventListeners {
 		}
 	}
 
-	def mouseLeave(e: dom.MouseEvent): Event = AdjMatrixMouseLeave
+	def mouseLeave(e: dom.MouseEvent): Event =
+		getInBoundsCoordinates(e) match {
+			case Some((x, y)) => AdjMatrixMouseLeave(x, y)
+			case None => NoOp
+		}
 }
