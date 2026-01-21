@@ -6,7 +6,7 @@ import graphi.MapGraph
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
-import graphcontroller.dataobject.Cell
+import graphcontroller.dataobject.{AdjMatrixZone, Cell}
 import graphcontroller.model.adjacencymatrix.{
 	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
 }
@@ -18,27 +18,29 @@ object AdjMatrixClickDragLogic {
 	def handleEvent(
 		event: AdjacencyMatrixEvent,
 		currentState: AdjMatrixInteractionState,
-		adjMatrixDimensions: (Int, Int),
 		nodeCount: Int,
+		zone: AdjMatrixZone,
 		filledInCells: Set[Cell]
 	): AdjMatrixInteractionState = {
-		if (nodeCount == 0 || nodeCount == 1) {
-			// with 0 or 1 node, no edges are possible so no interaction
-			NoSelection
-		} else {
-			event match {
-				case AdjMatrixMouseUp(mouseX, mouseY) =>
-					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
-					mouseUp(currentState, cell)
-				case AdjMatrixMouseMove(mouseX, mouseY) =>
-					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
-					mouseMove(cell, currentState, nodeCount)
-				case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState)
-				case AdjMatrixMouseDown(mouseX, mouseY) =>
-					val cell = convertMouseCoordinatesToCell(mouseX, mouseY, adjMatrixDimensions, nodeCount)
-					mouseDown(currentState, nodeCount, filledInCells, cell)
-			}
+		zone match {
+			case cell: Cell =>
+				if (nodeCount == 0 || nodeCount == 1) {
+					// with 0 or 1 node, no edges are possible so no interaction
+					NoSelection
+				} else {
+					event match {
+						case AdjMatrixMouseUp(_, _) =>
+							mouseUp(currentState, cell)
+						case AdjMatrixMouseMove(_, _) =>
+							mouseMove(cell, currentState, nodeCount)
+						case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState)
+						case AdjMatrixMouseDown(mouseX, mouseY) =>
+							mouseDown(currentState, nodeCount, filledInCells, cell)
+					}
+				}
+			case _ => NoSelection // TODO implement other cases
 		}
+
 	}
 
 	def mouseUp(
@@ -110,19 +112,5 @@ object AdjMatrixClickDragLogic {
 				// already released selection, so just go to no selection
 				NoSelection
 		}
-	}
-
-	def convertMouseCoordinatesToCell(
-		mouseX: Int,
-		mouseY: Int,
-		adjMatrixDimensions: (Int, Int),
-		nodeCount: Int
-	): Cell = {
-		if (nodeCount == 0) throw new Exception("No nodes in graph, cannot convert mouse coords to cell")
-		val cellWidth = (adjMatrixDimensions._1 - (padding * 2)) / nodeCount
-		val cellHeight = (adjMatrixDimensions._2 - (padding * 2)) / nodeCount
-		val col = (mouseX - padding) / cellWidth
-		val row = (mouseY - padding) / cellHeight
-		Cell(row, col)
 	}
 }

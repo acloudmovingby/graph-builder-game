@@ -1,14 +1,21 @@
 import utest.*
 
 import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Row}
-import AdjMatrixCoordinateConverter.padding
+import graphcontroller.dataobject.{AdjMatrixZone, AdjMatrixDimensions, Cell, Column, Corner, NoCell, Row}
 
 object AdjMatrixCoordinateConverterTests extends TestSuite {
 	def tests = Tests {
-		val matrixWidth = 100
-		val matrixHeight = 100
-		val nodeCount = 5
+		val padding = 5
+		// 100x100 matrix area with 5 padding on each side
+		val dimensions = AdjMatrixDimensions(
+			canvasWidth = 110,
+			canvasHeight = 110,
+			padding = padding
+		)
+
+		val matrixWidth = dimensions.matrixWidth
+		val matrixHeight = dimensions.matrixHeight
+		val nodeCount = 5 // matrix will be 5x5 with each cell 20x20 pixels
 		def cellSize = matrixWidth / nodeCount // 20 pixels
 
 		def convertCoordinatesToZone(
@@ -17,13 +24,13 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 		) = AdjMatrixCoordinateConverter.convertCoordinatesToZone(
 			mouseX,
 			mouseY,
-			adjMatrixCanvasDimensions = (padding * 2 + matrixWidth, padding * 2 + matrixHeight), // 100x100 matrix area with 5 padding on each side
-			nodeCount = nodeCount // matrix is 5x5 with each cell 20x20 pixels
+			dimensions,
+			nodeCount
 		)
 
 		def convertZoneToShape(zone: AdjMatrixZone) = AdjMatrixCoordinateConverter.convertZoneToShape(
 			zone,
-			adjMatrixCanvasDimensions = (padding * 2 + matrixWidth, padding * 2 + matrixHeight),
+			dimensions = dimensions,
 			nodeCount = nodeCount
 		)
 
@@ -94,7 +101,7 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			val result = AdjMatrixCoordinateConverter.convertCoordinatesToZone(
 				mouseX = 50,
 				mouseY = 50,
-				adjMatrixCanvasDimensions = (120, 120),
+				dimensions,
 				nodeCount = 0
 			)
 			assert(result == NoCell)
@@ -166,7 +173,7 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			val zone = Cell(0, 0)
 			val result = AdjMatrixCoordinateConverter.convertZoneToShape(
 				zone,
-				adjMatrixCanvasDimensions = (120, 120),
+				dimensions,
 				nodeCount = 0
 			)
 			assert(result.isEmpty)

@@ -1,6 +1,6 @@
 package graphcontroller.shared
 
-import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Point, Row, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Corner, NoCell, Point, Row, Rectangle}
 import graphcontroller.dataobject.canvas.{RectangleCanvas, RenderOp}
 import graphi.MapGraph
 
@@ -8,21 +8,21 @@ import scala.collection.immutable.ListSet
 
 // TODO: I hate this name
 object AdjMatrixCoordinateConverter {
-	val padding = 10 // pixels of padding around the adjacency matrix
 
+	/** When the user clicks in the adjacency matrix canvas area, determine which zone they are clicking on (a cell in the
+	 * matrix itself, or in one of the padded areas around the matrix) */
 	def convertCoordinatesToZone(
 		mouseX: Int,
 		mouseY: Int,
-		adjMatrixCanvasDimensions: (Int, Int),
+		dimensions: AdjMatrixDimensions,
 		nodeCount: Int
 	): AdjMatrixZone = {
 		if (nodeCount == 0) return NoCell
-		// padding on all 4 sides around the actual matrix. adjMatrixDimensions is the full dimensions of the canvas
-		val (canvasWidth, canvasHeight) = adjMatrixCanvasDimensions
-		val matrixWidth = canvasWidth.toDouble - (padding * 2.0)
-		val matrixHeight = canvasHeight.toDouble - (padding * 2.0)
-		val cellWidth = matrixWidth / nodeCount
-		val cellHeight = matrixHeight / nodeCount
+		val matrixWidth = dimensions.matrixWidth
+		val matrixHeight = dimensions.matrixHeight
+		val cellWidth = dimensions.cellWidth(nodeCount)
+		val cellHeight = dimensions.cellHeight(nodeCount)
+		val padding = dimensions.padding
 		if (mouseX < padding && mouseY < padding) {
 			Corner
 		} else if (mouseX < padding && mouseY >= padding && mouseY < padding + matrixHeight) {
@@ -44,16 +44,20 @@ object AdjMatrixCoordinateConverter {
 	}
 
 	// For rendering purposes, convert a zone to a rectangle representing its area on the canvas
-	def convertZoneToShape(z: AdjMatrixZone, adjMatrixCanvasDimensions: (Int, Int), nodeCount: Int): Option[Rectangle] = {
+	def convertZoneToShape(
+		z: AdjMatrixZone,
+		dimensions: AdjMatrixDimensions,
+		nodeCount: Int
+	): Option[Rectangle] = {
 		// if it's a cell, make a rectangle for that cell
 		// if it's a row or column, make a rectangle for the whole row/column
 		// if it's corner or NoCell, return None
 		if (nodeCount == 0) return None
-		val (canvasWidth, canvasHeight) = adjMatrixCanvasDimensions
-		val matrixWidth = canvasWidth.toDouble - (padding * 2.0)
-		val matrixHeight = canvasHeight.toDouble - (padding * 2.0)
-		val cellWidth = matrixWidth / nodeCount
-		val cellHeight = matrixHeight / nodeCount
+		val matrixWidth = dimensions.matrixWidth
+		val matrixHeight = dimensions.matrixHeight
+		val cellWidth = dimensions.cellWidth(nodeCount)
+		val cellHeight = dimensions.cellHeight(nodeCount)
+		val padding = dimensions.padding
 
 		z match {
 			case Cell(row, col) =>

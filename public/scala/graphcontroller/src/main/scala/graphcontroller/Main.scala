@@ -9,26 +9,27 @@ import graphcontroller.controller.{Controller, Initialization}
 // the graphcontroller instance
 @JSExportTopLevel("Main")
 object Main {
-    private val graphController = new GraphController()
+	private val graphController = new GraphController()
 
-    /** Pass in parameters that are available at web page load (so we can program our code in a functional way,
-     * and we're not fetching info from the dom in the middle of our pure functions) */
-    private def initializationEvent: Initialization = Initialization(
-        adjMatrixWidth = AdjMatrixCanvas.canvas.offsetWidth.toInt,
-        adjMatrixHeight = AdjMatrixCanvas.canvas.offsetHeight.toInt
-    )
+	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
+	 * and we're not fetching info from the dom in the middle of our pure functions) */
+	private def initializationEvent: Initialization = Initialization(
+		adjMatrixWidth = AdjMatrixCanvas.canvas.offsetWidth.toInt,
+		adjMatrixHeight = AdjMatrixCanvas.canvas.offsetHeight.toInt,
+		padding = 10
+	)
 
-    // @main here indicates to run this method on startup of the ScalaJS application
-    @main def start(): Unit = {
-        MainCanvas.start()
-        AdjMatrixCanvas.start()
-        new AdjMatrixEventListeners().addEventListeners()
-        new MainCanvasEventListeners().addEventListeners()
+	// @main here indicates to run this method on startup of the ScalaJS application
+	@main def start(): Unit = {
+		MainCanvas.start()
+		AdjMatrixCanvas.start()
+		new AdjMatrixEventListeners().addEventListeners()
+		new MainCanvasEventListeners().addEventListeners()
 
-        println("GraphController ScalaJS application started.")
-        Controller.handleEvent(initializationEvent)
-    }
+		println("GraphController ScalaJS application started.")
+		Controller.handleEvent(initializationEvent)
+	}
 
-    @JSExport
-    def getGraphController(): GraphController = graphController
+	@JSExport
+	def getGraphController(): GraphController = graphController
 }

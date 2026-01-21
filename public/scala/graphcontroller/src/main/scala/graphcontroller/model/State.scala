@@ -1,7 +1,7 @@
 package graphcontroller.model
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.dataobject.{Cell, Line, NodeData, Point}
+import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Point}
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 
 case class State(
@@ -9,7 +9,7 @@ case class State(
 	keyToData: Map[Int, NodeData],
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
-	adjMatrixDimensions: (Int, Int)
+	adjMatrixDimensions: AdjMatrixDimensions
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -41,6 +41,6 @@ object State {
 		// maybe a different data structure would be better
 		undoStack = List.empty,
 		adjMatrixState = NoSelection,
-		adjMatrixDimensions = (100, 100) // override in Controller.init after loading settings
+		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10) // override in Controller.init after loading settings
 	)
 }

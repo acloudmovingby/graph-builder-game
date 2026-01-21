@@ -130,32 +130,27 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 
 		test("end-to-end handleEvent: NoSelection now Hover") {
 			val initialState = NoSelection
-			val mouseX = 120
-			val mouseY = 80
-			val adjMatrixDimensions = (500, 500)
 			val nodeCount = 5
 			val newState = logic.handleEvent(
-				AdjMatrixMouseMove(mouseX, mouseY),
+				AdjMatrixMouseMove(120, 80), // don't matter for this function
 				initialState,
-				adjMatrixDimensions,
 				nodeCount,
+				Cell(0, 1),
 				Set.empty // doesn't matter for this test
 			)
 			assert(newState == Hover(Cell(0, 1)))
 		}
 		test("end-to-end handleEvent: Hover now Clicked") {
 			val initialState = Hover(Cell(2, 3))
-			val (mouseX, mouseY) = (320, 220) // still within cell (2,3)
-			val adjMatrixDimensions = (500, 500)
 			val nodeCount = 5
 
 			// test with no existing edge
 			val filledInCells = Set.empty[Cell]
 			val newState = logic.handleEvent(
-				AdjMatrixMouseDown(mouseX, mouseY),
+				AdjMatrixMouseDown(320, 220),
 				initialState,
-				adjMatrixDimensions,
 				nodeCount,
+				Cell(2, 3),
 				filledInCells
 			)
 			// since no edge exists, isAdd should be true (we are preparing to add the edge)
@@ -164,10 +159,10 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// test with an existing edge
 			val filledInCells2 = Set(Cell(2, 3))
 			val newState2 = logic.handleEvent(
-				AdjMatrixMouseDown(mouseX, mouseY),
+				AdjMatrixMouseDown(320, 220),
 				initialState,
-				adjMatrixDimensions,
 				nodeCount,
+				Cell(2, 3),
 				filledInCells2
 			)
 			// since edge exists, isAdd should be false (we are preparing to remove the edge)
