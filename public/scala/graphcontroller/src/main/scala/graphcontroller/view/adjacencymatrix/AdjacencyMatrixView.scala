@@ -5,7 +5,7 @@ import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Vector2D, Rectangle}
-import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
+import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
 import graphcontroller.view.AdjacencyMatrixViewData
 
 object AdjacencyMatrixView {
@@ -15,6 +15,30 @@ object AdjacencyMatrixView {
 	val hoverNoEdgeColor = "#E2E2E2"
 	val clickedEdgePresentColor = "#ffb78a" // lighter shade
 	val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
+	val defaultNumberColor = "darkgray"
+
+	def rowColNumbers(nodeCount: Int, dimensions: AdjMatrixDimensions, adjMatrixState: AdjMatrixInteractionState): Seq[TextCanvas] = {
+		adjMatrixState match {
+			case NoSelection => Seq.empty
+			case _ =>
+				val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
+
+				// row numbers (going down left side of matrix)
+				val rowNumbers = (0 until nodeCount).map { i =>
+					val x = dimensions.padding - dimensions.numberPadding
+					val y = (i * cellHeight).toInt + dimensions.padding + cellHeight.toInt / 2
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = defaultNumberColor, fontSize = 12)
+				}
+
+				val colNumbers = (0 until nodeCount).map { i =>
+					val x = (i * cellWidth).toInt + dimensions.padding + cellWidth.toInt / 2
+					val y = dimensions.padding - dimensions.numberPadding
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = defaultNumberColor, fontSize = 12)
+				}
+
+				rowNumbers ++ colNumbers
+		}
+	}
 
 	def calculateGridLines(nodeCount: Int, dimensions: AdjMatrixDimensions): Seq[CanvasLine] = {
 		val padding = dimensions.padding
@@ -122,7 +146,8 @@ object AdjacencyMatrixView {
 			y = state.adjMatrixDimensions.padding
 		)))
 
-		// put gridlines after cells so they get drawn on top
-		AdjacencyMatrixViewData(adjustedForPadding)
+		val numbers = rowColNumbers(state.graph.nodeCount, state.adjMatrixDimensions, state.adjMatrixState)
+
+		AdjacencyMatrixViewData(adjustedForPadding ++ numbers)
 	}
 }

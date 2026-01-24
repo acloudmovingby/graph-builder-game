@@ -10,7 +10,12 @@ sealed trait AdjacencyMatrixEvent extends Event {
 }
 
 // Params gathered at program startup
-case class Initialization(adjMatrixWidth: Int, adjMatrixHeight: Int, padding: Int) extends Event
+case class Initialization(
+	adjMatrixWidth: Int,
+	adjMatrixHeight: Int,
+	padding: Int,
+	numberPadding: Int // padding between the matrix and the row/column numbers
+) extends Event
 
 case class AdjMatrixMouseMove(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent

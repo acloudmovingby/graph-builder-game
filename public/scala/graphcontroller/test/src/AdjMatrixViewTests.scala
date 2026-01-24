@@ -1,4 +1,5 @@
 import graphcontroller.dataobject.*
+import graphcontroller.model.adjacencymatrix.Hover
 import graphcontroller.view.adjacencymatrix.AdjacencyMatrixView
 import graphi.DirectedMapGraph
 import utest.*
@@ -10,7 +11,8 @@ object AdjMatrixViewTests extends TestSuite {
 		val dimensions = AdjMatrixDimensions(
 			canvasWidth = 110,
 			canvasHeight = 110,
-			padding = padding
+			padding = padding,
+			numberPadding = 2
 		)
 
 		val matrixWidth = dimensions.matrixWidth
@@ -49,7 +51,8 @@ object AdjMatrixViewTests extends TestSuite {
 			val zeroPaddingDimensions = AdjMatrixDimensions(
 				canvasWidth = 100,
 				canvasHeight = 100,
-				padding = 0
+				padding = 0,
+				numberPadding = 0
 			)
 			assert(zeroPaddingDimensions.matrixWidth == 100)
 			assert(zeroPaddingDimensions.matrixHeight == 100)
@@ -132,6 +135,20 @@ object AdjMatrixViewTests extends TestSuite {
 			val highlightWithoutEdge = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredCellWithoutEdge)
 			assert(highlightWithoutEdge.isDefined)
 			assert(highlightWithoutEdge.get.color == AdjacencyMatrixView.hoverNoEdgeColor)
+		}
+
+		test("row/column numbers") {
+			val nodeCount = 4 // choose number divisible into matrix width/height for easier calculation
+			val rowNumbers = AdjacencyMatrixView.rowColNumbers(nodeCount, dimensions, Hover(Cell(0,0)))
+			assert(rowNumbers.length == nodeCount * 2)
+
+			// assert that there are nodeCOunt number of row numbers where the x position is padding-numberPadding
+			// and y position is padding + row * cellHeight + cellHeight/2
+			for (i <- 0 until nodeCount) {
+				val rowNumber = rowNumbers.find(rn => rn.text == i.toString && rn.coords.x == padding - dimensions.numberPadding).get
+				val expectedY = padding + (i * dimensions.cellHeight(nodeCount)) + (dimensions.cellHeight(nodeCount) / 2).toInt
+				assert(rowNumber.coords.y == expectedY)
+			}
 		}
 	}
 }

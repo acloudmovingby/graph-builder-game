@@ -41,6 +41,6 @@ object State {
 		// maybe a different data structure would be better
 		undoStack = List.empty,
 		adjMatrixState = NoSelection,
-		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10) // override in Controller.init after loading settings
+		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5) // override in Controller.init after loading settings
 	)
 }

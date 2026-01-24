@@ -6,7 +6,8 @@ package graphcontroller.dataobject
 case class AdjMatrixDimensions(
 	canvasWidth: Int,
 	canvasHeight: Int,
-	padding: Int
+	padding: Int,
+	numberPadding: Int = 10 // padding between the matrix and the row/column numbers
 ) {
 	def matrixWidth: Int = canvasWidth - (padding * 2)
 	def matrixHeight: Int = canvasHeight - (padding * 2)
