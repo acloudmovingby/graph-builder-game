@@ -2,7 +2,7 @@ package graphcontroller.render
 
 import scala.math
 import graphi.DirectedMapGraph
-import graphcontroller.dataobject.{Line, NodeData, Point}
+import graphcontroller.dataobject.{Line, NodeData, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
 import graphcontroller.render.ArrowTipRender.getArrowTriangle
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
@@ -26,7 +26,7 @@ object EdgeRender {
 
 	def decideDirectionality(edges: Seq[Line]): List[DirectedEdge] = {
 		val edgeSet = edges.map(e => (e.from, e.to)).toSet
-		var seen = Set.empty[(Point, Point)]
+		var seen = Set.empty[(Vector2D, Vector2D)]
 		val directedEdges = scala.collection.mutable.ListBuffer[DirectedEdge]()
 		for (e <- edges) {
 			val key = (e.from, e.to)
@@ -56,9 +56,9 @@ object EdgeRender {
 			val dxFromNode = (dx * ratio).toInt
 			val dyFromNode = (dy * ratio).toInt
 			if (trimStart) {
-				Line(Point(from.x + dxFromNode, from.y + dyFromNode), to)
+				Line(Vector2D(from.x + dxFromNode, from.y + dyFromNode), to)
 			} else {
-				Line(from, Point(to.x - dxFromNode, to.y - dyFromNode))
+				Line(from, Vector2D(to.x - dxFromNode, to.y - dyFromNode))
 			}
 		}
 	}

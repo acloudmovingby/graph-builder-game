@@ -1,6 +1,6 @@
 package graphcontroller.render.properties
 
-import graphcontroller.dataobject.{Point, Triangle}
+import graphcontroller.dataobject.{Vector2D, Triangle}
 
 /*
 displacement = node radius + padding + triangle height
@@ -26,9 +26,9 @@ case class ArrowRenderProperties(
 ) {
 	/** Base triangle for arrow. Changes to the size/proportion of this Triangle will be reflected in all arrow heads. */
 	val triangle: Triangle = {
-		val pt1 = Point(0, -1 * base / 2)
-		val pt2 = Point(0, base / 2)
-		val pt3 = Point(height, 0)
+		val pt1 = Vector2D(0, -1 * base / 2)
+		val pt2 = Vector2D(0, base / 2)
+		val pt3 = Vector2D(height, 0)
 		Triangle(pt1, pt2, pt3)
 			.scaled(scaleFactor)
 	}

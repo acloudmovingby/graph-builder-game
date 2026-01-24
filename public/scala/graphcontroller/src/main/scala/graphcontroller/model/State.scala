@@ -1,7 +1,7 @@
 package graphcontroller.model
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Point}
+import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 
 case class State(
@@ -26,8 +26,8 @@ case class State(
 		fromData <- keyToData.get(fromIndex)
 		toData <- keyToData.get(toIndex)
 	} yield Line(
-		from = Point(fromData.x, fromData.y),
-		to = Point(toData.x, toData.y)
+		from = Vector2D(fromData.x, fromData.y),
+		to = Vector2D(toData.x, toData.y)
 	)
 }
 

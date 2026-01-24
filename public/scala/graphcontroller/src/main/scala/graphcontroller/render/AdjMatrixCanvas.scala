@@ -1,7 +1,7 @@
 package graphcontroller.render
 
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
-import graphcontroller.dataobject.{Point, Triangle}
+import graphcontroller.dataobject.{Vector2D, Triangle}
 import org.scalajs.dom
 import org.scalajs.dom.html
 

@@ -1,14 +1,16 @@
 package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
-import graphcontroller.dataobject.{Triangle, TriangleJS}
+import graphcontroller.dataobject.{Shape, Triangle, TriangleJS, Vector2D}
 import org.scalajs.dom
 
 /** Represents data necessary to draw a triangle with the HTML Canvas API */
 case class TriangleCanvas(
 	 tri: Triangle,
 	 color: String // Hex string, e.g. "#FF0000"
-) extends RenderOp {
+) extends RenderOp, Shape {
+	type This = TriangleCanvas
+
 	def toJS: TriangleCanvasJS = js.Dynamic.literal(
 		tri = this.tri.toJS,
 		color = this.color
@@ -23,6 +25,18 @@ case class TriangleCanvas(
 		ctx.closePath()
 		ctx.fill()
 	}
+
+	def translate(vec: graphcontroller.dataobject.Vector2D): TriangleCanvas = this.copy(
+		tri = tri.translate(vec)
+	)
+
+	def scaled(scaleFactor: Int): TriangleCanvas = this.copy(
+		tri = tri.scaled(scaleFactor)
+	)
+
+	def rotate(radians: Double): TriangleCanvas = this.copy(
+		tri = tri.rotate(radians)
+	)
 }
 
 /** JS compatible equivalent of TriangleCanvas */

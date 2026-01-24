@@ -1,5 +1,6 @@
 import graphcontroller.dataobject.*
 import graphcontroller.view.adjacencymatrix.AdjacencyMatrixView
+import graphi.DirectedMapGraph
 import utest.*
 
 object AdjMatrixViewTests extends TestSuite {
@@ -84,6 +85,53 @@ object AdjMatrixViewTests extends TestSuite {
 			// there should be no lines when there are zero nodes
 			// TODO: consider if this is true or if we want to include the border lines
 			assert(lines.isEmpty)
+		}
+
+		test("One node") {
+			val nodeCount = 1
+			val lines = AdjacencyMatrixView.calculateGridLines(nodeCount, dimensions)
+			// there should be 4 lines (2 vertical, 2 horizontal)
+			assert(lines.length == 4)
+			// check positions of lines
+			val leftVerticalLine = lines.find(line => line.from.x == padding && line.to.x == padding).get
+			assert(leftVerticalLine.from.y == padding)
+			assert(leftVerticalLine.to.y == matrixHeight + padding)
+
+			val rightVerticalLine = lines.find(line => line.from.x == matrixWidth + padding && line.to.x == matrixWidth + padding).get
+			assert(rightVerticalLine.from.y == padding)
+			assert(rightVerticalLine.to.y == matrixHeight + padding)
+
+			val topHorizontalLine = lines.find(line => line.from.y == padding && line.to.y == padding).get
+			assert(topHorizontalLine.from.x == padding)
+			assert(topHorizontalLine.to.x == matrixWidth + padding)
+
+			val bottomHorizontalLine = lines.find(line => line.from.y == matrixHeight + padding && line.to.y == matrixHeight + padding).get
+			assert(bottomHorizontalLine.from.x == padding)
+			assert(bottomHorizontalLine.to.x == matrixWidth + padding)
+		}
+
+		test("hoveredCellHighlight") {
+			val graph = DirectedMapGraph[Int]()
+				.addNode(0)
+				.addNode(1)
+				.addEdge(0, 1)
+
+			val hoveredCellWithEdge = Cell(0, 1) // there is an edge from 0 to 1
+			val hoveredCellWithoutEdge = Cell(1, 0) // no edge from 1 to 0
+
+			val highlightWithEdge = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredCellWithEdge)
+			assert(highlightWithEdge.isDefined)
+			assert(highlightWithEdge.get.color == AdjacencyMatrixView.hoverEdgePresentColor)
+			assert(highlightWithEdge.get.rect == Rectangle(
+				topLeft = Vector2D(x = (hoveredCellWithEdge.col * dimensions.cellWidth(graph.nodeCount)).toInt,
+					y = (hoveredCellWithEdge.row * dimensions.cellHeight(graph.nodeCount)).toInt),
+				width = dimensions.cellWidth(graph.nodeCount).toInt,
+				height = dimensions.cellHeight(graph.nodeCount).toInt
+			))
+
+			val highlightWithoutEdge = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredCellWithoutEdge)
+			assert(highlightWithoutEdge.isDefined)
+			assert(highlightWithoutEdge.get.color == AdjacencyMatrixView.hoverNoEdgeColor)
 		}
 	}
 }

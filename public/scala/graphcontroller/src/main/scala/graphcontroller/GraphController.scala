@@ -5,7 +5,7 @@ import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle, MainCanvas}
-import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Point}
+import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
 import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
@@ -99,8 +99,8 @@ class GraphController {
 		fromData <- keyToData.get(fromIndex)
 		toData <- keyToData.get(toIndex)
 	} yield Line(
-		from = Point(fromData.x, fromData.y),
-		to = Point(toData.x, toData.y)
+		from = Vector2D(fromData.x, fromData.y),
+		to = Vector2D(toData.x, toData.y)
 	)
 
 	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Line] =

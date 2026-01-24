@@ -1,21 +1,23 @@
 package graphcontroller.dataobject
 
-import graphcontroller.dataobject.{Point, PointJS}
+import graphcontroller.dataobject.{Vector2D, PointJS}
 
 import scala.scalajs.js
 
 case class Triangle(
-	pt1: Point,
-	pt2: Point,
-	pt3: Point
-) {
-	def points: Seq[Point] = Seq(pt1, pt2, pt3)
-	def fromPoints(pts: Seq[Point]): Triangle = {
+	pt1: Vector2D,
+	pt2: Vector2D,
+	pt3: Vector2D
+) extends Shape {
+	type This = Triangle
+
+	def points: Seq[Vector2D] = Seq(pt1, pt2, pt3)
+	def fromPoints(pts: Seq[Vector2D]): Triangle = {
 		assert(pts.size == 3)
 		Triangle(pts.head, pts(1), pts(2))
 	}
 
-	def translate(vec: Point): Triangle = fromPoints(points.map(_.translate(vec)))
+	def translate(vec: Vector2D): Triangle = fromPoints(points.map(_.translate(vec)))
 
 	def scaled(scaleFactor: Int): Triangle =
 		Triangle(pt1.scaled(scaleFactor), pt2.scaled(scaleFactor), pt3.scaled(scaleFactor))

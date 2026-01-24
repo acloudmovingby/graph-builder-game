@@ -1,6 +1,6 @@
 package graphcontroller.render
 
-import graphcontroller.dataobject.{Line, Point}
+import graphcontroller.dataobject.{Line, Vector2D}
 import graphcontroller.render.properties.ArrowRenderProperties
 import graphcontroller.dataobject.canvas.TriangleCanvas
 
@@ -26,7 +26,7 @@ object ArrowTipRender {
 		val ratio = props.displacement / edgeLength
 		val dxScaled = dx * ratio
 		val dyScaled = dy * ratio
-		val translateEndPoint = Point((-1 * dxScaled + e.to.x).toInt, (-1 * dyScaled + e.to.y).toInt)
+		val translateEndPoint = Vector2D((-1 * dxScaled + e.to.x).toInt, (-1 * dyScaled + e.to.y).toInt)
 
 		val finalTriangle = rotatedTriangle.translate(translateEndPoint)
 

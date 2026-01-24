@@ -4,17 +4,17 @@ import graphi.MapGraph
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Point, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Vector2D, Rectangle}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.view.AdjacencyMatrixViewData
 
 object AdjacencyMatrixView {
 	// TODO put this in a config file somewhere?
-	private val edgePresentColor = "black"
-	private val hoverEdgePresentColor = "#F2813B"
-	private val hoverNoEdgeColor = "#E2E2E2"
-	private val clickedEdgePresentColor = "#ffb78a" // lighter shade
-	private val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
+	val edgePresentColor = "black"
+	val hoverEdgePresentColor = "#F2813B"
+	val hoverNoEdgeColor = "#E2E2E2"
+	val clickedEdgePresentColor = "#ffb78a" // lighter shade
+	val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
 
 	def calculateGridLines(nodeCount: Int, dimensions: AdjMatrixDimensions): Seq[CanvasLine] = {
 		val padding = dimensions.padding
@@ -26,33 +26,33 @@ object AdjacencyMatrixView {
 				i <- 0 to nodeCount
 				// first calculate lines without padding, then translate by padding afterward
 				verticalLine = CanvasLine(
-					from = Point(x = (width * i).toInt, y = 0),
-					to = Point(x = (width * i).toInt, y = dimensions.matrixHeight),
+					from = Vector2D(x = (width * i).toInt, y = 0),
+					to = Vector2D(x = (width * i).toInt, y = dimensions.matrixHeight),
 					width = 1,
 					color = "lightgray"
 				)
 				horizontalLine = CanvasLine(
-					from = Point(x = 0, y = (height * i).toInt),
-					to = Point(x = dimensions.matrixWidth, y = (height * i).toInt),
+					from = Vector2D(x = 0, y = (height * i).toInt),
+					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt),
 					width = 1,
 					color = "lightgray"
 				)
 				line <- Seq(verticalLine, horizontalLine)
 				// shift down and right by padding amount
-				vector = Point(padding, padding)
+				vector = Vector2D(padding, padding)
 				withPadding = line.copy(from = line.from.translate(vector), to = line.to.translate(vector))
 			} yield withPadding
 		}
 	}
 
-	private def hoveredCellHighlight(state: State, hoveredCell: Cell): Option[RectangleCanvas] = {
-		val nodeCount = state.graph.nodeCount
+	def hoveredCellHighlight(graph: MapGraph[Int, ?], dimensions: AdjMatrixDimensions, hoveredCell: Cell): Option[RectangleCanvas] = {
+		val nodeCount = graph.nodeCount
 		if (nodeCount == 0) None else {
-			val (cellWidth, cellHeight) = (state.adjMatrixDimensions.cellWidth(nodeCount), state.adjMatrixDimensions.cellHeight(nodeCount))
-			val color = if (state.graph.getEdges.contains(hoveredCell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
+			val color = if (graph.getEdges.contains(hoveredCell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
 			Some(RectangleCanvas(
 				Rectangle(
-					topLeft = Point(
+					topLeft = Vector2D(
 						x = (hoveredCell.col * cellWidth).toInt,
 						y = (hoveredCell.row * cellHeight).toInt
 					),
@@ -99,7 +99,7 @@ object AdjacencyMatrixView {
 			case NoSelection => // fill in cells only, no grid lines
 				cells
 			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
-				val hoveredCell = hoveredCellHighlight(state, cell)
+				val hoveredCell = hoveredCellHighlight(state.graph, state.adjMatrixDimensions, cell)
 				cells ++ hoveredCell.toSeq ++ gridLines
 			case Clicked(startCell, isAdd) => // fill in cells + clicked cell highlight + grid lines
 				val clickedCell = clickedCellHighlight(state, startCell, isAdd)

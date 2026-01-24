@@ -1,6 +1,6 @@
 package graphcontroller.shared
 
-import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Corner, NoCell, Point, Row, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Corner, NoCell, Vector2D, Row, Rectangle}
 import graphcontroller.dataobject.canvas.{RectangleCanvas, RenderOp}
 import graphi.MapGraph
 
@@ -62,7 +62,7 @@ object AdjMatrixCoordinateConverter {
 		z match {
 			case Cell(row, col) =>
 				Some(Rectangle(
-					topLeft = Point(
+					topLeft = Vector2D(
 						x = (padding + col * cellWidth).toInt,
 						y = (padding + row * cellHeight).toInt
 					),
@@ -71,7 +71,7 @@ object AdjMatrixCoordinateConverter {
 				))
 			case Row(row) =>
 				Some(Rectangle(
-					topLeft = Point(
+					topLeft = Vector2D(
 						x = padding,
 						y = (padding + row * cellHeight).toInt
 					),
@@ -80,7 +80,7 @@ object AdjMatrixCoordinateConverter {
 				))
 			case Column(col) =>
 				Some(Rectangle(
-					topLeft = Point(
+					topLeft = Vector2D(
 						x = (padding + col * cellWidth).toInt,
 						y = padding
 					),

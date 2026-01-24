@@ -2,8 +2,9 @@ package graphcontroller.dataobject.canvas
 
 import org.scalajs.dom.CanvasRenderingContext2D
 
-// TODO just move CanvasLine and TriangleCanvas into this one file and make this a sealed trait?
-trait RenderOp {
+import graphcontroller.dataobject.Shape
+
+trait RenderOp extends Shape {
 	def draw(ctx: CanvasRenderingContext2D): Unit
 }
 
