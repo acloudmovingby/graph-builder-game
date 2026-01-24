@@ -102,7 +102,16 @@ object AdjacencyMatrixView {
 				val clickedCell = clickedCellHighlight(state, startCell, isAdd)
 				cells ++ Seq(clickedCell) ++ gridLines
 			case d: DragSelecting =>
-				val selectedCells = d.selectedCells.map { cell => clickedCellHighlight(state, cell, d.isAdd) }
+				val selectedCells = d.selectedCells
+					.filter { c =>
+						// we only highlight cells that would change when we apply the selection
+						(d.isAdd, state.graph.getEdges.contains(c.toEdge)) match {
+							case (true, false) => true // adding an edge that doesn't exist
+							case (false, true) => true // removing an edge that does exist
+							case _ => false // otherwise don't change what's drawn
+						}
+					}
+					.map { cell => clickedCellHighlight(state, cell, d.isAdd) }
 				cells ++ selectedCells ++ gridLines
 			case _ => cells ++ gridLines
 		}

@@ -10,64 +10,9 @@ import graphcontroller.render.properties.ArrowRenderProperties
 import graphi.{DirectedMapGraph, MapGraph, SimpleMapGraph}
 
 object MainCanvasView {
-
-	/*
-	// it's getting the case where a cell is being hovered over that represents an edge
-	val highlightedEdge = hoveredEdge match {
-			// if the edge exists, render it as highlighted
-			case Some((from, to)) =>
-				// get edge coordinates
-				val line = getEdgeCoordinates(from, to).get
-				// decide if isBidirectional but that only matters for directed
-				val isBidirectional = state.graph.hasEdge(to, from)
-				state.graph match {
-					case _: SimpleMapGraph[Int] =>
-						Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, edgeHighlightColor))
-					case _: DirectedMapGraph[Int] =>
-						val (highlightedLine, highlightedArrows) = EdgeRender.directedEdge(
-							e = line,
-							lineWidth = simpleEdgeStrokeWidth,
-							lineColor = edgeHighlightColor,
-							shortenFromSrc = isBidirectional,
-							shortenFromDest = true,
-							shortenAmount = 47.0,
-							srcToDestArrow = Some(ArrowRenderProperties.default.copy(color = edgeHighlightColor)),
-							destToSrcArrow = None
-						)
-						Seq(highlightedLine) ++ highlightedArrows
-				}
-			case None =>
-				Seq.empty[RenderOp]
-		}
-
-		// get potential edge shape
-		val potentialEdgeOpt: Option[Seq[RenderOp]] = matrixHoverCell.flatMap { case (from, to) =>
-			if (!state.graph.hasEdge(from, to) && from != to) { // disallow self-loops
-				getEdgeCoordinates(from, to).map { line =>
-					state.graph match {
-						case _: SimpleMapGraph[Int] =>
-							// isAdd
-							Seq(EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, "rgba(0, 0, 255, 0.5)")) // semi-transparent blue
-						case _: DirectedMapGraph[Int] =>
-							val (canvasLine, arrowTriangles) = EdgeRender.directedEdge(
-								e = line,
-								lineWidth = simpleEdgeStrokeWidth,
-								lineColor = potentialEdgeStrokeColor, // semi-transparent blue
-								shortenFromSrc = false,
-								shortenFromDest = true,
-								shortenAmount = 47.0,
-								srcToDestArrow = Some(ArrowRenderProperties.default.copy(color = potentialArrowColor)),
-								destToSrcArrow = None
-							)
-							Seq(canvasLine) ++ arrowTriangles
-					}
-				}
-			} else None
-		}
-	 */
-
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
 	private def potentialEdges(state: State): Seq[RenderOp] = {
+		val graph = state.graph
 		// converts Cell class to a (from, to) edge tuple, but disallowing self-loops
 		def getEdgeFromCell(cell: Cell): Option[(Int, Int)] = {
 			val from = cell.row
@@ -83,14 +28,22 @@ object MainCanvasView {
 			case Clicked(cell, isAdd) =>
 				getEdgeFromCell(cell).toSeq
 			case d: DragSelecting =>
-				d.selectedCells.flatMap(getEdgeFromCell).toSeq
+				d.selectedCells.flatMap(getEdgeFromCell)
+					.filter { e =>
+						(d.isAdd, graph.hasEdge(e._1, e._2)) match {
+							case (true, false) => true // adding an edge that doesn't exist
+							case (false, true) => true // removing an edge that does exist
+							case _ => false // otherwise don't change what's drawn
+						}
+					}
+					.toSeq
 			case _ => Seq.empty
 		}
 
-		val isAdd = edges.headOption.map(e => !state.graph.hasEdge(e._1, e._2)).getOrElse(true)
+		val isAdd = edges.headOption.map(e => !graph.hasEdge(e._1, e._2)).getOrElse(true)
 
 		def renderDirectedEdge(from: Int, to: Int): Seq[RenderOp] = {
-			val isBidirectional = state.graph.hasEdge(to, from)
+			val isBidirectional = graph.hasEdge(to, from)
 			state.getEdgeCoordinates(from, to).toSeq.flatMap { line =>
 				val (canvasLine, arrowTriangles) = EdgeRender.directedEdge(
 					e = line,
@@ -109,7 +62,7 @@ object MainCanvasView {
 			}
 		}
 
-		state.graph match {
+		graph match {
 			case g: DirectedMapGraph[Int] =>
 				edges.flatMap { case (from, to) =>
 					renderDirectedEdge(from, to)

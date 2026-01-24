@@ -28,21 +28,21 @@ object AdjMatrixViewTests extends TestSuite {
 			// there should be 12 lines (6 vertical, 6 horizontal) since we draw lines on the edge as well
 			assert(lines.length == 12)
 			// check positions of first vertical and horizontal lines
-			val firstVerticalLine = lines.find(line => line.from.x == padding && line.to.x == padding).get
-			assert(firstVerticalLine.from.y == padding)
-			assert(firstVerticalLine.to.y == matrixHeight + padding)
+			val firstVerticalLine = lines.find(line => line.from.x == 0 && line.to.x == 0).get
+			assert(firstVerticalLine.from.y == 0)
+			assert(firstVerticalLine.to.y == matrixHeight)
 
-			val firstHorizontalLine = lines.find(line => line.from.y == padding && line.to.y == padding).get
-			assert(firstHorizontalLine.from.x == padding)
-			assert(firstHorizontalLine.to.x == matrixWidth + padding)
+			val firstHorizontalLine = lines.find(line => line.from.y == 0 && line.to.y == 0).get
+			assert(firstHorizontalLine.from.x == 0)
+			assert(firstHorizontalLine.to.x == matrixWidth)
 
-			val lastVerticalLine = lines.find(line => line.from.x == matrixWidth + padding && line.to.x == matrixWidth + padding).get
-			assert(lastVerticalLine.from.y == padding)
-			assert(lastVerticalLine.to.y == matrixHeight + padding)
+			val lastVerticalLine = lines.find(line => line.from.x == matrixWidth && line.to.x == matrixWidth).get
+			assert(lastVerticalLine.from.y == 0)
+			assert(lastVerticalLine.to.y == matrixHeight)
 
-			val lastHorizontalLine = lines.find(line => line.from.y == matrixHeight + padding && line.to.y == matrixHeight + padding).get
-			assert(lastHorizontalLine.from.x == padding)
-			assert(lastHorizontalLine.to.x == matrixWidth + padding)
+			val lastHorizontalLine = lines.find(line => line.from.y == matrixHeight && line.to.y == matrixHeight).get
+			assert(lastHorizontalLine.from.x == 0)
+			assert(lastHorizontalLine.to.x == matrixWidth)
 		}
 
 		test("Zero width padding") {
@@ -93,21 +93,21 @@ object AdjMatrixViewTests extends TestSuite {
 			// there should be 4 lines (2 vertical, 2 horizontal)
 			assert(lines.length == 4)
 			// check positions of lines
-			val leftVerticalLine = lines.find(line => line.from.x == padding && line.to.x == padding).get
-			assert(leftVerticalLine.from.y == padding)
-			assert(leftVerticalLine.to.y == matrixHeight + padding)
+			val leftVerticalLine = lines.find(line => line.from.x == 0 && line.to.x == 0).get
+			assert(leftVerticalLine.from.y == 0)
+			assert(leftVerticalLine.to.y == matrixHeight)
 
-			val rightVerticalLine = lines.find(line => line.from.x == matrixWidth + padding && line.to.x == matrixWidth + padding).get
-			assert(rightVerticalLine.from.y == padding)
-			assert(rightVerticalLine.to.y == matrixHeight + padding)
+			val rightVerticalLine = lines.find(line => line.from.x == matrixWidth && line.to.x == matrixWidth).get
+			assert(rightVerticalLine.from.y == 0)
+			assert(rightVerticalLine.to.y == matrixHeight)
 
-			val topHorizontalLine = lines.find(line => line.from.y == padding && line.to.y == padding).get
-			assert(topHorizontalLine.from.x == padding)
-			assert(topHorizontalLine.to.x == matrixWidth + padding)
+			val topHorizontalLine = lines.find(line => line.from.y == 0 && line.to.y == 0).get
+			assert(topHorizontalLine.from.x == 0)
+			assert(topHorizontalLine.to.x == matrixWidth)
 
-			val bottomHorizontalLine = lines.find(line => line.from.y == matrixHeight + padding && line.to.y == matrixHeight + padding).get
-			assert(bottomHorizontalLine.from.x == padding)
-			assert(bottomHorizontalLine.to.x == matrixWidth + padding)
+			val bottomHorizontalLine = lines.find(line => line.from.y == matrixHeight && line.to.y == matrixHeight).get
+			assert(bottomHorizontalLine.from.x == 0)
+			assert(bottomHorizontalLine.to.x == matrixWidth)
 		}
 
 		test("hoveredCellHighlight") {

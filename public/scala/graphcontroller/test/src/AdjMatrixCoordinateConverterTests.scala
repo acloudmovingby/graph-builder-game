@@ -133,8 +133,8 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = padding + (3 * cellSize)
-			val expectedY = padding + (2 * cellSize)
+			val expectedX = 3 * cellSize
+			val expectedY = 2 * cellSize
 			assert(rect.topLeft.x == expectedX)
 			assert(rect.topLeft.y == expectedY)
 			assert(rect.width == cellSize)
@@ -145,8 +145,8 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = padding
-			val expectedY = padding + (1 * cellSize)
+			val expectedX = 0
+			val expectedY = 1 * cellSize
 			assert(rect.topLeft.x == expectedX)
 			assert(rect.topLeft.y == expectedY)
 			assert(rect.width == matrixWidth)
@@ -157,8 +157,8 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = padding + (4 * cellSize)
-			val expectedY = padding
+			val expectedX = 4 * cellSize
+			val expectedY = 0
 			assert(rect.topLeft.x == expectedX)
 			assert(rect.topLeft.y == expectedY)
 			assert(rect.width == cellSize)
