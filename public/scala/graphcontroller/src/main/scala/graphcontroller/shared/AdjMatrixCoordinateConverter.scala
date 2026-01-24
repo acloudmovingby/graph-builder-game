@@ -44,6 +44,7 @@ object AdjMatrixCoordinateConverter {
 	}
 
 	// For rendering purposes, convert a zone to a rectangle representing its area on the canvas
+	// IGNORES PADDING (we handle that in
 	def convertZoneToShape(
 		z: AdjMatrixZone,
 		dimensions: AdjMatrixDimensions,
@@ -57,14 +58,14 @@ object AdjMatrixCoordinateConverter {
 		val matrixHeight = dimensions.matrixHeight
 		val cellWidth = dimensions.cellWidth(nodeCount)
 		val cellHeight = dimensions.cellHeight(nodeCount)
-		val padding = dimensions.padding
 
 		z match {
+			case Corner | NoCell => None
 			case Cell(row, col) =>
 				Some(Rectangle(
 					topLeft = Vector2D(
-						x = (padding + col * cellWidth).toInt,
-						y = (padding + row * cellHeight).toInt
+						x = (col * cellWidth).toInt,
+						y = (row * cellHeight).toInt
 					),
 					width = cellWidth.toInt,
 					height = cellHeight.toInt
@@ -72,22 +73,21 @@ object AdjMatrixCoordinateConverter {
 			case Row(row) =>
 				Some(Rectangle(
 					topLeft = Vector2D(
-						x = padding,
-						y = (padding + row * cellHeight).toInt
+						x = 0,
+						y = (row * cellHeight).toInt
 					),
-					width = matrixWidth.toInt,
+					width = matrixWidth,
 					height = cellHeight.toInt
 				))
 			case Column(col) =>
 				Some(Rectangle(
 					topLeft = Vector2D(
-						x = (padding + col * cellWidth).toInt,
-						y = padding
+						x = (col * cellWidth).toInt,
+						y = 0
 					),
 					width = cellWidth.toInt,
-					height = matrixHeight.toInt
+					height = matrixHeight
 				))
-			case Corner | NoCell => None
 		}
 	}
 }

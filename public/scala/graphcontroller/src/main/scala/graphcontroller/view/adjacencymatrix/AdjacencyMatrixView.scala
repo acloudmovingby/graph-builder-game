@@ -37,11 +37,8 @@ object AdjacencyMatrixView {
 					width = 1,
 					color = "lightgray"
 				)
-				line <- Seq(verticalLine, horizontalLine)
-				// shift down and right by padding amount
-				vector = Vector2D(padding, padding)
-				withPadding = line.copy(from = line.from.translate(vector), to = line.to.translate(vector))
-			} yield withPadding
+				lines <- Seq(verticalLine, horizontalLine)
+			} yield lines
 		}
 	}
 
@@ -80,7 +77,7 @@ object AdjacencyMatrixView {
 		if (nodeCount == 0) Seq.empty else {
 			state.graph.getEdges.toSeq.flatMap { case (from, to) =>
 				AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), state.adjMatrixDimensions, nodeCount)
-					.map( rect =>
+					.map(rect =>
 						RectangleCanvas(
 							rect,
 							color = edgePresentColor
@@ -110,7 +107,13 @@ object AdjacencyMatrixView {
 			case _ => cells ++ gridLines
 		}
 
+		// translate all the matrix shapes down to the right, to account for the padding
+		val adjustedForPadding = shapes.map(_.translate(Vector2D(
+			x = state.adjMatrixDimensions.padding,
+			y = state.adjMatrixDimensions.padding
+		)))
+
 		// put gridlines after cells so they get drawn on top
-		AdjacencyMatrixViewData(shapes)
+		AdjacencyMatrixViewData(adjustedForPadding)
 	}
 }
