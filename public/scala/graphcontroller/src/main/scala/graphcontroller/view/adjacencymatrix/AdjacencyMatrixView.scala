@@ -2,7 +2,7 @@ package graphcontroller.view.adjacencymatrix
 
 import graphi.MapGraph
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, Hover, NoSelection}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, CellClicked, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
 import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Rectangle, Row, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
@@ -132,7 +132,7 @@ object AdjacencyMatrixView {
 			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
 				val hoveredCell = hoveredCellHighlight(state.graph, state.adjMatrixDimensions, cell)
 				cells ++ hoveredCell.toSeq ++ gridLines
-			case d: Clicked =>
+			case d: CellClicked =>
 				val selectedCells = d.selectedCells
 					.filter { c =>
 						// we only highlight cells that would change when we apply the selection

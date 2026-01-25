@@ -29,7 +29,7 @@ object MainCanvasView {
 					row.cells(graph.nodeCount).flatMap(getEdgeFromCell)
 			case Hover(col: Column) => 
 					col.cells(graph.nodeCount).flatMap(getEdgeFromCell)
-			case d: Clicked =>
+			case d: CellClicked =>
 				d.selectedCells.flatMap(getEdgeFromCell)
 					.filter { e =>
 						(d.isAdd, graph.hasEdge(e._1, e._2)) match {

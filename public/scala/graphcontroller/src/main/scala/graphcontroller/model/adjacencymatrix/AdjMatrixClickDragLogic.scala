@@ -8,7 +8,7 @@ import graphcontroller.controller.{
 }
 import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Row}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState, Clicked, Hover, NoSelection, ReleaseSelection
+	AdjMatrixInteractionState, CellClicked, Hover, NoSelection, ReleaseSelection
 }
 
 // TODO: I hate this name
@@ -21,41 +21,35 @@ object AdjMatrixClickDragLogic {
 		zone: AdjMatrixZone,
 		filledInCells: Set[Cell]
 	): AdjMatrixInteractionState = {
-		zone match {
-			case cell: Cell =>
-				if (nodeCount == 0 || nodeCount == 1) {
-					// with 0 or 1 node, no edges are possible so no interaction
-					NoSelection
-				} else {
-					event match {
-						case AdjMatrixMouseUp(_, _) =>
-							mouseUp(currentState, cell, nodeCount)
-						case AdjMatrixMouseMove(_, _) =>
-							mouseMove(cell, currentState, nodeCount)
-						case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState, nodeCount)
-						case AdjMatrixMouseDown(mouseX, mouseY) =>
-							mouseDown(filledInCells, cell, nodeCount)
-					}
-				}
-			// TODO
-			case _ if event.isInstanceOf[AdjMatrixMouseMove] =>
-				mouseMove(zone, currentState, nodeCount)
-			case _ => NoSelection
-
+		if (nodeCount == 0 || nodeCount == 1) {
+			// with 0 or 1 node, no edges are possible so no interaction
+			NoSelection
+		} else {
+			event match {
+				case AdjMatrixMouseUp(_, _) =>
+					mouseUp(currentState, zone, nodeCount)
+				case AdjMatrixMouseMove(_, _) =>
+					println("Mousemove")
+					mouseMove(zone, currentState, nodeCount)
+				case AdjMatrixMouseLeave(_, _) =>
+					println("Mouseleave")
+					mouseLeave(currentState, nodeCount)
+				case AdjMatrixMouseDown(mouseX, mouseY) =>
+					mouseDown(filledInCells, zone, nodeCount)
+			}
 		}
-
 	}
 
 	def mouseUp(
 		currentState: AdjMatrixInteractionState,
-		hoveredCell: Cell,
+		hoveredZone: AdjMatrixZone,
 		nodeCount: Int
 	): AdjMatrixInteractionState = {
 		currentState match {
 			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
 				// This situation can happen when someone clicks down outside the matrix then moves the mouse inside, then releases
-				Hover(hoveredCell) // just go to hover state
-			case d: Clicked =>
+				Hover(hoveredZone) // just go to hover state
+			case d: CellClicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 			case rcc: RowColumnClicked =>
 				ReleaseSelection(rcc.selectedCells(nodeCount), rcc.isAdd)
@@ -70,11 +64,11 @@ object AdjMatrixClickDragLogic {
 		zone match {
 			case clickedCell: Cell =>
 				val isAdd = !filledInCells.contains(clickedCell)
-				Clicked(clickedCell, clickedCell, isAdd = isAdd)
+				CellClicked(clickedCell, clickedCell, isAdd = isAdd)
 			case rc: (Row | Column) =>
 				val cells = rc match {
-					case r: Row => r.cells(nodeCount)
-					case c: Column => c.cells(nodeCount)
+					case r: Row => r.cells(nodeCount, excludeSelfEdges = true)
+					case c: Column => c.cells(nodeCount, excludeSelfEdges = true)
 				}
 				// determine if we're adding: if all cells in that row are filled in, then we're removing, else adding
 				val isAdd = !cells.forall(c => filledInCells.contains(c))
@@ -93,10 +87,10 @@ object AdjMatrixClickDragLogic {
 				Hover(zone) // hovering over cell
 			case (Hover(_), _) =>
 				Hover(zone) // update hover position
-			case (clickedState: Clicked, cell: Cell) =>
+			case (clickedState: CellClicked, cell: Cell) =>
 				// update drag selection
 				clickedState.copy(currentHoveredCell = cell)
-			case (clickedState: Clicked, _) =>
+			case (clickedState: CellClicked, _) =>
 				clickedState // ignore moves outside cells while dragging
 			case (rcc: RowColumnClicked, _) =>
 				rcc // currently not updating the selection when moving to a new row/column/cell
@@ -114,7 +108,7 @@ object AdjMatrixClickDragLogic {
 		currentState match {
 			case NoSelection | Hover(_) =>
 				NoSelection // nothing selected, so just go to no selection
-			case d: Clicked =>
+			case d: CellClicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 			case rcc: RowColumnClicked =>
 				ReleaseSelection(rcc.selectedCells(nodeCount), rcc.isAdd) // finalize selection

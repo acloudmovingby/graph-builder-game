@@ -19,7 +19,7 @@ case class ReleaseSelection(
 ) extends AdjMatrixInteractionState
 
 /** Mouse clicked originated in matrix area and is currently dragging to select/deselect cells */
-case class Clicked(
+case class CellClicked(
 	startCell: Cell,
 	currentHoveredCell: Cell,
 	isAdd: Boolean // true = adding selection, false = removing selection
