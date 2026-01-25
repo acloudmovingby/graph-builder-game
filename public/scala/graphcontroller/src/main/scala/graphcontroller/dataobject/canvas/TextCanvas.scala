@@ -20,6 +20,8 @@ case class TextCanvas(
 		ctx.textBaseline = "middle"
 		// center align the text horizontally
 		ctx.textAlign = "center"
+		// font size
+		ctx.font = s"${fontSize}px sans-serif"
 		ctx.fillText(text, coords.x.toDouble, coords.y.toDouble + 1) // +1 to better center vertically
 	}
 

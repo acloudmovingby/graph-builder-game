@@ -21,7 +21,7 @@ WORKDIR /app/public/scala
 COPY public/scala .
 
 # Forcefully remove the 'out' directory and then compile the project
-RUN rm -rf out && ./mill graphcontroller.fastLinkJS
+RUN rm -rf out && ./mill graphcontroller.fullLinkJS
 
 # Run unit tests
 RUN ./mill graphcontroller.test

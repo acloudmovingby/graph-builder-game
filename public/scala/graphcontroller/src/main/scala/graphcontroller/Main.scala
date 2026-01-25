@@ -16,8 +16,8 @@ object Main {
 	private def initializationEvent: Initialization = Initialization(
 		adjMatrixWidth = AdjMatrixCanvas.canvas.offsetWidth.toInt,
 		adjMatrixHeight = AdjMatrixCanvas.canvas.offsetHeight.toInt,
-		padding = 25,
-		numberPadding = 10
+		padding = 20,
+		numberPadding = 15
 	)
 
 	// @main here indicates to run this method on startup of the ScalaJS application

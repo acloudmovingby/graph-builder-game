@@ -15,7 +15,10 @@ object AdjacencyMatrixView {
 	val hoverNoEdgeColor = "#E2E2E2"
 	val clickedEdgePresentColor = "#ffb78a" // lighter shade
 	val clickedNoEdgeColor = "#f2f2f2" // hoverEdgePresentColor //
-	val defaultNumberColor = "darkgray"
+	val defaultNumberColor = "transparent"
+	// TODO make this match the arrow color (it's close right now but not same)
+	val highlightNumberColor = "orange" // to highlight the specific number of the row/column being hovered over
+	val numberFontSize = 13
 
 	def rowColNumbers(nodeCount: Int, dimensions: AdjMatrixDimensions, adjMatrixState: AdjMatrixInteractionState): Seq[TextCanvas] = {
 		adjMatrixState match {
@@ -23,17 +26,37 @@ object AdjacencyMatrixView {
 			case _ =>
 				val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
 
+				def generateColor(index: Int, isRow: Boolean): String = {
+					adjMatrixState match {
+						case Hover(Cell(row, col)) =>
+							if (isRow && index == row) highlightNumberColor
+							else if (!isRow && index == col) highlightNumberColor
+							else defaultNumberColor
+						case Hover(Row(row)) =>
+							if (isRow && index == row) highlightNumberColor
+							else if (!isRow) highlightNumberColor
+							else defaultNumberColor
+						case Hover(Column(col)) =>
+							if (!isRow && index == col) highlightNumberColor
+							else if (isRow) highlightNumberColor
+							else defaultNumberColor
+						case _ => defaultNumberColor
+					}
+				}
+
 				// row numbers (going down left side of matrix)
 				val rowNumbers = (0 until nodeCount).map { i =>
 					val x = dimensions.padding - dimensions.numberPadding
 					val y = (i * cellHeight).toInt + dimensions.padding + cellHeight.toInt / 2
-					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = defaultNumberColor, fontSize = 12)
+					val color = generateColor(i, isRow = true)
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
 				}
 
 				val colNumbers = (0 until nodeCount).map { i =>
 					val x = (i * cellWidth).toInt + dimensions.padding + cellWidth.toInt / 2
 					val y = dimensions.padding - dimensions.numberPadding
-					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = defaultNumberColor, fontSize = 12)
+					val color = generateColor(i, isRow = false)
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
 				}
 
 				rowNumbers ++ colNumbers
