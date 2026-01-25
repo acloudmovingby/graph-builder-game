@@ -14,7 +14,13 @@ case class Rectangle(
 	def translate(vec: Vector2D): Rectangle =
 		Rectangle(topLeft.translate(vec), width, height)
 
-	def scaled(scaleFactor: Int): Rectangle = Rectangle(topLeft.scaled(scaleFactor), width * scaleFactor, height * scaleFactor)
+	def scale(scaleFactor: Int): Rectangle = Rectangle(topLeft.scale(scaleFactor), width * scaleFactor, height * scaleFactor)
+
+	def scalePixel(numPixels: Int): Rectangle = Rectangle(
+		topLeft.copy(x = topLeft.x - 1, y = topLeft.y - 1),
+		width + (2 * numPixels),
+		height + (2 * numPixels)
+	)
 
 	/** Note: this doesn't actually rotate the sides of the rectangle, just where it's topLeft point is located.
 	 * The reason is that this Rectangle shape eventually correlates to the Canvas API ctx.rect(...) function, which

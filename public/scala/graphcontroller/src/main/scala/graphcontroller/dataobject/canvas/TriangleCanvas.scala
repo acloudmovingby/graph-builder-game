@@ -30,8 +30,8 @@ case class TriangleCanvas(
 		tri = tri.translate(vec)
 	)
 
-	def scaled(scaleFactor: Int): TriangleCanvas = this.copy(
-		tri = tri.scaled(scaleFactor)
+	def scale(scaleFactor: Int): TriangleCanvas = this.copy(
+		tri = tri.scale(scaleFactor)
 	)
 
 	def rotate(radians: Double): TriangleCanvas = this.copy(

@@ -22,8 +22,8 @@ case class RectangleCanvas(
 		rect = rect.translate(vec)
 	)
 
-	def scaled(scaleFactor: Int): RectangleCanvas = this.copy(
-		rect = rect.scaled(scaleFactor)
+	def scale(scaleFactor: Int): RectangleCanvas = this.copy(
+		rect = rect.scale(scaleFactor)
 	)
 
 	def rotate(radians: Double): RectangleCanvas = this.copy(

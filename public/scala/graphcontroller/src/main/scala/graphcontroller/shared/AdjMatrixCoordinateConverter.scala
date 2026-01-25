@@ -43,8 +43,8 @@ object AdjMatrixCoordinateConverter {
 		}
 	}
 
-	// For rendering purposes, convert a zone to a rectangle representing its area on the canvas
-	// IGNORES PADDING (we handle that in
+	// For rendering purposes, convert a zone to a rectangle representing its area on the _matrix_ part of the canvas
+	// therefore IGNORES PADDING. So a Row will be a rectangle spanning the full width of the matrix area
 	def convertZoneToShape(
 		z: AdjMatrixZone,
 		dimensions: AdjMatrixDimensions,
@@ -63,12 +63,14 @@ object AdjMatrixCoordinateConverter {
 			case Corner | NoCell => None
 			case Cell(row, col) =>
 				Some(Rectangle(
+					// note how we floor the topLeft and ceil the width/height to ensure full coverage (otherwise we get
+					// strange gaps between cells due to rounding errors)
 					topLeft = Vector2D(
-						x = (col * cellWidth).toInt,
-						y = (row * cellHeight).toInt
+						x = (col * cellWidth).floor.toInt,
+						y = (row * cellHeight).floor.toInt
 					),
-					width = cellWidth.toInt,
-					height = cellHeight.toInt
+					width = cellWidth.ceil.toInt,
+					height = cellHeight.ceil.toInt
 				))
 			case Row(row) =>
 				Some(Rectangle(

@@ -30,7 +30,7 @@ case class ArrowRenderProperties(
 		val pt2 = Vector2D(0, base / 2)
 		val pt3 = Vector2D(height, 0)
 		Triangle(pt1, pt2, pt3)
-			.scaled(scaleFactor)
+			.scale(scaleFactor)
 	}
 }
 

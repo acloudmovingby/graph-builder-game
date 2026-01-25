@@ -2,15 +2,17 @@ package graphcontroller.render
 
 import org.scalajs.dom
 import org.scalajs.dom.html
+import html.Canvas
+
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
-import graphcontroller.dataobject.{Vector2D, Triangle}
+import graphcontroller.dataobject.{Triangle, Vector2D}
 
 object MainCanvas {
 	/** Things to render on each animation frame callback */
 	private var _shapes: Seq[RenderOp] = Seq.empty
-	private var newShapes: Seq[RenderOp] = Seq.empty
+	private var newShapes: Seq[RenderOp] = Seq.empty // will eventually replace _shapes once I convert all tools.js to ScalaJS
 	private def getShapes = _shapes ++ newShapes
-	val canvas = dom.document.getElementById("overlay-canvas").asInstanceOf[html.Canvas]
+	val canvas: Canvas = dom.document.getElementById("main-canvas-lower").asInstanceOf[html.Canvas]
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	val scale = dom.window.devicePixelRatio.toInt
 
@@ -42,16 +44,6 @@ object MainCanvas {
 	// 4. The Loop
 	// The timestamp is passed automatically by the browser (high-precision time)
 	def loop(timestamp: Double): Unit = {
-
-		// TODO delete this once I understand / use it
-		// Update your game state here
-		// For demo, let's just make a moving line based on time
-//		val offset = ((timestamp / 10) % 500).toInt
-//		val shapes = List(
-//			CanvasLine(from = Point(10 + offset, 10), to = Point(100 + offset, 100), 3, "red"),
-//			TriangleCanvas(Triangle(Point(200, 200), Point(250, 300), Point(150, 300)), "blue")
-//		)
-
 		render(getShapes)
 
 		// Schedule the next frame

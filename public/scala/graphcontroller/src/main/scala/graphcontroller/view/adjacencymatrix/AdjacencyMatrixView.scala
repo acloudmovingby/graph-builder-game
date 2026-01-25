@@ -80,7 +80,7 @@ object AdjacencyMatrixView {
 				)
 				horizontalLine = CanvasLine(
 					from = Vector2D(x = 0, y = (height * i).toInt),
-					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt),
+					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt), // ceil here to avoid odd gaps
 					width = 1,
 					color = "lightgray"
 				)

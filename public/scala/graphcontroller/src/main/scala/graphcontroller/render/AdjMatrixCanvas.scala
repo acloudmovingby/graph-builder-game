@@ -1,9 +1,10 @@
 package graphcontroller.render
 
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
-import graphcontroller.dataobject.{Vector2D, Triangle}
+import graphcontroller.dataobject.{Triangle, Vector2D}
 import org.scalajs.dom
 import org.scalajs.dom.html
+import org.scalajs.dom.html.Canvas
 
 // TODO:
 //  (1) align this better with the general Controller => Model => View architecture and have requestAnimationFrame calls be Tick events
@@ -12,7 +13,7 @@ import org.scalajs.dom.html
 object AdjMatrixCanvas {
 	/** Things to render on each animation frame callback */
 	private var shapes: Seq[RenderOp] = Seq.empty
-	val canvas = dom.document.getElementById("adj-matrix").asInstanceOf[html.Canvas]
+	val canvas: Canvas = dom.document.getElementById("adj-matrix").asInstanceOf[html.Canvas]
 	private val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	private val scale = dom.window.devicePixelRatio.toInt
 

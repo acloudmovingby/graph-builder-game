@@ -7,7 +7,7 @@ case class Vector2D(x: Int, y: Int) extends Shape {
 
 	def translate(vec2: Vector2D) = Vector2D(x + vec2.x, y + vec2.y)
 
-	def scaled(scaleFactor: Int): Vector2D = Vector2D(x * scaleFactor, y * scaleFactor)
+	def scale(scaleFactor: Int): Vector2D = Vector2D(x * scaleFactor, y * scaleFactor)
 
 	def rotate(radians: Double): Vector2D = {
 		val rotateMatrix = Array(

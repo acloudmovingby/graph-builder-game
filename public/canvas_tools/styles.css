@@ -67,14 +67,14 @@ body {
   position: relative; /* For absolute positioning inside */
 }
 
-#canvas {
+#main-canvas-upper {
     position: absolute;
     left: 0;
     top: 0;
     z-index: 2;
 }
 
-#overlay-canvas {
+#main-canvas-lower {
     position: absolute;
     left: 0;
     top: 0;

@@ -30,8 +30,8 @@ case class TextCanvas(
 	)
 
 	// Does not scale the font size, only the position of the text
-	def scaled(scaleFactor: Int): This = this.copy(
-		coords = coords.scaled(scaleFactor)
+	def scale(scaleFactor: Int): This = this.copy(
+		coords = coords.scale(scaleFactor)
 	)
 
 	// Does not rotate the text, only rotate the coords position (relative to the origin I think?)

@@ -34,9 +34,9 @@ case class CanvasLine(
 		to = to.translate(vec)
 	)
 
-	def scaled(scaleFactor: Int): CanvasLine = this.copy(
-		from = from.scaled(scaleFactor),
-		to = to.scaled(scaleFactor)
+	def scale(scaleFactor: Int): CanvasLine = this.copy(
+		from = from.scale(scaleFactor),
+		to = to.scale(scaleFactor)
 	)
 
 	def rotate(radians: Double): CanvasLine = this.copy(

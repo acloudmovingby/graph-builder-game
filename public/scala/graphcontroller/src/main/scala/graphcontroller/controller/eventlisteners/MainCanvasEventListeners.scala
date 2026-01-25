@@ -5,7 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 
 class MainCanvasEventListeners extends CanvasEventListeners {
-    protected val elementId: String = "canvas"
+    protected val elementId: String = "main-canvas-upper"
 
     // TODO migrate existing tools.js logic to here and don't just do NoOp everywhere (but doing that here
     // so it actually triggers view update)

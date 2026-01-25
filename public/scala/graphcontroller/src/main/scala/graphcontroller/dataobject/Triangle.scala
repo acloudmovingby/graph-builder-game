@@ -19,8 +19,8 @@ case class Triangle(
 
 	def translate(vec: Vector2D): Triangle = fromPoints(points.map(_.translate(vec)))
 
-	def scaled(scaleFactor: Int): Triangle =
-		Triangle(pt1.scaled(scaleFactor), pt2.scaled(scaleFactor), pt3.scaled(scaleFactor))
+	def scale(scaleFactor: Int): Triangle =
+		Triangle(pt1.scale(scaleFactor), pt2.scale(scaleFactor), pt3.scale(scaleFactor))
 
 	// takes radians but produces a Triangle with Int points. Radians are small...
 	def rotate(radians: Double): Triangle = {
