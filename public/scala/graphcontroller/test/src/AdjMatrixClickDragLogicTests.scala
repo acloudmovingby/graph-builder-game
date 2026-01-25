@@ -3,9 +3,9 @@ import utest.*
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
-import graphcontroller.dataobject.{Cell, NoCell}
+import graphcontroller.dataobject.{Cell, Column, NoCell, Row}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixClickDragLogic, Clicked, Hover, NoSelection, ReleaseSelection
+	AdjMatrixClickDragLogic, Clicked, Hover, NoSelection, ReleaseSelection, RowColumnClicked
 }
 
 object AdjMatrixClickDragLogicTests extends TestSuite {
@@ -114,15 +114,20 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			val result = logic.mouseMove(Cell(2, 3), NoSelection, 5)
 			assert(result == Hover(Cell(2, 3)))
 		}
-		test("hovering over cells out of bounds from a NoSelection state") {
-			val result1 = logic.mouseMove(Cell(-1, 0), NoSelection, 5)
-			assert(result1 == NoSelection)
-			val result2 = logic.mouseMove(Cell(0, -1), NoSelection, 5)
-			assert(result2 == NoSelection)
-			val result3 = logic.mouseMove(Cell(5, 0), NoSelection, 5)
-			assert(result3 == NoSelection)
-			val result4 = logic.mouseMove(Cell(0, 5), NoSelection, 5)
-			assert(result4 == NoSelection)
+		test("hovering over the row area") {
+			val result = logic.mouseMove(Row(2), NoSelection, 5)
+			assert(result == Hover(Row(2)))
+			// previous state was Hovering over a cell:
+			val result2 = logic.mouseMove(Row(2), Hover(Cell(1, 1)), 5)
+			assert(result2 == Hover(Row(2)))
+			// previous state was clicking on cells (so we don't change the state at all):
+			val clickedState = Clicked(Cell(0,0), Cell(0,1), isAdd = true)
+			val result3 = logic.mouseMove(Row(2), clickedState, 5)
+			assert(result3 == clickedState)
+			// previous state was clicking on a row (so we don't change the state at all):
+			val rccState = RowColumnClicked(Row(1), isAdd = false)
+			val result4 = logic.mouseMove(Row(2), rccState, 5)
+			assert(result4 == rccState)
 		}
 		test("hovering over cells within bounds from a Hover state") {
 			val result = logic.mouseMove(Cell(1, 4), Hover(Cell(2, 3)), 5)

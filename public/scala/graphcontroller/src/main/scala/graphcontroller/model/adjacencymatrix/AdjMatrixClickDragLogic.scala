@@ -37,7 +37,11 @@ object AdjMatrixClickDragLogic {
 							mouseDown(filledInCells, cell, nodeCount)
 					}
 				}
-			case _ => NoSelection // TODO implement other cases
+			// TODO
+			case _ if event.isInstanceOf[AdjMatrixMouseMove] =>
+				mouseMove(zone, currentState, nodeCount)
+			case _ => NoSelection
+
 		}
 
 	}
@@ -80,28 +84,25 @@ object AdjMatrixClickDragLogic {
 	}
 
 	def mouseMove(
-		cell: Cell,
+		zone: AdjMatrixZone,
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int
 	): AdjMatrixInteractionState = {
-		if (cell.col < 0 || cell.col >= nodeCount || cell.row < 0 || cell.row >= nodeCount) {
-			// out of bounds (I think it's handled higher up in logic as well, but doesn't hurt to double check)
-			NoSelection
-		} else {
-			currentState match {
-				case NoSelection =>
-					Hover(cell) // hovering over cell
-				case Hover(_) =>
-					Hover(cell) // update hover position
-				case d: Clicked =>
-					// update drag selection
-					d.copy(currentHoveredCell = cell)
-				case rcc: RowColumnClicked =>
-						rcc // currently not updating the selection when moving to a new row/column/cell
-				case r: ReleaseSelection =>
-					// do nothing, selection already made
-					Hover(cell)
-			}
+		(currentState, zone) match {
+			case (NoSelection, _) =>
+				Hover(zone) // hovering over cell
+			case (Hover(_), _) =>
+				Hover(zone) // update hover position
+			case (clickedState: Clicked, cell: Cell) =>
+				// update drag selection
+				clickedState.copy(currentHoveredCell = cell)
+			case (clickedState: Clicked, _) =>
+				clickedState // ignore moves outside cells while dragging
+			case (rcc: RowColumnClicked, _) =>
+				rcc // currently not updating the selection when moving to a new row/column/cell
+			case (r: ReleaseSelection, _) =>
+				// do nothing, selection already made
+				Hover(zone)
 		}
 	}
 
