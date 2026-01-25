@@ -8,12 +8,8 @@ sealed trait AdjMatrixInteractionState
 case object NoSelection extends AdjMatrixInteractionState
 /** Mouse is hovering over a cell but not clicked/pressed. */
 case class Hover(cell: Cell) extends AdjMatrixInteractionState
-/** Mouse is clicked/pressed on a cell but not yet moved. TBH, I could probably remove this and just
- * use DragSelecting but with startCell == currentHoveredCell. However, I had this idea of adding an
- * animation when you first click, so keeping it separate for now. */
-case class Clicked(cell: Cell, isAdd: Boolean) extends AdjMatrixInteractionState
 /** Mouse is currently dragging to select/deselect cells */
-case class DragSelecting(
+case class Clicked(
 	startCell: Cell,
 	currentHoveredCell: Cell,
 	isAdd: Boolean // true = adding selection, false = removing selection

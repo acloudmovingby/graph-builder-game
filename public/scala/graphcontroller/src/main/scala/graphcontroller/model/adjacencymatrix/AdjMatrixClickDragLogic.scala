@@ -8,7 +8,7 @@ import graphcontroller.controller.{
 }
 import graphcontroller.dataobject.{AdjMatrixZone, Cell}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
+	AdjMatrixInteractionState, Clicked, Hover, NoSelection, ReleaseSelection
 }
 
 // TODO: I hate this name
@@ -34,7 +34,7 @@ object AdjMatrixClickDragLogic {
 							mouseMove(cell, currentState, nodeCount)
 						case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState)
 						case AdjMatrixMouseDown(mouseX, mouseY) =>
-							mouseDown(currentState, nodeCount, filledInCells, cell)
+							mouseDown(filledInCells, cell)
 					}
 				}
 			case _ => NoSelection // TODO implement other cases
@@ -50,22 +50,17 @@ object AdjMatrixClickDragLogic {
 			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
 				// This situation can happen when someone clicks down outside the matrix then moves the mouse inside, then releases
 				Hover(hoveredCell) // just go to hover state
-			case Clicked(cell, isAdd) =>
-				ReleaseSelection(Set(cell), isAdd) // selection is 1 cell
-			case d: DragSelecting =>
+			case d: Clicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 		}
 	}
 
 	def mouseDown(
-		currentState: AdjMatrixInteractionState,
-		nodeCount: Int,
 		filledInCells: Set[Cell],
 		clickedCell: Cell
 	): AdjMatrixInteractionState = {
-		// TODO get rid of this logging once we're confident it's working
 		val isAdd = !filledInCells.contains(clickedCell)
-		Clicked(clickedCell, isAdd = isAdd)
+		Clicked(clickedCell, clickedCell, isAdd = isAdd)
 	}
 
 	def mouseMove(
@@ -82,10 +77,7 @@ object AdjMatrixClickDragLogic {
 					Hover(cell) // hovering over cell
 				case Hover(_) =>
 					Hover(cell) // update hover position
-				case Clicked(startCell, isAdd) =>
-					// start drag selection
-					DragSelecting(startCell, cell, isAdd)
-				case d: DragSelecting =>
+				case d: Clicked =>
 					// update drag selection
 					d.copy(currentHoveredCell = cell)
 				case r: ReleaseSelection =>
@@ -98,14 +90,11 @@ object AdjMatrixClickDragLogic {
 	def mouseLeave(
 		currentState: AdjMatrixInteractionState
 	): AdjMatrixInteractionState = {
-		// actually, let's make it so if it leaves while you were selected, it then release tha selection
-		// (whether it was just Clicked or DragSelecting)
+		// actually, let's make it so if it leaves while you were selected, it then releases tha selection
 		currentState match {
 			case NoSelection | Hover(_) =>
 				NoSelection // nothing selected, so just go to no selection
-			case Clicked(cell, isAdd) =>
-				ReleaseSelection(Set(cell), isAdd) // finalize selection
-			case d: DragSelecting =>
+			case d: Clicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
 			case r: ReleaseSelection =>
 				// already released selection, so just go to no selection

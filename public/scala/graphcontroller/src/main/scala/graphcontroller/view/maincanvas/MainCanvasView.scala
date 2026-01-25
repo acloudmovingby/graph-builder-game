@@ -25,9 +25,7 @@ object MainCanvasView {
 		val edges = state.adjMatrixState match {
 			case Hover(cell) =>
 				getEdgeFromCell(cell).toSeq
-			case Clicked(cell, isAdd) =>
-				getEdgeFromCell(cell).toSeq
-			case d: DragSelecting =>
+			case d: Clicked =>
 				d.selectedCells.flatMap(getEdgeFromCell)
 					.filter { e =>
 						(d.isAdd, graph.hasEdge(e._1, e._2)) match {

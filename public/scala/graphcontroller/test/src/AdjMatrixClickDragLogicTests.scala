@@ -5,29 +5,30 @@ import graphcontroller.controller.{
 }
 import graphcontroller.dataobject.{Cell, NoCell}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixClickDragLogic, Clicked, DragSelecting, Hover, NoSelection, ReleaseSelection
+	AdjMatrixClickDragLogic, Clicked, Hover, NoSelection, ReleaseSelection
 }
 
 object AdjMatrixClickDragLogicTests extends TestSuite {
 	def tests = Tests {
 		val logic = AdjMatrixClickDragLogic
 		test("mouseUp") {
-			// these three states will result in thrown exception since they should never happen (you can't release a
-			// mouse click if you never clicked in the first place)
 			Seq(NoSelection, Hover(Cell(0, 0)), ReleaseSelection(Set(Cell(0, 0)), true)).foreach { state =>
 				val result = logic.mouseUp(state, Cell(1, 0))
 				assert(result == Hover(Cell(1, 0))) // on mouseUp from these states, we just go to Hover state
 			}
 
-			// Clicked state
+			// Release when only a single cell is in selection
 			// isAdd=true
-			val clickedState = Clicked(Cell(1, 2), isAdd = true)
+			val cell = Cell(1, 2)
+			val clickedState = Clicked(cell, cell, isAdd = true)
+			// TODO consider what happens if you mouse up on a different cell than you dragged to? I think this could happen if the mouse
+			// moves fast enough such that the mouseUp event happens before the mouseMove event triggers
 			val result1 = logic.mouseUp(clickedState, Cell(1, 2))
 			assert(result1 == ReleaseSelection(Set(Cell(1, 2)), isAdd = true))
 			// isAdd=false
-			val clickedState2 = Clicked(Cell(3, 4), isAdd = false)
-			val result2 = logic.mouseUp(clickedState2, Cell(3, 4))
-			assert(result2 == ReleaseSelection(Set(Cell(3, 4)), isAdd = false))
+			val clickedState2 = Clicked(cell, cell, isAdd = false)
+			val result2 = logic.mouseUp(clickedState2, cell)
+			assert(result2 == ReleaseSelection(Set(cell), isAdd = false))
 		}
 		test("mouseup - Releasing when selection is two cells side-by (horizontally)") {
 			// ASCII art of the selection:
@@ -37,7 +38,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . . . . .
 			// 3 . . . . .
 
-			val dragState = DragSelecting(Cell(1, 1), Cell(2, 1), isAdd = true)
+			val dragState = Clicked(Cell(1, 1), Cell(2, 1), isAdd = true)
 			val result = logic.mouseUp(dragState, Cell(2, 1))
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(2, 1)), isAdd = true))
 		}
@@ -49,7 +50,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . X . . .
 			// 3 . X . . .
 
-			val dragState = DragSelecting(Cell(1, 1), Cell(1, 3), isAdd = false)
+			val dragState = Clicked(Cell(1, 1), Cell(1, 3), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(1, 3))
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(1, 2), Cell(1, 3)), isAdd = false))
 		}
@@ -61,7 +62,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . . . . .
 			// 3 . . . . .
 
-			val dragState = DragSelecting(Cell(1, 1), Cell(1, 1), isAdd = true)
+			val dragState = Clicked(Cell(1, 1), Cell(1, 1), isAdd = true)
 			val result = logic.mouseUp(dragState, Cell(1, 1))
 			assert(result == ReleaseSelection(Set(Cell(1, 1)), isAdd = true))
 		}
@@ -73,7 +74,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 2 . . X . .
 			// 3 . . . . .
 
-			val dragState = DragSelecting(Cell(1, 1), Cell(2, 2), isAdd = false)
+			val dragState = Clicked(Cell(1, 1), Cell(2, 2), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(2, 2))
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(1, 2)), isAdd = false))
 		}
@@ -88,7 +89,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// o  3 . . X . .
 			// m  4 . . . . .
 
-			val dragState = DragSelecting(Cell(1, 1), Cell(3, 2), isAdd = false)
+			val dragState = Clicked(Cell(1, 1), Cell(3, 2), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(3, 2))
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(2, 1), Cell(3, 1)), isAdd = false))
 		}
@@ -105,7 +106,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// o  3 . . . . .
 			// m  4 . . . . X
 
-			val dragState = DragSelecting(Cell(0, 0), Cell(4,4), isAdd = false)
+			val dragState = Clicked(Cell(0, 0), Cell(4,4), isAdd = false)
 			val result = logic.mouseUp(dragState, Cell(4,4))
 			assert(result == ReleaseSelection(Set(Cell(0, 0), Cell(0, 1), Cell(0, 2), Cell(0, 3), Cell(0, 4)), isAdd = false))
 		}
@@ -140,8 +141,9 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			)
 			assert(newState == Hover(Cell(0, 1)))
 		}
-		test("end-to-end handleEvent: Hover now Clicked") {
-			val initialState = Hover(Cell(2, 3))
+		test("end-to-end handleEvent: Hover now clicked") {
+			val initialCell = Cell(2, 3)
+			val initialState = Hover(initialCell)
 			val nodeCount = 5
 
 			// test with no existing edge
@@ -150,23 +152,23 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 				AdjMatrixMouseDown(320, 220),
 				initialState,
 				nodeCount,
-				Cell(2, 3),
+				initialCell,
 				filledInCells
 			)
 			// since no edge exists, isAdd should be true (we are preparing to add the edge)
-			assert(newState == Clicked(Cell(2, 3), isAdd = true))
+			assert(newState == Clicked(initialCell, initialCell, isAdd = true))
 
 			// test with an existing edge
-			val filledInCells2 = Set(Cell(2, 3))
+			val filledInCells2 = Set(initialCell)
 			val newState2 = logic.handleEvent(
 				AdjMatrixMouseDown(320, 220),
 				initialState,
 				nodeCount,
-				Cell(2, 3),
+				initialCell,
 				filledInCells2
 			)
 			// since edge exists, isAdd should be false (we are preparing to remove the edge)
-			assert(newState2 == Clicked(Cell(2, 3), isAdd = false))
+			assert(newState2 == Clicked(initialCell, initialCell, isAdd = false))
 		}
 	}
 }
