@@ -6,7 +6,7 @@ import graphi.MapGraph
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
-import graphcontroller.dataobject.{AdjMatrixZone, Cell}
+import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Row}
 import graphcontroller.model.adjacencymatrix.{
 	AdjMatrixInteractionState, Clicked, Hover, NoSelection, ReleaseSelection
 }
@@ -29,12 +29,12 @@ object AdjMatrixClickDragLogic {
 				} else {
 					event match {
 						case AdjMatrixMouseUp(_, _) =>
-							mouseUp(currentState, cell)
+							mouseUp(currentState, cell, nodeCount)
 						case AdjMatrixMouseMove(_, _) =>
 							mouseMove(cell, currentState, nodeCount)
-						case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState)
+						case AdjMatrixMouseLeave(_, _) => mouseLeave(currentState, nodeCount)
 						case AdjMatrixMouseDown(mouseX, mouseY) =>
-							mouseDown(filledInCells, cell)
+							mouseDown(filledInCells, cell, nodeCount)
 					}
 				}
 			case _ => NoSelection // TODO implement other cases
@@ -44,7 +44,8 @@ object AdjMatrixClickDragLogic {
 
 	def mouseUp(
 		currentState: AdjMatrixInteractionState,
-		hoveredCell: Cell
+		hoveredCell: Cell,
+		nodeCount: Int
 	): AdjMatrixInteractionState = {
 		currentState match {
 			case NoSelection | ReleaseSelection(_, _) | Hover(_) =>
@@ -52,15 +53,30 @@ object AdjMatrixClickDragLogic {
 				Hover(hoveredCell) // just go to hover state
 			case d: Clicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
+			case rcc: RowColumnClicked =>
+				ReleaseSelection(rcc.selectedCells(nodeCount), rcc.isAdd)
 		}
 	}
 
 	def mouseDown(
 		filledInCells: Set[Cell],
-		clickedCell: Cell
+		zone: AdjMatrixZone,
+		nodeCount: Int
 	): AdjMatrixInteractionState = {
-		val isAdd = !filledInCells.contains(clickedCell)
-		Clicked(clickedCell, clickedCell, isAdd = isAdd)
+		zone match {
+			case clickedCell: Cell =>
+				val isAdd = !filledInCells.contains(clickedCell)
+				Clicked(clickedCell, clickedCell, isAdd = isAdd)
+			case rc: (Row | Column) =>
+				val cells = rc match {
+					case r: Row => r.cells(nodeCount)
+					case c: Column => c.cells(nodeCount)
+				}
+				// determine if we're adding: if all cells in that row are filled in, then we're removing, else adding
+				val isAdd = !cells.forall(c => filledInCells.contains(c))
+				RowColumnClicked(rc, isAdd = isAdd)
+			case Corner | NoCell => NoSelection
+		}
 	}
 
 	def mouseMove(
@@ -80,6 +96,8 @@ object AdjMatrixClickDragLogic {
 				case d: Clicked =>
 					// update drag selection
 					d.copy(currentHoveredCell = cell)
+				case rcc: RowColumnClicked =>
+						rcc // currently not updating the selection when moving to a new row/column/cell
 				case r: ReleaseSelection =>
 					// do nothing, selection already made
 					Hover(cell)
@@ -88,7 +106,8 @@ object AdjMatrixClickDragLogic {
 	}
 
 	def mouseLeave(
-		currentState: AdjMatrixInteractionState
+		currentState: AdjMatrixInteractionState,
+		nodeCount: Int
 	): AdjMatrixInteractionState = {
 		// actually, let's make it so if it leaves while you were selected, it then releases tha selection
 		currentState match {
@@ -96,6 +115,8 @@ object AdjMatrixClickDragLogic {
 				NoSelection // nothing selected, so just go to no selection
 			case d: Clicked =>
 				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
+			case rcc: RowColumnClicked =>
+				ReleaseSelection(rcc.selectedCells(nodeCount), rcc.isAdd) // finalize selection
 			case r: ReleaseSelection =>
 				// already released selection, so just go to no selection
 				NoSelection

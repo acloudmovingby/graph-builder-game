@@ -1,14 +1,24 @@
 package graphcontroller.model.adjacencymatrix
 
-import graphcontroller.dataobject.{AdjMatrixZone, Cell}
+import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Row}
 
 sealed trait AdjMatrixInteractionState
 
 /** Mouse is currently not hovering over adjacency matrix at all */
 case object NoSelection extends AdjMatrixInteractionState
+
 /** Mouse is hovering over a cell but not clicked/pressed. */
 case class Hover(zone: AdjMatrixZone) extends AdjMatrixInteractionState
-/** Mouse is currently dragging to select/deselect cells */
+
+/**
+ * When we release the selection and actually want to apply its addition/removal.
+ * */
+case class ReleaseSelection(
+	cells: Set[Cell], // set of cells selected on release
+	isAdd: Boolean // true = adding selection to graph, false = removing selection
+) extends AdjMatrixInteractionState
+
+/** Mouse clicked originated in matrix area and is currently dragging to select/deselect cells */
 case class Clicked(
 	startCell: Cell,
 	currentHoveredCell: Cell,
@@ -37,10 +47,16 @@ case class Clicked(
 	}
 }
 
-/**
- * When we release the selection and actually want to apply its addition/removal.
- * */
-case class ReleaseSelection(
-	cells: Set[Cell], // set of cells selected on release
-	isAdd: Boolean // true = adding selection to graph, false = removing selection
-) extends AdjMatrixInteractionState
+/** Mouse click originated in Row or Column (behavior is different from when we start clicking within
+ * the matrix). */
+case class RowColumnClicked(
+	rowOrColumn: Row | Column,
+	isAdd: Boolean // true = adding selection, false = removing selection
+) extends AdjMatrixInteractionState {
+	def selectedCells(nodeCount: Int): Set[Cell] = {
+		rowOrColumn match {
+			case r: Row => r.cells(nodeCount).toSet
+			case c: Column => c.cells(nodeCount).toSet
+		}
+	}
+}

@@ -13,7 +13,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 		val logic = AdjMatrixClickDragLogic
 		test("mouseUp") {
 			Seq(NoSelection, Hover(Cell(0, 0)), ReleaseSelection(Set(Cell(0, 0)), true)).foreach { state =>
-				val result = logic.mouseUp(state, Cell(1, 0))
+				val result = logic.mouseUp(state, Cell(1, 0), 5)
 				assert(result == Hover(Cell(1, 0))) // on mouseUp from these states, we just go to Hover state
 			}
 
@@ -23,11 +23,11 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			val clickedState = Clicked(cell, cell, isAdd = true)
 			// TODO consider what happens if you mouse up on a different cell than you dragged to? I think this could happen if the mouse
 			// moves fast enough such that the mouseUp event happens before the mouseMove event triggers
-			val result1 = logic.mouseUp(clickedState, Cell(1, 2))
+			val result1 = logic.mouseUp(clickedState, Cell(1, 2), 5)
 			assert(result1 == ReleaseSelection(Set(Cell(1, 2)), isAdd = true))
 			// isAdd=false
 			val clickedState2 = Clicked(cell, cell, isAdd = false)
-			val result2 = logic.mouseUp(clickedState2, cell)
+			val result2 = logic.mouseUp(clickedState2, cell, 5)
 			assert(result2 == ReleaseSelection(Set(cell), isAdd = false))
 		}
 		test("mouseup - Releasing when selection is two cells side-by (horizontally)") {
@@ -39,7 +39,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 3 . . . . .
 
 			val dragState = Clicked(Cell(1, 1), Cell(2, 1), isAdd = true)
-			val result = logic.mouseUp(dragState, Cell(2, 1))
+			val result = logic.mouseUp(dragState, Cell(2, 1), 5)
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(2, 1)), isAdd = true))
 		}
 		test ("mouseup - when selection is three cells vertically") {
@@ -51,7 +51,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 3 . X . . .
 
 			val dragState = Clicked(Cell(1, 1), Cell(1, 3), isAdd = false)
-			val result = logic.mouseUp(dragState, Cell(1, 3))
+			val result = logic.mouseUp(dragState, Cell(1, 3), 5)
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(1, 2), Cell(1, 3)), isAdd = false))
 		}
 		test ("mouseup - when selection is a single cell") {
@@ -63,7 +63,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 3 . . . . .
 
 			val dragState = Clicked(Cell(1, 1), Cell(1, 1), isAdd = true)
-			val result = logic.mouseUp(dragState, Cell(1, 1))
+			val result = logic.mouseUp(dragState, Cell(1, 1), 5)
 			assert(result == ReleaseSelection(Set(Cell(1, 1)), isAdd = true))
 		}
 		test ("mouseup - when selection is diagonal one square (it defaults to horizontal)") {
@@ -75,7 +75,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// 3 . . . . .
 
 			val dragState = Clicked(Cell(1, 1), Cell(2, 2), isAdd = false)
-			val result = logic.mouseUp(dragState, Cell(2, 2))
+			val result = logic.mouseUp(dragState, Cell(2, 2), 5)
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(1, 2)), isAdd = false))
 		}
 		test ("mouseup - when selection is knight down right (it defaults to longer delta, the vertical)") {
@@ -90,7 +90,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// m  4 . . . . .
 
 			val dragState = Clicked(Cell(1, 1), Cell(3, 2), isAdd = false)
-			val result = logic.mouseUp(dragState, Cell(3, 2))
+			val result = logic.mouseUp(dragState, Cell(3, 2), 5)
 			assert(result == ReleaseSelection(Set(Cell(1, 1), Cell(2, 1), Cell(3, 1)), isAdd = false))
 		}
 		test("mouseup - when selecting self-edges (where from==to)...let caller decide to ignore, return anyway. Default horizontal.") {
@@ -107,7 +107,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 			// m  4 . . . . X
 
 			val dragState = Clicked(Cell(0, 0), Cell(4,4), isAdd = false)
-			val result = logic.mouseUp(dragState, Cell(4,4))
+			val result = logic.mouseUp(dragState, Cell(4,4), 5)
 			assert(result == ReleaseSelection(Set(Cell(0, 0), Cell(0, 1), Cell(0, 2), Cell(0, 3), Cell(0, 4)), isAdd = false))
 		}
 		test("hovering over cells within bounds from a NoSelection state") {
