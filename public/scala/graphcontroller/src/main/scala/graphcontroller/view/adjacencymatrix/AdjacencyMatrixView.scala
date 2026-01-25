@@ -4,7 +4,7 @@ import graphi.MapGraph
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Vector2D, Rectangle}
+import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Rectangle, Row, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
 import graphcontroller.view.AdjacencyMatrixViewData
 
@@ -66,22 +66,31 @@ object AdjacencyMatrixView {
 		}
 	}
 
-	def hoveredCellHighlight(graph: MapGraph[Int, ?], dimensions: AdjMatrixDimensions, hoveredCell: Cell): Option[RectangleCanvas] = {
+	def hoveredCellHighlight(graph: MapGraph[Int, ?], dimensions: AdjMatrixDimensions, hoveredZone: AdjMatrixZone): Seq[RectangleCanvas] = {
 		val nodeCount = graph.nodeCount
-		if (nodeCount == 0) None else {
-			val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
-			val color = if (graph.getEdges.contains(hoveredCell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
-			Some(RectangleCanvas(
-				Rectangle(
-					topLeft = Vector2D(
-						x = (hoveredCell.col * cellWidth).toInt,
-						y = (hoveredCell.row * cellHeight).toInt
+
+		def hoveredCell(cell: Cell) = {
+				val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
+				val color = if (graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+				RectangleCanvas(
+					Rectangle(
+						topLeft = Vector2D(
+							x = (cell.col * cellWidth).toInt,
+							y = (cell.row * cellHeight).toInt
+						),
+						width = cellWidth.toInt,
+						height = cellHeight.toInt
 					),
-					width = cellWidth.toInt,
-					height = cellHeight.toInt
-				),
-				color = color
-			))
+					color = color
+				)
+		}
+
+		if (nodeCount == 0) Seq.empty else {
+			hoveredZone match {
+				case Cell(row, col) => Seq(hoveredCell(Cell(row, col)))
+				case r: Row => r.cells(nodeCount).map(hoveredCell)
+				case _ => Seq.empty // TODO implement Column or other things
+			}
 		}
 	}
 

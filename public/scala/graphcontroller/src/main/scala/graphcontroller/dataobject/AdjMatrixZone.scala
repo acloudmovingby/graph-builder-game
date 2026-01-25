@@ -19,9 +19,21 @@ object Cell {
 	def fromEdge(from: Int, to: Int): Cell = Cell(from, to)
 }
 
-case class Row(row: Int) extends AdjMatrixZone
+case class Row(row: Int) extends AdjMatrixZone {
+	def cells(nodeCount: Int): Seq[Cell] = {
+		(0 until nodeCount)
+			.map(col => Cell(row, col))
+			.filterNot(c => c.row == c.col) // exclude self-loops
+	}
+}
 
-case class Column(column: Int) extends AdjMatrixZone
+case class Column(column: Int) extends AdjMatrixZone {
+	def cells(nodeCount: Int): Seq[Cell] = {
+		(0 until nodeCount)
+			.map(row => Cell(row, column))
+			.filterNot(c => c.row == c.col) // exclude self-loops
+	}
+}
 
 case object Corner extends AdjMatrixZone // corner areas that won't highlight/select any cells
 

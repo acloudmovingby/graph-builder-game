@@ -1,6 +1,6 @@
 package graphcontroller.view.maincanvas
 
-import graphcontroller.dataobject.{Cell, Vector2D}
+import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.*
@@ -23,8 +23,12 @@ object MainCanvasView {
 		}
 
 		val edges = state.adjMatrixState match {
-			case Hover(cell) =>
+			case Hover(cell: Cell) =>
 				getEdgeFromCell(cell).toSeq
+			case Hover(row: Row) => 
+					row.cells(graph.nodeCount).flatMap(getEdgeFromCell)
+			case Hover(col: Column) => 
+					col.cells(graph.nodeCount).flatMap(getEdgeFromCell)
 			case d: Clicked =>
 				d.selectedCells.flatMap(getEdgeFromCell)
 					.filter { e =>

@@ -123,9 +123,9 @@ object AdjMatrixViewTests extends TestSuite {
 			val hoveredCellWithoutEdge = Cell(1, 0) // no edge from 1 to 0
 
 			val highlightWithEdge = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredCellWithEdge)
-			assert(highlightWithEdge.isDefined)
-			assert(highlightWithEdge.get.color == AdjacencyMatrixView.hoverEdgePresentColor)
-			assert(highlightWithEdge.get.rect == Rectangle(
+			assert(highlightWithEdge.nonEmpty)
+			assert(highlightWithEdge.head.color == AdjacencyMatrixView.hoverEdgePresentColor)
+			assert(highlightWithEdge.head.rect == Rectangle(
 				topLeft = Vector2D(x = (hoveredCellWithEdge.col * dimensions.cellWidth(graph.nodeCount)).toInt,
 					y = (hoveredCellWithEdge.row * dimensions.cellHeight(graph.nodeCount)).toInt),
 				width = dimensions.cellWidth(graph.nodeCount).toInt,
@@ -133,13 +133,13 @@ object AdjMatrixViewTests extends TestSuite {
 			))
 
 			val highlightWithoutEdge = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredCellWithoutEdge)
-			assert(highlightWithoutEdge.isDefined)
-			assert(highlightWithoutEdge.get.color == AdjacencyMatrixView.hoverNoEdgeColor)
+			assert(highlightWithoutEdge.nonEmpty)
+			assert(highlightWithoutEdge.head.color == AdjacencyMatrixView.hoverNoEdgeColor)
 		}
 
 		test("row/column numbers") {
 			val nodeCount = 4 // choose number divisible into matrix width/height for easier calculation
-			val rowNumbers = AdjacencyMatrixView.rowColNumbers(nodeCount, dimensions, Hover(Cell(0,0)))
+			val rowNumbers = AdjacencyMatrixView.rowColNumbers(nodeCount, dimensions, Hover(Cell(0, 0)))
 			assert(rowNumbers.length == nodeCount * 2)
 
 			// assert that there are nodeCOunt number of row numbers where the x position is padding-numberPadding

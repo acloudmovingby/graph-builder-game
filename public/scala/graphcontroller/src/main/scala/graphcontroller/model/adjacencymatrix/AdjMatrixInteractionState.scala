@@ -1,13 +1,13 @@
 package graphcontroller.model.adjacencymatrix
 
-import graphcontroller.dataobject.Cell
+import graphcontroller.dataobject.{AdjMatrixZone, Cell}
 
 sealed trait AdjMatrixInteractionState
 
 /** Mouse is currently not hovering over adjacency matrix at all */
 case object NoSelection extends AdjMatrixInteractionState
 /** Mouse is hovering over a cell but not clicked/pressed. */
-case class Hover(cell: Cell) extends AdjMatrixInteractionState
+case class Hover(zone: AdjMatrixZone) extends AdjMatrixInteractionState
 /** Mouse is currently dragging to select/deselect cells */
 case class Clicked(
 	startCell: Cell,
