@@ -150,5 +150,32 @@ object AdjMatrixViewTests extends TestSuite {
 				assert(rowNumber.coords.y == expectedY)
 			}
 		}
+
+		test("Hover over row highlights all cells in that row") {
+			val graph = DirectedMapGraph[Int]()
+				.addNode(0)
+				.addNode(1)
+				.addNode(2)
+				.addEdge(0, 1)
+				.addEdge(0, 2)
+
+			val hoveredRow = Row(0) // row 0 has edges to 1 and 2
+
+			val highlights = AdjacencyMatrixView.hoveredCellHighlight(graph, dimensions, hoveredRow)
+			assert(highlights.length == 3) // should highlight cells (0,0), (0,1), (0,2)
+
+			val expectedCells = Set(
+				Cell(0, 0),
+				Cell(0, 1),
+				Cell(0, 2)
+			)
+
+			for (highlight <- highlights) {
+				val cellCol = ((highlight.rect.topLeft.x).toDouble / dimensions.cellWidth(graph.nodeCount)).toInt
+				val cellRow = ((highlight.rect.topLeft.y).toDouble / dimensions.cellHeight(graph.nodeCount)).toInt
+				val cell = Cell(cellRow, cellCol)
+				assert(expectedCells.contains(cell))
+			}
+		}
 	}
 }

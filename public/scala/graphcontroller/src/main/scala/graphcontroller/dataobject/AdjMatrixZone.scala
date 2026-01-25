@@ -20,18 +20,18 @@ object Cell {
 }
 
 case class Row(row: Int) extends AdjMatrixZone {
-	def cells(nodeCount: Int): Seq[Cell] = {
+	def cells(nodeCount: Int, excludeSelfEdges: Boolean = false): Seq[Cell] = {
 		(0 until nodeCount)
 			.map(col => Cell(row, col))
-			.filterNot(c => c.row == c.col) // exclude self-loops
+			.filter(c => !(excludeSelfEdges && c.row == c.col))
 	}
 }
 
 case class Column(column: Int) extends AdjMatrixZone {
-	def cells(nodeCount: Int): Seq[Cell] = {
+	def cells(nodeCount: Int, excludeSelfEdges: Boolean = false): Seq[Cell] = {
 		(0 until nodeCount)
 			.map(row => Cell(row, column))
-			.filterNot(c => c.row == c.col) // exclude self-loops
+			.filter(c => !(excludeSelfEdges && c.row == c.col))
 	}
 }
 

@@ -4,7 +4,7 @@ import graphi.MapGraph
 import graphcontroller.model.State
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, Clicked, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Rectangle, Row, Vector2D}
+import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Rectangle, Row, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
 import graphcontroller.view.AdjacencyMatrixViewData
 
@@ -89,6 +89,7 @@ object AdjacencyMatrixView {
 			hoveredZone match {
 				case Cell(row, col) => Seq(hoveredCell(Cell(row, col)))
 				case r: Row => r.cells(nodeCount).map(hoveredCell)
+				case c: Column => c.cells(nodeCount).map(hoveredCell)
 				case _ => Seq.empty // TODO implement Column or other things
 			}
 		}
