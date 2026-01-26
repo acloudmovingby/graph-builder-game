@@ -2,17 +2,19 @@ package graphcontroller.dataobject
 
 import scala.scalajs.js
 
-case class Point(x: Int, y: Int) {
-	def translate(vec2: Point) = Point(x + vec2.x, y + vec2.y)
+case class Vector2D(x: Int, y: Int) extends Shape {
+	type This = Vector2D
 
-	def scaled(scaleFactor: Int): Point = Point(x * scaleFactor, y * scaleFactor)
+	def translate(vec2: Vector2D) = Vector2D(x + vec2.x, y + vec2.y)
 
-	def rotate(radians: Double): Point = {
+	def scale(scaleFactor: Int): Vector2D = Vector2D(x * scaleFactor, y * scaleFactor)
+
+	def rotate(radians: Double): Vector2D = {
 		val rotateMatrix = Array(
 			Array(math.cos(radians), -math.sin(radians)),
 			Array(math.sin(radians), math.cos(radians))
 		)
-		Point(
+		Vector2D(
 			(x * rotateMatrix(0)(0) + y * rotateMatrix(0)(1)).toInt,
 			(x * rotateMatrix(1)(0) + y * rotateMatrix(1)(1)).toInt
 		)

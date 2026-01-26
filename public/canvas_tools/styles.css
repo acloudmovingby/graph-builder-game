@@ -53,6 +53,7 @@ body {
     position: absolute;
     margin: 0;
     cursor: inherit; /* Indicates that this button is disabled */
+    z-index: 3;
 }
 
 #clear-btn:hover {
@@ -64,6 +65,20 @@ body {
   background-color: #f0f0f0;
   overflow: hidden; /* Usually you don't want the canvas area to scroll */
   position: relative; /* For absolute positioning inside */
+}
+
+#main-canvas-upper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+
+#main-canvas-lower {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
 }
 
 #welcome-message {
@@ -311,7 +326,6 @@ p, a,
 }
 
 #adj-matrix {
-  border: 1px solid lightgray;
   width: 100%;
   aspect-ratio: 1 / 1;
 }

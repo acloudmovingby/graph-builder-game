@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="canvas_tools/styles.css"/>
     <title>Document</title>
+<script defer>
+    exports = {};
+</script>
+<script defer type="text/javascript" src="scala/out/graphcontroller/fastLinkJS.dest/main.js"></script>
+<script defer type="module" src="canvas_tools/tools.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -30,7 +35,8 @@
     <div id="canvas-area">
         <p id="clear-btn">clear</p>
         <p id="welcome-message">"Welcome! To start, try clicking somewhere"</p>
-        <canvas id="canvas"></canvas>
+        <canvas id="main-canvas-upper"></canvas>
+        <canvas id="main-canvas-lower"></canvas>
     </div>
     <div class="right-pane">
         <!-- selector at the top of the right pane       -->
@@ -87,9 +93,4 @@
     </div>
 </div>
 </body>
-<script>
-    exports = {};
-</script>
-<script type="text/javascript" src="scala/out/graphcontroller/fastLinkJS.dest/main.js"></script>
-<script type="module" src="canvas_tools/tools.js"></script>
 </html>
