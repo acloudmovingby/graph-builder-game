@@ -29,10 +29,8 @@ object AdjMatrixClickDragLogic {
 				case AdjMatrixMouseUp(_, _) =>
 					mouseUp(currentState, zone, nodeCount)
 				case AdjMatrixMouseMove(_, _) =>
-					println("Mousemove")
 					mouseMove(zone, currentState, nodeCount)
 				case AdjMatrixMouseLeave(_, _) =>
-					println("Mouseleave")
 					mouseLeave(currentState, nodeCount)
 				case AdjMatrixMouseDown(mouseX, mouseY) =>
 					mouseDown(filledInCells, zone, nodeCount)

@@ -39,8 +39,6 @@ object Model {
 			state.filledInCells
 		)
 
-		println(s"$newAdjMatrixState")
-
 		newAdjMatrixState match {
 			// if the state changed to a ReleaseSelection, the selection was released and therefore we need to update the graph accordingly
 			case ReleaseSelection(cells, isAdd) =>

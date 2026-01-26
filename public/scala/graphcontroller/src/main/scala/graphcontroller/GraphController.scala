@@ -106,28 +106,6 @@ class GraphController {
 	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Line] =
 		g.getEdges.toSeq.flatMap { case (from, to) => getEdgeCoordinates(from, to).toSeq }
 
-	@JSExport
-	def getAdjacencyMatrix(): js.Array[js.Array[Int]] = {
-		val size = state.graph.nodeCount
-		// initialize size x size matrix with 0s
-		val matrix = Array.fill(size, size)(0)
-		for {
-			(from, to) <- state.graph.getEdges.toSeq.sorted
-		} {
-			matrix(from)(to) = 1
-			state.graph match {
-				case _: SimpleMapGraph[_] => matrix(to)(from) = 1
-				case _ => ()
-			}
-		}
-		matrix.map(_.toJSArray).toJSArray
-	}
-
-	@JSExport
-	def getMatrixHoverCell(): js.Array[Int] = matrixHoverCell
-			.map { case (col, row) => js.Array.apply(col, row) }
-			.getOrElse(new js.Array)
-
 	// TODO move a lot of the logic here to its own file outside of GraphController (e.g., EdgeRenderer)
 	@JSExport
 	def renderMainCanvas(): Unit = {
@@ -251,39 +229,11 @@ class GraphController {
 	}
 
 	@JSExport
-	def hoverAdjMatrixCell(col: Int, row: Int): Unit = {
-		// the mouseover listener can sometimes report negative coordinates if you move the mouse fast enough, so check it's not negative
-		def withinBounds(x: Int) = { x >= 0 && x < state.graph.nodeCount }
-		if (withinBounds(col) && withinBounds(row)) {
-			matrixHoverCell = Some((col, row))
-		} else matrixHoverCell = None
-	}
-
-	@JSExport
-	def leaveAdjMatrix(): Unit = { matrixHoverCell = None }
-
-	@JSExport
 	def removeEdge(from: Int, to: Int): Unit = {
 		try {
 			Controller.state = state.copy(graph = state.graph.removeEdge(from, to))
 		} catch {
 			case e: NoSuchElementException => println(s"Error removing edge: ${e.getMessage}")
-		}
-	}
-
-	@JSExport
-	def adjMatrixClick(): Unit = {
-		println("Adjacency matrix cell clicked at " + matrixHoverCell)
-		matrixHoverCell.foreach { case (from, to) =>
-			(from == to, state.graph.hasEdge(from, to)) match {
-				case (true, _) => println("Self-loops are not allowed.")
-				case (false, true) =>
-					pushUndoState()
-					removeEdge(from, to)
-				case (false, false) =>
-					pushUndoState()
-					addEdge(from, to)
-			}
 		}
 	}
 }

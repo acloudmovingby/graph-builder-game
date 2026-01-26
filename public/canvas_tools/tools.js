@@ -159,7 +159,7 @@ for (const tool of toolState.allTools) {
             "click",
             () => {
                 toolState.curTool = tool;
-                refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+                refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
             },
             false
         );
@@ -401,7 +401,7 @@ function mouseDown(event) {
                 y: y
             });
             basicTool.state.stillInNode = true;
-            refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+            refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
         } else if (!basicTool.state.edgeMode) {
             enterBasicEdgeMode(nodeClicked);
         } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
@@ -412,7 +412,7 @@ function mouseDown(event) {
                 graphController.addEdge(startNode, nodeClicked.key);
             }
             basicTool.state.edgeStart = nodeClicked?.key;
-            refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+            refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
         } else {
             // leave edge mode
             exitBasicEdgeMode();
@@ -435,7 +435,7 @@ function clearGraph() {
     toolState.curTool = basicTool;
     nodeHover = null;
     basicTool.state.stillInNode = false;
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -473,7 +473,7 @@ function mouseMove(event) {
             graphController.addEdge(startNode, nodeHover.key);
         }
         magicPathTool.state.edgeStart = nodeHover.key;
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     }
 
     if (toolState.curTool == moveTool) {
@@ -530,7 +530,7 @@ function mouseUp() {
 
     areaCompleteTool.state.mousePressed = false;
     areaCompleteTool.state.drawPoints = [];
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 // =====================
@@ -538,7 +538,7 @@ function mouseUp() {
 // =====================
 function undo() {
     graphController.popUndoState();
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
 }
 
 // =====================
@@ -577,7 +577,7 @@ function nodeAtPoint(x, y, nodes) {
     return null;
 }
 
-function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList, adjacencyMatrix, matrixHoverCell) {
+function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList) {
     // TODO? stop passing in args to refreshHtml and instead just call graphController from within here
     // We have to get the state at some point and I don't think there's any point in getting it in 10 diff place?
     // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
@@ -657,34 +657,6 @@ function inside(point, vs) {
     }
     return inside;
 }
-
-// TODO delete this entirely once we have ported it fully to ScalaJS
-//if (adjMatrixElem) {
-//    adjMatrixElem.addEventListener("mousemove", function(event) {
-//        const rect = adjMatrixElem.getBoundingClientRect();
-//        const x = event.clientX - rect.left;
-//        const y = event.clientY - rect.top;
-//        const nodeCount = graphController.nodeCount();
-//        if (nodeCount > 0) {
-//            const cellWidth = adjMatrixElem.width / (nodeCount * scale);
-//            const cellHeight = adjMatrixElem.height / (nodeCount * scale);
-//            const col = Math.floor(x / cellWidth);
-//            const row = Math.floor(y / cellHeight);
-//            graphController.hoverAdjMatrixCell(col, row);
-//        }
-//        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
-//    });
-//
-//    adjMatrixElem.addEventListener("mouseleave", function(event) {
-//        graphController.leaveAdjMatrix();
-//        // need to refresh html or hover color will linger
-//        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
-//    });
-//
-//    adjMatrixElem.addEventListener("mouseup", function(event) {
-//            graphController.adjMatrixClick();
-//        });
-//}
 
 function enterBasicEdgeMode(node) {
     basicTool.state.edgeMode = true;
@@ -792,7 +764,7 @@ directedBtn.addEventListener(
     () => {
         graphController.pushUndoState();
         graphController.toggleDirectionality();
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
     },
     false
 );
@@ -842,4 +814,4 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList(), graphController.getAdjacencyMatrix(), graphController.getMatrixHoverCell());
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
