@@ -4,6 +4,7 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 
+/** State of the whole program!! */
 case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
 	keyToData: Map[Int, NodeData],

@@ -5,12 +5,12 @@ import graphcontroller.controller.{
 }
 import graphcontroller.dataobject.{Cell, Column, NoCell, Row}
 import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixClickDragLogic, CellClicked, Hover, NoSelection, ReleaseSelection, RowColumnClicked
+	AdjMatrixInteractionLogic, CellClicked, Hover, NoSelection, ReleaseSelection, RowColumnClicked
 }
 
-object AdjMatrixClickDragLogicTests extends TestSuite {
+object AdjMatrixInteractionLogicTests$ extends TestSuite {
 	def tests = Tests {
-		val logic = AdjMatrixClickDragLogic
+		val logic = AdjMatrixInteractionLogic
 		test("mouseUp") {
 			Seq(NoSelection, Hover(Cell(0, 0)), ReleaseSelection(Set(Cell(0, 0)), true)).foreach { state =>
 				val result = logic.mouseUp(state, Cell(1, 0), 5)
@@ -137,7 +137,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 		test("end-to-end handleEvent: NoSelection now Hover") {
 			val initialState = NoSelection
 			val nodeCount = 5
-			val newState = logic.handleEvent(
+			val newState = logic.handleMouseEvent(
 				AdjMatrixMouseMove(120, 80), // don't matter for this function
 				initialState,
 				nodeCount,
@@ -153,7 +153,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 
 			// test with no existing edge
 			val filledInCells = Set.empty[Cell]
-			val newState = logic.handleEvent(
+			val newState = logic.handleMouseEvent(
 				AdjMatrixMouseDown(320, 220),
 				initialState,
 				nodeCount,
@@ -165,7 +165,7 @@ object AdjMatrixClickDragLogicTests extends TestSuite {
 
 			// test with an existing edge
 			val filledInCells2 = Set(initialCell)
-			val newState2 = logic.handleEvent(
+			val newState2 = logic.handleMouseEvent(
 				AdjMatrixMouseDown(320, 220),
 				initialState,
 				nodeCount,

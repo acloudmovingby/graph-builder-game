@@ -6,11 +6,12 @@ import graphi.MapGraph
 
 import scala.collection.immutable.ListSet
 
-// TODO: I hate this name
 object AdjMatrixCoordinateConverter {
 
-	/** When the user clicks in the adjacency matrix canvas area, determine which zone they are clicking on (a cell in the
-	 * matrix itself, or in one of the padded areas around the matrix) */
+	/**
+	 * When the user clicks in the adjacency matrix canvas area, determine which zone they are clicking on (a cell in the
+	 * matrix itself, or in one of the padded areas around the matrix)
+	 */
 	def convertCoordinatesToZone(
 		mouseX: Int,
 		mouseY: Int,

@@ -11,7 +11,7 @@ case object NoSelection extends AdjMatrixInteractionState
 case class Hover(zone: AdjMatrixZone) extends AdjMatrixInteractionState
 
 /**
- * When we release the selection and actually want to apply its addition/removal.
+ * When we release the selection and actually want to apply its addition/removal to the underlying graph
  * */
 case class ReleaseSelection(
 	cells: Set[Cell], // set of cells selected on release

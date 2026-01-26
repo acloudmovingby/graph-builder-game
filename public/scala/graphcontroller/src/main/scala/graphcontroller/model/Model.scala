@@ -2,7 +2,7 @@ package graphcontroller.model
 
 import graphcontroller.controller.{AdjMatrixMouseDown, AdjacencyMatrixEvent, Event, Initialization, NoOp}
 import graphcontroller.dataobject.AdjMatrixDimensions
-import graphcontroller.model.adjacencymatrix.{AdjMatrixClickDragLogic, ReleaseSelection}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionLogic, ReleaseSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
 import AdjMatrixCoordinateConverter.convertCoordinatesToZone
 
@@ -31,7 +31,7 @@ object Model {
 		)
 
 		// calculate change in adjacency matrix state
-		val newAdjMatrixState = AdjMatrixClickDragLogic.handleEvent(
+		val newAdjMatrixState = AdjMatrixInteractionLogic.handleMouseEvent(
 			event,
 			state.adjMatrixState,
 			state.graph.nodeCount,

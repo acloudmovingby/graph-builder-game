@@ -22,11 +22,11 @@ case class Rectangle(
 		height + (2 * numPixels)
 	)
 
-	/** Note: this doesn't actually rotate the sides of the rectangle, just where it's topLeft point is located.
+	/** Note: this doesn't actually rotate the sides of the rectangle, just where it's topLeft point is located (rotated around origin).
 	 * The reason is that this Rectangle shape eventually correlates to the Canvas API ctx.rect(...) function, which
 	 * will always draw a horizontal/vertical edged rectangle */
 	def rotate(radians: Double): Rectangle = {
-		// Rotating a rectangle around its top-left corner
+		// Rotating a rectangle's top-left corner around the origin
 		val newTopLeft = topLeft.rotate(radians)
 		Rectangle(newTopLeft, width, height)
 	}

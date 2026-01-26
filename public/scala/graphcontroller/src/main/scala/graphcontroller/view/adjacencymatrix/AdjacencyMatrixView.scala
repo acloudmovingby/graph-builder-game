@@ -2,7 +2,7 @@ package graphcontroller.view.adjacencymatrix
 
 import graphi.MapGraph
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixClickDragLogic, CellClicked, Hover, NoSelection}
+import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixInteractionLogic, CellClicked, Hover, NoSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
 import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Rectangle, Row, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
@@ -80,7 +80,7 @@ object AdjacencyMatrixView {
 				)
 				horizontalLine = CanvasLine(
 					from = Vector2D(x = 0, y = (height * i).toInt),
-					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt), // ceil here to avoid odd gaps
+					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt),
 					width = 1,
 					color = "lightgray"
 				)
@@ -89,23 +89,27 @@ object AdjacencyMatrixView {
 		}
 	}
 
-	def hoveredCellHighlight(graph: MapGraph[Int, ?], dimensions: AdjMatrixDimensions, hoveredZone: AdjMatrixZone): Seq[RectangleCanvas] = {
+	def hoveredCellHighlight(
+		graph: MapGraph[Int, ?],
+		dimensions: AdjMatrixDimensions,
+		hoveredZone: AdjMatrixZone
+	): Seq[RectangleCanvas] = {
 		val nodeCount = graph.nodeCount
 
-		def hoveredCell(cell: Cell) = {
-				val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
-				val color = if (graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
-				RectangleCanvas(
-					Rectangle(
-						topLeft = Vector2D(
-							x = (cell.col * cellWidth).toInt,
-							y = (cell.row * cellHeight).toInt
-						),
-						width = cellWidth.toInt,
-						height = cellHeight.toInt
+		def hoveredCell(cell: Cell): RectangleCanvas = {
+			val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
+			val color = if (graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			RectangleCanvas(
+				Rectangle(
+					topLeft = Vector2D(
+						x = (cell.col * cellWidth).toInt,
+						y = (cell.row * cellHeight).toInt
 					),
-					color = color
-				)
+					width = cellWidth.toInt,
+					height = cellHeight.toInt
+				),
+				color = color
+			)
 		}
 
 		if (nodeCount == 0) Seq.empty else {
@@ -113,7 +117,7 @@ object AdjacencyMatrixView {
 				case Cell(row, col) => Seq(hoveredCell(Cell(row, col)))
 				case r: Row => r.cells(nodeCount).map(hoveredCell)
 				case c: Column => c.cells(nodeCount).map(hoveredCell)
-				case _ => Seq.empty // TODO implement Column or other things
+				case _ => Seq.empty
 			}
 		}
 	}
@@ -154,7 +158,7 @@ object AdjacencyMatrixView {
 				cells
 			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
 				val hoveredCell = hoveredCellHighlight(state.graph, state.adjMatrixDimensions, cell)
-				cells ++ hoveredCell.toSeq ++ gridLines
+				cells ++ hoveredCell ++ gridLines
 			case d: CellClicked =>
 				val selectedCells = d.selectedCells
 					.filter { c =>

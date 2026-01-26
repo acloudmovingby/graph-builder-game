@@ -11,10 +11,21 @@ import graphcontroller.model.adjacencymatrix.{
 	AdjMatrixInteractionState, CellClicked, Hover, NoSelection, ReleaseSelection
 }
 
-// TODO: I hate this name
-object AdjMatrixClickDragLogic {
-
-	def handleEvent(
+/**
+ * Code to calculate changes in the Adjacency Matrix interaction state based on input events.
+ */
+object AdjMatrixInteractionLogic {
+	/**
+	 * Given a mouse event in the adjacency matrix area, determine the new interaction state.
+	 *
+	 * @param event The mouse event that occurred.
+	 * @param currentState The current interaction state before the event.
+	 * @param nodeCount The number of nodes in the graph (to determine valid cells).
+	 * @param zone The zone in the adjacency matrix where the event occurred (translated previously from mouse coordinates).
+	 * @param filledInCells The set of currently filled-in cells in the adjacency matrix (i.e. where edges exist).
+	 * @return The new interaction state after processing the event.
+	 */
+	def handleMouseEvent(
 		event: AdjacencyMatrixEvent,
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int,
@@ -38,6 +49,7 @@ object AdjMatrixClickDragLogic {
 		}
 	}
 
+	/** When someone releases the mouse click */
 	def mouseUp(
 		currentState: AdjMatrixInteractionState,
 		hoveredZone: AdjMatrixZone,
@@ -48,7 +60,7 @@ object AdjMatrixClickDragLogic {
 				// This situation can happen when someone clicks down outside the matrix then moves the mouse inside, then releases
 				Hover(hoveredZone) // just go to hover state
 			case d: CellClicked =>
-				ReleaseSelection(d.selectedCells, d.isAdd) // finalize selection
+				ReleaseSelection(d.selectedCells, d.isAdd)
 			case rcc: RowColumnClicked =>
 				ReleaseSelection(rcc.selectedCells(nodeCount), rcc.isAdd)
 		}
