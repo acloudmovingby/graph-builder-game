@@ -14,13 +14,5 @@ app.listen(process.env.PORT || "3000", function () {
 }); 
 
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/public/easter_eggs/index.html");
-});
-
-app.get("/tools", function (req, res) {
-  res.sendFile(__dirname + "/public/canvas_tools/tools.html");
-});
-
-app.get("/tools_d3", function (req, res) {
-  res.sendFile(__dirname + "/public/d3_tools/tools_d3.html");
+  res.sendFile(__dirname + "/public/main_html_css_files/main.html");
 });

@@ -3,7 +3,7 @@
 ### Docker
 Build image with: `docker build -t graph-builder .`
 Start container: `docker run -p 3000:3000 --rm graph-builder`
-See in browser at `localhost:3000/tools`
+See in browser at `localhost:3000`
 
 ### Build natively
 Prerequisites:
@@ -20,7 +20,7 @@ Run:
 2. `node app.js` Start server
 3. (deprecated, for old vanilla JS tests) `npm run test`
 See in browser: 
-1. `localhost:3000/tools`. This is the more advanced graph editor tool. 
+1. `localhost:3000`. This is the more advanced graph editor tool. 
 2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It may no longer work. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
 
 ## About
