@@ -16,8 +16,9 @@ RUN curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.7/0.11.7 
     chmod +x /usr/local/bin/mill
 
 # Replace fastLinkJS.dest with fullLinkJS.dest in main.html for production
-WORKDIR /app/public
-RUN sed -i 's/fastLinkJS.dest/fullLinkJS.dest/g' main_html_css_files/main.html
+WORKDIR /app/public/main_html_css_files
+COPY public/main_html_css_files .
+RUN sed -i 's/fastLinkJS.dest/fullLinkJS.dest/g' main.html
 
 WORKDIR /app/public/scalajs
 
@@ -44,6 +45,8 @@ COPY . .
 
 # Copy the compiled JavaScript from the build stage
 COPY --from=scala-builder /app/public/scalajs/out /app/public/scalajs/out
+
+COPY --from=scala-builder /app/public/main_html_css_files/main.html /app/public/main_html_css_files/main.html
 
 EXPOSE 3000
 CMD [ "bash", "start.sh" ]
