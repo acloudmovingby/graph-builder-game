@@ -342,6 +342,6 @@ p, a,
   text-decoration: none;
 }
 
-.copy-btn {
+#copy-btn {
   display: inline;
 }

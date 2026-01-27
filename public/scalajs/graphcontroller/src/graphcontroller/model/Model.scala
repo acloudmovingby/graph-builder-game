@@ -1,6 +1,6 @@
 package graphcontroller.model
 
-import graphcontroller.controller.{AdjMatrixMouseDown, AdjacencyMatrixEvent, Event, Initialization, NoOp}
+import graphcontroller.controller.{AdjMatrixMouseDown, AdjacencyMatrixEvent, Event, ExportCopy, Initialization, NoOp}
 import graphcontroller.dataobject.AdjMatrixDimensions
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionLogic, ReleaseSelection}
 import graphcontroller.shared.AdjMatrixCoordinateConverter
@@ -12,6 +12,7 @@ object Model {
 		val newState = event match {
 			case e: Initialization => handleInitializationEvent(e, state)
 			case e: AdjacencyMatrixEvent => handleAdjacencyMatrixEvent(e, state)
+			case ExportCopy => state.copy(exportedDot = Some(state.graph.toDot))
 			case NoOp => state
 		}
 		newState

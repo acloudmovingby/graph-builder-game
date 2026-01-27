@@ -4,5 +4,6 @@ import graphcontroller.dataobject.canvas.RenderOp
 
 case class ViewData(
 	adjMatrix: AdjacencyMatrixViewData,
-	mainCanvas: Seq[RenderOp]
+	mainCanvas: Seq[RenderOp],
+	exportedDot: Option[String] = None
 )

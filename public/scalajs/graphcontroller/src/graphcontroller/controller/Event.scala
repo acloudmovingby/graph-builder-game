@@ -8,6 +8,8 @@ sealed trait Event
  * the model but triggers a refresh of the view. */
 case object NoOp extends Event
 
+case object ExportCopy extends Event
+
 sealed trait AdjacencyMatrixEvent extends Event {
 	val mouseX: Int
 	val mouseY: Int
@@ -22,6 +24,9 @@ case class Initialization(
 ) extends Event
 
 case class AdjMatrixMouseMove(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+
 case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+
 case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent

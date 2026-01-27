@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="main_html_css_files/styles.css"/>
     <title>Document</title>
-<script defer>
-    exports = {};
-</script>
-<script defer type="text/javascript" src="scalajs/out/graphcontroller/fastLinkJS.dest/main.js"></script>
-<script defer type="module" src="main_html_css_files/original_vanilla_js_code.js"></script>
+    <script defer>
+        exports = {};
+    </script>
+    <script defer type="text/javascript" src="scalajs/out/graphcontroller/fastLinkJS.dest/main.js"></script>
+    <script defer type="module" src="main_html_css_files/original_vanilla_js_code.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -44,8 +44,8 @@
             <p id="info-pane-select" class="info-pane-header">Info</p>
             <p id="export-pane-select" class="info-pane-header">Export</p>
         </div>
-        <!-- info pane section, starts visible       -->
         <div class="right-pane-scrollable-content">
+            <!-- info pane sections, anything named info-pane-only starts visible -->
             <div class="right-pane-section info-pane-only">
                 <p class="header">Graph Info</p>
                 <div class="info-area">
@@ -81,10 +81,10 @@
                     <canvas id="adj-matrix"></canvas>
                 </div>
             </div>
-            <!-- export pane section, defaults to being hidden       -->
+            <!-- export pane sections, defaults to being hidden       -->
             <div id="export-pane" class="right-pane-section export-pane-only">
                 <p class="info-name">DOT Format ---> </p>
-                <button class="copy-btn">Copy</button>
+                <button id="copy-btn">Copy</button>
             </div>
             <div class="right-pane-section feedback">
                 <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback</a>

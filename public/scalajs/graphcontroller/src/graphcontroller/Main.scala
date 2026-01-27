@@ -2,7 +2,7 @@ package graphcontroller
 
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
-import graphcontroller.controller.eventlisteners.{AdjMatrixEventListeners, MainCanvasEventListeners}
+import graphcontroller.controller.eventlisteners.{AdjMatrixEventListeners, MainCanvasEventListeners, CopyButtonEventListener}
 import graphcontroller.controller.{Controller, Initialization}
 
 // Until we migrate fully to ScalaJS code, need to make this usable from the Vanilla JS side so it can access
@@ -26,6 +26,7 @@ object Main {
 		AdjMatrixCanvas.start()
 		new AdjMatrixEventListeners().addEventListeners()
 		new MainCanvasEventListeners().addEventListeners()
+		CopyButtonEventListener.init()
 
 		println("GraphController ScalaJS application started.")
 		Controller.handleEvent(initializationEvent)

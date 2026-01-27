@@ -10,7 +10,8 @@ case class State(
 	keyToData: Map[Int, NodeData],
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
-	adjMatrixDimensions: AdjMatrixDimensions
+	adjMatrixDimensions: AdjMatrixDimensions,
+	exportedDot: Option[String] = None
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
