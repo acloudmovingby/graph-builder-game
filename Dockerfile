@@ -15,10 +15,14 @@ RUN apt-get update && \
 RUN curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.7/0.11.7 > /usr/local/bin/mill && \
     chmod +x /usr/local/bin/mill
 
-WORKDIR /app/public/scala
+# Replace fastLinkJS.dest with fullLinkJS.dest in main.html for production
+WORKDIR /app/public
+RUN sed -i 's/fastLinkJS.dest/fullLinkJS.dest/g' main_html_css_files/main.html
+
+WORKDIR /app/public/scalajs
 
 # Copy the Scala project files
-COPY public/scala .
+COPY public/scalajs .
 
 # Forcefully remove the 'out' directory and then compile the project
 RUN rm -rf out && ./mill graphcontroller.fullLinkJS
@@ -39,7 +43,7 @@ RUN npm install --production
 COPY . .
 
 # Copy the compiled JavaScript from the build stage
-COPY --from=scala-builder /app/public/scala/out /app/public/scala/out
+COPY --from=scala-builder /app/public/scalajs/out /app/public/scalajs/out
 
 EXPOSE 3000
 CMD [ "bash", "start.sh" ]

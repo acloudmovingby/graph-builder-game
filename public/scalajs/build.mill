@@ -1,4 +1,4 @@
-// build.sc
+// build.mill
 import mill.*, scalalib.*, scalajslib.*
 
 object graphcontroller extends ScalaModule, ScalaJSModule {
