@@ -9,7 +9,8 @@ object View {
 	def render(state: State): ViewData = {
 		ViewData(
 			AdjacencyMatrixView.render(state),
-			MainCanvasView.render(state)
+			MainCanvasView.render(state),
+			exportedDot = state.exportedDot
 		)
 	}
 }

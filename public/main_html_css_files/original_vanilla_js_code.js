@@ -716,21 +716,6 @@ document.getElementById("info-pane-select").addEventListener(
     false
 );
 
-for (const copyBtn of document.getElementsByClassName("copy-btn")) {
-    copyBtn.addEventListener(
-        "click",
-        () => {
-            navigator.clipboard.writeText(graphController.getDot).then(
-                function() {},
-                function() {
-                    console.assert(false, "Clipboard write failed.");
-                }
-            );
-        },
-        false
-    );
-}
-
 let labelVisibleBtn = document.getElementById("label-visible-btn");
 labelVisibleBtn.addEventListener(
     "click",
