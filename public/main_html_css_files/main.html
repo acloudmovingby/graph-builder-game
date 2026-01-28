@@ -82,9 +82,30 @@
                 </div>
             </div>
             <!-- export pane sections, defaults to being hidden       -->
-            <div id="export-pane" class="right-pane-section export-pane-only">
-                <p class="info-name">DOT Format ---> </p>
+            <div class="right-pane-section export-pane-only">
+                <select id="export-format-select">
+                    <option value="dot">DOT Format</option>
+                    <option value="json">JSON</option>
+                    <option value="python">Python</option>
+                </select>
+                <br>
+                <p id="format-description">The DOT format is a standard format for serializing graphs, so other applications can read your graph. Try pasting it here:
+                    <a href="https://dreampuf.github.io/GraphvizOnline/?engine=dot#graph%20%7B%0A%20n0%20--%20n2%20%0A%20n1%20--%20n2%20%0A%20n1%20--%20n3%20%0A%20n1%20--%20n26%20%0A%20n2%20--%20n3%20%0A%20n4%20--%20n14%20%0A%20n5%20--%20n6%20%0A%20n5%20--%20n7%20%0A%20n5%20--%20n8%20%0A%20n5%20--%20n9%20%0A%20n5%20--%20n10%20%0A%20n6%20--%20n7%20%0A%20n6%20--%20n8%20%0A%20n6%20--%20n9%20%0A%20n6%20--%20n10%20%0A%20n7%20--%20n8%20%0A%20n7%20--%20n9%20%0A%20n7%20--%20n10%20%0A%20n8%20--%20n9%20%0A%20n8%20--%20n10%20%0A%20n9%20--%20n10%20%0A%20n11%20--%20n15%20%0A%20n11%20--%20n17%20%0A%20n12%20--%20n13%20%0A%20n13%20--%20n14%20%0A%20n15%20--%20n16%20%0A%20n17%20--%20n18%20%0A%20n18%20--%20n19%20%0A%20n19%20--%20n20%20%0A%20n20%20--%20n21%20%0A%20n21%20--%20n22%20%0A%20n22%20--%20n23%20%0A%20n23%20--%20n24%20%0A%20n24%20--%20n25%20%0A%20n25%20--%20n26%20%0A%7D" target="_blank">this one</a>.
+                </p>
                 <button id="copy-btn">Copy</button>
+                <p id="graph-export-string">
+                    digraph G {
+                    "4" -> "3";
+                    "3" -> "5";
+                    "2" -> "5";
+                    "6" -> "2";
+                    "0" -> "1";
+                    "5" -> "4";
+                    "5" -> "1";
+                    "5" -> "0";
+                    "1" -> "5";
+                    }
+                </p>
             </div>
             <div class="right-pane-section feedback">
                 <a href="https://forms.gle/h66d1YDtgzE4MyAHA" target="_blank">Feedback</a>

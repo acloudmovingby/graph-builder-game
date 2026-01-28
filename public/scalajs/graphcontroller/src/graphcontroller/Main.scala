@@ -1,8 +1,6 @@
 package graphcontroller
 
-import graphcontroller.components.Component
-import graphcontroller.components.exportpane.ExportPane
-import graphcontroller.components.exportpane.eventlisteners.CopyButtonEventListener
+import graphcontroller.components.exportpane.eventlisteners.{CopyButtonEventListener, ExportFormatEventListener}
 
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
@@ -14,8 +12,8 @@ import graphcontroller.controller.{Controller, Initialization}
 @JSExportTopLevel("Main")
 object Main {
 	private val graphController = new GraphController()
-	
-	private val eventListeners: Seq[EventListener] = Seq(CopyButtonEventListener)
+
+	private val eventListeners: Seq[EventListener] = Seq(CopyButtonEventListener, ExportFormatEventListener)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
 	 * and we're not fetching info from the dom in the middle of our pure functions) */
@@ -28,13 +26,13 @@ object Main {
 
 	// @main here indicates to run this method on startup of the ScalaJS application
 	@main def start(): Unit = {
-		/* The following stuff is the old way of doing it in the layers architecture where everything was 
+		/* The following stuff is the old way of doing it in the layers architecture where everything was
 		* spread out and not co-located like in the new 'components' architecture */
 		MainCanvas.start()
 		AdjMatrixCanvas.start()
 		new AdjMatrixEventListeners().addEventListeners()
 		new MainCanvasEventListeners().addEventListeners()
-		
+
 		/* 'New' components architecture. Wiring up the components */
 		eventListeners.foreach { c => c.init(Controller.handleEvent) }
 

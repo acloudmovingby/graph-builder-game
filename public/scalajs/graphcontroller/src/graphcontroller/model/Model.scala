@@ -12,8 +12,7 @@ object Model {
 		val newState = event match {
 			case e: Initialization => handleInitializationEvent(e, state)
 			case e: AdjacencyMatrixEvent => handleAdjacencyMatrixEvent(e, state)
-			case CopyButtonClicked => state.copy(exportString = Some(state.graph.toDot))
-			case NoOp => state
+			case _ => state
 		}
 		newState
 	}
