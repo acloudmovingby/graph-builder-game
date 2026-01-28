@@ -11,7 +11,7 @@ case class State(
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: AdjMatrixDimensions,
-	exportedDot: Option[String] = None
+	exportString: Option[String] = None // The string that is copied from the export pane
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
