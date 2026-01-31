@@ -15,12 +15,27 @@ enum ExportFormat {
 
 object ExportPane extends Component {
 
+	// TODO: make this a def and adjust this URL to use the graph from this web app!! That would be cool
+	val graphVizURL =
+		"""
+		  |https://dreampuf.github.io/GraphvizOnline/?engine=dot#graph%20%7B%0A%20n0%20--
+		  |%20n2%20%0A%20n1%20--%20n2%20%0A%20n1%20--%20n3%20%0A%20n1%20--%20n26%20%0A%20n2%20--
+		  |%20n3%20%0A%20n4%20--%20n14%20%0A%20n5%20--%20n6%20%0A%20n5%20--%20n7%20%0A%20n5%20--
+		  |%20n8%20%0A%20n5%20--%20n9%20%0A%20n5%20--%20n10%20%0A%20n6%20--%20n7%20%0A%20n6%20--
+		  |%20n8%20%0A%20n6%20--%20n9%20%0A%20n6%20--%20n10%20%0A%20n7%20--%20n8%20%0A%20n7%20--
+		  |%20n9%20%0A%20n7%20--%20n10%20%0A%20n8%20--%20n9%20%0A%20n8%20--%20n10%20%0A%20n9%20--
+		  |%20n10%20%0A%20n11%20--%20n15%20%0A%20n11%20--%20n17%20%0A%20n12%20--%20n13%20%0A%20n13%20--
+		  |%20n14%20%0A%20n15%20--%20n16%20%0A%20n17%20--%20n18%20%0A%20n18%20--%20n19%20%0A%20n19%20--
+		  |%20n20%20%0A%20n20%20--%20n21%20%0A%20n21%20--%20n22%20%0A%20n22%20--%20n23%20%0A%20n23%20--
+		  |%20n24%20%0A%20n24%20--%20n25%20%0A%20n25%20--%20n26%20%0A%7D
+		  |""".stripMargin
+
 	import ExportFormat.*
 
 	// Needed for writing to clipboard which is done with a Future
 	implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-	private val MAX_LINES_PREVIEW = 3
+	private val MAX_LINES_PREVIEW = 30
 
 	/** Pure function that takes current state and input event and produces new state */
 	override def update(state: State, event: Event): State = {
@@ -31,7 +46,8 @@ object ExportPane extends Component {
 			case _ => (event match {
 				case ExportFormatChanged(format) =>
 					state.copy(exportFormat = format)
-				case _ => state
+				case _ =>
+					state
 			}).copy(copyToClipboard = false) // here, unset flag
 		}
 	}
@@ -39,15 +55,38 @@ object ExportPane extends Component {
 	private def generateExportString(graph: MapGraph[Int, ?], format: ExportFormat): String = {
 		format match {
 			case DOT => graph.toDot
+			case Python =>
+				val sb = new StringBuilder()
+				graph.adjMap.map { case (node, neighbors) =>
+					s"    $node: ${neighbors.mkString("[", ", ", "]")}"
+				}.mkString("{\n", ",\n", "\n}")
 			case _ => "Unimplemented"
 		}
 	}
+
+	private var _exportString: String = ""
 
 	/**
 	 * Side-effectful function that renders to dom, writes to clipboard, etc. Keep as minimal as possible
 	 * or have sub-methods that are pure functions
 	 * */
 	override def view(state: State): Unit = {
+		def updateFormatDescription(format: ExportFormat): Unit = {
+			val description = dom.document.getElementById("format-description").asInstanceOf[html.Paragraph]
+			if (description != null) {
+				val text = format match {
+					case DOT =>
+						// TODO the URL here is horrifyingly long, maybe we should put elsewhere or just go to a simpler graph on GraphViz
+						s"""
+						  |A standardized format for representing graphs, used by GraphViz and other applications.
+						  |Try pasting <a href="$graphVizURL"
+						  |target="_blank">here</a> and it will draw your graph.""".stripMargin
+					case _ => ""
+				}
+				description.innerHTML = text
+			}
+		}
+
 		def writeToClipboard(text: String): Unit = {
 			dom.window.navigator.clipboard.writeText(text).recover {
 				// TODO, later once I start using Try or an effect type at top-level we can hrow exception here or return effect
@@ -69,11 +108,17 @@ object ExportPane extends Component {
 		val exportString = generateExportString(state.graph, state.exportFormat)
 		if (state.copyToClipboard) writeToClipboard(exportString)
 
+		if (exportString != _exportString) {
+			println(s"preview text:\n$exportString")
+			_exportString = exportString
+		}
+
 		// TODO profile this and if it's an issue, then we can cache/memoize it,
 		// if re-rendering the dom is the expensive part, we can perhaps simply cache it with some local state here, and compare the Strings
 		// to decide if we want to re-render to the dom.
 		// if calculating the export string is the expensive part, then we'll use a flag in state to indicate when graph has changed.
 		renderPreview(exportString)
+		updateFormatDescription(state.exportFormat)
 	}
 }
 

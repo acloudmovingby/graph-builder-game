@@ -129,7 +129,7 @@ body {
 }
 
 p, a,
-#adjacency-list {
+#adjacency-list, pre {
   font-size: 0.82rem;
 }
 
@@ -343,5 +343,16 @@ p, a,
 }
 
 #copy-btn {
-  display: inline;
+  /*display: inline;*/
+    position: relative;
+    right: 0px;
+}
+
+#graph-export-string {
+    background-color: #f0f0f0;
+    padding: 0.5rem;
+    font-family: "Courier New", Courier, monospace;
+    border-color: lightgray;
+    border-style: solid;
+    min-height: 400px;
 }

@@ -36,6 +36,6 @@ object Controller {
 		}
 
 		// Update the application state
-		state = newState
+		state = newStateFromComponents
 	}
 }

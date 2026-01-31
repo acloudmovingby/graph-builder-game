@@ -90,9 +90,6 @@ class GraphController {
 	def canUndo(): Boolean = Controller.state.undoStack.nonEmpty
 
 	@JSExport
-	def getDot: String = state.graph.toDot
-
-	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = state.graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
 	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
