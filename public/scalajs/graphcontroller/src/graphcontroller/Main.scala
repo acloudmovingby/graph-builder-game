@@ -1,6 +1,6 @@
 package graphcontroller
 
-import graphcontroller.components.exportpane.eventlisteners.{CopyButtonEventListener, ExportFormatEventListener}
+import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
@@ -13,7 +13,7 @@ import graphcontroller.controller.{Controller, Initialization}
 object Main {
 	private val graphController = new GraphController()
 
-	private val eventListeners: Seq[EventListener] = Seq(CopyButtonEventListener, ExportFormatEventListener)
+	private val eventListeners: Seq[EventListener] = Seq(ExportPaneEventListeners)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
 	 * and we're not fetching info from the dom in the middle of our pure functions) */

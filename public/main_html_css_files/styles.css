@@ -129,7 +129,7 @@ body {
 }
 
 p, a,
-#adjacency-list, pre {
+#adjacency-list, pre, label {
   font-size: 0.82rem;
 }
 
@@ -346,6 +346,10 @@ p, a,
   /*display: inline;*/
     position: relative;
     right: 0px;
+}
+
+#matrix-or-list-selection-div {
+    padding: 1rem 0rem;
 }
 
 #graph-export-string {

@@ -64,12 +64,6 @@ object ExportPane extends Component {
 		}
 	}
 
-	private var _exportString: String = ""
-
-	/**
-	 * Side-effectful function that renders to dom, writes to clipboard, etc. Keep as minimal as possible
-	 * or have sub-methods that are pure functions
-	 * */
 	override def view(state: State): Unit = {
 		def updateFormatDescription(format: ExportFormat): Unit = {
 			val description = dom.document.getElementById("format-description").asInstanceOf[html.Paragraph]
@@ -84,6 +78,16 @@ object ExportPane extends Component {
 					case _ => ""
 				}
 				description.innerHTML = text
+			}
+		}
+
+		def updateSelectionOptions(format: ExportFormat): Unit = {
+			val div = Option(dom.document.getElementById("matrix-or-list-selection-div").asInstanceOf[html.Div])
+
+			// For export options besides DOT, be able to choose between adjacency list or adjacency matrix
+			format match {
+				case DOT => div.foreach { _.style.display = "none" }
+				case _ => div.foreach { _.style.display = "block" }
 			}
 		}
 
@@ -108,17 +112,13 @@ object ExportPane extends Component {
 		val exportString = generateExportString(state.graph, state.exportFormat)
 		if (state.copyToClipboard) writeToClipboard(exportString)
 
-		if (exportString != _exportString) {
-			println(s"preview text:\n$exportString")
-			_exportString = exportString
-		}
-
 		// TODO profile this and if it's an issue, then we can cache/memoize it,
 		// if re-rendering the dom is the expensive part, we can perhaps simply cache it with some local state here, and compare the Strings
 		// to decide if we want to re-render to the dom.
 		// if calculating the export string is the expensive part, then we'll use a flag in state to indicate when graph has changed.
 		renderPreview(exportString)
 		updateFormatDescription(state.exportFormat)
+		updateSelectionOptions(state.exportFormat)
 	}
 }
 

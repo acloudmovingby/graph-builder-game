@@ -6,8 +6,20 @@ import graphcontroller.controller.{CopyButtonClicked, Event, ExportFormatChanged
 import graphcontroller.controller.eventlisteners.EventListener
 import org.scalajs.dom.html.Select
 
-object ExportFormatEventListener extends EventListener {
+object ExportPaneEventListeners extends EventListener {
 	override def init(dispatch: Event => Unit): Unit = {
+		copyButtonListener(dispatch)
+		formatSelectionEventListener(dispatch)
+	}
+
+	private def copyButtonListener(dispatch: Event => Unit): Unit = {
+		val btn = dom.document.getElementById("copy-btn")
+		if (btn != null) {
+			btn.addEventListener("click", (_: dom.Event) => dispatch(CopyButtonClicked))
+		}
+	}
+
+	private def formatSelectionEventListener(dispatch: Event => Unit): Unit = {
 		val select = dom.document.getElementById("export-format-select").asInstanceOf[Select]
 		if (select != null) {
 			select.addEventListener("change", (_: dom.Event) => {
