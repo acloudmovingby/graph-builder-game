@@ -66,6 +66,7 @@ object ExportPane extends Component {
 						   |Try pasting <a href="$graphVizURL"
 						   |target="_blank">here</a> and it will draw your graph.""".stripMargin
 					case Java => "A HashMap for an adjacency list or a 2D array for an adjacency matrix."
+					case JSON => "Note: JSON requires keys to be quoted, so we'll quote all indices when exporting as adjacency list (for consistency)."
 					case _ => ""
 				}
 				description.innerHTML = text
