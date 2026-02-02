@@ -36,7 +36,6 @@ object Main {
 		/* 'New' components architecture. Wiring up the components */
 		eventListeners.foreach { c => c.init(Controller.handleEvent) }
 
-		println("GraphController ScalaJS application started.")
 		Controller.handleEvent(initializationEvent)
 	}
 

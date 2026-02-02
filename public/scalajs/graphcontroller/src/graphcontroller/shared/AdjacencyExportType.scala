@@ -3,7 +3,7 @@ package graphcontroller.shared
 sealed trait AdjacencyExportType
 
 /**
- * For several export formats (e.g. Python), this is the choice of whether to repreesent the graph
+ * For several export formats (e.g. Python), this is the choice of whether to represent the graph
  * as an adjacency matrix, adjacency list, etc.
  * */
 object AdjacencyExportType {

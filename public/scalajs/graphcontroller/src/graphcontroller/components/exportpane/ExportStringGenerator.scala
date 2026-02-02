@@ -31,8 +31,10 @@ object ExportStringGenerator {
 							matrix(i)(j) = 1
 						}
 						// Output as Python 2D list
-						val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
-						s"[\n  $rows\n]"
+						if (matrix.nonEmpty) {
+							val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
+							s"[\n  $rows\n]"
+						} else "[]"
 				}
 			case Java =>
 				adjType match {
@@ -40,7 +42,8 @@ object ExportStringGenerator {
 						val entries = graph.adjMap.map { case (node, neighbors) =>
 							s"    put($node, Arrays.asList(${neighbors.mkString(", ")}));"
 						}.mkString("\n")
-						s"new HashMap<Integer, List<Integer>>() {{\n$entries\n}};"
+						if (entries.nonEmpty) s"new HashMap<Integer, List<Integer>>() {{\n$entries\n}};"
+						else s"new HashMap<Integer, List<Integer>>() {{}};"
 					case AdjacencyExportType.Matrix =>
 						val nodes = graph.adjMap.keys.toList.sorted
 						val nodeIdx = nodes.zipWithIndex.toMap
@@ -52,7 +55,8 @@ object ExportStringGenerator {
 							matrix(i)(j) = 1
 						}
 						val rows = matrix.map(row => row.mkString("{", ", ", "}")).mkString(",\n  ")
-						s"new int[][] {\n  $rows\n};"
+						if (rows.nonEmpty) s"new int[][] {\n  $rows\n};"
+						else "new int[][] {};"
 				}
 			case _ => "Unimplemented"
 		}

@@ -18,7 +18,6 @@ object Model {
 	}
 
 	private def handleInitializationEvent(event: Initialization, state: State): State = {
-		println("initializing model with adj matrix dimensions: " + event.adjMatrixWidth + "x" + event.adjMatrixHeight)
 		state.copy(adjMatrixDimensions = AdjMatrixDimensions(event.adjMatrixWidth, event.adjMatrixHeight, event.padding, event.numberPadding))
 	}
 
