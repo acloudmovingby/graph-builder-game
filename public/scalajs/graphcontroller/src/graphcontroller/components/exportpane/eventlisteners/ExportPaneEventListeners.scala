@@ -4,7 +4,7 @@ import graphcontroller.components.exportpane.ExportFormat.*
 import org.scalajs.dom
 import graphcontroller.controller.{ExportAdjacencyTypeChanged, CopyButtonClicked, Event, ExportFormatChanged}
 import graphcontroller.controller.eventlisteners.EventListener
-import graphcontroller.shared.AdjacencyExportType
+import graphcontroller.shared.GraphRepresentation
 import org.scalajs.dom.html.Select
 
 object ExportPaneEventListeners extends EventListener {
@@ -46,14 +46,14 @@ object ExportPaneEventListeners extends EventListener {
 		if (listOption != null) {
 			listOption.addEventListener("change", (_: dom.Event) => {
 				if (listOption.asInstanceOf[dom.html.Input].checked) {
-					dispatch(ExportAdjacencyTypeChanged(AdjacencyExportType.List))
+					dispatch(ExportAdjacencyTypeChanged(GraphRepresentation.List))
 				}
 			})
 		}
 		if (matrixOption != null) {
 			matrixOption.addEventListener("change", (_: dom.Event) => {
 				if (matrixOption.asInstanceOf[dom.html.Input].checked) {
-					dispatch(ExportAdjacencyTypeChanged(AdjacencyExportType.Matrix))
+					dispatch(ExportAdjacencyTypeChanged(GraphRepresentation.Matrix))
 				}
 			})
 		}

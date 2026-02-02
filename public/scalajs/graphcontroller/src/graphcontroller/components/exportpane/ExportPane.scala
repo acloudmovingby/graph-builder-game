@@ -7,7 +7,7 @@ import org.scalajs.dom.html
 import graphcontroller.components.Component
 import graphcontroller.controller.{CopyButtonClicked, Event, ExportFormatChanged, ExportAdjacencyTypeChanged}
 import graphcontroller.model.State
-import graphcontroller.shared.AdjacencyExportType
+import graphcontroller.shared.GraphRepresentation
 import graphi.MapGraph
 
 enum ExportFormat {
@@ -17,6 +17,7 @@ enum ExportFormat {
 object ExportPane extends Component {
 
 	// TODO: make this a def and adjust this URL to use the graph from this web app!! That would be cool
+	// Also, maybe just make a simpler graph so the URL is less long
 	val graphVizURL =
 		"""
 		  |https://dreampuf.github.io/GraphvizOnline/?engine=dot#graph%20%7B%0A%20n0%20--
@@ -60,13 +61,11 @@ object ExportPane extends Component {
 			if (description != null) {
 				val text = format match {
 					case DOT =>
-						// TODO the URL here is horrifyingly long, maybe we should put elsewhere or just go to a simpler graph on GraphViz
 						s"""
 						   |A standardized format for representing graphs, used by GraphViz and other applications.
-						   |Try pasting <a href="$graphVizURL"
-						   |target="_blank">here</a> and it will draw your graph.""".stripMargin
+						   |Try pasting <a href="$graphVizURL" target="_blank">here</a>.""".stripMargin
 					case Java => "A HashMap for an adjacency list or a 2D array for an adjacency matrix."
-					case JSON => "Note: JSON requires keys to be quoted, so we'll quote all indices when exporting as adjacency list (for consistency)."
+					case JSON => "Note: JSON requires keys to be quoted, so all node indices will be quoted when exporting an adjacency list."
 					case _ => ""
 				}
 				description.innerHTML = text
@@ -74,17 +73,21 @@ object ExportPane extends Component {
 		}
 
 		def updateSelectionOptions(format: ExportFormat): Unit = {
-			val div = Option(dom.document.getElementById("matrix-or-list-selection-div").asInstanceOf[html.Div])
+			// making this a def in here, because I imagine in the future I'll add more options
+			def listOrMatrix(): Unit = {
+				val show: Boolean = format match {
+					case Python | Java | Scala | JSON => true
+					case DOT => false
+				}
 
-			// For export options besides DOT, be able to choose between adjacency list or adjacency matrix
-			format match {
-				case DOT => div.foreach {
-					_.style.display = "none"
-				}
-				case _ => div.foreach {
-					_.style.display = "block"
-				}
+				Option(dom.document.getElementById("matrix-or-list-selection-div").asInstanceOf[html.Div])
+					.foreach { div =>
+						div.style.display = if (show) "block" else "none"
+					}
+
 			}
+
+			listOrMatrix()
 		}
 
 		def writeToClipboard(text: String): Unit = {
@@ -99,7 +102,7 @@ object ExportPane extends Component {
 			if (previewElement != null) {
 				val lines = text.linesIterator.toSeq
 				val trimmed = if (lines.length > MAX_LINES_PREVIEW) {
-					(lines.take(MAX_LINES_PREVIEW) :+ "  ...").mkString("\n")
+					(lines.take(MAX_LINES_PREVIEW) :+ s"${ExportStringGenerator.INDENT}...").mkString("\n")
 				} else text
 				previewElement.innerHTML = ExportStringGenerator.escapeHtml(trimmed)
 			}

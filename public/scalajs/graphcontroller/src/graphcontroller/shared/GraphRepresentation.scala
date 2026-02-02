@@ -1,12 +1,12 @@
 package graphcontroller.shared
 
-sealed trait AdjacencyExportType
+sealed trait GraphRepresentation
 
 /**
  * For several export formats (e.g. Python), this is the choice of whether to represent the graph
  * as an adjacency matrix, adjacency list, etc.
  * */
-object AdjacencyExportType {
-	case object List extends AdjacencyExportType
-	case object Matrix extends AdjacencyExportType
+object GraphRepresentation {
+	case object List extends GraphRepresentation
+	case object Matrix extends GraphRepresentation
 }
