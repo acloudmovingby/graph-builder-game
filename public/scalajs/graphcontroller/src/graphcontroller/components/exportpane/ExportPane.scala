@@ -36,7 +36,7 @@ object ExportPane extends Component {
 	// Needed for writing to clipboard which is done with a Future
 	implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-	private val MAX_LINES_PREVIEW = 30
+	private val MAX_LINES_PREVIEW = 20
 
 	/** Pure function that takes current state and input event and produces new state */
 	override def update(state: State, event: Event): State = {
@@ -98,9 +98,9 @@ object ExportPane extends Component {
 			if (previewElement != null) {
 				val lines = text.linesIterator.toSeq
 				val trimmed = if (lines.length > MAX_LINES_PREVIEW) {
-					(lines.take(MAX_LINES_PREVIEW) :+ "...").mkString("\n")
+					(lines.take(MAX_LINES_PREVIEW) :+ "  ...").mkString("\n")
 				} else text
-				previewElement.innerHTML = trimmed
+				previewElement.innerHTML = ExportStringGenerator.escapeHtml(trimmed)
 			}
 		}
 

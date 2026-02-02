@@ -359,4 +359,6 @@ p, a,
     border-color: lightgray;
     border-style: solid;
     min-height: 400px;
+    overflow-x: auto;
+    overflow-y: auto;
 }

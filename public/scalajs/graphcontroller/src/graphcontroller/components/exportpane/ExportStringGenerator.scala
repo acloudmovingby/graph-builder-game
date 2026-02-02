@@ -16,9 +16,10 @@ object ExportStringGenerator {
 			case Python =>
 				adjType match {
 					case AdjacencyExportType.List =>
-						graph.adjMap.map { case (node, neighbors) =>
-							s"    $node: ${neighbors.mkString("[", ", ", "]")}"
-						}.mkString("{\n", ",\n", "\n}")
+						val entries = graph.adjMap.map { case (node, neighbors) =>
+							s"  $node: ${neighbors.mkString("[", ", ", "]")}"
+						}.toSeq
+						if (entries.nonEmpty) entries.mkString("{\n", ",\n", "\n}") else "{}"
 					case AdjacencyExportType.Matrix =>
 						// Get sorted node list for consistent matrix
 						val nodes = graph.adjMap.keys.toList.sorted
@@ -60,5 +61,14 @@ object ExportStringGenerator {
 				}
 			case _ => "Unimplemented"
 		}
+	}
+
+	def escapeHtml(input: String): String = {
+		input
+			.replace("&", "&amp;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;")
+			.replace("\"", "&quot;")
+			.replace("'", "&apos;")
 	}
 }
