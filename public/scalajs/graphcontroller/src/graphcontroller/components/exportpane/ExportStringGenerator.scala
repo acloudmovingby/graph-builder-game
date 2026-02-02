@@ -5,8 +5,12 @@ import graphcontroller.shared.AdjacencyExportType
 import ExportFormat.*
 import graphcontroller.shared.AdjacencyExportType.Matrix
 
+import scala.collection.immutable.ArraySeq
+
 
 object ExportStringGenerator {
+	private val INDENT = "    " // TODO make this an option to the user (2 space, 4 spaces, tab, etc.)
+
 	def generate(
 		graph: MapGraph[Int, ?],
 		format: ExportFormat,
@@ -18,7 +22,7 @@ object ExportStringGenerator {
 				adjType match {
 					case AdjacencyExportType.List =>
 						val entries = graph.adjMap.map { case (node, neighbors) =>
-							s"  $node: ${neighbors.mkString("[", ", ", "]")}"
+							s"$INDENT$node: ${neighbors.mkString("[", ", ", "]")}"
 						}.toSeq
 						if (entries.nonEmpty) entries.mkString("{\n", ",\n", "\n}") else "{}"
 					case AdjacencyExportType.Matrix =>
@@ -34,15 +38,15 @@ object ExportStringGenerator {
 						}
 						// Output as Python 2D list
 						if (matrix.nonEmpty) {
-							val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
-							s"[\n  $rows\n]"
+							val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(s",\n$INDENT")
+							s"[\n$INDENT$rows\n]"
 						} else "[]"
 				}
 			case Java =>
 				adjType match {
 					case AdjacencyExportType.List =>
 						val entries = graph.adjMap.map { case (node, neighbors) =>
-							s"    put($node, Arrays.asList(${neighbors.mkString(", ")}));"
+							s"${INDENT}put($node, Arrays.asList(${neighbors.mkString(", ")}));"
 						}.mkString("\n")
 						if (entries.nonEmpty) s"new HashMap<Integer, List<Integer>>() {{\n$entries\n}};"
 						else s"new HashMap<Integer, List<Integer>>() {{}};"
@@ -56,8 +60,8 @@ object ExportStringGenerator {
 							val j = nodeIdx(to)
 							matrix(i)(j) = 1
 						}
-						val rows = matrix.map(row => row.mkString("{", ", ", "}")).mkString(",\n  ")
-						if (rows.nonEmpty) s"new int[][] {\n  $rows\n};"
+						val rows = matrix.map(row => row.mkString("{", ", ", "}")).mkString(s",\n$INDENT")
+						if (rows.nonEmpty) s"new int[][] {\n$INDENT$rows\n};"
 						else "new int[][] {};"
 				}
 			case JSON =>
@@ -66,7 +70,7 @@ object ExportStringGenerator {
 						// very similar to the Python implementation, but we have to quote keys. To make it consistent, also
 						// quoting the nodes in the values, though later we can make that a user-selectable option
 						val entries = graph.adjMap.map { case (node, neighbors) =>
-							s"""  "$node": ${neighbors.map(n => s"\"$n\"").mkString("[", ", ", "]")}"""
+							s"""$INDENT"$node": ${neighbors.map(n => s"\"$n\"").mkString("[", ", ", "]")}"""
 						}.toSeq
 						if (entries.nonEmpty) entries.mkString("{\n", ",\n", "\n}") else "{}"
 					case AdjacencyExportType.Matrix =>
@@ -82,11 +86,30 @@ object ExportStringGenerator {
 						}
 						// Output as Python 2D list
 						if (matrix.nonEmpty) {
-							val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
-							s"[\n  $rows\n]"
+							val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(s",\n$INDENT")
+							s"[\n$INDENT$rows\n]"
 						} else "[]"
 				}
-			case _ => "Unimplemented"
+			case Scala =>
+				adjType match {
+					case AdjacencyExportType.List => graph.adjMap.toString()
+					case AdjacencyExportType.Matrix =>
+						// Get sorted node list for consistent matrix
+						val nodes = graph.adjMap.keys.toList.sorted
+						val nodeIdx = nodes.zipWithIndex.toMap
+						val size = nodes.size
+						val matrix = Array.fill(size, size)(0)
+						for ((from, neighbors) <- graph.adjMap; to <- neighbors) {
+							val i = nodeIdx(from)
+							val j = nodeIdx(to)
+							matrix(i)(j) = 1
+						}
+						// Output as Python 2D list
+						if (matrix.nonEmpty) {
+							val rows = matrix.map(row => row.mkString("Vector(", ", ", ")")).mkString(s",\n$INDENT")
+							s"Vector(\n$INDENT$rows\n)"
+						} else "Vector()"
+				}
 		}
 	}
 

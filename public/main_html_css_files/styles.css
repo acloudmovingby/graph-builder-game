@@ -358,7 +358,6 @@ p, a,
     border-color: lightgray;
     border-style: solid;
     position: relative;
-    min-height: 400px;
 }
 
 #graph-export-string {
@@ -366,4 +365,5 @@ p, a,
     font-family: "Courier New", Courier, monospace;
     overflow-x: auto;
     overflow-y: auto;
+    min-height: 400px;
 }
