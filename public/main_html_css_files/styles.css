@@ -343,9 +343,45 @@ p, a,
 }
 
 #copy-btn {
+    /* 1. Use Flexbox to kill the phantom text space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Positioning and sizing */
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 11px;
+    right: 11px;
+    padding: 9px; /* This controls the clickable area/highlight size around the icon */
+
+    /* Aesthetics */
+    background-color: #f0f0f0;
+    border-radius: 6px; /* makes the highlight rounded */
+    border: none; /* Removes the default ugly browser button border */
+    cursor: pointer;
+    transition: background-color 0.2s; /* Smooth transition for hover */
+}
+
+#copy-btn:hover {
+    background-color: #e0e0e0; /* Light gray highlight on hover */
+}
+
+#copy-icon {
+    width: 20px;
+    height: 20px;
+
+    margin: 0;
+    pointer-events: none; /* Ensures clicks register on the button, not the SVG path */
+}
+
+#copy-icon path {
+    fill: gray;
+    transition: fill 0.2s; /* Smooth color change */
+}
+
+/* Hover state: Make the icon blue when the *button* is hovered */
+#copy-btn:hover #copy-icon path {
+    fill: #007bff;
 }
 
 #matrix-or-list-selection-div {
@@ -354,7 +390,7 @@ p, a,
 
 #export-preview-area {
     background-color: #f0f0f0;
-    padding: 0.5rem;
+    padding: 15px 18px;
     border-color: lightgray;
     border-style: solid;
     position: relative;
