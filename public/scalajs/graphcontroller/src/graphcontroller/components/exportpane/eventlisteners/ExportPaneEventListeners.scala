@@ -2,14 +2,16 @@ package graphcontroller.components.exportpane.eventlisteners
 
 import graphcontroller.components.exportpane.ExportFormat.*
 import org.scalajs.dom
-import graphcontroller.controller.{CopyButtonClicked, Event, ExportFormatChanged}
+import graphcontroller.controller.{ExportAdjacencyTypeChanged, CopyButtonClicked, Event, ExportFormatChanged}
 import graphcontroller.controller.eventlisteners.EventListener
+import graphcontroller.shared.AdjacencyExportType
 import org.scalajs.dom.html.Select
 
 object ExportPaneEventListeners extends EventListener {
 	override def init(dispatch: Event => Unit): Unit = {
 		copyButtonListener(dispatch)
 		formatSelectionEventListener(dispatch)
+		adjacencyTypeRadioListener(dispatch)
 	}
 
 	private def copyButtonListener(dispatch: Event => Unit): Unit = {
@@ -33,6 +35,25 @@ object ExportPaneEventListeners extends EventListener {
 						DOT
 				}
 				dispatch(ExportFormatChanged(format))
+			})
+		}
+	}
+
+	private def adjacencyTypeRadioListener(dispatch: Event => Unit): Unit = {
+		val listOption = dom.document.getElementById("list-option")
+		val matrixOption = dom.document.getElementById("matrix-option")
+		if (listOption != null) {
+			listOption.addEventListener("change", (_: dom.Event) => {
+				if (listOption.asInstanceOf[dom.html.Input].checked) {
+					dispatch(ExportAdjacencyTypeChanged(AdjacencyExportType.List))
+				}
+			})
+		}
+		if (matrixOption != null) {
+			matrixOption.addEventListener("change", (_: dom.Event) => {
+				if (matrixOption.asInstanceOf[dom.html.Input].checked) {
+					dispatch(ExportAdjacencyTypeChanged(AdjacencyExportType.Matrix))
+				}
 			})
 		}
 	}

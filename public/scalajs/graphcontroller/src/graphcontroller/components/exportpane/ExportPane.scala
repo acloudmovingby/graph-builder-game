@@ -5,8 +5,9 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 
 import graphcontroller.components.Component
-import graphcontroller.controller.{CopyButtonClicked, Event, ExportFormatChanged}
+import graphcontroller.controller.{CopyButtonClicked, Event, ExportFormatChanged, ExportAdjacencyTypeChanged}
 import graphcontroller.model.State
+import graphcontroller.shared.AdjacencyExportType
 import graphi.MapGraph
 
 enum ExportFormat {
@@ -42,24 +43,41 @@ object ExportPane extends Component {
 		event match {
 			// if copy button clicked, copy to clipboard
 			case CopyButtonClicked => state.copy(copyToClipboard = true)
+			// handle export format change
+			case ExportFormatChanged(format) =>
+				state.copy(exportFormat = format, copyToClipboard = false)
+			// handle adjacency type change
+			case ExportAdjacencyTypeChanged(adjType) =>
+				state.copy(adjacencyExportType = adjType, copyToClipboard = false)
 			// for all other events, unset that flag (so we don't keep copying to clipboard on every event
-			case _ => (event match {
-				case ExportFormatChanged(format) =>
-					state.copy(exportFormat = format)
-				case _ =>
-					state
-			}).copy(copyToClipboard = false) // here, unset flag
+			case _ => state.copy(copyToClipboard = false)
 		}
 	}
 
-	private def generateExportString(graph: MapGraph[Int, ?], format: ExportFormat): String = {
+	private def generateExportString(graph: MapGraph[Int, ?], format: ExportFormat, adjType: AdjacencyExportType): String = {
 		format match {
 			case DOT => graph.toDot
 			case Python =>
-				val sb = new StringBuilder()
-				graph.adjMap.map { case (node, neighbors) =>
-					s"    $node: ${neighbors.mkString("[", ", ", "]")}"
-				}.mkString("{\n", ",\n", "\n}")
+				adjType match {
+					case AdjacencyExportType.List =>
+						graph.adjMap.map { case (node, neighbors) =>
+							s"    $node: ${neighbors.mkString("[", ", ", "]")}"
+						}.mkString("{\n", ",\n", "\n}")
+					case AdjacencyExportType.Matrix =>
+						// Get sorted node list for consistent matrix
+						val nodes = graph.adjMap.keys.toList.sorted
+						val nodeIdx = nodes.zipWithIndex.toMap
+						val size = nodes.size
+						val matrix = Array.fill(size, size)(0)
+						for ((from, neighbors) <- graph.adjMap; to <- neighbors) {
+							val i = nodeIdx(from)
+							val j = nodeIdx(to)
+							matrix(i)(j) = 1
+						}
+						// Output as Python 2D list
+						val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
+						s"[\n  $rows\n]"
+				}
 			case _ => "Unimplemented"
 		}
 	}
@@ -109,7 +127,7 @@ object ExportPane extends Component {
 			}
 		}
 
-		val exportString = generateExportString(state.graph, state.exportFormat)
+		val exportString = generateExportString(state.graph, state.exportFormat, state.adjacencyExportType)
 		if (state.copyToClipboard) writeToClipboard(exportString)
 
 		// TODO profile this and if it's an issue, then we can cache/memoize it,
@@ -121,5 +139,3 @@ object ExportPane extends Component {
 		updateSelectionOptions(state.exportFormat)
 	}
 }
-
-
