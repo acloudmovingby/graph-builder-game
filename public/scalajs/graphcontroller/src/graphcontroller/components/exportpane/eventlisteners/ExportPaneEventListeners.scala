@@ -30,6 +30,7 @@ object ExportPaneEventListeners extends EventListener {
 					case "json" => JSON
 					case "python" => Python
 					case "scala" => Scala
+					case "java" => Java
 					case other =>
 						println(s"Unexpected format choice, defaulting to DOT: $other")
 						DOT

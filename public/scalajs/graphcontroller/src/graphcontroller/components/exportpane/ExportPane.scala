@@ -11,7 +11,7 @@ import graphcontroller.shared.AdjacencyExportType
 import graphi.MapGraph
 
 enum ExportFormat {
-	case DOT, JSON, Python, Scala
+	case DOT, JSON, Python, Scala, Java
 }
 
 object ExportPane extends Component {
@@ -54,34 +54,6 @@ object ExportPane extends Component {
 		}
 	}
 
-	private def generateExportString(graph: MapGraph[Int, ?], format: ExportFormat, adjType: AdjacencyExportType): String = {
-		format match {
-			case DOT => graph.toDot
-			case Python =>
-				adjType match {
-					case AdjacencyExportType.List =>
-						graph.adjMap.map { case (node, neighbors) =>
-							s"    $node: ${neighbors.mkString("[", ", ", "]")}"
-						}.mkString("{\n", ",\n", "\n}")
-					case AdjacencyExportType.Matrix =>
-						// Get sorted node list for consistent matrix
-						val nodes = graph.adjMap.keys.toList.sorted
-						val nodeIdx = nodes.zipWithIndex.toMap
-						val size = nodes.size
-						val matrix = Array.fill(size, size)(0)
-						for ((from, neighbors) <- graph.adjMap; to <- neighbors) {
-							val i = nodeIdx(from)
-							val j = nodeIdx(to)
-							matrix(i)(j) = 1
-						}
-						// Output as Python 2D list
-						val rows = matrix.map(row => row.mkString("[", ", ", "]")).mkString(",\n  ")
-						s"[\n  $rows\n]"
-				}
-			case _ => "Unimplemented"
-		}
-	}
-
 	override def view(state: State): Unit = {
 		def updateFormatDescription(format: ExportFormat): Unit = {
 			val description = dom.document.getElementById("format-description").asInstanceOf[html.Paragraph]
@@ -90,9 +62,10 @@ object ExportPane extends Component {
 					case DOT =>
 						// TODO the URL here is horrifyingly long, maybe we should put elsewhere or just go to a simpler graph on GraphViz
 						s"""
-						  |A standardized format for representing graphs, used by GraphViz and other applications.
-						  |Try pasting <a href="$graphVizURL"
-						  |target="_blank">here</a> and it will draw your graph.""".stripMargin
+						   |A standardized format for representing graphs, used by GraphViz and other applications.
+						   |Try pasting <a href="$graphVizURL"
+						   |target="_blank">here</a> and it will draw your graph.""".stripMargin
+					case Java => "A HashMap for an adjacency list or a 2D array for an adjacency matrix."
 					case _ => ""
 				}
 				description.innerHTML = text
@@ -104,8 +77,12 @@ object ExportPane extends Component {
 
 			// For export options besides DOT, be able to choose between adjacency list or adjacency matrix
 			format match {
-				case DOT => div.foreach { _.style.display = "none" }
-				case _ => div.foreach { _.style.display = "block" }
+				case DOT => div.foreach {
+					_.style.display = "none"
+				}
+				case _ => div.foreach {
+					_.style.display = "block"
+				}
 			}
 		}
 
@@ -127,7 +104,7 @@ object ExportPane extends Component {
 			}
 		}
 
-		val exportString = generateExportString(state.graph, state.exportFormat, state.adjacencyExportType)
+		val exportString = ExportStringGenerator.generate(state.graph, state.exportFormat, state.adjacencyExportType)
 		if (state.copyToClipboard) writeToClipboard(exportString)
 
 		// TODO profile this and if it's an issue, then we can cache/memoize it,
