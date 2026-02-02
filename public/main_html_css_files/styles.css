@@ -407,7 +407,7 @@ p, a,
 }
 
 #copy-btn:hover {
-    background-color: #e0e0e0; /* Light gray highlight on hover */
+    background-color: #e0e0e0;
 }
 
 #copy-icon {
@@ -426,6 +426,12 @@ p, a,
 /* Hover state: Make the icon blue when the *button* is hovered */
 #copy-btn:hover #copy-icon path {
     fill: #007bff;
+}
+
+/* While the mouse is held down */
+#copy-btn:active {
+    background-color: #ffffff; /* Bright white (lighter than the gray) */
+    transition: background-color 0.2s; /* Make the "on click" transition very fast */
 }
 
 #matrix-or-list-selection-div {
