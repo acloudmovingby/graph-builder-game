@@ -1,13 +1,11 @@
-package graphcontroller.controller.eventlisteners
+package graphcontroller.components.adjacencymatrix.eventlisteners
 
+import graphcontroller.components.CanvasEventListeners
+import graphcontroller.controller.*
 import org.scalajs.dom
 import org.scalajs.dom.html
 
-import graphcontroller.controller.{
-	AdjMatrixMouseDown, AdjMatrixMouseMove, AdjMatrixMouseUp, AdjMatrixMouseLeave, Controller, Event, NoOp
-}
-
-class AdjMatrixEventListeners extends CanvasEventListeners {
+object AdjMatrixEventListeners extends CanvasEventListeners {
 	protected val elementId: String = "adj-matrix"
 
 	def mouseMove(e: dom.MouseEvent): Event = {

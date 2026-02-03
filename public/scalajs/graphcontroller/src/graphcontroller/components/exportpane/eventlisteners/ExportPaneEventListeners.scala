@@ -1,9 +1,9 @@
 package graphcontroller.components.exportpane.eventlisteners
 
+import graphcontroller.components.EventListener
 import graphcontroller.components.exportpane.ExportFormat.*
 import org.scalajs.dom
 import graphcontroller.controller.{ExportAdjacencyTypeChanged, CopyButtonClicked, Event, ExportFormatChanged}
-import graphcontroller.controller.eventlisteners.EventListener
 import graphcontroller.shared.GraphRepresentation
 import org.scalajs.dom.html.Select
 
