@@ -48,16 +48,24 @@ body {
     text-align: start;
     font: 1em "Arial";
     color: #909090;
-    top: 23px;
-    left: 35px;
+    top: 15px;
+    left: 23px;
     position: absolute;
     margin: 0;
+    padding: 12px;
     cursor: inherit; /* Indicates that this button is disabled */
     z-index: 3;
+    border-radius: 6px
 }
 
 #clear-btn:hover {
-    color: black;
+    color: #32BFE3;
+    background-color: #e0e0e0;
+}
+
+#clear-btn:active {
+    background-color: #ffffff; /* Bright white (lighter than the gray) */
+    transition: background-color 0.2s; /* Make the "on click" transition very fast */
 }
 
 #canvas-area {
@@ -425,7 +433,7 @@ p, a,
 
 /* Hover state: Make the icon blue when the *button* is hovered */
 #copy-btn:hover #copy-icon path {
-    fill: #007bff;
+    fill: #32BFE3; /*#007bff; */
 }
 
 /* While the mouse is held down */
