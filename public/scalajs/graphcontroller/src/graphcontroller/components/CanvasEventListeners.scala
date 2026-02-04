@@ -3,13 +3,14 @@ package graphcontroller.components
 import graphcontroller.controller.{Controller, Event}
 import org.scalajs.dom
 import org.scalajs.dom.html
+import org.scalajs.dom.html.Canvas
 
 trait CanvasEventListeners extends EventListener {
 	protected val elementId: String
 
-	protected def canvasElement = dom.document.getElementById(elementId).asInstanceOf[html.Canvas]
+	protected def canvasElement: Canvas = dom.document.getElementById(elementId).asInstanceOf[html.Canvas]
 
-	protected val scale = dom.window.devicePixelRatio
+	protected def scale = dom.window.devicePixelRatio
 
 	// Calculate the x y coordinates relative to the bounding box of the canvas element
 	protected def relativeCoordinates(e: dom.MouseEvent): (Int, Int) = {
