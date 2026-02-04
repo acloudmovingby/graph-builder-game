@@ -350,6 +350,10 @@ p, a,
   text-decoration: none;
 }
 
+/*
+ Uh, AI came up with all of this and it appears to work. I don't totally understand it though haha. It also seemed to generate
+an SVG all on its own, but I don't fully understand what it is. But whatever, what could go wrong? :p
+*/
 #export-format-select {
     /* 1. Reset default browser styles */
     appearance: none;
@@ -382,12 +386,12 @@ p, a,
     transition: border-color 0.2s;
 }
 
-/* Hover State */
+/* Hover State (for when I'm hovering over the format dropdown thing) */
 #export-format-select:hover {
     border-color: #888;
 }
 
-/* Focus State - Uses your app's highlight blue */
+/* Focus State (when the dropdown thing is in focus. I don't think it's necessary but AI added it) */
 #export-format-select:focus {
     outline: none;
     border-color: #32BFE3;
@@ -448,10 +452,11 @@ p, a,
 
 #export-preview-area {
     background-color: #f0f0f0;
+    /* Looks nicer when there's space around the code text. For some reason I like it better when it's a bit closer to the top &shrug; */
     padding: 15px 18px;
     border-color: lightgray;
     border-style: solid;
-    position: relative;
+    position: relative; /* Need this so the copy button's absolute positioning is relative to this area */
 }
 
 #graph-export-string {
