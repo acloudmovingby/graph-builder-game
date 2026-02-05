@@ -1,8 +1,10 @@
 package graphcontroller
 
+import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
+
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
-import graphcontroller.controller.eventlisteners.{AdjMatrixEventListeners, MainCanvasEventListeners, CopyButtonEventListener}
+import graphcontroller.controller.eventlisteners.{AdjMatrixEventListeners, EventListener, MainCanvasEventListeners}
 import graphcontroller.controller.{Controller, Initialization}
 
 // Until we migrate fully to ScalaJS code, need to make this usable from the Vanilla JS side so it can access
@@ -10,6 +12,8 @@ import graphcontroller.controller.{Controller, Initialization}
 @JSExportTopLevel("Main")
 object Main {
 	private val graphController = new GraphController()
+
+	private val eventListeners: Seq[EventListener] = Seq(ExportPaneEventListeners)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
 	 * and we're not fetching info from the dom in the middle of our pure functions) */
@@ -22,13 +26,16 @@ object Main {
 
 	// @main here indicates to run this method on startup of the ScalaJS application
 	@main def start(): Unit = {
+		/* The following stuff is the old way of doing it in the layers architecture where everything was
+		* spread out and not co-located like in the new 'components' architecture */
 		MainCanvas.start()
 		AdjMatrixCanvas.start()
 		new AdjMatrixEventListeners().addEventListeners()
 		new MainCanvasEventListeners().addEventListeners()
-		CopyButtonEventListener.init()
 
-		println("GraphController ScalaJS application started.")
+		/* 'New' components architecture. Wiring up the components */
+		eventListeners.foreach { c => c.init(Controller.handleEvent) }
+
 		Controller.handleEvent(initializationEvent)
 	}
 

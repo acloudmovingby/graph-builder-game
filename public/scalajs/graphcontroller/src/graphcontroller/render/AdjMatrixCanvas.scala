@@ -29,9 +29,8 @@ object AdjMatrixCanvas {
 
 	/** Kickstart the requestAnimationFrame loop */
 	def start(): Unit = {
-		println("Adj matrix starting...")
 		setCanvasSize()
-		// TODO move this to the controller as a Tick event
+		// TODO move this to the controller as a Tick event?
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 

@@ -1,5 +1,8 @@
 package graphcontroller.controller
 
+import graphcontroller.components.exportpane.ExportFormat
+import graphcontroller.shared.GraphRepresentation
+
 sealed trait Event
 
 /**
@@ -8,7 +11,10 @@ sealed trait Event
  * the model but triggers a refresh of the view. */
 case object NoOp extends Event
 
-case object ExportCopy extends Event
+/** The button in the export pane is clicked, to copy the graph to the clipboard */
+case object CopyButtonClicked extends Event
+case class ExportFormatChanged(format: ExportFormat) extends Event
+case class ExportAdjacencyTypeChanged(adjType: GraphRepresentation) extends Event
 
 sealed trait AdjacencyMatrixEvent extends Event {
 	val mouseX: Int

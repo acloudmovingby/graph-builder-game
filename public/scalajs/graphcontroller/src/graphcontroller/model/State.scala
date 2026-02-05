@@ -1,8 +1,10 @@
 package graphcontroller.model
 
+import graphcontroller.components.exportpane.ExportFormat
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
+import graphcontroller.shared.GraphRepresentation
 
 /** State of the whole program!! */
 case class State(
@@ -11,7 +13,9 @@ case class State(
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: AdjMatrixDimensions,
-	exportedDot: Option[String] = None
+	copyToClipboard: Boolean = false,
+	exportFormat: ExportFormat, // DOT, Python, etc.
+	adjacencyExportType: GraphRepresentation // whether exporting as list, matrix, etc. (for formats where that's applicable)
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -43,6 +47,8 @@ object State {
 		// maybe a different data structure would be better
 		undoStack = List.empty,
 		adjMatrixState = NoSelection,
-		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5) // override in Controller.init after loading settings
+		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
+		exportFormat = ExportFormat.DOT,
+		adjacencyExportType = GraphRepresentation.List
 	)
 }

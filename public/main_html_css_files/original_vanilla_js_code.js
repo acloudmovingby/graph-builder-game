@@ -3,8 +3,7 @@ import {
     Digraph
 } from "../algorithms/graph.mjs";
 import {
-    calculateGraphType,
-    getDot
+    calculateGraphType
 } from "../algorithms/graph_algs.mjs";
 
 // =====================
