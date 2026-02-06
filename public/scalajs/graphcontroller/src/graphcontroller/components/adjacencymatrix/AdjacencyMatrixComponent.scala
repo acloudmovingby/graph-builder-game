@@ -2,7 +2,7 @@ package graphcontroller.components.adjacencymatrix
 
 import graphcontroller.components.Component
 import graphcontroller.controller.{AdjacencyMatrixEvent, Event}
-import graphcontroller.model.{Model, State}
+import graphcontroller.model.State
 import graphcontroller.render.AdjMatrixCanvas
 import graphcontroller.shared.AdjMatrixCoordinateConverter.convertCoordinatesToZone
 

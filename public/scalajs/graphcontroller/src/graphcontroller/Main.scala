@@ -7,6 +7,7 @@ import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListe
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
 import graphcontroller.controller.{Controller, Initialization}
+import graphcontroller.model.State
 import graphcontroller.shared.EventListener
 
 // Until we migrate fully to ScalaJS code, need to make this usable from the Vanilla JS side so it can access
@@ -28,6 +29,8 @@ object Main {
 
 	// @main here indicates to run this method on startup of the ScalaJS application
 	@main def start(): Unit = {
+		Controller.setAdjacencyMatrixParameters(initializationEvent)
+		
 		/* The following stuff is the old way of doing it in the layers architecture where everything was
 		* spread out and not co-located like in the new 'components' architecture */
 		MainCanvas.start()
@@ -35,8 +38,6 @@ object Main {
 
 		/* 'New' components architecture. Wiring up the components */
 		eventListeners.foreach { c => c.init(Controller.handleEvent) }
-
-		Controller.handleEvent(initializationEvent)
 	}
 
 	@JSExport
