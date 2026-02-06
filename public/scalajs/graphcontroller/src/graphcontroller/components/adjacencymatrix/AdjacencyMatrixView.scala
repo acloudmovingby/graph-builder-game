@@ -148,7 +148,6 @@ object AdjacencyMatrixView {
 	}
 
 	def render(state: State): AdjacencyMatrixViewData = {
-
 		val cells = filledInCells(state)
 		val gridLines = calculateGridLines(state.graph.nodeCount, state.adjMatrixDimensions)
 

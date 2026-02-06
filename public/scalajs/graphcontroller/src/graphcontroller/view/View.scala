@@ -7,7 +7,6 @@ import graphcontroller.model.State
 object View {
 	def render(state: State): ViewData = {
 		ViewData(
-			AdjacencyMatrixView.render(state),
 			MainCanvasView.render(state)
 		)
 	}

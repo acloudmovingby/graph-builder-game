@@ -34,8 +34,6 @@ object Controller {
 		val newView = View.render(newState)
 
 		// Execute side effects to update the view
-		ViewUpdater.updateView(newView)
-
 		components.foreach { c =>
 			c.view(newState)
 		}
