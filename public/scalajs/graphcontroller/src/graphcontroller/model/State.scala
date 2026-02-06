@@ -6,7 +6,7 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.shared.GraphRepresentation
 
-/** State of the whole program!! */
+/** State of the whole program!! Well, not really, but like mostly... */
 case class State(
 	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
 	keyToData: Map[Int, NodeData],

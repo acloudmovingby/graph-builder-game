@@ -1,12 +1,10 @@
-package graphcontroller.render
+package graphcontroller.components.maincanvas
+
+import graphcontroller.dataobject.canvas.{CanvasLine, TriangleCanvas}
+import graphcontroller.dataobject.{Line, Vector2D}
+import ArrowTipRender.getArrowTriangle
 
 import scala.math
-import graphi.DirectedMapGraph
-import graphcontroller.dataobject.{Line, NodeData, Vector2D}
-import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
-import graphcontroller.render.ArrowTipRender.getArrowTriangle
-import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
-import graphcontroller.render.properties.ArrowRenderProperties
 
 enum EdgeStyle {
 	case Simple, Directed, SimpleHighlighted, DirectedHighlighted

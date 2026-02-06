@@ -3,7 +3,6 @@ package graphcontroller.components.maincanvas
 import graphcontroller.components.Component
 import graphcontroller.controller.Event
 import graphcontroller.model.State
-import graphcontroller.render.MainCanvas
 
 object MainCanvasComponent extends Component {
 

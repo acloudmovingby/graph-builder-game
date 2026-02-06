@@ -1,11 +1,12 @@
 package graphcontroller
 
+import graphcontroller.components.adjacencymatrix.AdjMatrixCanvas
 import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventListeners
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
+import graphcontroller.components.maincanvas.MainCanvas
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
 
 import scala.scalajs.js.annotation.*
-import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
 import graphcontroller.controller.{Controller, Initialization}
 import graphcontroller.model.State
 import graphcontroller.shared.EventListener

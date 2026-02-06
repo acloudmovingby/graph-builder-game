@@ -1,15 +1,13 @@
 package graphcontroller
 
+import graphcontroller.components.maincanvas.{ArrowRenderProperties, EdgeRender, MainCanvas}
 import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle, MainCanvas}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Vector2D}
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
-import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
-import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
-import graphcontroller.render.properties.ArrowRenderProperties
+import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
+import EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
 

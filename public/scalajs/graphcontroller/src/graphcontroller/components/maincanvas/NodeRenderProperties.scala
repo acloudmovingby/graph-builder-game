@@ -1,4 +1,4 @@
-package graphcontroller.render.properties
+package graphcontroller.components.maincanvas
 
 case class NodeRenderProperties(nodeRadius: Int)
 

@@ -1,8 +1,7 @@
-package graphcontroller.render
+package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.{Line, Vector2D}
-import graphcontroller.render.properties.ArrowRenderProperties
 import graphcontroller.dataobject.canvas.TriangleCanvas
+import graphcontroller.dataobject.{Line, Vector2D}
 
 object ArrowTipRender {
 	private val arrowProperties = ArrowRenderProperties.default

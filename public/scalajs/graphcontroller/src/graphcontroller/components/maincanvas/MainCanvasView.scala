@@ -4,8 +4,6 @@ import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.dataobject.canvas.RenderOp
 import graphcontroller.dataobject.{Cell, Column, Row}
 import graphcontroller.model.State
-import graphcontroller.render.EdgeRender
-import graphcontroller.render.properties.ArrowRenderProperties
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 
 object MainCanvasView {
