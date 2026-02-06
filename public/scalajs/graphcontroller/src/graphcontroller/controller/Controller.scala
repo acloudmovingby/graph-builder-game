@@ -1,6 +1,7 @@
 package graphcontroller.controller
 
 import graphcontroller.components.Component
+import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
 import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.model.{Model, State}
 import graphcontroller.view.View
@@ -13,7 +14,7 @@ object Controller {
 	// This can be private once we stop using old GraphController logic
 	var state: State = State.init
 
-	private val components: Seq[Component] = Seq(ExportPane)
+	private val components: Seq[Component] = Seq(ExportPane, AdjacencyMatrixComponent)
 
 	def updateState(event: Event, state: State): State = {
 		/** Todo maybe just make Model a Component and rename it to be AdjMatrixComponent or something */

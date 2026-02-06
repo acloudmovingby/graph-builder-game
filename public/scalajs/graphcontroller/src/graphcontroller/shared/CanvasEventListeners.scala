@@ -1,4 +1,4 @@
-package graphcontroller.components
+package graphcontroller.shared
 
 import graphcontroller.controller.{Controller, Event}
 import org.scalajs.dom

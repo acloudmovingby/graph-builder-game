@@ -1,15 +1,11 @@
-package graphcontroller.model.adjacencymatrix
+package graphcontroller.components.adjacencymatrix
+
+import graphcontroller.controller.*
+import graphcontroller.dataobject.*
+import graphcontroller.components.adjacencymatrix.*
+import graphi.MapGraph
 
 import scala.collection.immutable.ListSet
-
-import graphi.MapGraph
-import graphcontroller.controller.{
-	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
-}
-import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Corner, NoCell, Row}
-import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionState, CellClicked, Hover, NoSelection, ReleaseSelection
-}
 
 /**
  * Code to calculate changes in the Adjacency Matrix interaction state based on input events.

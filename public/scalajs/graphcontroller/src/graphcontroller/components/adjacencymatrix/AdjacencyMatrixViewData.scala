@@ -1,4 +1,4 @@
-package graphcontroller.view
+package graphcontroller.components.adjacencymatrix
 
 import graphcontroller.dataobject.canvas.RenderOp
 

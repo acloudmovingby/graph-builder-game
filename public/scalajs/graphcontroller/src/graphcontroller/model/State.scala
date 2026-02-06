@@ -1,9 +1,9 @@
 package graphcontroller.model
 
+import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 import graphcontroller.components.exportpane.ExportFormat
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 import graphcontroller.shared.GraphRepresentation
 
 /** State of the whole program!! */

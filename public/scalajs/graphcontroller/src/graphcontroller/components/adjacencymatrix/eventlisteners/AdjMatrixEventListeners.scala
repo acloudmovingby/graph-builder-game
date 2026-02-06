@@ -1,7 +1,7 @@
 package graphcontroller.components.adjacencymatrix.eventlisteners
 
-import graphcontroller.components.CanvasEventListeners
 import graphcontroller.controller.*
+import graphcontroller.shared.CanvasEventListeners
 import org.scalajs.dom
 import org.scalajs.dom.html
 

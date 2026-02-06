@@ -1,9 +1,8 @@
 package graphcontroller.view
 
+import graphcontroller.components.adjacencymatrix.{AdjacencyMatrixView, NoSelection}
+import graphcontroller.components.maincanvas.MainCanvasView
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.NoSelection
-import graphcontroller.view.adjacencymatrix.AdjacencyMatrixView
-import graphcontroller.view.maincanvas.MainCanvasView
 
 object View {
 	def render(state: State): ViewData = {

@@ -1,6 +1,5 @@
 package graphcontroller
 
-import graphcontroller.components.EventListener
 import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventListeners
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
@@ -8,6 +7,7 @@ import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListe
 import scala.scalajs.js.annotation.*
 import graphcontroller.render.{AdjMatrixCanvas, MainCanvas}
 import graphcontroller.controller.{Controller, Initialization}
+import graphcontroller.shared.EventListener
 
 // Until we migrate fully to ScalaJS code, need to make this usable from the Vanilla JS side so it can access
 // the graphcontroller instance
