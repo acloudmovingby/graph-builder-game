@@ -13,6 +13,7 @@ import graphcontroller.model.State
  * changing the view accordingly.
  */
 object Controller {
+	var isLive: Boolean = false // if is this a unit test or live application run
 	var state: State = State.init
 
 	private val components: Seq[Component] = Seq(
@@ -25,13 +26,15 @@ object Controller {
 	def handleEvent(event: Event): Unit = {
 		val newState = updateState(event, state)
 
+		// Update the application state
+		state = newState
+
 		// Execute side effects to update the view
-		components.foreach { c =>
+		val renderOps = components.map { c =>
 			c.view(newState)
 		}
 
-		// Update the application state
-		state = newState
+		if (isLive) renderOps.foreach(_.render())
 	}
 
 	def updateState(event: Event, state: State): State = {

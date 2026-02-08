@@ -1,6 +1,6 @@
 package graphcontroller.components.adjacencymatrix
 
-import graphcontroller.components.Component
+import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{AdjacencyMatrixEvent, Event}
 import graphcontroller.model.State
 import graphcontroller.shared.AdjMatrixCoordinateConverter.convertCoordinatesToZone
@@ -14,10 +14,7 @@ object AdjacencyMatrixComponent extends Component {
 		}
 	}
 
-	override def view(state: State): Unit = {
-		val viewData = AdjacencyMatrixView.render(state)
-		AdjMatrixCanvas.setShapes(viewData.shapes)
-	}
+	override def view(state: State): RenderOp = AdjacencyMatrixView.render(state)
 
 	private def handleAdjacencyMatrixEvent(event: AdjacencyMatrixEvent, state: State): State = {
 		val zone = convertCoordinatesToZone(

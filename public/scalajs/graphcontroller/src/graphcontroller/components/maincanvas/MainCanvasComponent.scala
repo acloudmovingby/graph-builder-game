@@ -1,6 +1,6 @@
 package graphcontroller.components.maincanvas
 
-import graphcontroller.components.Component
+import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.Event
 import graphcontroller.model.State
 
@@ -11,8 +11,5 @@ object MainCanvasComponent extends Component {
 		state
 	}
 
-	override def view(state: State): Unit = {
-		val whatToRender = MainCanvasView.render(state)
-		MainCanvas.setShapesNew(whatToRender)
-	}
+	override def view(state: State): RenderOp = MainCanvasView.render(state)
 }

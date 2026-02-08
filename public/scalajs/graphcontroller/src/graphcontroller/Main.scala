@@ -30,6 +30,7 @@ object Main {
 
 	// @main here indicates to run this method on startup of the ScalaJS application
 	@main def start(): Unit = {
+		Controller.isLive = true
 		Controller.handleEvent(initializationEvent)
 		
 		/* The following stuff is the old way of doing it in the layers architecture where everything was

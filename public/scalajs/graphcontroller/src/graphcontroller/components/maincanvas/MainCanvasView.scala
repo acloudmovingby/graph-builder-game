@@ -1,5 +1,6 @@
 package graphcontroller.components.maincanvas
 
+import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.dataobject.canvas.CanvasRenderOp
 import graphcontroller.dataobject.{Cell, Column, Row}
@@ -70,7 +71,15 @@ object MainCanvasView {
 		}
 	}
 
-	def render(state: State): Seq[CanvasRenderOp] = {
-		potentialEdges(state)
+	def render(state: State): MainCanvasViewData = {
+		MainCanvasViewData(potentialEdges(state))
+	}
+}
+
+case class MainCanvasViewData(
+	shapes: Seq[CanvasRenderOp]
+) extends RenderOp {
+	def render(): Unit = {
+		MainCanvas.setShapesNew(shapes)
 	}
 }
