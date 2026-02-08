@@ -11,6 +11,12 @@ import EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeC
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
 
+/**
+ * The original, now deprecated, way of using ScalaJS. It was called from by the vanilla JS code when I first
+ * started doing some of the graph logic with Scala (since that's obviously far superior than vanilla JS). This is why
+ * there is all these JSExport annotations. It's also a somewhat disorganized bag of stuff that I'm trying to slowly
+ * move over to the new way of doing things.
+ * */
 @JSExportTopLevel("GraphController")
 class GraphController {
 	private def state = Controller.state

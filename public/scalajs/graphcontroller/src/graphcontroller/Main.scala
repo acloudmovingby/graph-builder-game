@@ -30,7 +30,7 @@ object Main {
 
 	// @main here indicates to run this method on startup of the ScalaJS application
 	@main def start(): Unit = {
-		Controller.setAdjacencyMatrixParameters(initializationEvent)
+		Controller.handleEvent(initializationEvent)
 		
 		/* The following stuff is the old way of doing it in the layers architecture where everything was
 		* spread out and not co-located like in the new 'components' architecture */
