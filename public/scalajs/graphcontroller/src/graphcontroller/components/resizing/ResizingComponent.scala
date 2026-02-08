@@ -12,8 +12,6 @@ object ResizingComponent extends Component {
 
 	override def update(state: State, event: Event): State = event match {
 		case Initialization(adjMatrixWidth, adjMatrixHeight, padding, numberPadding) =>
-			println(s"WHABam! ResizingComponent got Initialization event: $adjMatrixWidth")
-			println(s"state's adjacency matrix width before copying: ${state.adjMatrixDimensions.matrixWidth}")
 			val newState = state.copy(
 				adjMatrixDimensions = state.adjMatrixDimensions.copy(
 					canvasWidth = adjMatrixWidth,
@@ -22,7 +20,6 @@ object ResizingComponent extends Component {
 					numberPadding = numberPadding
 				)
 			)
-			println(s"newState's adjacency matrix width after copying: ${newState.adjMatrixDimensions.matrixWidth}")
 			newState
 		case _ => state
 	}

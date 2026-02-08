@@ -8,7 +8,7 @@ import org.scalajs.dom
 case class RectangleCanvas(
 	rect: Rectangle,
 	color: String // Hex string, e.g. "#FF0000"
-) extends RenderOp, Shape {
+) extends CanvasRenderOp, Shape {
 	type This = RectangleCanvas
 
 	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {

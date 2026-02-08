@@ -1,7 +1,7 @@
 package graphcontroller.shared
 
 import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Corner, NoCell, Vector2D, Row, Rectangle}
-import graphcontroller.dataobject.canvas.{RectangleCanvas, RenderOp}
+import graphcontroller.dataobject.canvas.{RectangleCanvas, CanvasRenderOp}
 import graphi.MapGraph
 
 import scala.collection.immutable.ListSet

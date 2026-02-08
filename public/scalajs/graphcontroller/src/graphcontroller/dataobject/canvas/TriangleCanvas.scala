@@ -8,7 +8,7 @@ import org.scalajs.dom
 case class TriangleCanvas(
 	 tri: Triangle,
 	 color: String // Hex string, e.g. "#FF0000"
-) extends RenderOp, Shape {
+) extends CanvasRenderOp, Shape {
 	type This = TriangleCanvas
 
 	def toJS: TriangleCanvasJS = js.Dynamic.literal(

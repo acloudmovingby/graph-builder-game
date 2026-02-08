@@ -6,7 +6,7 @@ import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Vector2D}
-import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, TriangleCanvas}
 import EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
@@ -158,11 +158,11 @@ class GraphController {
 						Seq(highlightedLine) ++ highlightedArrows
 				}
 			case None =>
-				Seq.empty[RenderOp]
+				Seq.empty[CanvasRenderOp]
 		}
 
 		// get potential edge shape
-		val potentialEdgeOpt: Option[Seq[RenderOp]] = matrixHoverCell.flatMap { case (from, to) =>
+		val potentialEdgeOpt: Option[Seq[CanvasRenderOp]] = matrixHoverCell.flatMap { case (from, to) =>
 			if (!state.graph.hasEdge(from, to) && from != to) { // disallow self-loops
 				getEdgeCoordinates(from, to).map { line =>
 					state.graph match {

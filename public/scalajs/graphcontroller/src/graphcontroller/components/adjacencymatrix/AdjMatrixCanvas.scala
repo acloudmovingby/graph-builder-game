@@ -1,6 +1,6 @@
 package graphcontroller.components.adjacencymatrix
 
-import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, TriangleCanvas}
 import graphcontroller.dataobject.{Triangle, Vector2D}
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -12,7 +12,7 @@ import org.scalajs.dom.html.Canvas
 //  (2) Make parent trait that both MainCanvas and this extend
 object AdjMatrixCanvas {
 	/** Things to render on each animation frame callback */
-	private var shapes: Seq[RenderOp] = Seq.empty
+	private var shapes: Seq[CanvasRenderOp] = Seq.empty
 	val canvas: Canvas = dom.document.getElementById("adj-matrix").asInstanceOf[html.Canvas]
 	private val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	private val scale = dom.window.devicePixelRatio.toInt
@@ -44,5 +44,5 @@ object AdjMatrixCanvas {
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
-	def setShapes(shapes: Seq[RenderOp]): Unit = { this.shapes = shapes }
+	def setShapes(shapes: Seq[CanvasRenderOp]): Unit = { this.shapes = shapes }
 }
