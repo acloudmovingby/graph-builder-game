@@ -3,6 +3,7 @@ package graphcontroller.controller
 import graphcontroller.components.Component
 import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
 import graphcontroller.components.exportpane.ExportPane
+import graphcontroller.components.maincanvas.MainCanvasComponent
 import graphcontroller.dataobject.AdjMatrixDimensions
 import graphcontroller.model.State
 
@@ -14,7 +15,7 @@ object Controller {
 	// This can be private once we stop using old GraphController logic
 	var state: State = State.init
 
-	private val components: Seq[Component] = Seq(ExportPane, AdjacencyMatrixComponent)
+	private val components: Seq[Component] = Seq(AdjacencyMatrixComponent, ExportPane, MainCanvasComponent)
 
 	def handleEvent(event: Event): Unit = {
 		val newState = updateState(event, state)
