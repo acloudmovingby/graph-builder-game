@@ -1,4 +1,4 @@
-package graphcontroller.render
+package graphcontroller.components.adjacencymatrix
 
 import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
 import graphcontroller.dataobject.{Triangle, Vector2D}

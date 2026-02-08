@@ -1,13 +1,10 @@
-package graphcontroller.view.maincanvas
+package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
-import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp}
+import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
+import graphcontroller.dataobject.canvas.RenderOp
+import graphcontroller.dataobject.{Cell, Column, Row}
 import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.*
-import graphcontroller.view.AdjacencyMatrixViewData
-import graphcontroller.render.EdgeRender
-import graphcontroller.render.properties.ArrowRenderProperties
-import graphi.{DirectedMapGraph, MapGraph, SimpleMapGraph}
+import graphi.{DirectedMapGraph, SimpleMapGraph}
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */

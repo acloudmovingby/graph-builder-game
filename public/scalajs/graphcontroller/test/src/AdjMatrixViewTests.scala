@@ -1,6 +1,5 @@
+import graphcontroller.components.adjacencymatrix.{AdjacencyMatrixView, Hover}
 import graphcontroller.dataobject.*
-import graphcontroller.model.adjacencymatrix.Hover
-import graphcontroller.view.adjacencymatrix.AdjacencyMatrixView
 import graphi.DirectedMapGraph
 import utest.*
 

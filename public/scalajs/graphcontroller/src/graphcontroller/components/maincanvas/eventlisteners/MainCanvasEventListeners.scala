@@ -1,10 +1,11 @@
-package graphcontroller.controller.eventlisteners
+package graphcontroller.components.maincanvas.eventlisteners
 
 import graphcontroller.controller.*
+import graphcontroller.shared.CanvasEventListeners
 import org.scalajs.dom
 import org.scalajs.dom.html
 
-class MainCanvasEventListeners extends CanvasEventListeners {
+object MainCanvasEventListeners extends CanvasEventListeners {
     protected val elementId: String = "main-canvas-upper"
 
     // TODO migrate existing tools.js logic to here and don't just do NoOp everywhere (but doing that here

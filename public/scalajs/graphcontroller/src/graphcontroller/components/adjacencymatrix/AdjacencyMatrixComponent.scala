@@ -1,24 +1,22 @@
-package graphcontroller.model
+package graphcontroller.components.adjacencymatrix
 
-import graphcontroller.controller.{AdjMatrixMouseDown, AdjacencyMatrixEvent, Event, CopyButtonClicked, Initialization, NoOp}
-import graphcontroller.dataobject.AdjMatrixDimensions
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionLogic, ReleaseSelection}
-import graphcontroller.shared.AdjMatrixCoordinateConverter
-import AdjMatrixCoordinateConverter.convertCoordinatesToZone
+import graphcontroller.components.Component
+import graphcontroller.controller.{AdjacencyMatrixEvent, Event}
+import graphcontroller.model.State
+import graphcontroller.shared.AdjMatrixCoordinateConverter.convertCoordinatesToZone
 
-/** Pure function that takes current state and the input event and then calculates the new state */
-object Model {
-	def handleEvent(event: Event, state: State): State = {
-		val newState = event match {
-			case e: Initialization => handleInitializationEvent(e, state)
+object AdjacencyMatrixComponent extends Component {
+	/** Pure function that takes current state and input event and produces new state */
+	override def update(state: State, event: Event): State = {
+		event match {
 			case e: AdjacencyMatrixEvent => handleAdjacencyMatrixEvent(e, state)
 			case _ => state
 		}
-		newState
 	}
 
-	private def handleInitializationEvent(event: Initialization, state: State): State = {
-		state.copy(adjMatrixDimensions = AdjMatrixDimensions(event.adjMatrixWidth, event.adjMatrixHeight, event.padding, event.numberPadding))
+	override def view(state: State): Unit = {
+		val viewData = AdjacencyMatrixView.render(state)
+		AdjMatrixCanvas.setShapes(viewData.shapes)
 	}
 
 	private def handleAdjacencyMatrixEvent(event: AdjacencyMatrixEvent, state: State): State = {

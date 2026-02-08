@@ -1,12 +1,10 @@
+import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionLogic, CellClicked, Hover, NoSelection, ReleaseSelection, RowColumnClicked}
 import scala.collection.immutable.ListSet
 import utest.*
 import graphcontroller.controller.{
 	AdjacencyMatrixEvent, AdjMatrixMouseDown, AdjMatrixMouseLeave, AdjMatrixMouseUp, AdjMatrixMouseMove
 }
 import graphcontroller.dataobject.{Cell, Column, NoCell, Row}
-import graphcontroller.model.adjacencymatrix.{
-	AdjMatrixInteractionLogic, CellClicked, Hover, NoSelection, ReleaseSelection, RowColumnClicked
-}
 
 object AdjMatrixInteractionLogicTests$ extends TestSuite {
 	def tests = Tests {

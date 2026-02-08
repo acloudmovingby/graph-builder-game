@@ -1,41 +1,43 @@
 package graphcontroller.controller
 
 import graphcontroller.components.Component
+import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
 import graphcontroller.components.exportpane.ExportPane
-import graphcontroller.model.{Model, State}
-import graphcontroller.view.View
+import graphcontroller.components.maincanvas.MainCanvasComponent
+import graphcontroller.components.resizing.ResizingComponent
+import graphcontroller.model.State
 
 /**
- * (Theoretically) the ONE impure place in the code that mutates the application state. It then passes the view state
- * to the ViewUpdater which performs the side-effect of actually rendering the changes
+ * (Theoretically) the ONE impure place in the code that mutates the application state (note the `var state`). This is
+ * arguably the most important file in the entire codebase, as it is the central orchestrator that coordinates state updates and then
+ * changing the view accordingly.
  */
 object Controller {
-	// This can be private once we stop using old GraphController logic
 	var state: State = State.init
 
-	private val components: Seq[Component] = Seq(ExportPane)
+	private val components: Seq[Component] = Seq(
+		AdjacencyMatrixComponent,
+		ExportPane,
+		MainCanvasComponent,
+		ResizingComponent
+	)
 
 	def handleEvent(event: Event): Unit = {
-		/** Todo maybe just make Model a Component and rename it to be AdjMatrixComponent or something */
-		val newState = Model.handleEvent(event, state)
+		val newState = updateState(event, state)
 
-		val newStateFromComponents = components.foldLeft(newState) { case (accumulatedState, c) =>
-			c.update(accumulatedState, event)
-		}
-
-		// in the future, we can pass the old state if needed, or perhaps a new type that represents the diff ("StateChange" or something)
-		// for now, just calculate all rendered stuff from scratch based on the new state
-		// TODO: Consider naming "renderCommands" or "renderOps" instead of "newView"
-		val newView = View.render(newStateFromComponents)
-
-		// Execute side-effects to update the view
-		ViewUpdater.updateView(newView)
-
+		// Execute side effects to update the view
 		components.foreach { c =>
-			c.view(newStateFromComponents)
+			c.view(newState)
 		}
 
 		// Update the application state
-		state = newStateFromComponents
+		state = newState
 	}
+
+	def updateState(event: Event, state: State): State = {
+		components.foldLeft(state) { case (accumulatedState, c) =>
+			c.update(accumulatedState, event)
+		}
+	}
+
 }

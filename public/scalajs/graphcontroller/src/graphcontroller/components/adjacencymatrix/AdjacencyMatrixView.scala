@@ -1,12 +1,11 @@
-package graphcontroller.view.adjacencymatrix
+package graphcontroller.components.adjacencymatrix
 
-import graphi.MapGraph
-import graphcontroller.model.State
-import graphcontroller.model.adjacencymatrix.{AdjMatrixInteractionState, AdjMatrixInteractionLogic, CellClicked, Hover, NoSelection}
-import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Rectangle, Row, Vector2D}
+import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionLogic, AdjMatrixInteractionState, CellClicked, Hover, NoSelection}
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
-import graphcontroller.view.AdjacencyMatrixViewData
+import graphcontroller.dataobject.*
+import graphcontroller.model.State
+import graphcontroller.shared.AdjMatrixCoordinateConverter
+import graphi.MapGraph
 
 object AdjacencyMatrixView {
 	// TODO put this in a config file somewhere?
@@ -149,7 +148,6 @@ object AdjacencyMatrixView {
 	}
 
 	def render(state: State): AdjacencyMatrixViewData = {
-
 		val cells = filledInCells(state)
 		val gridLines = calculateGridLines(state.graph.nodeCount, state.adjMatrixDimensions)
 

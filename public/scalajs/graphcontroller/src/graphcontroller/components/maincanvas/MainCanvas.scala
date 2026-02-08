@@ -1,11 +1,9 @@
-package graphcontroller.render
+package graphcontroller.components.maincanvas
 
+import graphcontroller.dataobject.canvas.{RenderOp}
 import org.scalajs.dom
 import org.scalajs.dom.html
-import html.Canvas
-
-import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
-import graphcontroller.dataobject.{Triangle, Vector2D}
+import org.scalajs.dom.html.Canvas
 
 object MainCanvas {
 	/** Things to render on each animation frame callback */

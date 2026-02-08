@@ -1,18 +1,22 @@
 package graphcontroller
 
+import graphcontroller.components.maincanvas.{ArrowRenderProperties, EdgeRender, MainCanvas}
 import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-import graphcontroller.render.{ArrowTipRender, EdgeRender, EdgeStyle, MainCanvas}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Vector2D}
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasLineJS, RenderOp, TriangleCanvas, TriangleCanvasJS}
-import graphcontroller.render.EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
-import graphcontroller.render.EdgeStyle.{Directed, DirectedHighlighted, Simple, SimpleHighlighted}
-import graphcontroller.render.properties.ArrowRenderProperties
+import graphcontroller.dataobject.canvas.{CanvasLine, RenderOp, TriangleCanvas}
+import EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
 
+/**
+ * The original, now deprecated, way of using ScalaJS. It was called from by the vanilla JS code when I first
+ * started doing some of the graph logic with Scala (since that's obviously far superior than vanilla JS). This is why
+ * there is all these JSExport annotations. It's also a somewhat disorganized bag of stuff that I'm trying to slowly
+ * move over to the new way of doing things.
+ * */
 @JSExportTopLevel("GraphController")
 class GraphController {
 	private def state = Controller.state

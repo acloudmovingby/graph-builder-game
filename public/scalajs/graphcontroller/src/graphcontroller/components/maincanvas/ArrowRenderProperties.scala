@@ -1,6 +1,6 @@
-package graphcontroller.render.properties
+package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.{Vector2D, Triangle}
+import graphcontroller.dataobject.{Triangle, Vector2D}
 
 /*
 displacement = node radius + padding + triangle height

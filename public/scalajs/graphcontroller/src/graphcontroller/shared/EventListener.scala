@@ -1,4 +1,4 @@
-package graphcontroller.controller.eventlisteners
+package graphcontroller.shared
 
 import graphcontroller.controller.Event
 

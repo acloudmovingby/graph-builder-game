@@ -1,4 +1,4 @@
-package graphcontroller.model.adjacencymatrix
+package graphcontroller.components.adjacencymatrix
 
 import graphcontroller.dataobject.{AdjMatrixZone, Cell, Column, Row}
 
