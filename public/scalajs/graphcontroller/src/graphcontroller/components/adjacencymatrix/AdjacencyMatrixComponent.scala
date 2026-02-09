@@ -4,6 +4,7 @@ import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{AdjacencyMatrixEvent, Event}
 import graphcontroller.model.State
 import graphcontroller.shared.AdjMatrixCoordinateConverter.convertCoordinatesToZone
+import graphcontroller.shared.GridUtils
 
 object AdjacencyMatrixComponent extends Component {
 	/** Pure function that takes current state and input event and produces new state */
@@ -17,18 +18,22 @@ object AdjacencyMatrixComponent extends Component {
 	override def view(state: State): RenderOp = AdjacencyMatrixView.render(state)
 
 	private def handleAdjacencyMatrixEvent(event: AdjacencyMatrixEvent, state: State): State = {
+		val dimensions = state.adjMatrixDimensions
+		val nodeCount = state.graph.nodeCount
+		val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, nodeCount)
 		val zone = convertCoordinatesToZone(
 			event.mouseX,
 			event.mouseY,
-			state.adjMatrixDimensions,
-			state.graph.nodeCount
+			dimensions,
+			nodeCount,
+			grid
 		)
 
 		// calculate change in adjacency matrix state
 		val newAdjMatrixState = AdjMatrixInteractionLogic.handleMouseEvent(
 			event,
 			state.adjMatrixState,
-			state.graph.nodeCount,
+			nodeCount,
 			zone,
 			state.filledInCells
 		)
