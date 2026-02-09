@@ -10,7 +10,7 @@ case class CanvasLine(
 	to: Vector2D,
 	width: Int,
 	color: String // Hex string, e.g. "#FF0000"
-) extends RenderOp, Shape {
+) extends CanvasRenderOp, Shape {
 	type This = CanvasLine
 
 	def toJS: CanvasLineJS = js.Dynamic.literal(

@@ -4,8 +4,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 import graphcontroller.dataobject.Shape
 
-trait RenderOp extends Shape {
-	type This <: RenderOp
+trait CanvasRenderOp extends Shape {
+	type This <: CanvasRenderOp
 	def draw(ctx: CanvasRenderingContext2D): Unit
 }
-

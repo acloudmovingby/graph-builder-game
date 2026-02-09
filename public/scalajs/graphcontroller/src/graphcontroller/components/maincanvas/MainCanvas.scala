@@ -1,14 +1,14 @@
 package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.canvas.{RenderOp}
+import graphcontroller.dataobject.canvas.CanvasRenderOp
 import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.html.Canvas
 
 object MainCanvas {
 	/** Things to render on each animation frame callback */
-	private var _shapes: Seq[RenderOp] = Seq.empty
-	private var newShapes: Seq[RenderOp] = Seq.empty // will eventually replace _shapes once I convert all tools.js to ScalaJS
+	private var _shapes: Seq[CanvasRenderOp] = Seq.empty
+	private var newShapes: Seq[CanvasRenderOp] = Seq.empty // will eventually replace _shapes once I convert all tools.js to ScalaJS
 	private def getShapes = _shapes ++ newShapes
 	val canvas: Canvas = dom.document.getElementById("main-canvas-lower").asInstanceOf[html.Canvas]
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -32,7 +32,7 @@ object MainCanvas {
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
-	def render(shapes: Seq[RenderOp]): Unit = {
+	def render(shapes: Seq[CanvasRenderOp]): Unit = {
 		// Clear the screen every frame
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -49,6 +49,6 @@ object MainCanvas {
 	}
 
 	// TODO once we totally convert to new way, we'll only need one of these
-	def setShapesNew(shapes: Seq[RenderOp]): Unit = { newShapes = shapes }
-	def setShapes(shapes: Seq[RenderOp]): Unit = { _shapes = shapes }
+	def setShapesNew(shapes: Seq[CanvasRenderOp]): Unit = { newShapes = shapes }
+	def setShapes(shapes: Seq[CanvasRenderOp]): Unit = { _shapes = shapes }
 }

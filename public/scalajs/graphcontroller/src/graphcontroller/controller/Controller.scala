@@ -1,6 +1,6 @@
 package graphcontroller.controller
 
-import graphcontroller.components.Component
+import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
 import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.components.maincanvas.MainCanvasComponent
@@ -22,22 +22,30 @@ object Controller {
 		ResizingComponent
 	)
 
+	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */
 	def handleEvent(event: Event): Unit = {
-		val newState = updateState(event, state)
-
-		// Execute side effects to update the view
-		components.foreach { c =>
-			c.view(newState)
-		}
+		val (newState, renderOps) = handleEventWithState(event, state)
 
 		// Update the application state
 		state = newState
+
+		// Execute side effects to update the view (i.e. change the dom)
+		renderOps.foreach(_.render())
 	}
 
-	def updateState(event: Event, state: State): State = {
-		components.foldLeft(state) { case (accumulatedState, c) =>
+	/** The highest level pure function we have, to be used in unit tests. */
+	def handleEventWithState(event: Event, state: State): (State, Seq[RenderOp]) = {
+		// Calculate new program state
+		val newState = components.foldLeft(state) { case (accumulatedState, c) =>
 			c.update(accumulatedState, event)
 		}
+
+		// derive the data needed to update the view from the new state
+		val renderOps = components.map { c =>
+			c.view(newState)
+		}
+
+		(newState, renderOps)
 	}
 
 }

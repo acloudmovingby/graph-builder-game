@@ -2,7 +2,7 @@ package graphcontroller.dataobject.canvas
 
 import scala.scalajs.js
 import graphcontroller.dataobject.{PointJS, Shape, Vector2D}
-import graphcontroller.dataobject.canvas.RenderOp
+import graphcontroller.dataobject.canvas.CanvasRenderOp
 import org.scalajs.dom
 
 /** Represents data necessary to draw a line with the HTML Canvas API */
@@ -11,7 +11,7 @@ case class TextCanvas(
 	text: String,
 	color: String, // Hex string, e.g. "#FF0000"
 	fontSize: Int
-) extends RenderOp, Shape {
+) extends CanvasRenderOp, Shape {
 	type This = TextCanvas
 
 	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {

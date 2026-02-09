@@ -1,7 +1,7 @@
 package graphcontroller.components.adjacencymatrix
 
 import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionLogic, AdjMatrixInteractionState, CellClicked, Hover, NoSelection}
-import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, RenderOp, TextCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, CanvasRenderOp, TextCanvas}
 import graphcontroller.dataobject.*
 import graphcontroller.model.State
 import graphcontroller.shared.AdjMatrixCoordinateConverter
@@ -151,7 +151,7 @@ object AdjacencyMatrixView {
 		val cells = filledInCells(state)
 		val gridLines = calculateGridLines(state.graph.nodeCount, state.adjMatrixDimensions)
 
-		val shapes: Seq[RenderOp] = state.adjMatrixState match {
+		val shapes: Seq[CanvasRenderOp] = state.adjMatrixState match {
 			case NoSelection => // fill in cells only, no grid lines
 				cells
 			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines

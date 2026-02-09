@@ -1,11 +1,21 @@
 ## How to run
 
+## Assuming dependencies are installed...
+
+### Build the Scala code and run the server
+1. `cd public/scala && ./mill graphcontroller.fastLinkJS` 
+2. (optional) `./mill graphcontroller.test` to run tests
+3. `cd - && node app.js`
+4. See in browser at `localhost:3000`
+
 ### Docker
 Build image with: `docker build -t graph-builder .`
 Start container: `docker run -p 3000:3000 --rm graph-builder`
 See in browser at `localhost:3000`
 
-### Build natively
+## From scratch
+Also, see the `Dockerfile`.
+
 Prerequisites:
 1. [NodeJS](https://nodejs.org/en/download/) (v16 or later)
 2. [Scala](https://www.scala-lang.org/download/) (v3 or later)
@@ -18,10 +28,8 @@ Install dependencies:
 Run:
 1. `cd public/scala && ./mill graphcontroller.fastLinkJS && ./mill graphcontroller.test && cd -` Build and test ScalaJS code. 
 2. `node app.js` Start server
-3. (deprecated, for old vanilla JS tests) `npm run test`
 See in browser: 
-1. `localhost:3000`. This is the more advanced graph editor tool. 
-2. `localhost:3000`. This was the original iteration which was a 'game' of sorts. It may no longer work. It only has the most basic tool for editing graphs but as you make them, you discover Easter eggs (i.e. you unlock certain kinds of graphs).
+1. `localhost:3000`. This is the graph editor tool. 
 
 ## About
 

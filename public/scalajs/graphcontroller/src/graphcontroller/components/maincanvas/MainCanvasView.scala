@@ -1,14 +1,15 @@
 package graphcontroller.components.maincanvas
 
+import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
-import graphcontroller.dataobject.canvas.RenderOp
+import graphcontroller.dataobject.canvas.CanvasRenderOp
 import graphcontroller.dataobject.{Cell, Column, Row}
 import graphcontroller.model.State
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
-	private def potentialEdges(state: State): Seq[RenderOp] = {
+	private def potentialEdges(state: State): Seq[CanvasRenderOp] = {
 		val graph = state.graph
 		// converts Cell class to a (from, to) edge tuple, but disallowing self-loops
 		def getEdgeFromCell(cell: Cell): Option[(Int, Int)] = {
@@ -41,7 +42,7 @@ object MainCanvasView {
 
 		val isAdd = edges.headOption.map(e => !graph.hasEdge(e._1, e._2)).getOrElse(true)
 
-		def renderDirectedEdge(from: Int, to: Int): Seq[RenderOp] = {
+		def renderDirectedEdge(from: Int, to: Int): Seq[CanvasRenderOp] = {
 			val isBidirectional = graph.hasEdge(to, from)
 			state.getEdgeCoordinates(from, to).toSeq.flatMap { line =>
 				val (canvasLine, arrowTriangles) = EdgeRender.directedEdge(
@@ -70,7 +71,15 @@ object MainCanvasView {
 		}
 	}
 
-	def render(state: State): Seq[RenderOp] = {
-		potentialEdges(state)
+	def render(state: State): MainCanvasViewData = {
+		MainCanvasViewData(potentialEdges(state))
+	}
+}
+
+case class MainCanvasViewData(
+	shapes: Seq[CanvasRenderOp]
+) extends RenderOp {
+	def render(): Unit = {
+		MainCanvas.setShapesNew(shapes)
 	}
 }
