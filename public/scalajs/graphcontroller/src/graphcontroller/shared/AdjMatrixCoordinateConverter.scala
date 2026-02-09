@@ -1,7 +1,6 @@
 package graphcontroller.shared
 
 import graphcontroller.dataobject.{AdjMatrixDimensions, AdjMatrixZone, Cell, Column, Corner, NoCell, Vector2D, Row, Rectangle}
-import graphcontroller.dataobject.canvas.{RectangleCanvas, CanvasRenderOp}
 import graphi.MapGraph
 
 import scala.collection.immutable.ListSet
@@ -16,29 +15,30 @@ object AdjMatrixCoordinateConverter {
 		mouseX: Int,
 		mouseY: Int,
 		dimensions: AdjMatrixDimensions,
-		nodeCount: Int
+		nodeCount: Int,
+		grid: GridUtils
 	): AdjMatrixZone = {
 		if (nodeCount == 0) return NoCell
+
+		val padding = dimensions.padding
 		val matrixWidth = dimensions.matrixWidth
 		val matrixHeight = dimensions.matrixHeight
-		val cellWidth = dimensions.cellWidth(nodeCount)
-		val cellHeight = dimensions.cellHeight(nodeCount)
-		val padding = dimensions.padding
+
+		val x = mouseX - padding
+		val y = mouseY - padding
+
 		if (mouseX < padding && mouseY < padding) {
 			Corner
-		} else if (mouseX < padding && mouseY >= padding && mouseY < padding + matrixHeight) {
-			// in row header area
-			val row = ((mouseY - padding) / cellHeight).toInt
-			Row(row)
-		} else if (mouseY < padding && mouseX >= padding && mouseX < padding + matrixWidth) {
-			// in column header area
-			val col = ((mouseX - padding) / cellWidth).toInt
-			Column(col)
-		} else if (mouseX >= padding && mouseX < padding + matrixWidth && mouseY >= padding && mouseY < padding + matrixHeight) {
-			// in cell area
-			val col = ((mouseX - padding) / cellWidth).toInt
-			val row = ((mouseY - padding) / cellHeight).toInt
-			Cell(row, col)
+		} else if (mouseX < padding && y >= 0 && y < matrixHeight) {
+			val row = grid.rowCoords.lastIndexWhere(_ <= y)
+			if (row >= 0 && row < nodeCount) Row(row) else Corner
+		} else if (mouseY < padding && x >= 0 && x < matrixWidth) {
+			val col = grid.colCoords.lastIndexWhere(_ <= x)
+			if (col >= 0 && col < nodeCount) Column(col) else Corner
+		} else if (x >= 0 && x < matrixWidth && y >= 0 && y < matrixHeight) {
+			val col = grid.colCoords.lastIndexWhere(_ <= x)
+			val row = grid.rowCoords.lastIndexWhere(_ <= y)
+			if (col >= 0 && col < nodeCount && row >= 0 && row < nodeCount) Cell(row, col) else Corner
 		} else {
 			Corner // outside the matrix area
 		}
@@ -48,48 +48,39 @@ object AdjMatrixCoordinateConverter {
 	// therefore IGNORES PADDING. So a Row will be a rectangle spanning the full width of the matrix area
 	def convertZoneToShape(
 		z: AdjMatrixZone,
-		dimensions: AdjMatrixDimensions,
+		grid: GridUtils,
 		nodeCount: Int
 	): Option[Rectangle] = {
-		// if it's a cell, make a rectangle for that cell
-		// if it's a row or column, make a rectangle for the whole row/column
-		// if it's corner or NoCell, return None
 		if (nodeCount == 0) return None
-		val matrixWidth = dimensions.matrixWidth
-		val matrixHeight = dimensions.matrixHeight
-		val cellWidth = dimensions.cellWidth(nodeCount)
-		val cellHeight = dimensions.cellHeight(nodeCount)
 
 		z match {
 			case Corner | NoCell => None
 			case Cell(row, col) =>
 				Some(Rectangle(
-					// note how we floor the topLeft and ceil the width/height to ensure full coverage (otherwise we get
-					// strange gaps between cells due to rounding errors)
 					topLeft = Vector2D(
-						x = (col * cellWidth).floor.toInt,
-						y = (row * cellHeight).floor.toInt
+						x = grid.getX(col),
+						y = grid.getY(row)
 					),
-					width = cellWidth.ceil.toInt,
-					height = cellHeight.ceil.toInt
+					width = grid.getWidth(col),
+					height = grid.getHeight(row)
 				))
 			case Row(row) =>
 				Some(Rectangle(
 					topLeft = Vector2D(
 						x = 0,
-						y = (row * cellHeight).toInt
+						y = grid.getY(row)
 					),
-					width = matrixWidth,
-					height = cellHeight.toInt
+					width = grid.width,
+					height = grid.getHeight(row)
 				))
 			case Column(col) =>
 				Some(Rectangle(
 					topLeft = Vector2D(
-						x = (col * cellWidth).toInt,
+						x = grid.getX(col),
 						y = 0
 					),
-					width = cellWidth.toInt,
-					height = matrixHeight
+					width = grid.getWidth(col),
+					height = grid.height
 				))
 		}
 	}

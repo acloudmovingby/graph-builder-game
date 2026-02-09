@@ -4,8 +4,7 @@ import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionLogic, Ad
 import graphcontroller.dataobject.canvas.{CanvasLine, RectangleCanvas, CanvasRenderOp, TextCanvas}
 import graphcontroller.dataobject.*
 import graphcontroller.model.State
-import graphcontroller.shared.AdjMatrixCoordinateConverter
-import graphi.MapGraph
+import graphcontroller.shared.{AdjMatrixCoordinateConverter, GridUtils}
 
 object AdjacencyMatrixView {
 	// TODO put this in a config file somewhere?
@@ -19,12 +18,15 @@ object AdjacencyMatrixView {
 	val highlightNumberColor = "orange" // to highlight the specific number of the row/column being hovered over
 	val numberFontSize = 13
 
-	def rowColNumbers(nodeCount: Int, dimensions: AdjMatrixDimensions, adjMatrixState: AdjMatrixInteractionState): Seq[TextCanvas] = {
+	def rowColNumbers(
+		nodeCount: Int,
+		dimensions: AdjMatrixDimensions,
+		adjMatrixState: AdjMatrixInteractionState,
+		grid: GridUtils
+	): Seq[TextCanvas] = {
 		adjMatrixState match {
 			case NoSelection => Seq.empty
 			case _ =>
-				val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
-
 				def generateColor(index: Int, isRow: Boolean): String = {
 					adjMatrixState match {
 						case Hover(Cell(row, col)) =>
@@ -46,13 +48,13 @@ object AdjacencyMatrixView {
 				// row numbers (going down left side of matrix)
 				val rowNumbers = (0 until nodeCount).map { i =>
 					val x = dimensions.padding - dimensions.numberPadding
-					val y = (i * cellHeight).toInt + dimensions.padding + cellHeight.toInt / 2
+					val y = grid.getY(i) + grid.getHeight(i) / 2 + dimensions.padding
 					val color = generateColor(i, isRow = true)
 					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
 				}
 
 				val colNumbers = (0 until nodeCount).map { i =>
-					val x = (i * cellWidth).toInt + dimensions.padding + cellWidth.toInt / 2
+					val x = grid.getX(i) + grid.getWidth(i) / 2 + dimensions.padding
 					val y = dimensions.padding - dimensions.numberPadding
 					val color = generateColor(i, isRow = false)
 					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
@@ -62,50 +64,52 @@ object AdjacencyMatrixView {
 		}
 	}
 
-	def calculateGridLines(nodeCount: Int, dimensions: AdjMatrixDimensions): Seq[CanvasLine] = {
-		val padding = dimensions.padding
+	def calculateGridLines(
+		nodeCount: Int,
+		dimensions: AdjMatrixDimensions,
+		grid: GridUtils
+	): Seq[CanvasLine] = {
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			val (width, height) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
-
-			for {
-				i <- 0 to nodeCount
-				// first calculate lines without padding, then translate by padding afterward
-				verticalLine = CanvasLine(
-					from = Vector2D(x = (width * i).toInt, y = 0),
-					to = Vector2D(x = (width * i).toInt, y = dimensions.matrixHeight),
+			val verticalLines = grid.colCoords.map { x =>
+				CanvasLine(
+					from = Vector2D(x = x, y = 0),
+					to = Vector2D(x = x, y = dimensions.matrixHeight),
 					width = 1,
 					color = "lightgray"
 				)
-				horizontalLine = CanvasLine(
-					from = Vector2D(x = 0, y = (height * i).toInt),
-					to = Vector2D(x = dimensions.matrixWidth, y = (height * i).toInt),
+			}
+			val horizontalLines = grid.rowCoords.map { y =>
+				CanvasLine(
+					from = Vector2D(x = 0, y = y),
+					to = Vector2D(x = dimensions.matrixWidth, y = y),
 					width = 1,
 					color = "lightgray"
 				)
-				lines <- Seq(verticalLine, horizontalLine)
-			} yield lines
+			}
+			verticalLines ++ horizontalLines
 		}
 	}
 
+	/** When you hover over a cell or a row/column number, this is the shading drawn over that cell area that indicates
+	 * which cell of the matrix (i.e. edge) clicking would potentially affect.  */
 	def hoveredCellHighlight(
-		graph: MapGraph[Int, ?],
-		dimensions: AdjMatrixDimensions,
-		hoveredZone: AdjMatrixZone
+		state: State,
+		hoveredZone: AdjMatrixZone,
+		grid: GridUtils
 	): Seq[RectangleCanvas] = {
-		val nodeCount = graph.nodeCount
+		val nodeCount = state.graph.nodeCount
 
 		def hoveredCell(cell: Cell): RectangleCanvas = {
-			val (cellWidth, cellHeight) = (dimensions.cellWidth(nodeCount), dimensions.cellHeight(nodeCount))
-			val color = if (graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			val color = if (state.graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
 			RectangleCanvas(
 				Rectangle(
 					topLeft = Vector2D(
-						x = (cell.col * cellWidth).toInt,
-						y = (cell.row * cellHeight).toInt
+						x = grid.getX(cell.col),
+						y = grid.getY(cell.row)
 					),
-					width = cellWidth.toInt,
-					height = cellHeight.toInt
+					width = grid.getWidth(cell.col),
+					height = grid.getHeight(cell.row)
 				),
 				color = color
 			)
@@ -121,22 +125,22 @@ object AdjacencyMatrixView {
 		}
 	}
 
-	private def clickedCellHighlight(state: State, cell: Cell, isAdd: Boolean): RectangleCanvas = {
+	private def clickedCellHighlight(state: State, cell: Cell, isAdd: Boolean, grid: GridUtils): RectangleCanvas = {
 		val nodeCount = state.graph.nodeCount
 		val color = if (isAdd) clickedNoEdgeColor else clickedEdgePresentColor
 		RectangleCanvas(
-			AdjMatrixCoordinateConverter.convertZoneToShape(cell, state.adjMatrixDimensions, nodeCount).get,
+			AdjMatrixCoordinateConverter.convertZoneToShape(cell, grid, nodeCount).get,
 			color = color
 		)
 	}
 
-	/** Render data for matrix cells representing existing edges */
-	private def filledInCells(state: State): Seq[RectangleCanvas] = {
+	/** Render data for matrix cells representing existing edges (at time of writing, these are the black squares) */
+	private def filledInCells(state: State, grid: GridUtils): Seq[RectangleCanvas] = {
 		val nodeCount = state.graph.nodeCount
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
 			state.graph.getEdges.toSeq.flatMap { case (from, to) =>
-				AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), state.adjMatrixDimensions, nodeCount)
+				AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
 					.map(rect =>
 						RectangleCanvas(
 							rect,
@@ -148,14 +152,18 @@ object AdjacencyMatrixView {
 	}
 
 	def render(state: State): AdjacencyMatrixViewData = {
-		val cells = filledInCells(state)
-		val gridLines = calculateGridLines(state.graph.nodeCount, state.adjMatrixDimensions)
+		val nodeCount = state.graph.nodeCount
+		val dimensions = state.adjMatrixDimensions
+		val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, nodeCount)
+
+		val cells = filledInCells(state, grid)
+		val gridLines = calculateGridLines(nodeCount, dimensions, grid)
 
 		val shapes: Seq[CanvasRenderOp] = state.adjMatrixState match {
 			case NoSelection => // fill in cells only, no grid lines
 				cells
 			case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
-				val hoveredCell = hoveredCellHighlight(state.graph, state.adjMatrixDimensions, cell)
+				val hoveredCell = hoveredCellHighlight(state, cell, grid)
 				cells ++ hoveredCell ++ gridLines
 			case d: CellClicked =>
 				val selectedCells = d.selectedCells
@@ -167,18 +175,18 @@ object AdjacencyMatrixView {
 							case _ => false // otherwise don't change what's drawn
 						}
 					}
-					.map { cell => clickedCellHighlight(state, cell, d.isAdd) }
+					.map { cell => clickedCellHighlight(state, cell, d.isAdd, grid) }
 				cells ++ selectedCells ++ gridLines
 			case _ => cells ++ gridLines
 		}
 
 		// translate all the matrix shapes down to the right, to account for the padding
 		val adjustedForPadding = shapes.map(_.translate(Vector2D(
-			x = state.adjMatrixDimensions.padding,
-			y = state.adjMatrixDimensions.padding
+			x = dimensions.padding,
+			y = dimensions.padding
 		)))
 
-		val numbers = rowColNumbers(state.graph.nodeCount, state.adjMatrixDimensions, state.adjMatrixState)
+		val numbers = rowColNumbers(nodeCount, dimensions, state.adjMatrixState, grid)
 
 		AdjacencyMatrixViewData(adjustedForPadding ++ numbers)
 	}

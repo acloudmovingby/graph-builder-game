@@ -1,6 +1,6 @@
 import utest.*
 
-import graphcontroller.shared.AdjMatrixCoordinateConverter
+import graphcontroller.shared.{AdjMatrixCoordinateConverter, GridUtils}
 import graphcontroller.dataobject.{AdjMatrixZone, AdjMatrixDimensions, Cell, Column, Corner, NoCell, Row}
 
 object AdjMatrixCoordinateConverterTests extends TestSuite {
@@ -15,8 +15,9 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 
 		val matrixWidth = dimensions.matrixWidth
 		val matrixHeight = dimensions.matrixHeight
-		val nodeCount = 5 // matrix will be 5x5 with each cell 20x20 pixels
-		def cellSize = matrixWidth / nodeCount // 20 pixels
+		val nodeCount = 5 // matrix will be 5x5
+		val grid = GridUtils(matrixWidth, matrixHeight, nodeCount)
+		def cellSize = matrixWidth / nodeCount // for rough coordinate checking
 
 		def convertCoordinatesToZone(
 			mouseX: Int,
@@ -25,12 +26,13 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			mouseX,
 			mouseY,
 			dimensions,
-			nodeCount
+			nodeCount,
+			grid
 		)
 
 		def convertZoneToShape(zone: AdjMatrixZone) = AdjMatrixCoordinateConverter.convertZoneToShape(
 			zone,
-			dimensions = dimensions,
+			grid = grid,
 			nodeCount = nodeCount
 		)
 
@@ -98,11 +100,13 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 			assert(result == Corner)
 		}
 		test("NoCell when nodeCount is 0") {
+			val zeroGrid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, 0)
 			val result = AdjMatrixCoordinateConverter.convertCoordinatesToZone(
 				mouseX = 50,
 				mouseY = 50,
 				dimensions,
-				nodeCount = 0
+				nodeCount = 0,
+				grid = zeroGrid
 			)
 			assert(result == NoCell)
 		}
@@ -129,39 +133,37 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 		}
 
 		test("convertZoneToShape for Cell") {
-			val zone = Cell(2, 3)
+			val row = 2
+			val col = 3
+			val zone = Cell(row, col)
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = 3 * cellSize
-			val expectedY = 2 * cellSize
-			assert(rect.topLeft.x == expectedX)
-			assert(rect.topLeft.y == expectedY)
-			assert(rect.width == cellSize)
-			assert(rect.height == cellSize)
+			assert(rect.topLeft.x == grid.getX(col))
+			assert(rect.topLeft.y == grid.getY(row))
+			assert(rect.width == grid.getWidth(col))
+			assert(rect.height == grid.getHeight(row))
 		}
 		test("convertZoneToShape for Row") {
-			val zone = Row(1)
+			val row = 1
+			val zone = Row(row)
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = 0
-			val expectedY = 1 * cellSize
-			assert(rect.topLeft.x == expectedX)
-			assert(rect.topLeft.y == expectedY)
+			assert(rect.topLeft.x == 0)
+			assert(rect.topLeft.y == grid.getY(row))
 			assert(rect.width == matrixWidth)
-			assert(rect.height == cellSize)
+			assert(rect.height == grid.getHeight(row))
 		}
 		test("convertZoneToShape for Column") {
-			val zone = Column(4)
+			val col = 4
+			val zone = Column(col)
 			val result = convertZoneToShape(zone)
 			assert(result.isDefined)
 			val rect = result.get
-			val expectedX = 4 * cellSize
-			val expectedY = 0
-			assert(rect.topLeft.x == expectedX)
-			assert(rect.topLeft.y == expectedY)
-			assert(rect.width == cellSize)
+			assert(rect.topLeft.x == grid.getX(col))
+			assert(rect.topLeft.y == 0)
+			assert(rect.width == grid.getWidth(col))
 			assert(rect.height == matrixHeight)
 		}
 		test("convertZoneToShape for Corner returns None") {
@@ -171,9 +173,10 @@ object AdjMatrixCoordinateConverterTests extends TestSuite {
 		}
 		test("convertZoneToShape returns None when nodeCount is 0") {
 			val zone = Cell(0, 0)
+			val zeroGrid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, 0)
 			val result = AdjMatrixCoordinateConverter.convertZoneToShape(
 				zone,
-				dimensions,
+				grid = zeroGrid,
 				nodeCount = 0
 			)
 			assert(result.isEmpty)

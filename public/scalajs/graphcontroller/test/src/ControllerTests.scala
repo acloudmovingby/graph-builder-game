@@ -67,11 +67,9 @@ object ControllerTests extends TestSuite {
 			}
 
 			val graphWithNodes = new SimpleMapGraph[Int]().addNode(22).addNode(119)
-			val with2NodeGraph = newState.copy(graph = graphWithNodes)
-			println(s"newState's graph: ${newState.graph.adjMap.keys.mkString(",")}, with2NodeGraph's graph: ${with2NodeGraph.graph.adjMap.keys.mkString(",")}")
-			val (newState2, renderOps2) = Controller.handleEventWithState(AdjMatrixMouseMove(50, 50), with2NodeGraph)
+			val (newState2, renderOps2) = Controller.handleEventWithState(AdjMatrixMouseMove(50, 50), newState.copy(graph = graphWithNodes))
 			newState2.adjMatrixState match {
-				case Hover(Cell(row, col)) => assert(row == 1 && col == 1) // with the default dimensions and padding, mouse at (50, 50) should correspond to cell (5, 5)
+				case Hover(Cell(row, col)) => assert(row == 1 && col == 1)
 				case _ =>
 					println("Unexpected adjacency matrix state: " + newState2.adjMatrixState)
 					assert(false)

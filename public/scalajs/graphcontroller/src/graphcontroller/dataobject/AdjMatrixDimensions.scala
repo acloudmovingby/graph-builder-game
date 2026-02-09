@@ -11,6 +11,4 @@ case class AdjMatrixDimensions(
 ) {
 	def matrixWidth: Int = canvasWidth - (padding * 2)
 	def matrixHeight: Int = canvasHeight - (padding * 2)
-	def cellWidth(nodeCount: Int): Double = matrixWidth.toDouble / nodeCount.toDouble
-	def cellHeight(nodeCount: Int): Double = matrixHeight.toDouble / nodeCount.toDouble
 }
