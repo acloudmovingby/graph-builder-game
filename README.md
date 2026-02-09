@@ -80,6 +80,9 @@ This tool also was interesting because it builds edges without clicking. You sim
 
 ![Path tool](screenshots/path-tool-1.gif)
 
+## Architecture
+The Main.scala file is the main entry point for the ScalaJS code. It contains the main loop that takes events, updates the state and then updates the view. The graph logic is implemented in GraphController.scala, which uses the Graphi library to represent the graph data structure and perform graph operations. The vanilla JS code is still present and is used for some of the event handling and drawing, but the goal is to eventually port all of that to ScalaJS as well.
+
 ## Wait, these aren't graphs...
 For those not already acquainted, the word "graph" in computer science doesn't mean ordinary graphs like we see in high school math (with an x-axis, y-axis and so on). Graphs, in CS, are what most people would call "networks". 
 

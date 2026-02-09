@@ -88,6 +88,8 @@ object AdjacencyMatrixView {
 		}
 	}
 
+	/** When you hover over a cell or a row/column number, this is the shading drawn over that cell area that indicates
+	 * which cell of the matrix (i.e. edge) clicking would potentially affect.  */
 	def hoveredCellHighlight(
 		graph: MapGraph[Int, ?],
 		dimensions: AdjMatrixDimensions,
@@ -130,7 +132,7 @@ object AdjacencyMatrixView {
 		)
 	}
 
-	/** Render data for matrix cells representing existing edges */
+	/** Render data for matrix cells representing existing edges (at time of writing, these are the black squares) */
 	private def filledInCells(state: State): Seq[RectangleCanvas] = {
 		val nodeCount = state.graph.nodeCount
 		// check this first to avoid division by zero
