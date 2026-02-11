@@ -10,11 +10,14 @@ trait CanvasEventListeners extends EventListener {
 
 	protected def canvasElement: Canvas = dom.document.getElementById(elementId).asInstanceOf[html.Canvas]
 
+	/** TODO: if I ever implement resizing of the screen, this will need to be updated when that happens */
+	private lazy val boundingClientRect = canvasElement.getBoundingClientRect()
+
 	protected def scale = dom.window.devicePixelRatio
 
 	// Calculate the x y coordinates relative to the bounding box of the canvas element
 	protected def relativeCoordinates(e: dom.MouseEvent): (Int, Int) = {
-		val rect = canvasElement.getBoundingClientRect()
+		val rect = boundingClientRect
 		val x = (e.clientX - rect.left).toInt
 		val y = (e.clientY - rect.top).toInt
 		(x, y)

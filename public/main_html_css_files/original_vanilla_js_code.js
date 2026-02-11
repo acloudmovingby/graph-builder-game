@@ -243,6 +243,7 @@ function draw() {
             toolState.curTool === basicTool && basicTool.state.edgeMode;
         let inMagicPathEdgeMode =
             toolState.curTool === magicPathTool && magicPathTool.state.edgeMode;
+
         if (inBasicEdgeMode || inMagicPathEdgeMode) {
             ctx.beginPath();
             ctx.lineWidth = 8;

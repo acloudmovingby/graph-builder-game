@@ -38,7 +38,7 @@ object Main {
 		AdjMatrixCanvas.start()
 
 		/* 'New' components architecture. Wiring up the components */
-		eventListeners.foreach { c => c.init(Controller.handleEvent) }
+		eventListeners.foreach { e => e.init(Controller.handleEvent) }
 	}
 
 	@JSExport

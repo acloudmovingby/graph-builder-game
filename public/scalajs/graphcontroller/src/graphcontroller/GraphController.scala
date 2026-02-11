@@ -1,15 +1,18 @@
 package graphcontroller
 
 import graphcontroller.components.maincanvas.{ArrowRenderProperties, EdgeRender, MainCanvas}
+
 import scala.scalajs.js
 import js.JSConverters.*
 import scala.scalajs.js.annotation.*
-import graphi.{DirectedMapGraph, SimpleMapGraph}
+import graphi.{DirectedMapGraph, MapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{KeyWithData, KeyWithDataConverter, Line, NodeData, NodeDataJS, Vector2D}
 import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, TriangleCanvas}
 import EdgeRender.{edgeHighlightColor, potentialArrowColor, potentialEdgeStrokeColor, simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.model.GraphUndoState
 import graphcontroller.controller.Controller
+
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * The original, now deprecated, way of using ScalaJS. It was called from by the vanilla JS code when I first
@@ -104,14 +107,17 @@ class GraphController {
 		to = Vector2D(toData.x, toData.y)
 	)
 
-	private def getEdgeObjects(g: DirectedMapGraph[Int] | SimpleMapGraph[Int]): Seq[Line] =
+	private def getEdgeObjects(g: MapGraph[Int]): Seq[Line] =
 		g.getEdges.toSeq.flatMap { case (from, to) => getEdgeCoordinates(from, to).toSeq }
 
 	// TODO move a lot of the logic here to its own file outside of GraphController (e.g., EdgeRenderer)
 	@JSExport
 	def renderMainCanvas(): Unit = {
-		val (lines, arrows) = state.graph.uniqueEdgesWithDirection.toSeq
-			.map { case ((from, to), isBidirectional) =>
+		val lineBuffer = ListBuffer.empty[CanvasLine]
+		val arrowBuffer = ListBuffer.empty[TriangleCanvas]
+
+		state.graph.uniqueEdgesWithDirection.toSeq
+			.foreach { case ((from, to), isBidirectional) =>
 				val line = getEdgeCoordinates(from, to).get
 				val (canvasLine, arrowTriangles) = state.graph match {
 					case _: SimpleMapGraph[Int] =>
@@ -129,11 +135,11 @@ class GraphController {
 							destToSrcArrow = if (isBidirectional) Some(ArrowRenderProperties.default) else None
 						)
 				}
-				(canvasLine, arrowTriangles)
-			}.foldLeft((Seq.empty[CanvasLine], Seq.empty[TriangleCanvas])) {
-				case ((linesAcc, trianglesAcc), (line, triangles)) =>
-					(linesAcc :+ line, trianglesAcc ++ triangles)
+				canvasLine +=: lineBuffer
+				arrowTriangles ++=: arrowBuffer
 			}
+
+		val (lines, arrows) = (lineBuffer.toSeq, arrowBuffer.toSeq)
 
 		// Get shapes for highlighted edge (which will get drawn on top of existing edge)
 		// TODO: this is very similar but not identical to the code above. Refactor to avoid duplication?

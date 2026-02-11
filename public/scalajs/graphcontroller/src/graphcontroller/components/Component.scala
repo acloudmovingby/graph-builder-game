@@ -5,13 +5,13 @@ import graphcontroller.model.State
 
 trait Component {
 	/** Pure function that takes current state and input event and produces new state */
-	def update(state: State, event: Event): State
+	def update(state: State, event: Event): State = state
 
 	/**
-	 * Side-effectful function that renders to dom, writes to clipboard, etc. Keep as minimal as possible
-	 * or have sub-methods that are pure functions
+	 * Produces data for rendering the view, derived from the state. This is a pure function, and it should not have any side effects. 
+	 * The side effectful logic should be contained in the RenderOp that it produces.
 	 * */
-	def view(state: State): RenderOp
+	def view(state: State): RenderOp = () => ()
 }
 
 /** 
@@ -21,8 +21,4 @@ trait Component {
  */
 trait RenderOp {
 	def render(): Unit
-}
-
-object RenderOp {
-	val NoOp: RenderOp = () => ()
 }

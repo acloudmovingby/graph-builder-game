@@ -2,13 +2,13 @@ package graphcontroller.model
 
 import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 import graphcontroller.components.exportpane.ExportFormat
-import graphi.{DirectedMapGraph, SimpleMapGraph}
+import graphi.{DirectedMapGraph, MapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.shared.GraphRepresentation
 
 /** State of the whole program!! Well, not really, but like mostly... */
 case class State(
-	graph: DirectedMapGraph[Int] | SimpleMapGraph[Int],
+	graph: MapGraph[Int],
 	keyToData: Map[Int, NodeData],
 	undoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
