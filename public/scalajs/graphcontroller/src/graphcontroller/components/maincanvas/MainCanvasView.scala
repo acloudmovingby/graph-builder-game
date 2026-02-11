@@ -2,7 +2,7 @@ package graphcontroller.components.maincanvas
 
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
-import graphcontroller.components.maincanvas.NodeRenderStyle.Basic
+import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas}
 import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
 import graphcontroller.model.State
@@ -12,6 +12,7 @@ object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
 	private def potentialEdges(state: State): Seq[CanvasRenderOp] = {
 		val graph = state.graph
+
 		// converts Cell class to a (from, to) edge tuple, but disallowing self-loops
 		def getEdgeFromCell(cell: Cell): Option[(Int, Int)] = {
 			val from = cell.row
@@ -24,10 +25,10 @@ object MainCanvasView {
 		val edges = state.adjMatrixState match {
 			case Hover(cell: Cell) =>
 				getEdgeFromCell(cell).toSeq
-			case Hover(row: Row) => 
-					row.cells(graph.nodeCount).flatMap(getEdgeFromCell)
-			case Hover(col: Column) => 
-					col.cells(graph.nodeCount).flatMap(getEdgeFromCell)
+			case Hover(row: Row) =>
+				row.cells(graph.nodeCount).flatMap(getEdgeFromCell)
+			case Hover(col: Column) =>
+				col.cells(graph.nodeCount).flatMap(getEdgeFromCell)
 			case d: CellClicked =>
 				d.selectedCells.flatMap(getEdgeFromCell)
 					.filter { e =>
@@ -81,6 +82,13 @@ case class MainCanvasViewData(
 	shapes: Seq[CanvasRenderOp]
 ) extends RenderOp {
 	def render(): Unit = {
-		MainCanvas.setShapesNew(shapes)
+		val testNodes = Seq(
+			NodeRender.createNodeCanvasObject(Vector2D(100, 100), Some("22"), Basic),
+			NodeRender.createNodeCanvasObject(Vector2D(100, 200), Some("22"), BasicHover),
+			NodeRender.createNodeCanvasObject(Vector2D(100, 300), Some("22"), AddEdgeStart),
+			NodeRender.createNodeCanvasObject(Vector2D(100, 400), Some("22"), AddEdgeNotStart),
+			NodeRender.createNodeCanvasObject(Vector2D(100, 500), Some("22"), AddEdgeHover)
+		).flatten
+		MainCanvas.setShapesNew(shapes ++ testNodes)
 	}
 }

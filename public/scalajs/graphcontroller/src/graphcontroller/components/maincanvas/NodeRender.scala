@@ -5,21 +5,57 @@ import graphcontroller.dataobject.Circle
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas, TextCanvas}
 
 enum NodeRenderStyle {
-	case Basic, BasicHover, AddEdgeStart, AddEdgeOther, AddEdgeHover
+	case
+	Basic, // The default look of a node, like your cursor is off the canvsa or using the basic edge adding tool
+	BasicHover, // If you hover over a node when using the basic edge adding tool
+	AddEdgeStart, // When you clicked on a node and enter basic edge adding mode
+	AddEdgeNotStart, // All the other nodes that are waiting to be connected to
+	AddEdgeHover // When you are in edge adding mode and hovering over another target node
 }
 
 object NodeRender {
+
+	// TODO uh, we should figure out why NodeRenderProperties has a different value than this
+	val baseNodeRadius = 18
+
 	import NodeRenderStyle.*
 
 	def createNodeCanvasObject(center: Vector2D, label: Option[String], style: NodeRenderStyle): Seq[CanvasRenderOp] = {
+		def basicNodeCircle(center: Vector2D) = {
+			// creates a simple filled in circle of the specified color
+			CircleCanvas(
+				circ = Circle(center = center, radius = baseNodeRadius),
+				fillColor = Some("#32BFE3"),
+				borderColor = None, // Some("#32BFE3"), // I don't know why but the vanilla JS code had stuff about borders but for some reason doesn't use them
+				borderWidth = None // Some(8.0)
+			)
+		}
+
+		lazy val basicText = label.map { l =>
+			TextCanvas(
+				coords = center,
+				text = l,
+				color = "white",
+				font = "1rem Arial"
+			)
+		}
+
 		val circles = style match {
-			case Basic =>
-				Seq(CircleCanvas(
-					circ = Circle(center = center, radius = 18),
-					fillColor = Some("#32BFE3"),
-					borderColor = None, // Some("#32BFE3"), // I don't know why but the vanilla JS code had stuff about borders but for some reason doesn't use them
-					borderWidth = None // Some(8.0)
-				))
+			case Basic => Seq(basicNodeCircle(center)) ++ basicText
+			case BasicHover =>
+				val ringAroundNode = {
+					CircleCanvas(
+						circ = Circle(center = center, radius = baseNodeRadius + 6),
+						fillColor = None,
+						borderColor = Some("#32BFE3"),
+						borderWidth = Some(4.0) // Some(8.0)
+					)
+				}
+				Seq(basicNodeCircle(center), ringAroundNode) ++ basicText
+			case AddEdgeStart =>
+				val node = basicNodeCircle(center).copy(fillColor = Some("#FA5750"))
+				Seq(node) ++ basicText
+
 			case _ => Seq.empty // TODO
 		}
 
@@ -43,10 +79,10 @@ object NodeRender {
 				coords = center,
 				text = labelText,
 				color = textColor,
-				font =  "1rem Arial"
+				font = "1rem Arial"
 			)
 		}
-		circles ++ text
+		circles //++ text
 	}
 
 }
