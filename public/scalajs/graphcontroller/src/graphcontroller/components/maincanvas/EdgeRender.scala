@@ -22,7 +22,7 @@ object EdgeRender {
 
 	case class DirectedEdge(bidirectional: Boolean, edge: Line)
 
-	def decideDirectionality(edges: Seq[Line]): List[DirectedEdge] = {
+	private def decideDirectionality(edges: Seq[Line]): List[DirectedEdge] = {
 		val edgeSet = edges.map(e => (e.from, e.to)).toSet
 		var seen = Set.empty[(Vector2D, Vector2D)]
 		val directedEdges = scala.collection.mutable.ListBuffer[DirectedEdge]()

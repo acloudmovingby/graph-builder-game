@@ -2,8 +2,9 @@ package graphcontroller.components.maincanvas
 
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
-import graphcontroller.dataobject.canvas.CanvasRenderOp
-import graphcontroller.dataobject.{Cell, Column, Row}
+import graphcontroller.components.maincanvas.NodeRenderStyle.Basic
+import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas}
+import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
 import graphcontroller.model.State
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 

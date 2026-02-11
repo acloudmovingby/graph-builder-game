@@ -10,7 +10,7 @@ case class TextCanvas(
 	coords: Vector2D,
 	text: String,
 	color: String, // Hex string, e.g. "#FF0000"
-	fontSize: Int
+	font: String // css 'font' string, e.g. "8px sans-serif"
 ) extends CanvasRenderOp, Shape {
 	type This = TextCanvas
 
@@ -21,8 +21,8 @@ case class TextCanvas(
 		// center align the text horizontally
 		ctx.textAlign = "center"
 		// font size
-		ctx.font = s"${fontSize}px sans-serif"
-		ctx.fillText(text, coords.x.toDouble, coords.y.toDouble + 1) // +1 to better center vertically
+		ctx.font = font
+		ctx.fillText(text, coords.x.toDouble, coords.y.toDouble + 1.5) // +1 to better center vertically
 	}
 
 	def translate(vec: Vector2D): This = this.copy(
