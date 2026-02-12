@@ -14,9 +14,11 @@ case class CircleCanvas(
 	type This = CircleCanvas
 
 	def draw(ctx: dom.CanvasRenderingContext2D): Unit = {
+		ctx.beginPath()
+		ctx.arc(circ.center.x, circ.center.y, circ.radius, 0, 2 * Math.PI)
+
 		fillColor.foreach { color =>
 			ctx.fillStyle = color
-			ctx.beginPath()
 			ctx.arc(circ.center.x, circ.center.y, circ.radius, 0, 2 * Math.PI)
 			ctx.fill()
 		}
@@ -24,8 +26,6 @@ case class CircleCanvas(
 		borderColor.foreach { color =>
 			ctx.strokeStyle = color
 			ctx.lineWidth = borderWidth.getOrElse(1.0)
-			ctx.beginPath()
-			ctx.arc(circ.center.x, circ.center.y, circ.radius, 0, 2 * Math.PI)
 			ctx.stroke()
 		}
 	}

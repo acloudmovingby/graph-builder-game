@@ -17,6 +17,7 @@ object NodeRender {
 
 	// TODO uh, we should figure out why NodeRenderProperties has a different value than this
 	val baseNodeRadius = 18
+	val addEdgeInnerCircleRadius = 10
 
 	import NodeRenderStyle.*
 
@@ -31,7 +32,14 @@ object NodeRender {
 			)
 		}
 
-		lazy val basicText = label.map { l =>
+		def ringCircle(center: Vector2D) = CircleCanvas(
+				circ = Circle(center, baseNodeRadius - 2),
+				fillColor = Some("white"),
+				borderColor = Some("#FA5750"),
+				borderWidth = Some(4.0)
+			)
+
+		lazy val basicText: Option[TextCanvas] = label.map { l =>
 			TextCanvas(
 				coords = center,
 				text = l,
@@ -55,8 +63,19 @@ object NodeRender {
 			case AddEdgeStart =>
 				val node = basicNodeCircle(center).copy(fillColor = Some("#FA5750"))
 				Seq(node) ++ basicText
-
-			case _ => Seq.empty // TODO
+			case AddEdgeNotStart =>
+				val node = ringCircle(center)
+				val text = basicText.map(_.copy(color = "#FA5750"))
+				Seq(node) ++ text
+			case AddEdgeHover =>
+				val node = ringCircle(center)
+				val innerCircle = CircleCanvas(
+					circ = Circle(center, radius = addEdgeInnerCircleRadius),
+					fillColor = Some("#FA5750"),
+					borderColor = None,
+					borderWidth = None
+				)
+				Seq(node, innerCircle) ++ basicText
 		}
 
 		val textColor = "white" // TODO add the other possibilities as shown in JS code below

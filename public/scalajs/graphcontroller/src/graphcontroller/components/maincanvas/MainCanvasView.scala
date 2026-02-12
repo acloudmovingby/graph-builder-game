@@ -82,13 +82,13 @@ case class MainCanvasViewData(
 	shapes: Seq[CanvasRenderOp]
 ) extends RenderOp {
 	def render(): Unit = {
-		val testNodes = Seq(
+		/*val testNodes = Seq(
 			NodeRender.createNodeCanvasObject(Vector2D(100, 100), Some("22"), Basic),
 			NodeRender.createNodeCanvasObject(Vector2D(100, 200), Some("22"), BasicHover),
 			NodeRender.createNodeCanvasObject(Vector2D(100, 300), Some("22"), AddEdgeStart),
 			NodeRender.createNodeCanvasObject(Vector2D(100, 400), Some("22"), AddEdgeNotStart),
 			NodeRender.createNodeCanvasObject(Vector2D(100, 500), Some("22"), AddEdgeHover)
-		).flatten
-		MainCanvas.setShapesNew(shapes ++ testNodes)
+		).flatten*/
+		MainCanvas.setShapesNew(shapes /* ++ testNodes */)
 	}
 }
