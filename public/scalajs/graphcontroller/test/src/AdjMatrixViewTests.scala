@@ -95,7 +95,8 @@ object AdjMatrixViewTests extends TestSuite {
 				adjMatrixDimensions = dimensions,
 				exportFormat = ExportFormat.DOT,
 				adjacencyExportType = GraphRepresentation.List,
-				toolState = BasicTool(None)
+				toolState = BasicTool(None),
+				hoveringOnNode = None
 			)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 
@@ -147,7 +148,8 @@ object AdjMatrixViewTests extends TestSuite {
 				adjMatrixDimensions = dimensions,
 				exportFormat = ExportFormat.DOT,
 				adjacencyExportType = GraphRepresentation.List,
-				toolState = BasicTool(None)
+				toolState = BasicTool(None),
+				hoveringOnNode = None
 			)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 			val hoveredRow = Row(0)

@@ -79,9 +79,13 @@ object MainCanvasView {
 		val nodes = state.graph.nodes
 
 		val styles = state.toolState match {
-			case BasicTool(None) => nodes.map(n => (n, Basic))
-			case BasicTool(Some(hoveredNode)) =>
-				(hoveredNode, BasicHover) +: nodes.filter(_ != hoveredNode).map(n => (n, Basic))
+			case BasicTool(None) =>
+				nodes.filterNot(state.hoveringOnNode.contains).map(n => (n, Basic)) ++ state.hoveringOnNode.map(n => (n, BasicHover))
+			case BasicTool(Some(edgeStart)) =>
+				val normalNodes = nodes.filter { n =>
+					n != edgeStart && !state.hoveringOnNode.contains(n)
+				}.map(n => (n, AddEdgeStart))
+				(edgeStart, AddEdgeStart) +: (normalNodes ++ state.hoveringOnNode.map(n => (n, AddEdgeHover)))
 			case _ => Seq.empty
 		}
 
@@ -93,7 +97,7 @@ object MainCanvasView {
 	}
 
 	def render(state: State): MainCanvasViewData = {
-		MainCanvasViewData(potentialEdges(state) /* ++ nodes(state)*/)
+		MainCanvasViewData(potentialEdges(state) /*++ nodes(state)*/)
 	}
 }
 

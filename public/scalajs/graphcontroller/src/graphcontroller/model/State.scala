@@ -16,7 +16,8 @@ case class State(
 	copyToClipboard: Boolean = false,
 	exportFormat: ExportFormat, // DOT, Python, etc.
 	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
-	toolState: Tool
+	toolState: Tool,
+	hoveringOnNode: Option[Int] // if a cursor is hovering over a node on the main canvas
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -59,6 +60,7 @@ object State {
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
 		exportFormat = ExportFormat.DOT,
 		adjacencyExportType = GraphRepresentation.List,
-		toolState = BasicTool(None)
+		toolState = BasicTool(None),
+		hoveringOnNode = None
 	)
 }
