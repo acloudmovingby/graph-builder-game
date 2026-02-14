@@ -4,7 +4,7 @@ import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
-import graphcontroller.dataobject.{Cell, NoCell}
+import graphcontroller.dataobject.{Cell, NoCell, Vector2D}
 import graphcontroller.model.State
 import graphcontroller.shared.GraphRepresentation
 import graphi.SimpleMapGraph
@@ -66,8 +66,10 @@ object ControllerTests extends TestSuite {
 					assert(false)
 			}
 
-			val graphWithNodes = new SimpleMapGraph[Int]().addNode(22).addNode(119)
-			val (newState2, renderOps2) = Controller.handleEventWithState(AdjMatrixMouseMove(50, 50), newState.copy(graph = graphWithNodes))
+			val (newState2, renderOps2) = Controller.handleEventWithState(
+				AdjMatrixMouseMove(50, 50),
+				newState.addNode(22, Vector2D(0, 0)).addNode(119, Vector2D(10, 10))
+			)
 			newState2.adjMatrixState match {
 				case Hover(Cell(row, col)) => assert(row == 1 && col == 1)
 				case _ =>

@@ -4,7 +4,7 @@ import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionState, No
 import graphcontroller.components.exportpane.ExportFormat
 import graphi.{DirectedMapGraph, MapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
-import graphcontroller.shared.GraphRepresentation
+import graphcontroller.shared.{BasicTool, GraphRepresentation, Tool}
 
 /** State of the whole program!! Well, not really, but like mostly... */
 case class State(
@@ -15,7 +15,8 @@ case class State(
 	adjMatrixDimensions: AdjMatrixDimensions,
 	copyToClipboard: Boolean = false,
 	exportFormat: ExportFormat, // DOT, Python, etc.
-	adjacencyExportType: GraphRepresentation // whether exporting as list, matrix, etc. (for formats where that's applicable)
+	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
+	toolState: Tool
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -35,6 +36,14 @@ case class State(
 		from = Vector2D(fromData.x, fromData.y),
 		to = Vector2D(toData.x, toData.y)
 	)
+	
+	def addNode(node: Int, coords: Vector2D): State = {
+		this.copy(graph = graph.addNode(node), keyToData + (node -> NodeData(0, coords.x, coords.y)))
+	}
+	
+	def addEdge(from: Int, to: Int): State = {
+		this.copy(graph = graph.addEdge(from, to))
+	}
 }
 
 object State {
@@ -49,6 +58,7 @@ object State {
 		adjMatrixState = NoSelection,
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
 		exportFormat = ExportFormat.DOT,
-		adjacencyExportType = GraphRepresentation.List
+		adjacencyExportType = GraphRepresentation.List,
+		toolState = BasicTool(None)
 	)
 }

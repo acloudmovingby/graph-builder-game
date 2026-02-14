@@ -1,7 +1,7 @@
 import graphcontroller.components.adjacencymatrix.{AdjacencyMatrixView, Hover, NoSelection}
 import graphcontroller.dataobject.*
 import graphcontroller.model.State
-import graphcontroller.shared.{GraphRepresentation, GridUtils}
+import graphcontroller.shared.{BasicTool, GraphRepresentation, GridUtils}
 import graphi.DirectedMapGraph
 import utest.*
 import graphcontroller.components.exportpane.ExportFormat
@@ -94,7 +94,8 @@ object AdjMatrixViewTests extends TestSuite {
 				adjMatrixState = NoSelection,
 				adjMatrixDimensions = dimensions,
 				exportFormat = ExportFormat.DOT,
-				adjacencyExportType = GraphRepresentation.List
+				adjacencyExportType = GraphRepresentation.List,
+				toolState = BasicTool(None)
 			)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 
@@ -145,7 +146,8 @@ object AdjMatrixViewTests extends TestSuite {
 				adjMatrixState = NoSelection,
 				adjMatrixDimensions = dimensions,
 				exportFormat = ExportFormat.DOT,
-				adjacencyExportType = GraphRepresentation.List
+				adjacencyExportType = GraphRepresentation.List,
+				toolState = BasicTool(None)
 			)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 			val hoveredRow = Row(0)

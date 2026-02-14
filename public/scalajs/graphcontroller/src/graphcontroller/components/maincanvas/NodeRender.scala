@@ -5,8 +5,7 @@ import graphcontroller.dataobject.Circle
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas, TextCanvas}
 
 enum NodeRenderStyle {
-	case
-	Basic, // The default look of a node, like your cursor is off the canvsa or using the basic edge adding tool
+	case Basic, // The default look of a node, like your cursor is off the canvsa or using the basic edge adding tool
 	BasicHover, // If you hover over a node when using the basic edge adding tool
 	AddEdgeStart, // When you clicked on a node and enter basic edge adding mode
 	AddEdgeNotStart, // All the other nodes that are waiting to be connected to
@@ -33,11 +32,11 @@ object NodeRender {
 		}
 
 		def ringCircle(center: Vector2D) = CircleCanvas(
-				circ = Circle(center, baseNodeRadius - 2),
-				fillColor = Some("white"),
-				borderColor = Some("#FA5750"),
-				borderWidth = Some(4.0)
-			)
+			circ = Circle(center, baseNodeRadius - 2),
+			fillColor = Some("white"),
+			borderColor = Some("#FA5750"),
+			borderWidth = Some(4.0)
+		)
 
 		lazy val basicText: Option[TextCanvas] = label.map { l =>
 			TextCanvas(

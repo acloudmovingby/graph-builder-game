@@ -1,12 +1,14 @@
 package graphcontroller.components.maincanvas
 
+import graphi.{DirectedMapGraph, SimpleMapGraph}
+
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas}
 import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
 import graphcontroller.model.State
-import graphi.{DirectedMapGraph, SimpleMapGraph}
+import graphcontroller.shared.BasicTool
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
@@ -73,8 +75,25 @@ object MainCanvasView {
 		}
 	}
 
+	def nodes(state: State): Seq[CanvasRenderOp] = {
+		val nodes = state.graph.nodes
+
+		val styles = state.toolState match {
+			case BasicTool(None) => nodes.map(n => (n, Basic))
+			case BasicTool(Some(hoveredNode)) =>
+				(hoveredNode, BasicHover) +: nodes.filter(_ != hoveredNode).map(n => (n, Basic))
+			case _ => Seq.empty
+		}
+
+		styles.flatMap { case (node, style) =>
+			val data = state.keyToData(node)
+			// TODO remove the + 50 when I don't need that
+			NodeRender.createNodeCanvasObject(Vector2D(data.x + 50, data.y + 50), Some(node.toString), style)
+		}
+	}
+
 	def render(state: State): MainCanvasViewData = {
-		MainCanvasViewData(potentialEdges(state))
+		MainCanvasViewData(potentialEdges(state) /* ++ nodes(state)*/)
 	}
 }
 

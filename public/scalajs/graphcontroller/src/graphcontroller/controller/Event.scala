@@ -1,6 +1,7 @@
 package graphcontroller.controller
 
 import graphcontroller.components.exportpane.ExportFormat
+import graphcontroller.dataobject.Vector2D
 import graphcontroller.shared.GraphRepresentation
 
 sealed trait Event
@@ -36,3 +37,7 @@ case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixE
 case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+
+trait MainCanvasMouseEvent extends Event
+
+case class MainCanvasMouseMove(coords: Vector2D) extends MainCanvasMouseEvent
