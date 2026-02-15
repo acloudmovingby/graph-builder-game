@@ -41,3 +41,5 @@ case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrix
 trait MainCanvasMouseEvent extends Event
 
 case class MainCanvasMouseMove(coords: Vector2D) extends MainCanvasMouseEvent
+case class MainCanvasMouseUp(coords: Vector2D) extends MainCanvasMouseEvent
+

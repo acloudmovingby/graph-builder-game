@@ -16,7 +16,10 @@ object MainCanvasEventListeners extends CanvasEventListeners {
 		MainCanvasMouseMove(Vector2D(coords._1, coords._2))
 	}
 
-    def mouseDown(e: dom.MouseEvent): Event = NoOp
+    def mouseDown(e: dom.MouseEvent): Event = {
+		val coords = relativeCoordinates(e)
+		MainCanvasMouseUp(Vector2D(coords._1, coords._2))
+	}
 
     def mouseUp(e: dom.MouseEvent): Event = NoOp
 

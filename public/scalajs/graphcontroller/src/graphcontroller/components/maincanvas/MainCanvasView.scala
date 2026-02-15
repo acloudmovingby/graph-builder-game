@@ -97,7 +97,7 @@ object MainCanvasView {
 	}
 
 	def render(state: State): MainCanvasViewData = {
-		MainCanvasViewData(potentialEdges(state) /*++ nodes(state)*/)
+		MainCanvasViewData(potentialEdges(state)/* ++ nodes(state)*/)
 	}
 }
 
@@ -112,6 +112,6 @@ case class MainCanvasViewData(
 			NodeRender.createNodeCanvasObject(Vector2D(100, 400), Some("22"), AddEdgeNotStart),
 			NodeRender.createNodeCanvasObject(Vector2D(100, 500), Some("22"), AddEdgeHover)
 		).flatten*/
-		MainCanvas.setShapesNew(shapes /* ++ testNodes */)
+		MainCanvas.setShapesNew(shapes /*++ testNodes */)
 	}
 }
