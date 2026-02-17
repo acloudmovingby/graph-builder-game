@@ -46,14 +46,18 @@ object MainCanvasComponent extends Component {
 						// TODO handle other tool states and scenarios
 						state
 				}
-			case Leave => state
+			case Leave => state.toolState match {
+				case BasicTool(Some(_)) => state.copy(toolState = BasicTool(None))
+				case MagicPathTool(Some(_)) => state.copy(toolState = MagicPathTool(None))
+				case _ => state
+			}
 		}
 		// TODO delete this logging
-//		if (state.graph != newState.graph || state.toolState != newState.toolState || state.hoveringOnNode != newState.hoveringOnNode) {
-//			println(s"--------- $eventType ---------")
-//			println(s"PREVIOUS graph state: ${state.graph}, previous tool state: ${state.toolState}, previous hoveringOnNode: ${state.hoveringOnNode}")
-//			println(s"graph state: ${newState.graph}, tool state: ${newState.toolState}, hoveringOnNode=${newState.hoveringOnNode}")
-//		}
+		//		if (state.graph != newState.graph || state.toolState != newState.toolState || state.hoveringOnNode != newState.hoveringOnNode) {
+		//			println(s"--------- $eventType ---------")
+		//			println(s"PREVIOUS graph state: ${state.graph}, previous tool state: ${state.toolState}, previous hoveringOnNode: ${state.hoveringOnNode}")
+		//			println(s"graph state: ${newState.graph}, tool state: ${newState.toolState}, hoveringOnNode=${newState.hoveringOnNode}")
+		//		}
 
 		// handle updating the stored mouse position and return
 		newState.copy(lastMainCanvasMousePosition = event.coords)
@@ -61,7 +65,7 @@ object MainCanvasComponent extends Component {
 
 	override def update(state: State, event: Event): State = {
 		event match {
-			case m: MainCanvasMouseEvent=> mouseMoveHandling(state, m)
+			case m: MainCanvasMouseEvent => mouseMoveHandling(state, m)
 			case _ => state
 		}
 	}
