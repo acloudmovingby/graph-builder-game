@@ -1,6 +1,6 @@
 package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.canvas.{CanvasLine, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, TriangleCanvas}
 import graphcontroller.dataobject.{Line, Vector2D}
 import ArrowTipRender.getArrowTriangle
 
@@ -84,6 +84,12 @@ object EdgeRender {
 	def simpleEdge(e: Line, strokeWidth: Int, color: String): CanvasLine = {
 		CanvasLine(e.from, e.to, strokeWidth, color)
 	}
+
+	/** 
+	 * When in basic tool or magic path tool, this is th eline going from the edge start to the current
+	 * cursor location (at time of writing, a thin yellow line. 
+	 * */
+	def edgeAddingIndicatorLine(from: Vector2D, to: Vector2D): CanvasLine = CanvasLine(from, to, width = 8, color = "#ffdc7a")
 
 	/** Takes all the information needed to render the directed edge. Returns tuple of (line, arrows) */
 	def directedEdge(

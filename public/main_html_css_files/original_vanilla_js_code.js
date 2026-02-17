@@ -238,24 +238,6 @@ function draw() {
         const welcome = document.getElementById('welcome-message');
         welcome.style.visibility = graphController.nodeCount() === 0 ? "visible" : "hidden";
 
-        //edge mode, draw edge from edgeStart to mouse cursor
-        let inBasicEdgeMode =
-            toolState.curTool === basicTool && basicTool.state.edgeMode;
-        let inMagicPathEdgeMode =
-            toolState.curTool === magicPathTool && magicPathTool.state.edgeMode;
-
-        if (inBasicEdgeMode || inMagicPathEdgeMode) {
-            ctx.beginPath();
-            ctx.lineWidth = 8;
-            ctx.strokeStyle = "#ffdc7a";
-            let edgeStart = toolState.curTool.state.edgeStart;
-            let data = graphController.getNodeData(edgeStart);
-            ctx.moveTo(data.x, data.y);
-            ctx.lineTo(mouseX, mouseY);
-            ctx.closePath();
-            ctx.stroke();
-        }
-
         // trigger drawing of edge shapes in the ScalaJS code
         const shapes = graphController.renderMainCanvas();
 

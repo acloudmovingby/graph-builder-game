@@ -17,7 +17,8 @@ case class State(
 	exportFormat: ExportFormat, // DOT, Python, etc.
 	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
 	toolState: Tool,
-	hoveringOnNode: Option[HoveredNode] // whichever node the cursor is hovering over on the main canvas (if any)
+	hoveringOnNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
+	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0)
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because

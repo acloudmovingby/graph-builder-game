@@ -4,10 +4,10 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
-import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, CircleCanvas}
 import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{BasicTool, Tool}
+import graphcontroller.shared.{BasicTool, MagicPathTool, Tool}
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
@@ -109,8 +109,22 @@ object MainCanvasView {
 			}
 	}
 
+	private def edgeAddingIndicatorLine(state: State): Option[CanvasLine] = {
+		val maybeEdgeStart = state.toolState match {
+			case BasicTool(maybeEdgeStart) => maybeEdgeStart
+			case MagicPathTool(maybeEdgeStart) => maybeEdgeStart
+			case _ => None
+		}
+		for {
+			edgeStart <- maybeEdgeStart
+			data <- state.keyToData.get(edgeStart)
+		} yield {
+			EdgeRender.edgeAddingIndicatorLine(Vector2D(data.x, data.y), state.lastMainCanvasMousePosition)
+		}
+	}
+
 	def render(state: State): MainCanvasViewData = {
-		MainCanvasViewData(potentialEdges(state) ++ nodes(state))
+		MainCanvasViewData(potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state))
 	}
 }
 
