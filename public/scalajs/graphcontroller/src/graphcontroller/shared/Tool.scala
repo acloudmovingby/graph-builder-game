@@ -2,6 +2,9 @@ package graphcontroller.shared
 
 import graphcontroller.dataobject.Vector2D
 
+/** This is all the information each Tool needs to appear in the top nav bar (including the animation, description, etc.)
+ * Each individual tool case that inherits from this contains the state information that it uses for its own purposes (e.g.
+ * the starting node when in the middle of adding an edge) */
 sealed trait Tool {
 	val htmlId: String
 	val header: String
@@ -11,7 +14,7 @@ sealed trait Tool {
 }
 
 case class BasicTool(
-	edgeStart: Option[Int] // Only if in edge adding mode (where a start edge has been chosen)
+	edgeStart: Option[Int], // Only if in edge adding mode (where a start edge has been chosen)
 ) extends Tool {
 	override val header: String = "Basic Node/Edge Adding Tool"
 	override val animationImgPath: String = "images/basic-tool-tooltip-example.gif"

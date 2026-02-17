@@ -17,6 +17,12 @@ case object CopyButtonClicked extends Event
 case class ExportFormatChanged(format: ExportFormat) extends Event
 case class ExportAdjacencyTypeChanged(adjType: GraphRepresentation) extends Event
 
+/** TODO: if we like using this for main canvas events, use for adjacency matrix events as well */
+enum MouseEventType {
+	// corresponds to JS `mousedown`, `mouseup`, etc. event handlers 
+	case Move, Up, Down, Leave
+}
+
 sealed trait AdjacencyMatrixEvent extends Event {
 	val mouseX: Int
 	val mouseY: Int
@@ -38,8 +44,4 @@ case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEve
 
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 
-trait MainCanvasMouseEvent extends Event
-
-case class MainCanvasMouseMove(coords: Vector2D) extends MainCanvasMouseEvent
-case class MainCanvasMouseUp(coords: Vector2D) extends MainCanvasMouseEvent
-
+case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEventType) extends Event

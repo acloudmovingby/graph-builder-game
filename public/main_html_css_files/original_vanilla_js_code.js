@@ -263,6 +263,7 @@ function draw() {
         // like you
 
         // draw nodes
+        /*
         let nodes = graphController.getFullNodeData();
         for (let i = 0; i < nodes.length; i++) {
             const isEdgeStart = nodes[i].key === toolState.curTool.state.edgeStart;
@@ -349,6 +350,7 @@ function draw() {
             ctx.stroke();
             ctx.fill();
         }
+        */
 
         // dotted circle target for magic path tool
         if (toolState.curTool === magicPathTool && magicPathTool.state.edgeMode) {
@@ -395,15 +397,15 @@ function mouseDown(event) {
             const nextKey = graphController.nextNodeKey();
             let newNode = new NodeData(nextKey, 0, x, y);
             graph.addNode(newNode);
-            graphController.addNode(nextKey, {
-                counter: 0,
-                x: x,
-                y: y
-            });
+//            graphController.addNode(nextKey, {
+//                counter: 0,
+//                x: x,
+//                y: y
+//            });
             basicTool.state.stillInNode = true;
             refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
         } else if (!basicTool.state.edgeMode) {
-            enterBasicEdgeMode(nodeClicked);
+//            enterBasicEdgeMode(nodeClicked);
         } else if (nodeClicked && nodeClicked?.key != basicTool.state.edgeStart) {
             // add edge
             if (!graphController.containsEdge(basicTool.state.edgeStart, nodeClicked?.key)) {

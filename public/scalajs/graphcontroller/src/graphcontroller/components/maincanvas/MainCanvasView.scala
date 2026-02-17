@@ -1,14 +1,13 @@
 package graphcontroller.components.maincanvas
 
 import graphi.{DirectedMapGraph, SimpleMapGraph}
-
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas}
 import graphcontroller.dataobject.{Cell, Column, Row, Vector2D}
-import graphcontroller.model.State
-import graphcontroller.shared.BasicTool
+import graphcontroller.model.{HoveredNode, State}
+import graphcontroller.shared.{BasicTool, Tool}
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
@@ -75,29 +74,43 @@ object MainCanvasView {
 		}
 	}
 
-	def nodes(state: State): Seq[CanvasRenderOp] = {
-		val nodes = state.graph.nodes
-
-		val styles = state.toolState match {
-			case BasicTool(None) =>
-				nodes.filterNot(state.hoveringOnNode.contains).map(n => (n, Basic)) ++ state.hoveringOnNode.map(n => (n, BasicHover))
-			case BasicTool(Some(edgeStart)) =>
-				val normalNodes = nodes.filter { n =>
-					n != edgeStart && !state.hoveringOnNode.contains(n)
-				}.map(n => (n, AddEdgeStart))
-				(edgeStart, AddEdgeStart) +: (normalNodes ++ state.hoveringOnNode.map(n => (n, AddEdgeHover)))
-			case _ => Seq.empty
+	/**
+	 * TODO don't pass in all of state, just pass in values we need and write unit tests for this (which is easier/better
+	 * 	than writing unit tests for the final thing that produces the CanvasRenderOp because maybe we will change how each
+	 * 	style is rendered and the NodeRenderStyle is a simple enum)
+	 */
+	def nodesWithStyles(nodes: Seq[Int], hoveringOnNode: Option[HoveredNode], toolState: Tool): Seq[(Int, NodeRenderStyle)] = {
+		val (nonHoveredNodes, hoveredNode, justAdded) = hoveringOnNode match {
+			case None => (nodes, None, false)
+			case Some(HoveredNode(nodeIndex, justAdded)) =>
+				(nodes.filter(_ != nodeIndex), Some(nodeIndex), justAdded)
 		}
 
-		styles.flatMap { case (node, style) =>
-			val data = state.keyToData(node)
-			// TODO remove the + 50 when I don't need that
-			NodeRender.createNodeCanvasObject(Vector2D(data.x + 50, data.y + 50), Some(node.toString), style)
+		toolState match {
+			case BasicTool(None) =>
+				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
+				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
+				nonHoveredStyles ++ hoveredStyle
+			case BasicTool(Some(edgeStart)) =>
+				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
+				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = withoutEdgeStart.map(n => (n, AddEdgeNotStart))
+				val edgeStartStyle: Option[(Int, NodeRenderStyle)] = Some((edgeStart, AddEdgeStart))
+				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, AddEdgeHover))
+				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
+			case _ => Seq.empty
 		}
 	}
 
+	def nodes(state: State): Seq[CanvasRenderOp] = {
+		nodesWithStyles(state.graph.nodes, state.hoveringOnNode, state.toolState)
+			.flatMap { case (node, style) =>
+				val data = state.keyToData(node)
+				NodeRender.createNodeCanvasObject(Vector2D(data.x, data.y), Some(node.toString), style)
+			}
+	}
+
 	def render(state: State): MainCanvasViewData = {
-		MainCanvasViewData(potentialEdges(state)/* ++ nodes(state)*/)
+		MainCanvasViewData(potentialEdges(state) ++ nodes(state))
 	}
 }
 

@@ -1,6 +1,7 @@
 package graphcontroller.components.maincanvas.eventlisteners
 
 import graphcontroller.controller.*
+import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.shared.CanvasEventListeners
 import org.scalajs.dom
@@ -13,12 +14,12 @@ object MainCanvasEventListeners extends CanvasEventListeners {
     // so it actually triggers view update)
     def mouseMove(e: dom.MouseEvent): Event = {
 		val coords = relativeCoordinates(e)
-		MainCanvasMouseMove(Vector2D(coords._1, coords._2))
+		MainCanvasMouseEvent(Vector2D(coords._1, coords._2), Move)
 	}
 
     def mouseDown(e: dom.MouseEvent): Event = {
 		val coords = relativeCoordinates(e)
-		MainCanvasMouseUp(Vector2D(coords._1, coords._2))
+		MainCanvasMouseEvent(Vector2D(coords._1, coords._2), Down)
 	}
 
     def mouseUp(e: dom.MouseEvent): Event = NoOp

@@ -17,7 +17,7 @@ case class State(
 	exportFormat: ExportFormat, // DOT, Python, etc.
 	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
 	toolState: Tool,
-	hoveringOnNode: Option[Int] // if a cursor is hovering over a node on the main canvas
+	hoveringOnNode: Option[HoveredNode] // whichever node the cursor is hovering over on the main canvas (if any)
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -37,9 +37,11 @@ case class State(
 		from = Vector2D(fromData.x, fromData.y),
 		to = Vector2D(toData.x, toData.y)
 	)
-	
-	def addNode(node: Int, coords: Vector2D): State = {
-		this.copy(graph = graph.addNode(node), keyToData + (node -> NodeData(0, coords.x, coords.y)))
+
+	/** Adds node with label as next highest index */
+	def addNode(coords: Vector2D): State = {
+		val nextIndex = graph.nodeCount
+		this.copy(graph = graph.addNode(nextIndex), keyToData + (nextIndex -> NodeData(0, coords.x, coords.y)))
 	}
 	
 	def addEdge(from: Int, to: Int): State = {
@@ -64,3 +66,8 @@ object State {
 		hoveringOnNode = None
 	)
 }
+
+case class HoveredNode(
+	nodeIndex: Int, 
+	justAdded: Boolean // use this flag so that when we add a new node the hover effect doesn't immediately appear (not necessary but seems to look nicer)
+)

@@ -68,7 +68,7 @@ object ControllerTests extends TestSuite {
 
 			val (newState2, renderOps2) = Controller.handleEventWithState(
 				AdjMatrixMouseMove(50, 50),
-				newState.addNode(22, Vector2D(0, 0)).addNode(119, Vector2D(10, 10))
+				newState.addNode(Vector2D(0, 0)).addNode(Vector2D(10, 10))
 			)
 			newState2.adjMatrixState match {
 				case Hover(Cell(row, col)) => assert(row == 1 && col == 1)
