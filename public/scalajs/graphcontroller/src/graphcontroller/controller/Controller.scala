@@ -5,6 +5,7 @@ import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
 import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.components.maincanvas.MainCanvasComponent
 import graphcontroller.components.resizing.ResizingComponent
+import graphcontroller.components.toolbar.ToolBarComponent
 import graphcontroller.model.State
 
 /**
@@ -19,7 +20,8 @@ object Controller {
 		AdjacencyMatrixComponent,
 		ExportPane,
 		MainCanvasComponent,
-		ResizingComponent
+		ResizingComponent,
+		ToolBarComponent
 	)
 
 	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */

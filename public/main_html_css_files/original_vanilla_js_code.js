@@ -119,10 +119,12 @@ let moveTool = new Tool(
     }
 );
 
+/*
 const toolState = {
     curTool: basicTool,
     allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
 };
+*/
 
 // =====================
 // Canvas Setup
@@ -152,6 +154,7 @@ window.addEventListener('resize', function(event) {
     setCanvasSize()
 });
 
+/*
 for (const tool of toolState.allTools) {
     if (document.getElementById(tool.id)) {
         document.getElementById(tool.id).addEventListener(
@@ -164,7 +167,9 @@ for (const tool of toolState.allTools) {
         );
     }
 }
+*/
 
+/*
 for (const tool of toolState.allTools) {
     if (document.getElementById(tool.id)) {
         document.getElementById(tool.id).addEventListener(
@@ -197,6 +202,7 @@ for (const tool of toolState.allTools) {
         );
     }
 }
+*/
 
 document.onkeydown = function(event) {
     event = event || window.event;
@@ -205,12 +211,12 @@ document.onkeydown = function(event) {
         isEscape = event.key === "Escape" || event.key === "Esc";
     }
     if (isEscape) {
-        if (toolState.curTool === basicTool) exitBasicEdgeMode();
-        if (toolState.curTool === magicPathTool) exitMagicEdgeMode();
+        // if (toolState.curTool === basicTool) exitBasicEdgeMode();
+        // if (toolState.curTool === magicPathTool) exitMagicEdgeMode();
     }
 };
 
-canvasArea.style.cursor = toolState.curTool.cursor;
+// canvasArea.style.cursor = toolState.curTool.cursor;
 
 let undoElem = document.getElementById("undo");
 if (undoElem) {
@@ -335,6 +341,7 @@ function draw() {
         */
 
         // dotted circle target for magic path tool
+        /*
         if (toolState.curTool === magicPathTool && magicPathTool.state.edgeMode) {
             ctx.closePath();
             ctx.beginPath();
@@ -345,6 +352,7 @@ function draw() {
             ctx.closePath();
             ctx.stroke();
         }
+        */
     }
     window.requestAnimationFrame(draw);
 }
@@ -356,6 +364,7 @@ function mouseDown(event) {
     let x = Math.floor(event.x - canvasBounds.left);
     let y = Math.floor(event.y - canvasBounds.top);
 
+    /*
     if (toolState.curTool === areaCompleteTool) {
         areaCompleteTool.state.mousePressed = true;
         return;
@@ -408,6 +417,7 @@ function mouseDown(event) {
         graphController.pushUndoState();
         moveTool.state.node = nodeClicked?.key;
     }
+    */
 }
 
 function clearGraph() {
@@ -416,10 +426,10 @@ function clearGraph() {
     graph = new Graph();
     exitBasicEdgeMode();
     exitMagicEdgeMode();
-    toolState.curTool = basicTool;
+    // toolState.curTool = basicTool;
     nodeHover = null;
     basicTool.state.stillInNode = false;
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
 }
 
 function mouseLeave(event) {
@@ -437,6 +447,7 @@ function mouseMove(event) {
         basicTool.state.stillInNode = false;
     }
 
+    /*
     if (
         toolState.curTool === areaCompleteTool &&
         areaCompleteTool.state.mousePressed
@@ -472,10 +483,12 @@ function mouseMove(event) {
             graphController.updateNodeData(moveTool.state.node, updatedNodeData);
         }
     }
+    */
 }
 
 // What happens when the mouse is released (on the canvas)
 function mouseUp() {
+    /*
     if (toolState.curTool == moveTool) {
         if (moveTool.state.node != null) {
             moveTool.state.node = null;
@@ -515,6 +528,7 @@ function mouseUp() {
     areaCompleteTool.state.mousePressed = false;
     areaCompleteTool.state.drawPoints = [];
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+    */
 }
 
 // =====================
@@ -522,7 +536,7 @@ function mouseUp() {
 // =====================
 function undo() {
     graphController.popUndoState();
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
 }
 
 // =====================
@@ -561,12 +575,12 @@ function nodeAtPoint(x, y, nodes) {
     return null;
 }
 
-function refreshHtml(nodeCount, edgeCount, toolState, graphTypes, adjList) {
+function refreshHtml(nodeCount, edgeCount, graphTypes, adjList) {
     // TODO? stop passing in args to refreshHtml and instead just call graphController from within here
     // We have to get the state at some point and I don't think there's any point in getting it in 10 diff place?
     // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
 
-    refreshToolbarHtml(toolState);
+    // refreshToolbarHtml(toolState);
     refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
     refreshAdjListHtml(adjList);
     refreshDirectedButtonIcon();
@@ -595,6 +609,7 @@ function refreshAdjListHtml(adjListLabels) {
     }
 }
 
+/*
 function refreshToolbarHtml(toolState) {
     for (const tool of toolState.allTools) {
         let toolElem = document.getElementById(tool.id);
@@ -612,6 +627,7 @@ function refreshToolbarHtml(toolState) {
             'url("images/undo-icon-gray.svg")';
     }
 }
+*/
 
 function setupClearButtonEventListener() {
     const clearButton = document.getElementById('clear-btn');
@@ -656,7 +672,7 @@ function exitMagicEdgeMode() {
     magicPathTool.state.edgeMode = false;
     magicPathTool.state.edgeStart = null;
     magicPathTool.cursor = magicPathTool.state.normalCursor;
-    refreshToolbarHtml(toolState);
+    // refreshToolbarHtml(toolState);
 }
 
 function enterMagicEdgeMode(node) {
@@ -733,7 +749,7 @@ directedBtn.addEventListener(
     () => {
         graphController.pushUndoState();
         graphController.toggleDirectionality();
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
     },
     false
 );
@@ -783,4 +799,4 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());

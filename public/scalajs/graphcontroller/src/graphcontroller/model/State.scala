@@ -18,6 +18,7 @@ case class State(
 	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
 	toolState: Tool,
 	hoveringOnNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
+	hoveringOnTool: Option[String],
 	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0)
 ) {
 	/**
@@ -64,7 +65,8 @@ object State {
 		exportFormat = ExportFormat.DOT,
 		adjacencyExportType = GraphRepresentation.List,
 		toolState = BasicTool(None),
-		hoveringOnNode = None
+		hoveringOnNode = None,
+		hoveringOnTool = None
 	)
 }
 

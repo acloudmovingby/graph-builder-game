@@ -5,6 +5,7 @@ import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventL
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.MainCanvas
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
+import graphcontroller.components.toolbar.eventlisteners.ToolBarEventListeners
 
 import scala.scalajs.js.annotation.*
 import graphcontroller.controller.{Controller, Initialization}
@@ -17,7 +18,12 @@ import graphcontroller.shared.EventListener
 object Main {
 	private val graphController = new GraphController()
 
-	private val eventListeners: Seq[EventListener] = Seq(ExportPaneEventListeners, MainCanvasEventListeners, AdjMatrixEventListeners)
+	private val eventListeners: Seq[EventListener] = Seq(
+		ExportPaneEventListeners, 
+		MainCanvasEventListeners, 
+		AdjMatrixEventListeners,
+		ToolBarEventListeners
+	)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
 	 * and we're not fetching info from the dom in the middle of our pure functions) */

@@ -45,3 +45,7 @@ case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEve
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 
 case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEventType) extends Event
+
+case class ToolSelected(tool: String) extends Event
+case class ToolBarMouseOver(tool: String) extends Event
+case object ToolBarMouseOut extends Event
