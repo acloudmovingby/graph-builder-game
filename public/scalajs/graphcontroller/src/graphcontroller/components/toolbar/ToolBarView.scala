@@ -24,8 +24,6 @@ case class ToolBarRenderData(
         }
     }
 
-    dom.document.getElementById("canvas-area").asInstanceOf[html.Div].style.cursor = selectedTool.cursorIconPath
-
     val hoverInfoElement = dom.document.getElementById("hover-info-pane").asInstanceOf[html.Div]
     hoveringOnTool match {
       case Some(toolId) =>

@@ -87,17 +87,7 @@ object AdjMatrixViewTests extends TestSuite {
 				.addNode(1)
 				.addEdge(0, 1)
 
-			val state = State(
-				graph = graph,
-				keyToData = Map.empty,
-				undoStack = List.empty,
-				adjMatrixState = NoSelection,
-				adjMatrixDimensions = dimensions,
-				exportFormat = ExportFormat.DOT,
-				adjacencyExportType = GraphRepresentation.List,
-				toolState = BasicTool(None),
-				hoveringOnNode = None
-			)
+			val state = State.init.copy(graph = graph, adjMatrixDimensions = dimensions)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 
 			val hoveredCellWithEdge = Cell(0, 1) // there is an edge from 0 to 1
@@ -140,17 +130,7 @@ object AdjMatrixViewTests extends TestSuite {
 				.addEdge(0, 1)
 				.addEdge(0, 2)
 			
-			val state = State(
-				graph = graph,
-				keyToData = Map.empty,
-				undoStack = List.empty,
-				adjMatrixState = NoSelection,
-				adjMatrixDimensions = dimensions,
-				exportFormat = ExportFormat.DOT,
-				adjacencyExportType = GraphRepresentation.List,
-				toolState = BasicTool(None),
-				hoveringOnNode = None
-			)
+			val state = State.init.copy(graph = graph, adjMatrixDimensions = dimensions)
 			val grid = GridUtils(dimensions.matrixWidth, dimensions.matrixHeight, graph.nodeCount)
 			val hoveredRow = Row(0)
 

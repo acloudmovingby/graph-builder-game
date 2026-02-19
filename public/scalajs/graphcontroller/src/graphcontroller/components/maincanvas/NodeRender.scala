@@ -9,7 +9,9 @@ enum NodeRenderStyle {
 	BasicHover, // If you hover over a node when using the basic edge adding tool
 	AddEdgeStart, // When you clicked on a node and enter basic edge adding mode
 	AddEdgeNotStart, // All the other nodes that are waiting to be connected to
-	AddEdgeHover // When you are in edge adding mode and hovering over another target node
+	AddEdgeHover, // When you are in edge adding mode and hovering over another target node
+	AddEdgeHoverStart // For some reason in the initial implementation, we show hover effect on start node when using magic path tool
+	                  // I'm not sure if it's necessary, but it does look okay so keeping it.
 }
 
 object NodeRender {
@@ -21,11 +23,11 @@ object NodeRender {
 	import NodeRenderStyle.*
 
 	def createNodeCanvasObject(center: Vector2D, label: Option[String], style: NodeRenderStyle): Seq[CanvasRenderOp] = {
-		def basicNodeCircle(center: Vector2D) = {
+		def basicNodeCircle(center: Vector2D, color: String = "#32BFE3") = {
 			// creates a simple filled in circle of the specified color
 			CircleCanvas(
 				circ = Circle(center = center, radius = baseNodeRadius),
-				fillColor = Some("#32BFE3"),
+				fillColor = Some(color),
 				borderColor = None, // Some("#32BFE3"), // I don't know why but the vanilla JS code had stuff about borders but for some reason doesn't use them
 				borderWidth = None // Some(8.0)
 			)
@@ -38,6 +40,18 @@ object NodeRender {
 			borderWidth = Some(4.0)
 		)
 
+		def basicHover(center: Vector2D, color: String = "#32BFE3") = {
+			val ringAroundNode = {
+				CircleCanvas(
+					circ = Circle(center = center, radius = baseNodeRadius + 6),
+					fillColor = None,
+					borderColor = Some(color),
+					borderWidth = Some(4.0) // Some(8.0)
+				)
+			}
+			Seq(basicNodeCircle(center, color), ringAroundNode)
+		}
+
 		lazy val basicText: Option[TextCanvas] = label.map { l =>
 			TextCanvas(
 				coords = center,
@@ -49,16 +63,7 @@ object NodeRender {
 
 		val circles = style match {
 			case Basic => Seq(basicNodeCircle(center)) ++ basicText
-			case BasicHover =>
-				val ringAroundNode = {
-					CircleCanvas(
-						circ = Circle(center = center, radius = baseNodeRadius + 6),
-						fillColor = None,
-						borderColor = Some("#32BFE3"),
-						borderWidth = Some(4.0) // Some(8.0)
-					)
-				}
-				Seq(basicNodeCircle(center), ringAroundNode) ++ basicText
+			case BasicHover => basicHover(center) ++ basicText
 			case AddEdgeStart =>
 				val node = basicNodeCircle(center).copy(fillColor = Some("#FA5750"))
 				Seq(node) ++ basicText
@@ -75,32 +80,10 @@ object NodeRender {
 					borderWidth = None
 				)
 				Seq(node, innerCircle) ++ basicText
+			case AddEdgeHoverStart =>
+					basicHover(center, "#FA5750") ++ basicText.map(_.copy(color = "white"))
 		}
-
-		val textColor = "white" // TODO add the other possibilities as shown in JS code below
-
-		/*
-		if (labelsVisible) {
-                ctx.font = "1rem Arial";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                const hasWhiteBackground = (inBasicEdgeMode || inMagicPathEdgeMode) && !isEdgeStart && nodes[i].key != nodeHover?.key;
-                ctx.fillStyle = hasWhiteBackground ? "#FA5750" : "white";
-                let label = nodes[i].key;
-                const ADJUSTMENT = 1.5; // Ugh, textBaseline above doesn't help center on node properly so this makes it more centered
-                ctx.fillText(label, nodes[i].data.x, nodes[i].data.y + ADJUSTMENT);
-            }
-		 */
-
-		val text = label.map { labelText =>
-			TextCanvas(
-				coords = center,
-				text = labelText,
-				color = textColor,
-				font = "1rem Arial"
-			)
-		}
-		circles //++ text
+		circles
 	}
 
 }

@@ -13,8 +13,14 @@ object MainCanvasComponent extends Component {
 		val maybeHoveredNode = hoveringOnNode(coords, state.keyToData)
 		val newState = eventType match {
 			case Move =>
-				(state.hoveringOnNode, maybeHoveredNode) match {
-					case (Some(HoveredNode(prev, _)), Some(current)) if current == prev => state
+				(state.hoveringOnNode, maybeHoveredNode, state.toolState) match {
+					case (_, Some(currentlyHoveredNode), MagicPathTool(Some(edgeStart))) if currentlyHoveredNode != edgeStart =>
+						// When using magic path tool, in edge adding mode, and we've now hovered over a _new_ node, then... add the edge! Magic!
+						state.addEdge(edgeStart, currentlyHoveredNode)
+							.copy(toolState = MagicPathTool(Some(currentlyHoveredNode)))
+					case (Some(HoveredNode(prev, _)), Some(current), _) if current == prev =>
+						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change hoveringOnNode here
+						state
 					case _ => state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Up => state
@@ -42,6 +48,12 @@ object MainCanvasComponent extends Component {
 							// add edge and reset start node to node just clicked (keep in BasicTool tool state)
 							state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
 						}
+					case (Some(hoveredNode), MagicPathTool(None)) =>
+						// enter edge-adding mode for magic path tool
+						state.copy(toolState = MagicPathTool(Some(hoveredNode)))
+					case (None, MagicPathTool(Some(_))) =>
+						// exit edge-adding mode for magic path tool
+						state.copy(toolState = MagicPathTool(None))
 					case _ =>
 						// TODO handle other tool states and scenarios
 						state
