@@ -4,10 +4,10 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, CircleCanvas}
+import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas}
 import graphcontroller.dataobject.{Cell, Circle, Column, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{BasicTool, MagicPathTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, Tool}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -118,6 +118,11 @@ object MainCanvasView {
 					case _ => None
 				}
 				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
+			case _: AreaCompleteTool =>
+				// leave same as Basic
+				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
+				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
+				nonHoveredStyles ++ hoveredStyle
 			case _ => Seq.empty
 		}
 	}
@@ -161,9 +166,25 @@ object MainCanvasView {
 		}
 	}
 
+	def areaComplete(state: State): Option[CanvasPolyLine] = {
+		state.toolState match {
+			case AreaCompleteTool(true, points) =>
+				Some(CanvasPolyLine(
+					points = points,
+					fillColor = Some("rgba(255, 130, 172, 0.15)"), // a bit transparent
+					border = Some(Border(
+						color = "red", // Hex string, e.g. "#FF0000" // TODO this correlates to ctx.strokeStyle ... can the "style" be something other than a color?
+						width = 1.5,
+						lineDashSegments = Seq(5, 5)
+					))
+				))
+			case _ => None
+		}
+	}
+
 	def render(state: State): MainCanvasViewData = {
 		MainCanvasViewData(
-			potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state),
+			potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state),
 			magicPathTargetCircle(state),
 			state.toolState
 		)

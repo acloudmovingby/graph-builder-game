@@ -5,7 +5,7 @@ import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{BasicTool, MagicPathTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool}
 
 object MainCanvasComponent extends Component {
 	private def mouseMoveHandling(state: State, event: MainCanvasMouseEvent): State = {
@@ -21,9 +21,14 @@ object MainCanvasComponent extends Component {
 					case (Some(HoveredNode(prev, _)), Some(current), _) if current == prev =>
 						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change hoveringOnNode here
 						state
+					case (_, _, a@AreaCompleteTool(true, points)) =>
+						state.copy(toolState = AreaCompleteTool(true, points :+ event.coords))
 					case _ => state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
-			case Up => state
+			case Up => state.toolState match {
+				case AreaCompleteTool(_, _) => state.copy(toolState = AreaCompleteTool(false, Seq.empty))
+				case _ => state
+			}
 			case Down =>
 				(maybeHoveredNode, state.toolState) match {
 					case (None, BasicTool(None)) =>
@@ -54,6 +59,8 @@ object MainCanvasComponent extends Component {
 					case (None, MagicPathTool(Some(_))) =>
 						// exit edge-adding mode for magic path tool
 						state.copy(toolState = MagicPathTool(None))
+					case (_, AreaCompleteTool(mousePressed, drawPoints)) =>
+						state.copy(toolState = AreaCompleteTool(true, Seq(event.coords)))
 					case _ =>
 						// TODO handle other tool states and scenarios
 						state
