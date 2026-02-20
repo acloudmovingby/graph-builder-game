@@ -1,9 +1,10 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp}
+import graphcontroller.controller.{AdjMatrixMouseMove, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
+import graphcontroller.components.ops.SetAttribute
 import graphcontroller.dataobject.{Cell, NoCell, Vector2D}
 import graphcontroller.model.State
 import graphcontroller.shared.GraphRepresentation
@@ -75,6 +76,43 @@ object ControllerTests extends TestSuite {
 				case _ =>
 					println("Unexpected adjacency matrix state: " + newState2.adjMatrixState)
 					assert(false)
+			}
+		}
+
+		test("handleEventWithState with ToggleLabelsVisibility should be reversible") {
+			// === Step 1: Toggle OFF ===
+			val initialState = State.init
+			assert(initialState.labelsVisible)
+
+			val (stateAfterToggleOff, renderOpsOff) = Controller.handleEventWithState(ToggleLabelsVisibility, initialState)
+
+			// Assert state is OFF
+			assert(!stateAfterToggleOff.labelsVisible)
+
+			// Assert RenderOp is for "closed eye" icon
+			val setAttrOpOff = renderOpsOff.collectFirst {
+				case op: SetAttribute if op.elementId == "visible-icon" => op
+			}
+			assert(setAttrOpOff.isDefined)
+			setAttrOpOff.foreach { op =>
+				assert(op.attribute == "src")
+				assert(op.value == "images/invisible-icon.svg")
+			}
+
+			// === Step 2: Toggle ON ===
+			val (stateAfterToggleOn, renderOpsOn) = Controller.handleEventWithState(ToggleLabelsVisibility, stateAfterToggleOff)
+
+			// Assert state is ON
+			assert(stateAfterToggleOn.labelsVisible)
+
+			// Assert RenderOp is for "open eye" icon
+			val setAttrOpOn = renderOpsOn.collectFirst {
+				case op: SetAttribute if op.elementId == "visible-icon" => op
+			}
+			assert(setAttrOpOn.isDefined)
+			setAttrOpOn.foreach { op =>
+				assert(op.attribute == "src")
+				assert(op.value == "images/node-label-visible.svg")
 			}
 		}
 	}

@@ -19,6 +19,7 @@ case class State(
 	toolState: Tool,
 	hoveringOnNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
 	hoveringOnTool: Option[String],
+	labelsVisible: Boolean = true,
 	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0)
 ) {
 	/**

@@ -49,3 +49,4 @@ case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEventType) ext
 case class ToolSelected(tool: String) extends Event
 case class ToolBarMouseOver(tool: String) extends Event
 case object ToolBarMouseOut extends Event
+case object ToggleLabelsVisibility extends Event

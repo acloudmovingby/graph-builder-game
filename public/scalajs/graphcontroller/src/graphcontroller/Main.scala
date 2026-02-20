@@ -19,10 +19,11 @@ object Main {
 	private val graphController = new GraphController()
 
 	private val eventListeners: Seq[EventListener] = Seq(
-		ExportPaneEventListeners, 
-		MainCanvasEventListeners, 
+		ExportPaneEventListeners,
+		MainCanvasEventListeners,
 		AdjMatrixEventListeners,
-		ToolBarEventListeners
+		ToolBarEventListeners,
+		graphcontroller.components.buildpane.eventlisteners.BuildPaneEventListeners
 	)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,

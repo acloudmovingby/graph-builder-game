@@ -21,7 +21,8 @@ object Controller {
 		ExportPane,
 		MainCanvasComponent,
 		ResizingComponent,
-		ToolBarComponent
+		ToolBarComponent,
+		graphcontroller.components.buildpane.BuildPaneComponent
 	)
 
 	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */

@@ -131,7 +131,8 @@ object MainCanvasView {
 		nodesWithStyles(state.graph.nodes, state.hoveringOnNode, state.toolState)
 			.flatMap { case (node, style) =>
 				val data = state.keyToData(node)
-				NodeRender.createNodeCanvasObject(Vector2D(data.x, data.y), Some(node.toString), style)
+				val label = if (state.labelsVisible) Some(node.toString) else None
+				NodeRender.createNodeCanvasObject(Vector2D(data.x, data.y), label, style)
 			}
 	}
 
