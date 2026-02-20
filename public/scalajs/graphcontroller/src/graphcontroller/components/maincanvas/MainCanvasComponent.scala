@@ -8,6 +8,28 @@ import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool}
 
 object MainCanvasComponent extends Component {
+
+	private def isInside(point: Vector2D, polygon: Seq[Vector2D]): Boolean = {
+		val x = point.x
+		val y = point.y
+		var inside = false
+		var i = 0
+		var j = polygon.length - 1
+		while (i < polygon.length) {
+			val xi = polygon(i).x
+			val yi = polygon(i).y
+			val xj = polygon(j).x
+			val yj = polygon(j).y
+			val intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+			if (intersect) {
+				inside = !inside
+			}
+			j = i
+			i += 1
+		}
+		inside
+	}
+
 	private def mouseMoveHandling(state: State, event: MainCanvasMouseEvent): State = {
 		val (coords, eventType) = (event.coords, event.eventType)
 		val maybeHoveredNode = hoveringOnNode(coords, state.keyToData)
@@ -25,10 +47,31 @@ object MainCanvasComponent extends Component {
 						state.copy(toolState = AreaCompleteTool(true, points :+ event.coords))
 					case _ => state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
-			case Up => state.toolState match {
-				case AreaCompleteTool(_, _) => state.copy(toolState = AreaCompleteTool(false, Seq.empty))
-				case _ => state
-			}
+			case Up =>
+				state.toolState match {
+					case AreaCompleteTool(true, points) if points.length > 2 =>
+						val selectedNodes = state.keyToData.filter { case (_, nodeData) =>
+							isInside(Vector2D(nodeData.x, nodeData.y), points)
+						}.keys.toSeq
+
+						val newState = if (selectedNodes.length > 1) {
+							val nodePairs = for {
+								node1 <- selectedNodes
+								node2 <- selectedNodes
+								if node1 != node2
+							} yield (node1, node2)
+
+							nodePairs.foldLeft(state) { (currentState, pair) =>
+								currentState.addEdge(pair._1, pair._2)
+							}
+						} else {
+							state
+						}
+						newState.copy(toolState = AreaCompleteTool(false, Seq.empty))
+					case AreaCompleteTool(_, _) =>
+						state.copy(toolState = AreaCompleteTool(false, Seq.empty))
+					case _ => state
+				}
 			case Down =>
 				(maybeHoveredNode, state.toolState) match {
 					case (None, BasicTool(None)) =>
@@ -68,6 +111,7 @@ object MainCanvasComponent extends Component {
 			case Leave => state.toolState match {
 				case BasicTool(Some(_)) => state.copy(toolState = BasicTool(None))
 				case MagicPathTool(Some(_)) => state.copy(toolState = MagicPathTool(None))
+				case AreaCompleteTool(_, _) => state.copy(toolState = AreaCompleteTool(false, Seq.empty))
 				case _ => state
 			}
 		}
@@ -101,3 +145,4 @@ object MainCanvasComponent extends Component {
 		hoveringOnNode
 	}
 }
+
