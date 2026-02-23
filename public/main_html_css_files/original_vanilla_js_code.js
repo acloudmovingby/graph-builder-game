@@ -238,11 +238,11 @@ function draw() {
     if (canvas.getContext) {
         let ctx = canvas.getContext("2d");
 
-        ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
-        ctx.setLineDash([])
+        //ctx.clearRect(0, 0, window.innerWidth * 2, window.innerHeight * 2);
+        //ctx.setLineDash([])
 
-        const welcome = document.getElementById('welcome-message');
-        welcome.style.visibility = graphController.nodeCount() === 0 ? "visible" : "hidden";
+//        const welcome = document.getElementById('welcome-message');
+//        welcome.style.visibility = graphController.nodeCount() === 0 ? "visible" : "hidden";
 
         // trigger drawing of edge shapes in the ScalaJS code
         const shapes = graphController.renderMainCanvas();

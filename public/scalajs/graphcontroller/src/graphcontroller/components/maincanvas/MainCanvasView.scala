@@ -187,7 +187,8 @@ object MainCanvasView {
 		MainCanvasViewData(
 			potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state),
 			magicPathTargetCircle(state),
-			state.toolState
+			state.toolState,
+			state.graph.nodeCount == 0
 		)
 	}
 }
@@ -195,8 +196,14 @@ object MainCanvasView {
 case class MainCanvasViewData(
 	shapes: Seq[CanvasRenderOp],
 	magicPathCircle: Option[CircleCanvas],
-	currentTool: Tool
+	currentTool: Tool,
+	welcomeMessageVisible: Boolean
 ) extends RenderOp {
+	private def welcomeMessage(): Unit = {
+		val welcome = dom.document.getElementById("welcome-message").asInstanceOf[html.Paragraph]
+		welcome.style.visibility = if (welcomeMessageVisible) "visible" else "hidden"
+	}
+
 	def render(): Unit = {
 //		val testNodes = Seq(
 //			NodeRender.createNodeCanvasObject(Vector2D(100, 100), Some("22"), Basic),
@@ -212,5 +219,6 @@ case class MainCanvasViewData(
 		} else {
 			dom.document.getElementById("canvas-area").asInstanceOf[html.Div].style.cursor = "none"
 		}
+		welcomeMessage()
 	}
 }
