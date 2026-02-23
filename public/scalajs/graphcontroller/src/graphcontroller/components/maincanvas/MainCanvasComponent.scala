@@ -5,7 +5,7 @@ import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool}
 
 object MainCanvasComponent extends Component {
 
@@ -40,11 +40,15 @@ object MainCanvasComponent extends Component {
 						// When using magic path tool, in edge adding mode, and we've now hovered over a _new_ node, then... add the edge! Magic!
 						state.addEdge(edgeStart, currentlyHoveredNode)
 							.copy(toolState = MagicPathTool(Some(currentlyHoveredNode)))
-					case (Some(HoveredNode(prev, _)), Some(current), _) if current == prev =>
+					case (Some(HoveredNode(prev, _)), Some(current), BasicTool(_)) if current == prev =>
 						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change hoveringOnNode here
 						state
 					case (_, _, a@AreaCompleteTool(true, points)) =>
 						state.copy(toolState = AreaCompleteTool(true, points :+ event.coords))
+					case (_, _, MoveTool(Some(nodeBeingMoved))) =>
+						val currentData = state.keyToData(nodeBeingMoved)
+						val newData = currentData.copy(x = coords.x, y = coords.y)
+						state.copy(keyToData = state.keyToData.updated(nodeBeingMoved, newData))
 					case _ => state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Up =>
@@ -70,6 +74,8 @@ object MainCanvasComponent extends Component {
 						newState.copy(toolState = AreaCompleteTool(false, Seq.empty))
 					case AreaCompleteTool(_, _) =>
 						state.copy(toolState = AreaCompleteTool(false, Seq.empty))
+					case MoveTool(Some(_)) =>
+							state.copy(toolState = MoveTool(None))
 					case _ => state
 				}
 			case Down =>
@@ -104,6 +110,10 @@ object MainCanvasComponent extends Component {
 						state.copy(toolState = MagicPathTool(None))
 					case (_, AreaCompleteTool(mousePressed, drawPoints)) =>
 						state.copy(toolState = AreaCompleteTool(true, Seq(event.coords)))
+					case (None, MoveTool(Some(_))) =>
+						state.copy(toolState = MoveTool(None))
+					case (Some(hoveredNode), MoveTool(_)) =>
+						state.copy(toolState = MoveTool(Some(hoveredNode)))
 					case _ =>
 						// TODO handle other tool states and scenarios
 						state

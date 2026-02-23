@@ -119,13 +119,6 @@ let moveTool = new Tool(
     }
 );
 
-/*
-const toolState = {
-    curTool: basicTool,
-    allTools: [basicTool, areaCompleteTool, magicPathTool, moveTool],
-};
-*/
-
 // =====================
 // Canvas Setup
 // =====================

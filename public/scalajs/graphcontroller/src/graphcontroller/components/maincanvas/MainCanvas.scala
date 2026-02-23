@@ -8,8 +8,6 @@ import org.scalajs.dom.html.Canvas
 object MainCanvas {
 	/** Things to render on each animation frame callback */
 	private var _shapes: Seq[CanvasRenderOp] = Seq.empty
-	private var newShapes: Seq[CanvasRenderOp] = Seq.empty // will eventually replace _shapes once I convert all tools.js to ScalaJS
-	private def getShapes = _shapes ++ newShapes
 	val canvas: Canvas = dom.document.getElementById("main-canvas-lower").asInstanceOf[html.Canvas]
 	val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 	val scale = dom.window.devicePixelRatio.toInt
@@ -42,13 +40,11 @@ object MainCanvas {
 	// 4. The Loop
 	// The timestamp is passed automatically by the browser (high-precision time)
 	def loop(timestamp: Double): Unit = {
-		render(getShapes)
+		render(_shapes)
 
 		// Schedule the next frame
 		dom.window.requestAnimationFrame(timestamp => loop(timestamp))
 	}
 
-	// TODO once we totally convert to new way, we'll only need one of these
-	def setShapesNew(shapes: Seq[CanvasRenderOp]): Unit = { newShapes = shapes }
-	def setShapes(shapes: Seq[CanvasRenderOp]): Unit = { _shapes = shapes }
+	def setShapesNew(shapes: Seq[CanvasRenderOp]): Unit = { _shapes = shapes }
 }

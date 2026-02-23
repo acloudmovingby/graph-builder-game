@@ -92,7 +92,7 @@ object MainCanvasView {
 		}
 
 		toolState match {
-			case BasicTool(None) =>
+			case BasicTool(None) | MoveTool(_) =>
 				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
 				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
 				nonHoveredStyles ++ hoveredStyle
