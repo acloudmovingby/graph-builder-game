@@ -3,13 +3,16 @@ package graphcontroller.components.maincanvas
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
+import graphcontroller.components.maincanvas.EdgeRender.{simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
-import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas}
-import graphcontroller.dataobject.{Cell, Circle, Column, Row, Vector2D}
+import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, TriangleCanvas}
+import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, Tool}
 import org.scalajs.dom
 import org.scalajs.dom.html
+
+import scala.collection.mutable.ListBuffer
 
 object MainCanvasView {
 	/** Ghostly edges that show on the screen while you're hovering over adjacency matrix. */
@@ -183,9 +186,51 @@ object MainCanvasView {
 		}
 	}
 
+	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int, keyToData: Map[Int, NodeData]): Option[Line] = for {
+		fromData <- keyToData.get(fromIndex)
+		toData <- keyToData.get(toIndex)
+	} yield Line(
+		from = Vector2D(fromData.x, fromData.y),
+		to = Vector2D(toData.x, toData.y)
+	)
+
+	/** THe basic edge drawing (directed or undirected) but no highlighted edges  */
+	def edges(state: State): Seq[CanvasRenderOp] = {
+		val lineBuffer = ListBuffer.empty[CanvasLine]
+		val arrowBuffer = ListBuffer.empty[TriangleCanvas]
+
+		state.graph.uniqueEdgesWithDirection.toSeq
+			.foreach { case ((from, to), isBidirectional) =>
+				val line = getEdgeCoordinates(from, to, state.keyToData).get
+				val (canvasLine, arrowTriangles) = state.graph match {
+					case _: SimpleMapGraph[Int] =>
+						val canvasLine = EdgeRender.simpleEdge(line, simpleEdgeStrokeWidth, simpleEdgeStrokeColor)
+						(canvasLine, Seq.empty)
+					case _: DirectedMapGraph[Int] =>
+						EdgeRender.directedEdge(
+							e = line,
+							lineWidth = simpleEdgeStrokeWidth,
+							lineColor = simpleEdgeStrokeColor,
+							shortenFromSrc = isBidirectional,
+							shortenFromDest = true,
+							shortenAmount = 47.0,
+							srcToDestArrow = Some(ArrowRenderProperties.default),
+							destToSrcArrow = if (isBidirectional) Some(ArrowRenderProperties.default) else None
+						)
+				}
+				canvasLine +=: lineBuffer
+				arrowTriangles ++=: arrowBuffer
+			}
+
+		val (lines, arrows) = (lineBuffer.toSeq, arrowBuffer.toSeq)
+
+		// we want to draw the shapes in the correct order, e.g. with arrows on top of lines
+		lines ++ arrows
+	}
+
 	def render(state: State): MainCanvasViewData = {
 		MainCanvasViewData(
-			potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state),
+			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state),
 			magicPathTargetCircle(state),
 			state.toolState,
 			state.graph.nodeCount == 0
