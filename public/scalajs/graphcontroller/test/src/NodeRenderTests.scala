@@ -1,10 +1,7 @@
-import graphcontroller.components.adjacencymatrix.{AdjacencyMatrixView, Hover, NoSelection}
 import graphcontroller.dataobject.*
-import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, GraphRepresentation, GridUtils, MagicPathTool}
-import graphi.DirectedMapGraph
+import graphcontroller.model.HoveredNode
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool}
 import utest.*
-import graphcontroller.components.exportpane.ExportFormat
 import graphcontroller.components.maincanvas.MainCanvasView
 import graphcontroller.components.maincanvas.NodeRenderStyle.{Basic, BasicHover}
 
@@ -18,8 +15,8 @@ class NodeRenderTests extends TestSuite {
 					BasicTool(None),
 					BasicTool(None),
 					MagicPathTool(None),
-					AreaCompleteTool(true, Seq.empty),
-					AreaCompleteTool(true, Seq(Vector2D(10, 10)))
+					AreaCompleteTool(true, Nil),
+					AreaCompleteTool(true, Vector2D(10, 10) :: Nil)
 				)
 			} yield {
 				val result = MainCanvasView.nodesWithStyles(Seq.empty, None, toolState)

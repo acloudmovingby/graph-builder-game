@@ -14,7 +14,7 @@ sealed trait Tool {
 }
 
 case class BasicTool(
-	edgeStart: Option[Int], // Only if in edge adding mode (where a start edge has been chosen)
+	edgeStart: Option[Int], // Indicates we're in edge adding mode (and this Int is the edge's start node)
 ) extends Tool {
 	override val header: String = "Basic Node/Edge Adding Tool"
 	override val animationImgPath: String = "images/basic-tool-tooltip-example.gif"
@@ -25,7 +25,7 @@ case class BasicTool(
 
 case class AreaCompleteTool(
 	mousePressed: Boolean,
-	drawPoints: Seq[Vector2D]
+	drawPoints: List[Vector2D]
 ) extends Tool {
 	override val header: String = "Area Complete Tool"
 	override val animationImgPath: String = "images/area-complete-tool-tooltip-example.gif"

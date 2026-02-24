@@ -5,10 +5,9 @@ import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
 import graphcontroller.components.ops.SetAttribute
-import graphcontroller.dataobject.{Cell, NoCell, Vector2D}
+import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
 import graphcontroller.shared.GraphRepresentation
-import graphi.SimpleMapGraph
 
 object ControllerTests extends TestSuite {
 	def tests = Tests {

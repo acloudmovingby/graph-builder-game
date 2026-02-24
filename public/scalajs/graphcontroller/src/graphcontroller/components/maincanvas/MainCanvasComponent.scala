@@ -3,12 +3,22 @@ package graphcontroller.components.maincanvas
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
-import graphcontroller.dataobject.{NodeData, Vector2D}
+import graphcontroller.dataobject.NodeData, graphcontroller.dataobject.Vector2D
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool}
 
 object MainCanvasComponent extends Component {
 
+	/**
+	 * Determine if point is inside the polygon.
+	 *
+	 * ray-casting algorithm based on
+	 * https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
+	 *
+	 * @param point
+	 * @param polygon
+	 * @return If point is inside polygon
+	 */
 	private def isInside(point: Vector2D, polygon: Seq[Vector2D]): Boolean = {
 		val x = point.x
 		val y = point.y
@@ -31,31 +41,108 @@ object MainCanvasComponent extends Component {
 	}
 
 	private def mouseMoveHandling(state: State, event: MainCanvasMouseEvent): State = {
-		val (coords, eventType) = (event.coords, event.eventType)
-		val maybeHoveredNode = hoveringOnNode(coords, state.keyToData)
-		val newState = eventType match {
+		val maybeHoveredNode = hoveringOnNode(event.coords, state.keyToData)
+
+		val newState = state.toolState match {
+			case tool: BasicTool => handleBasicTool(state, event, tool, maybeHoveredNode)
+			case tool: MagicPathTool => handleMagicPathTool(state, event, tool, maybeHoveredNode)
+			case tool: AreaCompleteTool => handleAreaCompleteTool(state, event, tool, maybeHoveredNode)
+			case tool: MoveTool => handleMoveTool(state, event, tool, maybeHoveredNode)
+		}
+
+		newState.copy(lastMainCanvasMousePosition = event.coords)
+	}
+
+	private def handleBasicTool(state: State, event: MainCanvasMouseEvent, tool: BasicTool, maybeHoveredNode: Option[Int]): State = {
+		event.eventType match {
 			case Move =>
-				(state.hoveringOnNode, maybeHoveredNode, state.toolState) match {
-					case (_, Some(currentlyHoveredNode), MagicPathTool(Some(edgeStart))) if currentlyHoveredNode != edgeStart =>
+				(state.hoveringOnNode, maybeHoveredNode) match {
+					case (Some(HoveredNode(prev, _)), Some(current)) if current == prev =>
+						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change HoveredNode's justAdded flag here
+						state
+					case _ =>
+						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+				}
+			case Down =>
+				maybeHoveredNode match {
+					case None =>
+						tool.edgeStart match {
+							case None =>
+								// Add new node!
+								// Make the new node the hovered node, and set the justAdded flag to true (to avoid hover effect)
+								state.addNode(event.coords).copy(
+									toolState = BasicTool(None),
+									hoveringOnNode = Some(HoveredNode(state.graph.nodeCount, true))
+								)
+							case Some(_) =>
+								// When clicking on the blank canvas, exit edge-adding mode
+								state.copy(toolState = BasicTool(None))
+						}
+					case Some(hoveredNode) =>
+						tool.edgeStart match {
+							case None =>
+								// Enter edge-adding mode
+								state.copy(toolState = BasicTool(Some(hoveredNode)))
+							case Some(edgeStart) =>
+								if (hoveredNode == edgeStart) {
+									// Exit edge adding mode
+									state.copy(toolState = BasicTool(None))
+								} else {
+									// Add edge and reset start node to node just clicked
+									state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
+								}
+						}
+				}
+			case Up => state
+			case Leave => state.copy(toolState = BasicTool(None))
+		}
+	}
+
+	private def handleMagicPathTool(state: State, event: MainCanvasMouseEvent, tool: MagicPathTool, maybeHoveredNode: Option[Int]): State = {
+		event.eventType match {
+			case Move =>
+				(maybeHoveredNode, tool.edgeStart) match {
+					case (Some(currentlyHoveredNode), Some(edgeStart)) if currentlyHoveredNode != edgeStart =>
 						// When using magic path tool, in edge adding mode, and we've now hovered over a _new_ node, then... add the edge! Magic!
 						state.addEdge(edgeStart, currentlyHoveredNode)
 							.copy(toolState = MagicPathTool(Some(currentlyHoveredNode)))
-					case (Some(HoveredNode(prev, _)), Some(current), BasicTool(_)) if current == prev =>
-						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change hoveringOnNode here
-						state
-					case (_, _, a@AreaCompleteTool(true, points)) =>
-						state.copy(toolState = AreaCompleteTool(true, points :+ event.coords))
-					case (_, _, MoveTool(Some(nodeBeingMoved))) =>
-						val currentData = state.keyToData(nodeBeingMoved)
-						val newData = currentData.copy(x = coords.x, y = coords.y)
-						state.copy(keyToData = state.keyToData.updated(nodeBeingMoved, newData))
-					case _ => state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+					case _ =>
+						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
+			case Down =>
+				(maybeHoveredNode, tool.edgeStart) match {
+					case (Some(hoveredNode), None) =>
+						// enter edge-adding mode
+						state.copy(toolState = MagicPathTool(Some(hoveredNode)))
+					case (None, Some(_)) =>
+						// exit edge-adding mode
+						state.copy(toolState = MagicPathTool(None))
+					case _ => state
+				}
+			case Up => state
+			case Leave =>
+				// exit edge-adding mode
+				state.copy(toolState = MagicPathTool(None))
+		}
+	}
+
+	private def handleAreaCompleteTool(state: State, event: MainCanvasMouseEvent, tool: AreaCompleteTool, maybeHoveredNode: Option[Int]): State = {
+		event.eventType match {
+			case Move =>
+				if (tool.mousePressed) {
+					state.copy(toolState = tool.copy(drawPoints = event.coords :: tool.drawPoints))
+				} else {
+					state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+				}
+			case Down =>
+				state.copy(toolState = AreaCompleteTool(true, event.coords :: Nil))
 			case Up =>
-				state.toolState match {
-					case AreaCompleteTool(true, points) if points.length > 2 =>
+				tool.drawPoints match {
+					case first :: second :: _ if tool.mousePressed =>
+						// If drawPoints is at least 2 elements, then calculate which nodes are inside selection area
+						//
 						val selectedNodes = state.keyToData.filter { case (_, nodeData) =>
-							isInside(Vector2D(nodeData.x, nodeData.y), points)
+							isInside(Vector2D(nodeData.x, nodeData.y), tool.drawPoints)
 						}.keys.toSeq
 
 						val newState = if (selectedNodes.length > 1) {
@@ -71,69 +158,37 @@ object MainCanvasComponent extends Component {
 						} else {
 							state
 						}
-						newState.copy(toolState = AreaCompleteTool(false, Seq.empty))
-					case AreaCompleteTool(_, _) =>
-						state.copy(toolState = AreaCompleteTool(false, Seq.empty))
-					case MoveTool(Some(_)) =>
-							state.copy(toolState = MoveTool(None))
-					case _ => state
+						newState.copy(toolState = AreaCompleteTool(false, Nil))
+					case _ =>
+							// List has < 2 elements or the button wasn't pressed (like maybe it got pressed offscreen and then mouse moved on screen)
+							// Either way, do nothing and reset Area Complete tool to base state
+							state.copy(toolState = AreaCompleteTool(false, Nil))
+				}
+			case Leave =>
+				state.copy(toolState = AreaCompleteTool(false, Nil))
+		}
+	}
+
+	private def handleMoveTool(state: State, event: MainCanvasMouseEvent, tool: MoveTool, maybeHoveredNode: Option[Int]): State = {
+		event.eventType match {
+			case Move =>
+				tool.node match {
+					case Some(nodeBeingMoved) =>
+						val currentData = state.keyToData(nodeBeingMoved)
+						val newData = currentData.copy(x = event.coords.x, y = event.coords.y)
+						state.copy(keyToData = state.keyToData.updated(nodeBeingMoved, newData))
+					case None =>
+						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
-				(maybeHoveredNode, state.toolState) match {
-					case (None, BasicTool(None)) =>
-						// add new node, flip stillInNode flag, make current node the hovered node
-						state
-							.addNode(coords)
-							.copy(
-								toolState = BasicTool(None),
-								hoveringOnNode = Some(HoveredNode(state.graph.nodeCount, true))
-							)
-					case (None, b@BasicTool(Some(_))) =>
-						// exit edge-adding node (change tool state), otherwise changed
-						state.copy(toolState = b.copy(edgeStart = None))
-					case (Some(hoveredNode), BasicTool(None)) =>
-						// enter edge-adding mode (change tool state) otherwise state unchanged
-						state.copy(toolState = BasicTool(Some(hoveredNode)))
-					case (Some(hoveredNode), BasicTool(Some(edgeStart))) =>
-						if (hoveredNode == edgeStart) {
-							// exit edge adding mode
-							state.copy(toolState = BasicTool(None))
-						} else {
-							// add edge and reset start node to node just clicked (keep in BasicTool tool state)
-							state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
-						}
-					case (Some(hoveredNode), MagicPathTool(None)) =>
-						// enter edge-adding mode for magic path tool
-						state.copy(toolState = MagicPathTool(Some(hoveredNode)))
-					case (None, MagicPathTool(Some(_))) =>
-						// exit edge-adding mode for magic path tool
-						state.copy(toolState = MagicPathTool(None))
-					case (_, AreaCompleteTool(mousePressed, drawPoints)) =>
-						state.copy(toolState = AreaCompleteTool(true, Seq(event.coords)))
-					case (None, MoveTool(Some(_))) =>
-						state.copy(toolState = MoveTool(None))
-					case (Some(hoveredNode), MoveTool(_)) =>
-						state.copy(toolState = MoveTool(Some(hoveredNode)))
-					case _ =>
-						// TODO handle other tool states and scenarios
-						state
+				maybeHoveredNode match {
+					case Some(hoveredNode) => state.copy(toolState = MoveTool(Some(hoveredNode)))
+					case None => state.copy(toolState = MoveTool(None))
 				}
-			case Leave => state.toolState match {
-				case BasicTool(Some(_)) => state.copy(toolState = BasicTool(None))
-				case MagicPathTool(Some(_)) => state.copy(toolState = MagicPathTool(None))
-				case AreaCompleteTool(_, _) => state.copy(toolState = AreaCompleteTool(false, Seq.empty))
-				case _ => state
-			}
+			case Up =>
+				state.copy(toolState = MoveTool(None))
+			case Leave => state
 		}
-		// TODO delete this logging
-		//		if (state.graph != newState.graph || state.toolState != newState.toolState || state.hoveringOnNode != newState.hoveringOnNode) {
-		//			println(s"--------- $eventType ---------")
-		//			println(s"PREVIOUS graph state: ${state.graph}, previous tool state: ${state.toolState}, previous hoveringOnNode: ${state.hoveringOnNode}")
-		//			println(s"graph state: ${newState.graph}, tool state: ${newState.toolState}, hoveringOnNode=${newState.hoveringOnNode}")
-		//		}
-
-		// handle updating the stored mouse position and return
-		newState.copy(lastMainCanvasMousePosition = event.coords)
 	}
 
 	override def update(state: State, event: Event): State = {
@@ -155,4 +210,3 @@ object MainCanvasComponent extends Component {
 		hoveringOnNode
 	}
 }
-

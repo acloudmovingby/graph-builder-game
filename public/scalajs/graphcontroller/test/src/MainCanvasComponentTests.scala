@@ -91,7 +91,7 @@ object MainCanvasComponentTests extends TestSuite {
 				.addNode(Vector2D(10, 10)) // 0
 				.addNode(Vector2D(5, 5)) // 1
 				.addNode(Vector2D(100, 100)) // 2 (outside)
-				.copy(toolState = AreaCompleteTool(false, Seq.empty))
+				.copy(toolState = AreaCompleteTool(false, Nil))
 
 			// Down at (0,0)
 			val downEvent = MainCanvasMouseEvent(Vector2D(0, 0), MouseEventType.Down)
@@ -99,7 +99,7 @@ object MainCanvasComponentTests extends TestSuite {
 
 			// Up at (30,30) - currently the isInside check needs more than 2 points to trigger
 			// Let's simulate a triangle: (0,0), (30,0), (0,30)
-			val stateTriangle = stateAfterDown.copy(toolState = AreaCompleteTool(true, Seq(Vector2D(0,0), Vector2D(30,0), Vector2D(0,30))))
+			val stateTriangle = stateAfterDown.copy(toolState = AreaCompleteTool(true, Vector2D(0,0) :: Vector2D(30,0) :: Vector2D(0,30) :: Nil))
 			val upEvent = MainCanvasMouseEvent(Vector2D(0, 30), MouseEventType.Up)
 			val stateAfterUp = MainCanvasComponent.update(stateTriangle, upEvent)
 

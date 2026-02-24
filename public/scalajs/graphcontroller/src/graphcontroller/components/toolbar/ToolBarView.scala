@@ -45,7 +45,7 @@ case class ToolBarRenderData(
 object AllTools {
 	val tools: Map[String, Tool] = Map(
 		"basic" -> BasicTool(None),
-		"area-complete" -> AreaCompleteTool(false, Seq.empty),
+		"area-complete" -> AreaCompleteTool(false, Nil),
 		"magic-path" -> MagicPathTool(None),
 		"move" -> MoveTool(None)
 	)

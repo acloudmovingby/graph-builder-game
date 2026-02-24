@@ -11,7 +11,7 @@ object ToolBarComponent extends Component {
 			case ToolSelected(tool) =>
 				val newTool = tool match {
 					case "basic" => BasicTool(None)
-					case "area-complete" => AreaCompleteTool(false, Seq.empty)
+					case "area-complete" => AreaCompleteTool(false, Nil)
 					case "magic-path" => MagicPathTool(None)
 					case "move" => MoveTool(None)
 					case _ => state.toolState
