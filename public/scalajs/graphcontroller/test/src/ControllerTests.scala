@@ -1,16 +1,46 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility}
+import graphcontroller.controller.{AdjMatrixMouseMove, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
-import graphcontroller.components.ops.SetAttribute
+import graphcontroller.components.ops.{RemoveAttribute, SetAttribute}
+import graphcontroller.components.undobutton.UndoViewData
 import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
 import graphcontroller.shared.GraphRepresentation
 
 object ControllerTests extends TestSuite {
 	def tests = Tests {
+		test("Undo") {
+			val stateWithNode = State.init.addNode(Vector2D(10, 10))
+			assert(stateWithNode.graph.nodeCount == 1)
+			assert(stateWithNode.undoStack.size == 1)
+
+			val (stateAfterUndo, renderOps) = Controller.handleEventWithState(UndoRequested, stateWithNode)
+			assert(stateAfterUndo.graph.nodeCount == 0)
+			assert(stateAfterUndo.undoStack.isEmpty)
+
+			// Check that the undo button is disabled
+			val undoOp = renderOps.collectFirst {
+				case op: UndoViewData => op
+			}
+			assert(undoOp.isDefined)
+			assert(!undoOp.get.canUndo)
+		}
+
+		test("Undo button enablement") {
+			val (stateWithNode, _) = Controller.handleEventWithState(NoOp, State.init.addNode(Vector2D(10, 10)))
+			val (_, renderOps) = Controller.handleEventWithState(NoOp, stateWithNode)
+			
+			// Check that the undo button is enabled
+			val undoOp = renderOps.collectFirst {
+				case op: UndoViewData => op
+			}
+			assert(undoOp.isDefined)
+			assert(undoOp.get.canUndo)
+		}
+
 		test("Initialization") {
 			val initEvent = Initialization(100, 100, 10, 5)
 

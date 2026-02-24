@@ -135,6 +135,14 @@ test("Clearing the graph") {
 }
 ```
 
+### Testing Guidelines
+
+When writing unit tests for features implemented with the Components model, follow these rules:
+
+1.  **Test the Pure Logic:** Use `Controller.handleEventWithState(event, state)` instead of `Controller.handleEvent(event)`. 
+2.  **Avoid DOM Dependencies:** `handleEvent` executes side-effects (`RenderOp.render()`) which will fail in a test environment (like Node.js) where `document` or `window` are not defined.
+3.  **Assert on State and RenderOps:** Verify that the returned `newState` is correct and that the expected `Seq[RenderOp]` objects are present with the correct data.
+
 ### Architecture Deep Dive
 
 #### Data Flow

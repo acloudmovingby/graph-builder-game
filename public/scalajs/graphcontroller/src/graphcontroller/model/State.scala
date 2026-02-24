@@ -44,11 +44,22 @@ case class State(
 	/** Adds node with label as next highest index */
 	def addNode(coords: Vector2D): State = {
 		val nextIndex = graph.nodeCount
-		this.copy(graph = graph.addNode(nextIndex), keyToData + (nextIndex -> NodeData(0, coords.x, coords.y)))
+		this.pushUndoState.copy(graph = graph.addNode(nextIndex), keyToData = keyToData + (nextIndex -> NodeData(0, coords.x, coords.y)))
 	}
 	
 	def addEdge(from: Int, to: Int): State = {
-		this.copy(graph = graph.addEdge(from, to))
+		this.pushUndoState.copy(graph = graph.addEdge(from, to))
+	}
+
+	def pushUndoState: State = {
+		// The original idea to use a List for the undo stack was that it has efficient push/pop operations at the front,
+		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
+		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
+		// maybe a different data structure would be better
+		val nodeCopyFunction = (i: Int) => i
+		val newUndoState = GraphUndoState(graph.clone(nodeCopyFunction), keyToData)
+		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
+		this.copy(undoStack = newStack)
 	}
 
 	def clearGraph(): State = {
@@ -66,10 +77,6 @@ object State {
 	def init: State = State(
 		graph = new DirectedMapGraph[Int](),
 		keyToData = Map.empty,
-		// The original idea to use a List for the undo stack was that it has efficient push/pop operations at the front,
-		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
-		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
-		// maybe a different data structure would be better
 		undoStack = List.empty,
 		adjMatrixState = NoSelection,
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings

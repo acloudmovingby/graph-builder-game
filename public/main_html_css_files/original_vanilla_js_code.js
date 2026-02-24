@@ -69,19 +69,6 @@ document.onkeydown = function(event) {
     }
 };
 
-let undoElem = document.getElementById("undo");
-if (undoElem) {
-    undoElem.addEventListener("click", undo, false);
-}
-
-// =====================
-// Undo/Redo
-// =====================
-function undo() {
-    graphController.popUndoState();
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
-}
-
 // =====================
 // UI Refresh/Utility Functions
 // =====================
@@ -237,7 +224,6 @@ let directedBtn = document.getElementById("directed-btn");
 directedBtn.addEventListener(
     "click",
     () => {
-        graphController.pushUndoState();
         graphController.toggleDirectionality();
         refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
     },
@@ -267,26 +253,5 @@ directedBtn.addEventListener(
     },
     false
 );
-
-// Listener for cmd+Z undo. This listens for key presses on the entire document.
-document.addEventListener('keydown', function(event) {
-    // Check if the 'z' key was pressed (case-insensitive)
-    if (event.key.toLowerCase() === 'z') {
-
-        // Check if the Command key (on Mac) or Control key (on Windows/Linux)
-        // is being held down at the same time.
-        const isUndo = event.metaKey || event.ctrlKey;
-
-        if (isUndo) {
-            // This is the "undo" command.
-
-            // Prevent the browser's default undo action (e.g., in a text field)
-            event.preventDefault();
-
-            // Call your custom function
-            undo();
-        }
-    }
-});
 
 refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());

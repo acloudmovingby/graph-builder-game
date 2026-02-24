@@ -18,3 +18,34 @@ case class SetAttribute(elementId: String, attribute: String, value: String) ext
     }
   }
 }
+
+/**
+ * A RenderOp for removing an attribute from a DOM element.
+ */
+case class RemoveAttribute(elementId: String, attribute: String) extends RenderOp {
+  override def render(): Unit = {
+    val elem = dom.document.getElementById(elementId)
+    if (elem != null) {
+      elem.removeAttribute(attribute)
+    }
+  }
+}
+
+/**
+ * A RenderOp that does nothing.
+ */
+case object NoOp extends RenderOp {
+  override def render(): Unit = ()
+}
+
+/**
+ * A RenderOp for setting a style property on a DOM element.
+ */
+case class SetStyleProperty(elementId: String, property: String, value: String) extends RenderOp {
+  override def render(): Unit = {
+    val elem = dom.document.getElementById(elementId).asInstanceOf[dom.html.Element]
+    if (elem != null) {
+      elem.style.setProperty(property, value)
+    }
+  }
+}

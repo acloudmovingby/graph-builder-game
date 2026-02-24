@@ -63,34 +63,6 @@ class GraphController {
 	}
 
 	@JSExport
-	def pushUndoState(): Unit = {
-		// TODO get rid of this clone thing, it doesn't make sense
-		val nodeCopyFunction = (i: Int) => i // identity function for Int keys
-		val newUndoState = GraphUndoState(state.graph.clone(nodeCopyFunction), keyToData)
-		Controller.state = state.copy(undoStack = newUndoState :: Controller.state.undoStack)
-		// if we exceed the limit, remove the oldest state
-		if (Controller.state.undoStack.size > GraphUndoState.UNDO_SIZE_LIMIT) {
-			val newStack = Controller.state.undoStack.take(GraphUndoState.UNDO_SIZE_LIMIT)
-			Controller.state = Controller.state.copy(undoStack = newStack)
-		}
-	}
-
-	/**	No-op if no states in undo stack */
-	@JSExport
-	def popUndoState(): Unit = {
-		// if it's non-empty, pop the top state and restore it
-		Controller.state.undoStack.headOption.foreach { prevState =>
-			Controller.state = Controller.state.copy(undoStack = Controller.state.undoStack.tail)
-			Controller.state = state.copy(graph = prevState.graph)
-			Controller.state = state.copy(keyToData = prevState.keyToData)
-		}
-	}
-
-	/** For graying-out the undo button if can't undo anymore */
-	@JSExport
-	def canUndo(): Boolean = Controller.state.undoStack.nonEmpty
-
-	@JSExport
 	def getAdjList(): js.Array[js.Array[Int]] = state.graph.adjMap.map(_._2.toSeq.toJSArray).toJSArray
 
 	private def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
