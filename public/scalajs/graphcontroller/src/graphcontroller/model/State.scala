@@ -50,6 +50,16 @@ case class State(
 	def addEdge(from: Int, to: Int): State = {
 		this.copy(graph = graph.addEdge(from, to))
 	}
+
+	def clearGraph(): State = {
+		this.copy(
+			graph = graph.empty,
+			keyToData = Map.empty,
+			toolState = BasicTool(None),
+			hoveringOnNode = None,
+			hoveringOnTool = None
+		)
+	}
 }
 
 object State {

@@ -2,6 +2,8 @@ package graphcontroller.controller
 
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
+import graphcontroller.components.buildpane.BuildPaneComponent
+import graphcontroller.components.cleargraphbutton.ClearGraphComponent
 import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.components.maincanvas.MainCanvasComponent
 import graphcontroller.components.resizing.ResizingComponent
@@ -18,11 +20,12 @@ object Controller {
 
 	private val components: Seq[Component] = Seq(
 		AdjacencyMatrixComponent,
+		ClearGraphComponent,
 		ExportPane,
 		MainCanvasComponent,
 		ResizingComponent,
 		ToolBarComponent,
-		graphcontroller.components.buildpane.BuildPaneComponent
+		BuildPaneComponent
 	)
 
 	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */

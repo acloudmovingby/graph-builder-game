@@ -9,33 +9,6 @@ import {
 // =====================
 // Class/Type Definitions
 // =====================
-class ToolTipHover {
-    constructor(header, description, image) {
-        this.header = header;
-        this.description = description;
-        this.image = image;
-    }
-}
-
-class Tool {
-    constructor(id, cursor, toolTipHover, state) {
-        this.id = id; // html id
-        this.cursor = cursor; // css for url of cursor image
-        this.hover = toolTipHover;
-        this.state = state; // varies by tool. This cuts down on global variables. every tool is responsible for managing the state it requires (e.g. the prior node clicked for an edge adding tool, an array of nodes selected by a selection tool, etc.);
-    }
-}
-
-function NodeData(key, counter, x, y) {
-    this.key = key;
-    this.counter = counter;
-    this.x = x;
-    this.y = y;
-}
-
-function cloneNodeData(nodeData) {
-    return new NodeData(nodeData.key, nodeData.counter, nodeData.x, nodeData.y);
-}
 
 function Point(x, y) {
     this.x = x;
@@ -53,71 +26,12 @@ let graph = new Digraph();
 const graphController = Main.getGraphController();
 let mouseX = 0;
 let mouseY = 0;
-let nodeHover = null;
 let infoPaneHover = false;
 let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
 let scale = window.devicePixelRatio;
 let graphTypes = [];
-
-
-// =====================
-// Tool Definitions
-// =====================
-let basicTool = new Tool(
-    "basic",
-    "url('images/pointer.svg'), pointer",
-    new ToolTipHover(
-        "Basic Node/Edge Adding Tool",
-        "Click to make nodes, then click on a node to begin adding edges. To exit edge making mode, simply click on the gray canvas.",
-        "images/basic-tool-tooltip-example.gif"
-    ), {
-        edgeMode: false,
-        edgeStart: null, // the node's key
-        stillInNode: false,
-    }
-);
-
-let areaCompleteTool = new Tool(
-    "area-complete",
-    "url('images/area-complete-cursor.svg'), pointer",
-    new ToolTipHover(
-        "Area Complete Tool",
-        "Adds all possible edges between nodes in the selected area.",
-        "images/area-complete-tool-tooltip-example.gif"
-    ), {
-        mousePressed: false,
-        drawPoints: [],
-    }
-);
-
-let magicPathTool = new Tool(
-    "magic-path",
-    "url('images/magic-path-cursor-2.svg'), pointer",
-    new ToolTipHover(
-        "Magic Path Tool",
-        "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!",
-        "images/magic-path-tool-tooltip-example.gif"
-    ), {
-        edgeMode: false,
-        edgeStart: null, // the node's key
-        normalCursor: "url('images/magic-path-cursor-2.svg'), pointer",
-        noneCursor: "none",
-    }
-);
-
-let moveTool = new Tool(
-    "move",
-    "url('images/move-tool-cursor.svg'), pointer",
-    new ToolTipHover(
-        "Move Tool",
-        "Click and drag it around.",
-        "images/move-tool-tooltip-example.gif"
-    ), {
-        node: null,
-    }
-);
 
 // =====================
 // Canvas Setup
@@ -155,43 +69,9 @@ document.onkeydown = function(event) {
     }
 };
 
-// canvasArea.style.cursor = toolState.curTool.cursor;
-
 let undoElem = document.getElementById("undo");
 if (undoElem) {
     undoElem.addEventListener("click", undo, false);
-}
-
-if (canvas.getContext) {
-    canvasArea.addEventListener("mousemove", mouseMove, false);
-    canvasArea.addEventListener("mouseleave", mouseLeave, false);
-}
-
-function clearGraph() {
-    graphController.pushUndoState();
-    graphController.clearGraph();
-    graph = new Graph();
-    exitBasicEdgeMode();
-    exitMagicEdgeMode();
-    nodeHover = null;
-    basicTool.state.stillInNode = false;
-    refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
-}
-
-function mouseLeave(event) {
-    exitBasicEdgeMode();
-    exitMagicEdgeMode();
-}
-
-function mouseMove(event) {
-    let canvasBounds = canvas.getBoundingClientRect();
-    mouseX = event.x - canvasBounds.left;
-    mouseY = event.y - canvasBounds.top;
-
-    nodeHover = nodeAtPoint(mouseX, mouseY, graphController.getFullNodeData());
-    if (!nodeHover) {
-        basicTool.state.stillInNode = false;
-    }
 }
 
 // =====================
@@ -243,7 +123,6 @@ function refreshHtml(nodeCount, edgeCount, graphTypes, adjList) {
     // We have to get the state at some point and I don't think there's any point in getting it in 10 diff place?
     // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
 
-    // refreshToolbarHtml(toolState);
     refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
     refreshAdjListHtml(adjList);
     refreshDirectedButtonIcon();
@@ -272,15 +151,6 @@ function refreshAdjListHtml(adjListLabels) {
     }
 }
 
-function setupClearButtonEventListener() {
-    const clearButton = document.getElementById('clear-btn');
-    clearButton.addEventListener('click', () => {
-        clearGraph();
-    });
-}
-
-setupClearButtonEventListener();
-
 function inside(point, vs) {
     // ray-casting algorithm based on
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
@@ -299,28 +169,6 @@ function inside(point, vs) {
         if (intersect) inside = !inside;
     }
     return inside;
-}
-
-function enterBasicEdgeMode(node) {
-    basicTool.state.edgeMode = true;
-    basicTool.state.edgeStart = node.key;
-}
-
-function exitBasicEdgeMode() {
-    basicTool.state.edgeMode = false;
-    basicTool.state.edgeStart = null;
-}
-
-function exitMagicEdgeMode() {
-    magicPathTool.state.edgeMode = false;
-    magicPathTool.state.edgeStart = null;
-    magicPathTool.cursor = magicPathTool.state.normalCursor;
-}
-
-function enterMagicEdgeMode(node) {
-    magicPathTool.state.edgeMode = true;
-    magicPathTool.state.edgeStart = node.key;
-    magicPathTool.cursor = magicPathTool.state.noneCursor;
 }
 
 // Info/Export Pane Event Handlers

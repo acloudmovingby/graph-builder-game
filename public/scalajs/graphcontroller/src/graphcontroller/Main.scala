@@ -2,6 +2,7 @@ package graphcontroller
 
 import graphcontroller.components.adjacencymatrix.AdjMatrixCanvas
 import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventListeners
+import graphcontroller.components.cleargraphbutton.eventlisteners.ClearGraphButtonListener
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.MainCanvas
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
@@ -19,6 +20,7 @@ object Main {
 	private val graphController = new GraphController()
 
 	private val eventListeners: Seq[EventListener] = Seq(
+		ClearGraphButtonListener,
 		ExportPaneEventListeners,
 		MainCanvasEventListeners,
 		AdjMatrixEventListeners,

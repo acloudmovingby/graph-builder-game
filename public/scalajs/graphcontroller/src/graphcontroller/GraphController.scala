@@ -36,12 +36,6 @@ class GraphController {
 	}
 
 	@JSExport
-	def clearGraph(): Unit = {
-		Controller.state = state.copy(graph = new DirectedMapGraph[Int]())
-		Controller.state = state.copy(keyToData = Map.empty)
-	}
-
-	@JSExport
 	def nodeCount(): Int = state.graph.nodeCount
 
 	@JSExport
