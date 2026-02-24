@@ -147,65 +147,11 @@ window.addEventListener('resize', function(event) {
     setCanvasSize()
 });
 
-/*
-for (const tool of toolState.allTools) {
-    if (document.getElementById(tool.id)) {
-        document.getElementById(tool.id).addEventListener(
-            "click",
-            () => {
-                toolState.curTool = tool;
-                refreshHtml(graphController.nodeCount(), graphController.edgeCount(), toolState, calculateGraphType(graph), graphController.getAdjList());
-            },
-            false
-        );
-    }
-}
-*/
-
-/*
-for (const tool of toolState.allTools) {
-    if (document.getElementById(tool.id)) {
-        document.getElementById(tool.id).addEventListener(
-            "mouseenter",
-            (event) => {
-                let hoverInfoElement = document.getElementById("hover-info-pane");
-                if (hoverInfoElement) {
-                    let toolBtnOffsetLeft = document.getElementById(tool.id).offsetLeft;
-                    let toolBtnWidth = document.getElementById(tool.id).offsetWidth;
-                    let toolBtnHeight = document.getElementById(tool.id).offsetHeight;
-                    hoverInfoElement.style.left = `${toolBtnOffsetLeft + toolBtnWidth / 2}px`;
-                    hoverInfoElement.style.top = `${toolBtnHeight - 5}px`;
-                    hoverInfoElement.style.visibility = "visible";
-                    document.getElementById("hover-header").innerHTML = tool.hover.header;
-                    document.getElementById("hover-description").innerHTML = tool.hover.description;
-                    document.getElementById("hover-info-img").src = tool.hover.image;
-                }
-            },
-            false
-        );
-        document.getElementById(tool.id).addEventListener(
-            "mouseleave",
-            (event) => {
-                let hoverInfoElement = document.getElementById("hover-info-pane");
-                if (hoverInfoElement) {
-                    hoverInfoElement.style.visibility = "hidden";
-                }
-            },
-            false
-        );
-    }
-}
-*/
-
 document.onkeydown = function(event) {
     event = event || window.event;
     var isEscape = false;
     if ("key" in event) {
         isEscape = event.key === "Escape" || event.key === "Esc";
-    }
-    if (isEscape) {
-        // if (toolState.curTool === basicTool) exitBasicEdgeMode();
-        // if (toolState.curTool === magicPathTool) exitMagicEdgeMode();
     }
 };
 
@@ -227,7 +173,6 @@ function clearGraph() {
     graph = new Graph();
     exitBasicEdgeMode();
     exitMagicEdgeMode();
-    // toolState.curTool = basicTool;
     nodeHover = null;
     basicTool.state.stillInNode = false;
     refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
@@ -327,26 +272,6 @@ function refreshAdjListHtml(adjListLabels) {
     }
 }
 
-/*
-function refreshToolbarHtml(toolState) {
-    for (const tool of toolState.allTools) {
-        let toolElem = document.getElementById(tool.id);
-        if (toolElem) toolElem.className = "tool-btn";
-    }
-    let curToolElem = document.getElementById(toolState.curTool.id);
-    if (curToolElem) curToolElem.className = "tool-btn selected";
-    canvasArea.style.cursor = toolState.curTool.cursor;
-
-    let undoElem = document.getElementById("undo");
-    if (undoElem) {
-        undoElem.style.backgroundImage =
-            graphController.canUndo() ?
-            'url("images/undo-icon.svg")' :
-            'url("images/undo-icon-gray.svg")';
-    }
-}
-*/
-
 function setupClearButtonEventListener() {
     const clearButton = document.getElementById('clear-btn');
     clearButton.addEventListener('click', () => {
@@ -390,7 +315,6 @@ function exitMagicEdgeMode() {
     magicPathTool.state.edgeMode = false;
     magicPathTool.state.edgeStart = null;
     magicPathTool.cursor = magicPathTool.state.normalCursor;
-    // refreshToolbarHtml(toolState);
 }
 
 function enterMagicEdgeMode(node) {
