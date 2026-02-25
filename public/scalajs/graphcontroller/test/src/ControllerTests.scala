@@ -1,5 +1,5 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility, UndoRequested}
+import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
@@ -143,6 +143,44 @@ object ControllerTests extends TestSuite {
 				assert(op.attribute == "src")
 				assert(op.value == "images/node-label-visible.svg")
 			}
+		}
+
+		test("Clear graph is undoable") {
+			val stateWithNodes = State.init
+				.addNode(Vector2D(10, 10))
+				.addNode(Vector2D(20, 20))
+			assert(stateWithNodes.graph.nodeCount == 2)
+			val undoStackSizeBeforeClear = stateWithNodes.undoStack.size
+
+			val (stateAfterClear, _) = Controller.handleEventWithState(ClearButtonClicked, stateWithNodes)
+			assert(stateAfterClear.graph.nodeCount == 0)
+			assert(stateAfterClear.undoStack.size == undoStackSizeBeforeClear + 1)
+
+			val (stateAfterUndo, _) = Controller.handleEventWithState(UndoRequested, stateAfterClear)
+			assert(stateAfterUndo.graph.nodeCount == 2)
+		}
+
+		test("bulkUpdateEdges pushes single undo state only if changed") {
+			val initialState = State.init
+				.addNode(Vector2D(10, 10))
+				.addNode(Vector2D(20, 20)) // node 0 and node 1
+			val baseUndoStackSize = initialState.undoStack.size
+
+			// 1. Add multiple edges
+			val cellsToAdd = Seq((0, 1), (1, 0))
+			val stateWithEdges = initialState.bulkUpdateEdges(cellsToAdd, isAdd = true)
+			assert(stateWithEdges.graph.getEdges.size == 2)
+			assert(stateWithEdges.undoStack.size == baseUndoStackSize + 1)
+
+			// 2. Try adding same edges again (no change)
+			val stateNoChange = stateWithEdges.bulkUpdateEdges(cellsToAdd, isAdd = true)
+			assert(stateNoChange.undoStack.size == stateWithEdges.undoStack.size)
+			assert(stateNoChange eq stateWithEdges)
+
+			// 3. Remove multiple edges
+			val stateAfterRemove = stateWithEdges.bulkUpdateEdges(cellsToAdd, isAdd = false)
+			assert(stateAfterRemove.graph.getEdges.isEmpty)
+			assert(stateAfterRemove.undoStack.size == stateWithEdges.undoStack.size + 1)
 		}
 	}
 }

@@ -101,7 +101,7 @@ object AdjacencyMatrixView {
 		val nodeCount = state.graph.nodeCount
 
 		def hoveredCell(cell: Cell): RectangleCanvas = {
-			val color = if (state.graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			val color = if (state.graph.getEdges.contains(cell.toEdgeTuple)) hoverEdgePresentColor else hoverNoEdgeColor
 			RectangleCanvas(
 				Rectangle(
 					topLeft = Vector2D(
@@ -169,7 +169,7 @@ object AdjacencyMatrixView {
 				val selectedCells = d.selectedCells
 					.filter { c =>
 						// we only highlight cells that would change when we apply the selection
-						(d.isAdd, state.graph.getEdges.contains(c.toEdge)) match {
+						(d.isAdd, state.graph.getEdges.contains(c.toEdgeTuple)) match {
 							case (true, false) => true // adding an edge that doesn't exist
 							case (false, true) => true // removing an edge that does exist
 							case _ => false // otherwise don't change what's drawn

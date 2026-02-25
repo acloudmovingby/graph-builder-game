@@ -3,7 +3,7 @@ package graphcontroller.components.maincanvas
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
-import graphcontroller.dataobject.NodeData, graphcontroller.dataobject.Vector2D
+import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool}
 
@@ -146,15 +146,13 @@ object MainCanvasComponent extends Component {
 						}.keys.toSeq
 
 						val newState = if (selectedNodes.length > 1) {
-							val nodePairs = for {
+							val edges = for {
 								node1 <- selectedNodes
 								node2 <- selectedNodes
 								if node1 != node2
 							} yield (node1, node2)
 
-							nodePairs.foldLeft(state) { (currentState, pair) =>
-								currentState.addEdge(pair._1, pair._2)
-							}
+							state.bulkUpdateEdges(edges, isAdd = true)
 						} else {
 							state
 						}

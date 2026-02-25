@@ -51,6 +51,45 @@ case class State(
 		this.pushUndoState.copy(graph = graph.addEdge(from, to))
 	}
 
+	/**
+	 * Adds or removes multiple edges in a single operation, pushing only one undo state if changes occurred.
+	 * TODO: Convert all the tuples to an Edge case class
+	 */
+	def bulkUpdateEdges(cells: Seq[(Int, Int)], isAdd: Boolean): State = {
+		val newGraph = cells.foldLeft(this.graph) { (g, cell) =>
+			if (cell._1 != cell._2) { // Currently we don't support self-loops
+				if (isAdd) g.addEdge(cell._1, cell._2)
+				else g.removeEdge(cell._1, cell._2)
+			} else g
+		}
+
+		if (newGraph != this.graph) {
+			this.pushUndoState.copy(graph = newGraph)
+		} else {
+			this
+		}
+	}
+
+	/**
+	 * Adds multiple nodes in a single operation, pushing only one undo state.
+	 */
+	def bulkAddNodes(coords: Seq[Vector2D]): State = {
+		if (coords.isEmpty) this
+		else {
+			var currentGraph = this.graph
+			var currentKeyToData = this.keyToData
+			var nextIndex = currentGraph.nodeCount
+
+			coords.foreach { coord =>
+				currentGraph = currentGraph.addNode(nextIndex)
+				currentKeyToData = currentKeyToData + (nextIndex -> NodeData(0, coord.x, coord.y))
+				nextIndex += 1
+			}
+
+			this.pushUndoState.copy(graph = currentGraph, keyToData = currentKeyToData)
+		}
+	}
+
 	def pushUndoState: State = {
 		// The original idea to use a List for the undo stack was that it has efficient push/pop operations at the front,
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
@@ -63,7 +102,7 @@ case class State(
 	}
 
 	def clearGraph(): State = {
-		this.copy(
+		this.pushUndoState.copy(
 			graph = graph.empty,
 			keyToData = Map.empty,
 			toolState = BasicTool(None),

@@ -41,18 +41,7 @@ object AdjacencyMatrixComponent extends Component {
 		newAdjMatrixState match {
 			// if the state changed to a ReleaseSelection, the selection was released and therefore we need to update the graph accordingly
 			case ReleaseSelection(cells, isAdd) =>
-				val newGraph = cells.foldLeft(state.graph) { (graph, cell) =>
-					if (cell.row != cell.col) { // Currently we don't support self-loops
-						if (isAdd) {
-							graph.addEdge(cell.row, cell.col)
-						} else {
-							graph.removeEdge(cell.row, cell.col)
-						}
-					} else graph
-				}
-
-				state.copy(
-					graph = newGraph,
+				state.bulkUpdateEdges(cells.toSeq.map(_.toEdgeTuple), isAdd).copy(
 					adjMatrixState = newAdjMatrixState
 				)
 			case _ => state.copy(adjMatrixState = newAdjMatrixState)
