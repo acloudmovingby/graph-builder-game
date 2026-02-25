@@ -2,9 +2,6 @@ import {
     Graph,
     Digraph
 } from "../algorithms/graph.mjs";
-import {
-    calculateGraphType
-} from "../algorithms/graph_algs.mjs";
 
 // =====================
 // Class/Type Definitions
@@ -31,7 +28,6 @@ let labelsVisible = true;
 const timeInit = new Date().getSeconds();
 let printCounter = 0;
 let scale = window.devicePixelRatio;
-let graphTypes = [];
 
 // =====================
 // Canvas Setup
@@ -105,20 +101,9 @@ function nodeAtPoint(x, y, nodes) {
     return null;
 }
 
-function refreshHtml(nodeCount, edgeCount, graphTypes, adjList) {
-    // TODO? stop passing in args to refreshHtml and instead just call graphController from within here
-    // We have to get the state at some point and I don't think there's any point in getting it in 10 diff place?
-    // TODO: maybe only calculate if graph has changed (but don't worry about it until if/when performance becomes an issue)
-
-    refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes);
+function refreshHtml(nodeCount, edgeCount, adjList) {
     refreshAdjListHtml(adjList);
     refreshDirectedButtonIcon();
-}
-
-function refreshGraphInfoHtml(nodeCount, edgeCount, graphTypes) {
-    document.getElementById("node-count").innerHTML = nodeCount;
-    document.getElementById("edge-count").innerHTML = edgeCount;
-    document.getElementById("graph-types").innerHTML = graphTypes;
 }
 
 // adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
@@ -225,7 +210,7 @@ directedBtn.addEventListener(
     "click",
     () => {
         graphController.toggleDirectionality();
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
+        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), graphController.getAdjList());
     },
     false
 );
@@ -254,4 +239,4 @@ directedBtn.addEventListener(
     false
 );
 
-refreshHtml(graphController.nodeCount(), graphController.edgeCount(), calculateGraphType(graph), graphController.getAdjList());
+refreshHtml(graphController.nodeCount(), graphController.edgeCount(), graphController.getAdjList());

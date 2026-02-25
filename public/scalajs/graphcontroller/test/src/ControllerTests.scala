@@ -1,6 +1,7 @@
 import utest.*
 import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
+import graphcontroller.components.buildpane.BuildPaneRenderOp
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
@@ -109,6 +110,14 @@ object ControllerTests extends TestSuite {
 		}
 
 		test("handleEventWithState with ToggleLabelsVisibility should be reversible") {
+			def findVisibleIconRenderOp(renderOps: Seq[RenderOp]): Option[SetAttribute] = {
+				renderOps.collectFirst {
+					case BuildPaneRenderOp(ops) => ops.collectFirst {
+						case op: SetAttribute if op.elementId == "visible-icon" => op
+					}
+				}.flatten
+			}
+
 			// === Step 1: Toggle OFF ===
 			val initialState = State.init
 			assert(initialState.labelsVisible)
@@ -119,9 +128,8 @@ object ControllerTests extends TestSuite {
 			assert(!stateAfterToggleOff.labelsVisible)
 
 			// Assert RenderOp is for "closed eye" icon
-			val setAttrOpOff = renderOpsOff.collectFirst {
-				case op: SetAttribute if op.elementId == "visible-icon" => op
-			}
+			val setAttrOpOff = findVisibleIconRenderOp(renderOpsOff)
+
 			assert(setAttrOpOff.isDefined)
 			setAttrOpOff.foreach { op =>
 				assert(op.attribute == "src")
@@ -135,9 +143,7 @@ object ControllerTests extends TestSuite {
 			assert(stateAfterToggleOn.labelsVisible)
 
 			// Assert RenderOp is for "open eye" icon
-			val setAttrOpOn = renderOpsOn.collectFirst {
-				case op: SetAttribute if op.elementId == "visible-icon" => op
-			}
+			val setAttrOpOn = findVisibleIconRenderOp(renderOpsOn)
 			assert(setAttrOpOn.isDefined)
 			setAttrOpOn.foreach { op =>
 				assert(op.attribute == "src")
