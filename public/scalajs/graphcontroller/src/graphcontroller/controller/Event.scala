@@ -53,3 +53,4 @@ case class ToolSelected(tool: String) extends Event
 case class ToolBarMouseOver(tool: String) extends Event
 case object ToolBarMouseOut extends Event
 case object ToggleLabelsVisibility extends Event
+case object ToggleDirectedness extends Event

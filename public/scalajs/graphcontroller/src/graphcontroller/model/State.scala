@@ -2,7 +2,7 @@ package graphcontroller.model
 
 import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionState, NoSelection}
 import graphcontroller.components.exportpane.ExportFormat
-import graphi.{DirectedMapGraph, MapGraph}
+import graphi.{DirectedMapGraph, MapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
 import graphcontroller.shared.{BasicTool, GraphRepresentation, Tool}
 
@@ -46,7 +46,7 @@ case class State(
 		val nextIndex = graph.nodeCount
 		this.pushUndoState.copy(graph = graph.addNode(nextIndex), keyToData = keyToData + (nextIndex -> NodeData(0, coords.x, coords.y)))
 	}
-	
+
 	def addEdge(from: Int, to: Int): State = {
 		this.pushUndoState.copy(graph = graph.addEdge(from, to))
 	}
@@ -110,6 +110,11 @@ case class State(
 			hoveringOnTool = None
 		)
 	}
+
+	def isDirected: Boolean = graph match {
+		case _: DirectedMapGraph[Int] => true
+		case _ => false
+	}
 }
 
 object State {
@@ -128,6 +133,6 @@ object State {
 }
 
 case class HoveredNode(
-	nodeIndex: Int, 
+	nodeIndex: Int,
 	justAdded: Boolean // use this flag so that when we add a new node the hover effect doesn't immediately appear (not necessary but seems to look nicer)
 )

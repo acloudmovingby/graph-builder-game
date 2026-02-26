@@ -178,20 +178,6 @@ document.getElementById("info-pane-select").addEventListener(
     false
 );
 
-let labelVisibleBtn = document.getElementById("label-visible-btn");
-labelVisibleBtn.addEventListener(
-    "click",
-    () => {
-        if (document.getElementById("visible-icon")) {
-            document.getElementById("visible-icon").src = labelsVisible ?
-                "images/invisible-icon.svg" :
-                "images/node-label-visible.svg";
-            labelsVisible = !labelsVisible;
-        }
-    },
-    false
-);
-
 function refreshDirectedButtonIcon() {
     if (document.getElementById("directed-icon")) {
         document.getElementById("directed-icon").src = graphController.isDirected() ?
@@ -206,14 +192,6 @@ function refreshDirectedButtonIcon() {
 }
 
 let directedBtn = document.getElementById("directed-btn");
-directedBtn.addEventListener(
-    "click",
-    () => {
-        graphController.toggleDirectionality();
-        refreshHtml(graphController.nodeCount(), graphController.edgeCount(), graphController.getAdjList());
-    },
-    false
-);
 
 directedBtn.addEventListener(
     "mouseenter",

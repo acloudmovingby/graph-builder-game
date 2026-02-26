@@ -92,35 +92,4 @@ class GraphController {
 
 	@JSExport
 	def containsEdge(from: Int, to: Int): Boolean = state.graph.hasEdge(from, to)
-
-	@JSExport
-	def toggleDirectionality(): Unit = {
-		state.graph match {
-			case g: DirectedMapGraph[Int] =>
-				var undirectedGraph = new SimpleMapGraph[Int]()
-				// add all nodes
-				for (node <- g.adjMap.keys) {
-					undirectedGraph = undirectedGraph.addNode(node)
-				}
-				// add all edges in undirected manner
-				for {
-					(from, neighbors) <- g.adjMap
-					to <- neighbors
-				} {
-					undirectedGraph = undirectedGraph.addEdge(from, to)
-				}
-				Controller.state = state.copy(graph = undirectedGraph)
-			case g: SimpleMapGraph[Int] =>
-				Controller.state = state.copy(graph = new DirectedMapGraph[Int](g.adjMap))
-		}
-	}
-
-	@JSExport
-	def removeEdge(from: Int, to: Int): Unit = {
-		try {
-			Controller.state = state.copy(graph = state.graph.removeEdge(from, to))
-		} catch {
-			case e: NoSuchElementException => println(s"Error removing edge: ${e.getMessage}")
-		}
-	}
 }

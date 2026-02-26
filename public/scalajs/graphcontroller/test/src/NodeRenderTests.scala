@@ -32,7 +32,6 @@ class NodeRenderTests extends TestSuite {
 			val hoveredNode = HoveredNode(0, false)
 			val toolState = BasicTool(None) // None indicates we're in node-adding mode (no start of an edge)
 			val result = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), toolState)
-			println(s"result=$result")
 			assert(result.toSet == Set((0, BasicHover), (1, Basic)))
 		}
 
