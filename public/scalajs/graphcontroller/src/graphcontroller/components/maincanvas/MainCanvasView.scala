@@ -80,7 +80,9 @@ object MainCanvasView {
 	}
 
 	/**
-	 * TODO don't pass in all of state, just pass in values we need and write unit tests for this (which is easier/better
+	 * For each node, decide what styling it should be rendered with. Return as list of tuples
+	 * 
+	 * TODO: write unit tests for this (which is easier/better
 	 * than writing unit tests for the final thing that produces the CanvasRenderOp because maybe we will change how each
 	 * style is rendered and the NodeRenderStyle is a simple enum)
 	 */
@@ -135,7 +137,6 @@ object MainCanvasView {
 			.flatMap { case (node, style) =>
 				state.keyToData.get(node) match {
 					case None =>
-						println(s"Unexpectedly, didn't find node $node in data map")
 						Seq.empty
 					case Some(data) =>
 						val label = if (state.labelsVisible) Some(node.toString) else None
