@@ -59,7 +59,13 @@ object BuildPaneComponent extends Component {
 		val nodeLabelToggleIcon = if (state.labelsVisible) "images/node-label-visible.svg" else "images/invisible-icon.svg"
 
 		val directedToggleIcon = if (state.isDirected) "images/arrow-small-1-blue.svg" else "images/arrow-small-1.svg"
-		val directedToggleBtnBgColor = if (state.isDirected) "#cff5ff" else "white"
+		val directedToggleBtnBgColor = (state.isDirected, state.hoverDirectedIcon) match {
+			// TODO I think this is wrong actually, compare against the prod version
+			case (true, false) => "#cff5ff"
+			case (true, true) => "#cce8f0"
+			case (false, false) => "white"
+			case (false, true) => "lightgray"
+		}
 
 		BuildPaneRenderOp(
 			Seq(

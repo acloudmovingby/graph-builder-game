@@ -20,7 +20,6 @@ let canvas = document.getElementById("main-canvas-upper");
 let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("right-pane")?.[0].offsetWidth;
 let graph = new Digraph();
-const graphController = Main.getGraphController();
 let mouseX = 0;
 let mouseY = 0;
 let infoPaneHover = false;
@@ -101,27 +100,22 @@ function nodeAtPoint(x, y, nodes) {
     return null;
 }
 
-function refreshHtml(nodeCount, edgeCount, adjList) {
-    refreshAdjListHtml(adjList);
-    refreshDirectedButtonIcon();
-}
-
-// adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
-function refreshAdjListHtml(adjListLabels) {
-    let adjListElem = document.getElementById("adjacency-list");
-    if (adjListElem) {
-        adjListElem.innerHTML = "";
-        for (let i = 0; i < adjListLabels.length; i++) {
-            var node = document.createElement("LI");
-            var textnode = document.createTextNode(i + ":");
-            node.appendChild(textnode);
-            for (let j = 0; j < adjListLabels[i].length; j++) {
-                node.appendChild(document.createTextNode(" " + adjListLabels[i][j]));
-            }
-            adjListElem.appendChild(node);
-        }
-    }
-}
+//// adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
+//function refreshAdjListHtml(adjListLabels) {
+//    let adjListElem = document.getElementById("adjacency-list");
+//    if (adjListElem) {
+//        adjListElem.innerHTML = "";
+//        for (let i = 0; i < adjListLabels.length; i++) {
+//            var node = document.createElement("LI");
+//            var textnode = document.createTextNode(i + ":");
+//            node.appendChild(textnode);
+//            for (let j = 0; j < adjListLabels[i].length; j++) {
+//                node.appendChild(document.createTextNode(" " + adjListLabels[i][j]));
+//            }
+//            adjListElem.appendChild(node);
+//        }
+//    }
+//}
 
 function inside(point, vs) {
     // ray-casting algorithm based on
@@ -177,44 +171,3 @@ document.getElementById("info-pane-select").addEventListener(
     },
     false
 );
-
-function refreshDirectedButtonIcon() {
-    if (document.getElementById("directed-icon")) {
-        document.getElementById("directed-icon").src = graphController.isDirected() ?
-            "images/arrow-small-1-blue.svg" :
-            "images/arrow-small-1.svg";
-    }
-    if (document.getElementById("directed-btn")) {
-        document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected() ?
-            "#cff5ff" :
-            "white";
-    }
-}
-
-let directedBtn = document.getElementById("directed-btn");
-
-directedBtn.addEventListener(
-    "mouseenter",
-    () => {
-        if (document.getElementById("directed-btn")) {
-            document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected() ?
-                "#cce8f0" :
-                "lightgray";
-        }
-    },
-    false
-);
-
-directedBtn.addEventListener(
-    "mouseleave",
-    () => {
-        if (document.getElementById("directed-btn")) {
-            document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected() ?
-                "#ebfaff" :
-                "white";
-        }
-    },
-    false
-);
-
-refreshHtml(graphController.nodeCount(), graphController.edgeCount(), graphController.getAdjList());

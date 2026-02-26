@@ -20,7 +20,8 @@ case class State(
 	hoveringOnNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
 	hoveringOnTool: Option[String],
 	labelsVisible: Boolean = true,
-	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0)
+	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0),
+	hoverDirectedIcon: Boolean = false
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because

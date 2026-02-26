@@ -18,8 +18,6 @@ import graphcontroller.shared.EventListener
 // the graphcontroller instance
 @JSExportTopLevel("Main")
 object Main {
-	private val graphController = new GraphController()
-
 	private val eventListeners: Seq[EventListener] = Seq(
 		ClearGraphButtonListener,
 		ExportPaneEventListeners,
@@ -51,7 +49,4 @@ object Main {
 		/* 'New' components architecture. Wiring up the components */
 		eventListeners.foreach { e => e.init(Controller.handleEvent) }
 	}
-
-	@JSExport
-	def getGraphController(): GraphController = graphController
 }
