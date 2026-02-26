@@ -92,7 +92,7 @@ object AdjacencyMatrixView {
 	}
 
 	/** When you hover over a cell or a row/column number, this is the shading drawn over that cell area that indicates
-	 * which cell of the matrix (i.e. edge) clicking would potentially affect.  */
+	 * which cell of the matrix (i.e. edge) clicking would potentially affect. */
 	def hoveredCellHighlight(
 		state: State,
 		hoveredZone: AdjMatrixZone,
@@ -139,15 +139,13 @@ object AdjacencyMatrixView {
 		val nodeCount = state.graph.nodeCount
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			state.graph.getEdges.toSeq.flatMap { case (from, to) =>
-				AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
-					.map(rect =>
-						RectangleCanvas(
-							rect,
-							color = edgePresentColor
-						)
-					).toSeq
-			}
+			for {
+				// get edges
+				edge <- state.graph.getEdges.toSeq
+				// An undirected (simple) graph returns only one edge per pair of nodes but we want both directions
+				(from, to) <- if (state.isDirected) Seq(edge) else Seq(edge, (edge._2, edge._1))
+				rectangle <- AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
+			} yield RectangleCanvas(rectangle, color = edgePresentColor)
 		}
 	}
 

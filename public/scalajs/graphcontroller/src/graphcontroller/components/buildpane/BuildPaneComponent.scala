@@ -64,6 +64,7 @@ object BuildPaneComponent extends Component {
 		BuildPaneRenderOp(
 			Seq(
 				SetAttribute("visible-icon", "src", nodeLabelToggleIcon),
+				SetAttribute("directed-icon", "src", directedToggleIcon),
 				SetInnerHTML("node-count", state.graph.nodeCount.toString),
 				SetInnerHTML("edge-count", state.graph.edgeCount.toString)
 			)
@@ -73,14 +74,4 @@ object BuildPaneComponent extends Component {
 
 case class BuildPaneRenderOp(ops: Seq[RenderOp]) extends RenderOp {
 	override def render(): Unit = ops.foreach(_.render())
-}
-
-case class DirectedToggleButtonRenderOp(isDirected: Boolean) extends RenderOp {
-	override def render(): Unit = {
-		val directedToggleIcon = if (isDirected) "images/arrow-small-1-blue.svg" else "images/arrow-small-1.svg"
-		val directedToggleBtnBgColor = if (isDirected) "#cff5ff" else "white"
-
-		SetAttribute("directed-icon", "src", directedToggleIcon).render()
-		SetStyleProperty("directed-btn", "background-color", directedToggleBtnBgColor).render()
-	}
 }

@@ -113,7 +113,7 @@ case class State(
 
 	def isDirected: Boolean = graph match {
 		case _: DirectedMapGraph[Int] => true
-		case _ => false
+		case _: SimpleMapGraph[Int] => false
 	}
 }
 
