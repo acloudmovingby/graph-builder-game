@@ -14,10 +14,6 @@ object MainCanvasComponent extends Component {
 	 *
 	 * ray-casting algorithm based on
 	 * https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
-	 *
-	 * @param point
-	 * @param polygon
-	 * @return If point is inside polygon
 	 */
 	private def isInside(point: Vector2D, polygon: Seq[Vector2D]): Boolean = {
 		val x = point.x
@@ -64,33 +60,27 @@ object MainCanvasComponent extends Component {
 						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
-				maybeHoveredNode match {
-					case None =>
-						tool.edgeStart match {
-							case None =>
-								// Add new node!
-								// Make the new node the hovered node, and set the justAdded flag to true (to avoid hover effect)
-								state.addNode(event.coords).copy(
-									toolState = BasicTool(None),
-									hoveringOnNode = Some(HoveredNode(state.graph.nodeCount, true))
-								)
-							case Some(_) =>
-								// When clicking on the blank canvas, exit edge-adding mode
-								state.copy(toolState = BasicTool(None))
-						}
-					case Some(hoveredNode) =>
-						tool.edgeStart match {
-							case None =>
-								// Enter edge-adding mode
-								state.copy(toolState = BasicTool(Some(hoveredNode)))
-							case Some(edgeStart) =>
-								if (hoveredNode == edgeStart) {
-									// Exit edge adding mode
-									state.copy(toolState = BasicTool(None))
-								} else {
-									// Add edge and reset start node to node just clicked
-									state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
-								}
+				(maybeHoveredNode, tool.edgeStart) match {
+					case (None, None) =>
+						// Add new node!
+						// Make the new node the hovered node, and set the justAdded flag to true (to avoid hover effect)
+						state.addNode(event.coords).copy(
+							toolState = BasicTool(None),
+							hoveringOnNode = Some(HoveredNode(state.graph.nodeCount, true))
+						)
+					case (None, Some(_)) =>
+						// When clicking on the blank canvas, exit edge-adding mode
+						state.copy(toolState = BasicTool(None))
+					case (Some(hoveredNode), None) =>
+						// Enter edge-adding mode
+						state.copy(toolState = BasicTool(Some(hoveredNode)))
+					case (Some(hoveredNode), Some(edgeStart)) =>
+						if (hoveredNode == edgeStart) {
+							// Exit edge adding mode
+							state.copy(toolState = BasicTool(None))
+						} else {
+							// Add edge and reset start node to node just clicked
+							state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
 						}
 				}
 			case Up => state
@@ -140,7 +130,7 @@ object MainCanvasComponent extends Component {
 				tool.drawPoints match {
 					case first :: second :: _ if tool.mousePressed =>
 						// If drawPoints is at least 2 elements, then calculate which nodes are inside selection area
-						//
+						// Not: we're doing this in a fairly inefficient way, just checking all nodes (not using a quadtree or something fancy)
 						val selectedNodes = state.keyToData.filter { case (_, nodeData) =>
 							isInside(Vector2D(nodeData.x, nodeData.y), tool.drawPoints)
 						}.keys.toSeq
@@ -158,9 +148,9 @@ object MainCanvasComponent extends Component {
 						}
 						newState.copy(toolState = AreaCompleteTool(false, Nil))
 					case _ =>
-							// List has < 2 elements or the button wasn't pressed (like maybe it got pressed offscreen and then mouse moved on screen)
-							// Either way, do nothing and reset Area Complete tool to base state
-							state.copy(toolState = AreaCompleteTool(false, Nil))
+						// List has < 2 elements or the button wasn't pressed (like maybe it got pressed offscreen and then mouse moved on screen)
+						// Either way, do nothing and reset Area Complete tool to base state
+						state.copy(toolState = AreaCompleteTool(false, Nil))
 				}
 			case Leave =>
 				state.copy(toolState = AreaCompleteTool(false, Nil))
@@ -172,18 +162,25 @@ object MainCanvasComponent extends Component {
 			case Move =>
 				tool.node match {
 					case Some(nodeBeingMoved) =>
+						// In this case, mouse is being held down and we're currently moving a node around
 						val currentData = state.keyToData(nodeBeingMoved)
 						val newData = currentData.copy(x = event.coords.x, y = event.coords.y)
 						state.copy(keyToData = state.keyToData.updated(nodeBeingMoved, newData))
 					case None =>
+						// Uh, I'm not 100% sure what this is about...I asked AI to refactor and only noticed this way later
 						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
 				maybeHoveredNode match {
-					case Some(hoveredNode) => state.copy(toolState = MoveTool(Some(hoveredNode)))
-					case None => state.copy(toolState = MoveTool(None))
+					case Some(hoveredNode) =>
+						// We clicked on a node and we're starting to move it!
+						state.copy(toolState = MoveTool(Some(hoveredNode)))
+					case None =>
+						// We're resetting the tool state here (AI did that) but not sure that's necessary. Doesn't hurt I suppose
+						state.copy(toolState = MoveTool(None))
 				}
 			case Up =>
+				// When we release the mouse, forget any node that's being dragged (set it to None)
 				state.copy(toolState = MoveTool(None))
 			case Leave => state
 		}

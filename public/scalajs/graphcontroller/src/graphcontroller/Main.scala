@@ -2,6 +2,7 @@ package graphcontroller
 
 import graphcontroller.components.adjacencymatrix.AdjMatrixCanvas
 import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventListeners
+import graphcontroller.components.buildpane.eventlisteners.BuildPaneEventListeners
 import graphcontroller.components.cleargraphbutton.eventlisteners.ClearGraphButtonListener
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.MainCanvas
@@ -24,7 +25,7 @@ object Main {
 		MainCanvasEventListeners,
 		AdjMatrixEventListeners,
 		ToolBarEventListeners,
-		graphcontroller.components.buildpane.eventlisteners.BuildPaneEventListeners,
+		BuildPaneEventListeners,
 		UndoEventListeners
 	)
 
