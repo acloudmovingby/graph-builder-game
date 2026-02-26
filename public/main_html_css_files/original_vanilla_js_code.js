@@ -1,30 +1,8 @@
-import {
-    Graph,
-    Digraph
-} from "../algorithms/graph.mjs";
-
-// =====================
-// Class/Type Definitions
-// =====================
-
-function Point(x, y) {
-    this.x = x;
-    this.y = y;
-}
-
 // =====================
 // State and Constants
 // =====================
-const nodeRadius = 18;
 let canvas = document.getElementById("main-canvas-upper");
-let canvasArea = document.getElementById("canvas-area");
 const infoPaneWidth = document.getElementsByClassName("right-pane")?.[0].offsetWidth;
-let graph = new Digraph();
-let mouseX = 0;
-let mouseY = 0;
-let infoPaneHover = false;
-let labelsVisible = true;
-const timeInit = new Date().getSeconds();
 let printCounter = 0;
 let scale = window.devicePixelRatio;
 
@@ -55,87 +33,6 @@ setCanvasSize();
 window.addEventListener('resize', function(event) {
     setCanvasSize()
 });
-
-document.onkeydown = function(event) {
-    event = event || window.event;
-    var isEscape = false;
-    if ("key" in event) {
-        isEscape = event.key === "Escape" || event.key === "Esc";
-    }
-};
-
-// =====================
-// UI Refresh/Utility Functions
-// =====================
-function printDimensions(headerMessage) {
-    // For debugging canvas size issues, not currently used but will probably use again in the future
-    if (headerMessage) {
-        console.log(headerMessage);
-    }
-    console.log(
-        "window.innerWidth - infoPaneWidth: " + (window.innerWidth - infoPaneWidth) + "\n" +
-        "window.innerHeight: " + window.innerHeight + "\n" +
-        "canvas.style.width: " + canvas.style.width + "\n" +
-        "canvas.style.height: " + canvas.style.height
-    );
-    if (canvas.getContext) {
-        let ctx = canvas.getContext("2d");
-        console.log(
-            "canvas.width: " + ctx.canvas.width + "\n" +
-            "canvas.height: " + ctx.canvas.height + "\n"
-        );
-    }
-}
-
-/** nodes is array of KeyWithData */
-function nodeAtPoint(x, y, nodes) {
-    for (const node of nodes) {
-        let dx = x - node.data.x;
-        let dy = y - node.data.y;
-        let distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        if (distFromCent < nodeRadius * 2) {
-            return node;
-        }
-    }
-    return null;
-}
-
-//// adjListLabels is a 2d array of strings or numbers or whatever the label is for each node (?)
-//function refreshAdjListHtml(adjListLabels) {
-//    let adjListElem = document.getElementById("adjacency-list");
-//    if (adjListElem) {
-//        adjListElem.innerHTML = "";
-//        for (let i = 0; i < adjListLabels.length; i++) {
-//            var node = document.createElement("LI");
-//            var textnode = document.createTextNode(i + ":");
-//            node.appendChild(textnode);
-//            for (let j = 0; j < adjListLabels[i].length; j++) {
-//                node.appendChild(document.createTextNode(" " + adjListLabels[i][j]));
-//            }
-//            adjListElem.appendChild(node);
-//        }
-//    }
-//}
-
-function inside(point, vs) {
-    // ray-casting algorithm based on
-    // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html/pnpoly.html
-
-    let x = point[0];
-    let y = point[1];
-
-    let inside = false;
-    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        let xi = vs[i][0],
-            yi = vs[i][1];
-        let xj = vs[j][0],
-            yj = vs[j][1];
-        let intersect =
-            yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-        if (intersect) inside = !inside;
-    }
-    return inside;
-}
 
 // Info/Export Pane Event Handlers
 document.getElementById("export-pane-select").addEventListener(
