@@ -209,7 +209,7 @@ p, a,
 }
 
 #node-count,
-#graph-types,
+#component-count,
 #edge-count {
   display: inline;
 }

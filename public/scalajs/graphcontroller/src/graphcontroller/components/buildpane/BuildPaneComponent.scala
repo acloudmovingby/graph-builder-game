@@ -43,6 +43,13 @@ object BuildPaneComponent extends Component {
 		}
 	}
 
+	def componentCount(state: State): Int = {
+		state.graph.nodes.headOption match {
+			case Some(head) => state.graph.numComponents()
+			case None => 0
+		}
+	}
+
 	override def view(state: State): RenderOp = {
 		/*
 		 if (document.getElementById("directed-icon")) {
@@ -72,7 +79,8 @@ object BuildPaneComponent extends Component {
 				SetAttribute("visible-icon", "src", nodeLabelToggleIcon),
 				SetAttribute("directed-icon", "src", directedToggleIcon),
 				SetInnerHTML("node-count", state.graph.nodeCount.toString),
-				SetInnerHTML("edge-count", state.graph.edgeCount.toString)
+				SetInnerHTML("edge-count", state.graph.edgeCount.toString),
+				SetInnerHTML("component-count", componentCount(state).toString)
 			)
 		)
 	}

@@ -96,8 +96,7 @@ case class State(
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
-		val nodeCopyFunction = (i: Int) => i
-		val newUndoState = GraphUndoState(graph.clone(nodeCopyFunction), keyToData)
+		val newUndoState = GraphUndoState(graph, keyToData)
 		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
 		this.copy(undoStack = newStack)
 	}
