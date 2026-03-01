@@ -186,6 +186,10 @@ p, a,
   color:black;
 }
 
+.export-pane-only {
+    display: none; /* Default to being hidden since we start on the info/build pane */
+}
+
 @keyframes expand {
   from {
     padding: 0;
