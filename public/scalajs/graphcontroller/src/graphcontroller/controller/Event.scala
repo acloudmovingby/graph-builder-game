@@ -54,5 +54,4 @@ case class ToolBarMouseOver(tool: String) extends Event
 case object ToolBarMouseOut extends Event
 case object ToggleLabelsVisibility extends Event
 case object ToggleDirectedness extends Event
-case object HoverDirectednessIcon extends Event
-case object NotHoverDirectednessIcon extends Event
+case class HoverDirectednessIcon(isHover: Boolean) extends Event

@@ -174,7 +174,7 @@ object MainCanvasComponent extends Component {
 				maybeHoveredNode match {
 					case Some(hoveredNode) =>
 						// We clicked on a node and we're starting to move it!
-						state.copy(toolState = MoveTool(Some(hoveredNode)))
+						state.pushUndoState.copy(toolState = MoveTool(Some(hoveredNode)))
 					case None =>
 						// We're resetting the tool state here (AI did that) but not sure that's necessary. Doesn't hurt I suppose
 						state.copy(toolState = MoveTool(None))

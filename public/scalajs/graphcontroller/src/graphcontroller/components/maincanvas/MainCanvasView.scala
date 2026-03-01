@@ -179,7 +179,7 @@ object MainCanvasView {
 		state.toolState match {
 			case AreaCompleteTool(true, points) =>
 				Some(CanvasPolyLine(
-					points = points,
+					points = points.reverse, // if you don't reverse, it makes the dotted line move in a weird way as you draw since the dash pattern starts at the first point
 					fillColor = Some("rgba(255, 130, 172, 0.15)"), // a bit transparent
 					border = Some(Border(
 						color = "red", // Hex string, e.g. "#FF0000" // TODO this correlates to ctx.strokeStyle ... can the "style" be something other than a color?

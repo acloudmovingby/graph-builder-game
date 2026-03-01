@@ -2,7 +2,7 @@ package graphcontroller.components.buildpane
 
 import graphcontroller.components.ops.{SetAttribute, SetInnerHTML, SetStyleProperty}
 import graphcontroller.components.{Component, RenderOp}
-import graphcontroller.controller.{Event, ToggleDirectedness, ToggleLabelsVisibility}
+import graphcontroller.controller.{Event, HoverDirectednessIcon, ToggleDirectedness, ToggleLabelsVisibility}
 import graphcontroller.model.State
 import graphi.{DirectedMapGraph, SimpleMapGraph}
 
@@ -24,13 +24,17 @@ object BuildPaneComponent extends Component {
 				}
 				undirectedGraph
 			case g: SimpleMapGraph[Int] =>
-				// Note: this will make every edge a bidirectional (there's no good way to avoid this, you could
-				// retain information if you toggled, but since this is undoable and it's a nice way to "fill in" all
-				// edges, this is the behavior we'll have for now)
+				// Note: the simple graph's adjacency lists are always bidirectional, which means that when we convert to directed
+				// it will fill in all directions. So if you toggle back and forth, it will lose the directional information
+				// from the directed graph. There's no good way to avoid this, you could keep a separate parallel graph that has
+				// the old information but then what happens if you add edges in simple mode?
+				//
+				// Since this toggle directedness operation is undoable, and it's a nice way to "fill in" all the edges,
+				// this is the behavior we'll do for now)
 				new DirectedMapGraph[Int](g.adjMap)
 		}
 		state
-			.pushUndoState // because toggling directedness loses information, make it undoable
+			.pushUndoState // because toggling directedness cause information to be lost, make it undoable
 			.copy(graph = newGraph)
 	}
 
@@ -39,29 +43,17 @@ object BuildPaneComponent extends Component {
 			case ToggleLabelsVisibility =>
 				state.copy(labelsVisible = !state.labelsVisible)
 			case ToggleDirectedness => toggleDirectionality(state)
+			case HoverDirectednessIcon(isHover) => state.copy(hoverDirectedIcon = isHover)
 			case _ => state
 		}
 	}
 
 	override def view(state: State): RenderOp = {
-		/*
-		 if (document.getElementById("directed-icon")) {
-			document.getElementById("directed-icon").src = graphController.isDirected() ?
-				"images/arrow-small-1-blue.svg" :
-				"images/arrow-small-1.svg";
-			}
-			if (document.getElementById("directed-btn")) {
-				document.getElementById("directed-btn").style.backgroundColor = graphController.isDirected() ?
-					"#cff5ff" :
-					"white";
-			}
-		 */
 		val nodeLabelToggleIcon = if (state.labelsVisible) "images/node-label-visible.svg" else "images/invisible-icon.svg"
 
 		val directedToggleIcon = if (state.isDirected) "images/arrow-small-1-blue.svg" else "images/arrow-small-1.svg"
 		val directedToggleBtnBgColor = (state.isDirected, state.hoverDirectedIcon) match {
-			// TODO I think this is wrong actually, compare against the prod version
-			case (true, false) => "#cff5ff"
+			case (true, false) => "rgb(235, 250, 255)" // "#cff5ff"
 			case (true, true) => "#cce8f0"
 			case (false, false) => "white"
 			case (false, true) => "lightgray"
@@ -72,7 +64,8 @@ object BuildPaneComponent extends Component {
 				SetAttribute("visible-icon", "src", nodeLabelToggleIcon),
 				SetAttribute("directed-icon", "src", directedToggleIcon),
 				SetInnerHTML("node-count", state.graph.nodeCount.toString),
-				SetInnerHTML("edge-count", state.graph.edgeCount.toString)
+				SetInnerHTML("edge-count", state.graph.edgeCount.toString),
+				SetStyleProperty("directed-btn", "background-color", directedToggleBtnBgColor)
 			)
 		)
 	}
