@@ -157,7 +157,7 @@ p, a,
 }
 
 #directed-btn {
-    background-color: #ebfaff;
+    background-color: white; /*#ebfaff;*/
 }
 
 #directed-btn:hover {

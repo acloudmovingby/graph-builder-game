@@ -12,7 +12,7 @@ sealed trait AdjMatrixZone
  * TODO: make an Edge class and rename this to MatrixCell or something?
  * */
 case class Cell(row: Int, col: Int) extends AdjMatrixZone {
-	def toEdge: (Int, Int) = (row, col)
+	def toEdgeTuple: (Int, Int) = (row, col)
 }
 
 object Cell {

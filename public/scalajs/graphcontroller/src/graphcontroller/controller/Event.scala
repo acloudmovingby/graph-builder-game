@@ -1,6 +1,7 @@
 package graphcontroller.controller
 
 import graphcontroller.components.exportpane.ExportFormat
+import graphcontroller.dataobject.Vector2D
 import graphcontroller.shared.GraphRepresentation
 
 sealed trait Event
@@ -11,10 +12,19 @@ sealed trait Event
  * the model but triggers a refresh of the view. */
 case object NoOp extends Event
 
+case object UndoRequested extends Event
+
+case object ClearButtonClicked extends Event
 /** The button in the export pane is clicked, to copy the graph to the clipboard */
 case object CopyButtonClicked extends Event
 case class ExportFormatChanged(format: ExportFormat) extends Event
 case class ExportAdjacencyTypeChanged(adjType: GraphRepresentation) extends Event
+
+/** TODO: if we like using this for main canvas events, use for adjacency matrix events as well */
+enum MouseEventType {
+	// corresponds to JS `mousedown`, `mouseup`, etc. event handlers 
+	case Move, Up, Down, Leave
+}
 
 sealed trait AdjacencyMatrixEvent extends Event {
 	val mouseX: Int
@@ -36,3 +46,12 @@ case class AdjMatrixMouseDown(mouseX: Int, mouseY: Int) extends AdjacencyMatrixE
 case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
+
+case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEventType) extends Event
+
+case class ToolSelected(tool: String) extends Event
+case class ToolBarMouseOver(tool: String) extends Event
+case object ToolBarMouseOut extends Event
+case object ToggleLabelsVisibility extends Event
+case object ToggleDirectedness extends Event
+case class HoverDirectednessIcon(isHover: Boolean) extends Event

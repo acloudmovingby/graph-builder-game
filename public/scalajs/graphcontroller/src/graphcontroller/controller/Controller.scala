@@ -2,9 +2,13 @@ package graphcontroller.controller
 
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.components.adjacencymatrix.AdjacencyMatrixComponent
+import graphcontroller.components.buildpane.BuildPaneComponent
+import graphcontroller.components.cleargraphbutton.ClearGraphComponent
 import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.components.maincanvas.MainCanvasComponent
 import graphcontroller.components.resizing.ResizingComponent
+import graphcontroller.components.toolbar.ToolBarComponent
+import graphcontroller.components.undobutton.UndoComponent
 import graphcontroller.model.State
 
 /**
@@ -17,9 +21,13 @@ object Controller {
 
 	private val components: Seq[Component] = Seq(
 		AdjacencyMatrixComponent,
+		ClearGraphComponent,
 		ExportPane,
 		MainCanvasComponent,
-		ResizingComponent
+		ResizingComponent,
+		ToolBarComponent,
+		BuildPaneComponent,
+		UndoComponent
 	)
 
 	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */

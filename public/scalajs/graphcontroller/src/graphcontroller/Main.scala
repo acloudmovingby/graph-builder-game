@@ -2,9 +2,13 @@ package graphcontroller
 
 import graphcontroller.components.adjacencymatrix.AdjMatrixCanvas
 import graphcontroller.components.adjacencymatrix.eventlisteners.AdjMatrixEventListeners
+import graphcontroller.components.buildpane.eventlisteners.BuildPaneEventListeners
+import graphcontroller.components.cleargraphbutton.eventlisteners.ClearGraphButtonListener
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.MainCanvas
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
+import graphcontroller.components.toolbar.eventlisteners.ToolBarEventListeners
+import graphcontroller.components.undobutton.eventlisteners.UndoEventListeners
 
 import scala.scalajs.js.annotation.*
 import graphcontroller.controller.{Controller, Initialization}
@@ -15,9 +19,15 @@ import graphcontroller.shared.EventListener
 // the graphcontroller instance
 @JSExportTopLevel("Main")
 object Main {
-	private val graphController = new GraphController()
-
-	private val eventListeners: Seq[EventListener] = Seq(ExportPaneEventListeners, MainCanvasEventListeners, AdjMatrixEventListeners)
+	private val eventListeners: Seq[EventListener] = Seq(
+		ClearGraphButtonListener,
+		ExportPaneEventListeners,
+		MainCanvasEventListeners,
+		AdjMatrixEventListeners,
+		ToolBarEventListeners,
+		BuildPaneEventListeners,
+		UndoEventListeners
+	)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
 	 * and we're not fetching info from the dom in the middle of our pure functions) */
@@ -38,9 +48,6 @@ object Main {
 		AdjMatrixCanvas.start()
 
 		/* 'New' components architecture. Wiring up the components */
-		eventListeners.foreach { c => c.init(Controller.handleEvent) }
+		eventListeners.foreach { e => e.init(Controller.handleEvent) }
 	}
-
-	@JSExport
-	def getGraphController(): GraphController = graphController
 }

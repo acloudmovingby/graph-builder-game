@@ -1,11 +1,11 @@
 package graphcontroller.model
 
 import graphcontroller.dataobject.NodeData
-import graphi.{DirectedMapGraph, SimpleMapGraph}
+import graphi.MapGraph
 
 // State of the graph to be saved on the undo stack
 case class GraphUndoState[A](
-	graph: DirectedMapGraph[A] | SimpleMapGraph[A],
+	graph: MapGraph[A],
 	keyToData: Map[A, NodeData]
 )
 

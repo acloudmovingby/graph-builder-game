@@ -50,14 +50,14 @@ object AdjacencyMatrixView {
 					val x = dimensions.padding - dimensions.numberPadding
 					val y = grid.getY(i) + grid.getHeight(i) / 2 + dimensions.padding
 					val color = generateColor(i, isRow = true)
-					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, font = s"${numberFontSize}px sans-serif")
 				}
 
 				val colNumbers = (0 until nodeCount).map { i =>
 					val x = grid.getX(i) + grid.getWidth(i) / 2 + dimensions.padding
 					val y = dimensions.padding - dimensions.numberPadding
 					val color = generateColor(i, isRow = false)
-					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, fontSize = numberFontSize)
+					TextCanvas(coords = Vector2D(x, y), text = i.toString, color = color, font = s"${numberFontSize}px sans-serif")
 				}
 
 				rowNumbers ++ colNumbers
@@ -92,7 +92,7 @@ object AdjacencyMatrixView {
 	}
 
 	/** When you hover over a cell or a row/column number, this is the shading drawn over that cell area that indicates
-	 * which cell of the matrix (i.e. edge) clicking would potentially affect.  */
+	 * which cell of the matrix (i.e. edge) clicking would potentially affect. */
 	def hoveredCellHighlight(
 		state: State,
 		hoveredZone: AdjMatrixZone,
@@ -101,7 +101,7 @@ object AdjacencyMatrixView {
 		val nodeCount = state.graph.nodeCount
 
 		def hoveredCell(cell: Cell): RectangleCanvas = {
-			val color = if (state.graph.getEdges.contains(cell.toEdge)) hoverEdgePresentColor else hoverNoEdgeColor
+			val color = if (state.graph.getEdges.contains(cell.toEdgeTuple)) hoverEdgePresentColor else hoverNoEdgeColor
 			RectangleCanvas(
 				Rectangle(
 					topLeft = Vector2D(
@@ -139,15 +139,13 @@ object AdjacencyMatrixView {
 		val nodeCount = state.graph.nodeCount
 		// check this first to avoid division by zero
 		if (nodeCount == 0) Seq.empty else {
-			state.graph.getEdges.toSeq.flatMap { case (from, to) =>
-				AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
-					.map(rect =>
-						RectangleCanvas(
-							rect,
-							color = edgePresentColor
-						)
-					).toSeq
-			}
+			for {
+				// get edges
+				edge <- state.graph.getEdges.toSeq
+				// An undirected (simple) graph returns only one edge per pair of nodes but we want both directions
+				(from, to) <- if (state.isDirected) Seq(edge) else Seq(edge, (edge._2, edge._1))
+				rectangle <- AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
+			} yield RectangleCanvas(rectangle, color = edgePresentColor)
 		}
 	}
 
@@ -169,7 +167,7 @@ object AdjacencyMatrixView {
 				val selectedCells = d.selectedCells
 					.filter { c =>
 						// we only highlight cells that would change when we apply the selection
-						(d.isAdd, state.graph.getEdges.contains(c.toEdge)) match {
+						(d.isAdd, state.graph.getEdges.contains(c.toEdgeTuple)) match {
 							case (true, false) => true // adding an edge that doesn't exist
 							case (false, true) => true // removing an edge that does exist
 							case _ => false // otherwise don't change what's drawn

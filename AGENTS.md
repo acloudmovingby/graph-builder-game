@@ -1,54 +1,160 @@
-This application is a single web page made for building graphs (as in graph theory, with nodes and edges). 
+This application is a single web page made for building graphs (as in graph theory, with nodes and edges).
 
-# How to build
-Use commands below from the `public/scalajs` directory (for more info look at the file README.md in the top level of repo. It has instructions on how to run/test.)
-- build: `./mill graphcontroller.fastLinkJS`
-- test: `./mill graphcontroller.test`
+### Key Directives
+*   **All new code must use ScalaJS and the Components model.**
+*   The core logic must be in pure functions within `Controller.handleEventWithState` and `Component` methods (`update`/`view`).
+*   Side-effects are only allowed at the "edges": in `EventListener`s (reading from the DOM) and `RenderOp.render()` methods (writing to the DOM).
+*   The `original_vanilla_js_code.js` file is considered legacy and the goal is to continually migrate its functionality into the ScalaJS Components model.
 
-# Architecture
-## Vanilla JS (original implementation)
-The original program was written in vanilla Javascript but is in the process of being ported to ScalaJS.
-It is mostly contained in the file called (at time of writing) original_vanilla_js_code.js. It was written all in one big file.
+### Common Tasks
+*   **Run the application locally:** `sh start.sh`
+*   **Build for development:** `cd public/scalajs && ./mill graphcontroller.fastLinkJS`
+*   **Run tests:** `cd public/scalajs && ./mill graphcontroller.test`
 
-### Migration State
-Now we are starting a new architecture (the "Components" design) and so far the only thing that uses that is the ExportPane logic. It is similar to the Controller/State/View architecture that was done for Adjacency Matrix logic but it uses the `Component` trait to collocate all that logic in one place and not spreaqd across many different files. 
+### Development Workflow: Adding a Feature
 
-Architecture over time:
-1. Original Vanilla JS
-2. GraphController.scala (used ScalaJS to implement graph logic using the graphi graph library)
-3. Controller/State/View architecture (made it so all logic can be moved from vanilla JS, but it meant that logic was separated across different folders/files and there was coupling between unrelated components in Model.scala, etc.)
-4. Components architecture (similar in idea to the layers-based architecture of Controller/State/View but now components are better decoupled, with event listeners registering with a dispatch callback, and each component having an update/view function, all located in same file or in similar files).
+This section provides a step-by-step pattern for adding a new feature. It also serves as a practical introduction to the core architectural concepts.
 
-Currently about half of functionality has been ported. This timeline might help explain the strange organization:
-- Originally it was all written in one vanilla JS file
-- Then I decided to do the underlying graph theory stuff in ScalaJS because it's more robust. So the vanilla JS code called GraphController.scala
-- When I added the adjacency matrix stuff, I decided to make the whole interaction, from event listeners down to the canvas drawing, all done in ScalaJS. I did it in an FP way with side effects pushed out to the extreme ends and everything going through a single pipeline.
-- So now we have two ways the core state is changed: 
-    - Vanilla JS input events modify state and read from state to draw some things
-    - FP pipeline (through Controller.scala) changes state and uses it to draw things
-- Lastly, I realized that this layers based architecture made even simple components have to have logic across 3-4 different files, so now we do Component trait. We still try to do everything in an FP way with pure functions and side-effects pushed to the edges. We try to keep the `def view
+**Example Scenario:** Adding a new button that clears the graph and displays a confirmation message.
 
+#### 1. Define the Event
+First, define an `Event` to represent the user's action. An `Event` is an immutable case class or object that describes what happened.
 
-## ScalaJS Code Organization
-The ScalaJS code is organized as follows (Controller roughly oversees):
-```
-Event Listeners -> Controller -> { Model -> View -> ViewUpdater }
+*In `public/scalajs/graphcontroller/src/graphcontroller/controller/Event.scala`:*
+```scala
+case object ClearGraphClicked extends Event
 ```
 
-### Important Classes:
-Components architecture:
-- Component.scala (trait)
+#### 2. Add Logic to `State`
+Next, modify the `State` to handle the consequences of the event. The `State` is an immutable case class that is the single source of truth for the entire application. We'll add a field for our confirmation message and a helper method to produce the new state.
 
-Controller/State/View (Layers) architecture:
-- Controller: (side-effectful) It contains all the state and is in charge of orchestrating the state change.
-- Event Listeners: (side-effectful) They take dom events and turn them into the Event type to pass to the Controller. This separates core business logic from the raw dom input
-- Model: Pure functions that take an existing state and an input event and calculate a new state
-- View: Pure functions that take a state and create a 'view state', which is the raw data needed to render stuff to the screen (e.g. the raw geometric data for a canvas, or some text to display, etc.) 
-- ViewUpdater: (side effectful) Actually will render the view state changes to the view. For instance, it will actually draw frames to the html canvas api.
+*In `public/scalajs/graphcontroller/src/graphcontroller/model/State.scala`:*
+```scala
+// Add a field to hold the message
+case class State(
+  // ... other fields
+  statusMessage: Option[String] = None
+) {
+  // Add a helper method to produce the new state
+  def clearGraph: State = this.copy(
+    graph = new DirectedMapGraph[Int](),
+    keyToData = Map.empty,
+    statusMessage = Some("Graph cleared!")
+  )
+}
+```
 
-#### Notes:
-- The Model takes a previous state and an input event, but View is purely derivative: it only takes the new model state, not the new model state and the old view state. 
-- Both the vanilla JS code and the Scala code are affecting the core state right now. In the long run, we don't want that, we want everything to go through this new flow. 
+#### 3. Create the `Component`
+A `Component` is a logical piece of the UI with pure functions for updating state and describing view changes. Create a new component file to handle the `ClearGraphClicked` event.
 
-## New code should use ScalaJS and the Components architecture
-The goal is to get rid off of all the vanilla JS code and use Scala end-to-end. The current plan is to organize it like we do with the export pane logic
+*In a new file, e.g., `ClearButtonComponent.scala`:*
+```scala
+object ClearButtonComponent extends Component {
+  // The `update` function is pure: (State, Event) => New State
+  override def update(state: State, event: Event): State = {
+    event match {
+      case ClearGraphClicked => state.clearGraph
+      case _ => state
+    }
+  }
+
+  // The `view` function is pure: State => RenderOp
+  // It describes a UI change based on the new state.
+  override def view(state: State): RenderOp = {
+    state.statusMessage match {
+      case Some(message) => SetTextContent("status-message", message)
+      case None => NoOp // NoOp is a RenderOp that does nothing
+    }
+  }
+}
+```
+
+#### 4. Define the `RenderOp`
+The `view` method returns a `RenderOp`, which is a self-contained object that describes and performs a side-effect. By returning a data object (`SetTextContent`) instead of directly changing the DOM, the `Component` remains pure and testable.
+
+Here is the full definition for the `SetTextContent` `RenderOp` we just used. Its `render()` method contains the minimal, side-effectful DOM manipulation code.
+
+*In a shared file, e.g. `ops/DOMOps.scala`:*
+```scala
+case class SetTextContent(id: String, text: String) extends RenderOp {
+  def render(): Unit = {
+    // This is the side-effect at the "edge" of the program.
+    val elem = dom.document.getElementById(id)
+    if (elem != null) elem.textContent = text
+  }
+}
+```
+*(Other useful RenderOps like `SetAttribute` or `NoOp` can be defined similarly.)*
+
+#### 5. Register the `Component` and `EventListener`
+Finally, wire up the new code. The central **`Controller`** orchestrates all components, and the **`EventListener`** provides the initial input from the DOM.
+
+*In `public/scalajs/graphcontroller/src/graphcontroller/controller/Controller.scala`, register the component:*
+```scala
+private val components: Seq[Component] = Seq(
+    // ...,
+    ClearButtonComponent
+)
+```
+
+*In `public/scalajs/graphcontroller/src/graphcontroller/Main.scala`, register the listener:*
+```scala
+// In a new file, e.g. ClearButtonEventListeners.scala
+object ClearButtonEventListeners extends EventListener {
+  override def init(dispatch: Event => Unit): Unit = {
+    val element = dom.document.getElementById("clear-graph-btn")
+    if (element != null) {
+      element.addEventListener("click", _ => dispatch(ClearGraphClicked))
+    }
+  }
+}
+
+// In Main.scala
+private val eventListeners: Seq[EventListener] = Seq(
+    // ...,
+    ClearButtonEventListeners
+)
+```
+
+#### 6. Write a Test
+Verify the pure logic in `ControllerTests.scala`.
+
+*In `public/scalajs/graphcontroller/test/src/ControllerTests.scala`:*
+```scala
+test("Clearing the graph") {
+  val stateWithNode = State.init.addNode(Vector2D(10,10))
+  val (newState, renderOps) = Controller.handleEventWithState(ClearGraphClicked, stateWithNode)
+  assert(newState.graph.nodeCount == 0)
+  assert(newState.statusMessage == Some("Graph cleared!"))
+
+  val setTextOp = renderOps.collectFirst {
+    case op: SetTextContent if op.id == "status-message" => op
+  }
+  assert(setTextOp.isDefined)
+  assert(setTextOp.get.text == "Graph cleared!")
+}
+```
+
+### Testing Guidelines
+
+When writing unit tests for features implemented with the Components model, follow these rules:
+
+1.  **Test the Pure Logic:** Use `Controller.handleEventWithState(event, state)` instead of `Controller.handleEvent(event)`. 
+2.  **Avoid DOM Dependencies:** `handleEvent` executes side-effects (`RenderOp.render()`) which will fail in a test environment (like Node.js) where `document` or `window` are not defined.
+3.  **Assert on State and RenderOps:** Verify that the returned `newState` is correct and that the expected `Seq[RenderOp]` objects are present with the correct data.
+
+### Architecture Deep Dive
+
+#### Data Flow
+The architecture is designed to maximize testability by isolating program logic into pure functions and pushing side-effects to the "edges". The central pure function is `Controller.handleEventWithState`.
+
+The data flow is as follows:
+
+1.  An **EventListener** captures a DOM event and creates an **Event** object. This is an impure "read" from the DOM.
+2.  The `EventListener` dispatches the `Event` to **`Controller.handleEvent`**.
+3.  `Controller.handleEvent` immediately calls the pure function **`Controller.handleEventWithState`**.
+4.  `handleEventWithState` calculates the new **State** by calling the pure `update` method on all registered **Components**.
+5.  It then calculates the necessary UI changes by calling the pure `view` method on all **Components**, returning a sequence of **RenderOp** objects.
+6.  The new `State` and the `Seq[RenderOp]` are returned to `Controller.handleEvent`.
+7.  `Controller.handleEvent` saves the new `State` and then calls the `render()` method on each `RenderOp`.
+8.  The **`RenderOp.render()`** method performs the final, minimal side-effect. This is an impure "write" to the DOM.

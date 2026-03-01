@@ -18,7 +18,7 @@ object ExportStringGenerator {
 	 * to try and abstract away some of the commonality. 
 	 */
 	def generate(
-		graph: MapGraph[Int, ?],
+		graph: MapGraph[Int],
 		format: ExportFormat,
 		adjType: GraphRepresentation
 	): String = {
@@ -94,7 +94,7 @@ object ExportStringGenerator {
 	}
 
 	/** AI generated this. Why are we using Array? */
-	private def generateMatrix(graph: MapGraph[Int, ?]): Array[Array[Int]] = {
+	private def generateMatrix(graph: MapGraph[Int]): Array[Array[Int]] = {
 		// Get sorted node list for consistent matrix
 		val nodes = graph.adjMap.keys.toList.sorted
 		val nodeIdx = nodes.zipWithIndex.toMap
