@@ -140,7 +140,7 @@ object AdjMatrixInteractionLogicTests$ extends TestSuite {
 				initialState,
 				nodeCount,
 				Cell(0, 1),
-				Set.empty // doesn't matter for this test
+				Seq.empty // doesn't matter for this test
 			)
 			assert(newState == Hover(Cell(0, 1)))
 		}
@@ -150,7 +150,7 @@ object AdjMatrixInteractionLogicTests$ extends TestSuite {
 			val nodeCount = 5
 
 			// test with no existing edge
-			val filledInCells = Set.empty[Cell]
+			val filledInCells = Seq.empty[Cell]
 			val newState = logic.handleMouseEvent(
 				AdjMatrixMouseDown(320, 220),
 				initialState,
@@ -162,7 +162,7 @@ object AdjMatrixInteractionLogicTests$ extends TestSuite {
 			assert(newState == CellClicked(initialCell, initialCell, isAdd = true))
 
 			// test with an existing edge
-			val filledInCells2 = Set(initialCell)
+			val filledInCells2 = Seq(initialCell)
 			val newState2 = logic.handleMouseEvent(
 				AdjMatrixMouseDown(320, 220),
 				initialState,
