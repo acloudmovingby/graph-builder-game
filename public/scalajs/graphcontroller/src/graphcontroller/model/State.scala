@@ -32,7 +32,7 @@ case class State(
 	 * that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
 	 * or drag vertically to add/remove edges to a single node from multiple nodes.
 	 */
-	def filledInCells: Set[Cell] = graph.getEdges.map { (from, to) => Cell.fromEdge(from, to) }
+	def filledInCells: Seq[Cell] = graph.getEdges.map { (from, to) => Cell.fromEdge(from, to) }
 
 	def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
 		fromData <- keyToData.get(fromIndex)
@@ -96,8 +96,7 @@ case class State(
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
-		val nodeCopyFunction = (i: Int) => i
-		val newUndoState = GraphUndoState(graph.clone(nodeCopyFunction), keyToData)
+		val newUndoState = GraphUndoState(graph, keyToData)
 		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
 		this.copy(undoStack = newStack)
 	}

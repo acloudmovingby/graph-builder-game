@@ -48,6 +48,13 @@ object BuildPaneComponent extends Component {
 		}
 	}
 
+	def componentCount(state: State): Int = {
+		state.graph.nodes.headOption match {
+			case Some(head) => state.graph.numComponents()
+			case None => 0
+		}
+	}
+
 	override def view(state: State): RenderOp = {
 		val nodeLabelToggleIcon = if (state.labelsVisible) "images/node-label-visible.svg" else "images/invisible-icon.svg"
 
@@ -65,7 +72,8 @@ object BuildPaneComponent extends Component {
 				SetAttribute("directed-icon", "src", directedToggleIcon),
 				SetInnerHTML("node-count", state.graph.nodeCount.toString),
 				SetInnerHTML("edge-count", state.graph.edgeCount.toString),
-				SetStyleProperty("directed-btn", "background-color", directedToggleBtnBgColor)
+				SetStyleProperty("directed-btn", "background-color", directedToggleBtnBgColor),
+				SetInnerHTML("component-count", componentCount(state).toString)
 			)
 		)
 	}

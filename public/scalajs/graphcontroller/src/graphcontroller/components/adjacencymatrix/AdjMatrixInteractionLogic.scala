@@ -1,11 +1,8 @@
 package graphcontroller.components.adjacencymatrix
 
-import graphcontroller.controller.*
+import graphcontroller.controller.{AdjacencyMatrixEvent, AdjMatrixMouseUp, AdjMatrixMouseMove, AdjMatrixMouseLeave, AdjMatrixMouseDown}
 import graphcontroller.dataobject.*
 import graphcontroller.components.adjacencymatrix.*
-import graphi.MapGraph
-
-import scala.collection.immutable.ListSet
 
 /**
  * Code to calculate changes in the Adjacency Matrix interaction state based on input events.
@@ -26,7 +23,7 @@ object AdjMatrixInteractionLogic {
 		currentState: AdjMatrixInteractionState,
 		nodeCount: Int,
 		zone: AdjMatrixZone,
-		filledInCells: Set[Cell]
+		filledInCells: Seq[Cell]
 	): AdjMatrixInteractionState = {
 		if (nodeCount == 0 || nodeCount == 1) {
 			// with 0 or 1 node, no edges are possible so no interaction
@@ -40,7 +37,7 @@ object AdjMatrixInteractionLogic {
 				case AdjMatrixMouseLeave(_, _) =>
 					mouseLeave(currentState, nodeCount)
 				case AdjMatrixMouseDown(mouseX, mouseY) =>
-					mouseDown(filledInCells, zone, nodeCount)
+					mouseDown(filledInCells.toSet, zone, nodeCount)
 			}
 		}
 	}
