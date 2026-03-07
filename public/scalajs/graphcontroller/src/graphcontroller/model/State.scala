@@ -10,7 +10,8 @@ import graphcontroller.shared.{BasicTool, GraphRepresentation, Tool}
 case class State(
 	graph: MapGraph[Int],
 	keyToData: Map[Int, NodeData],
-	undoStack: List[GraphUndoState[Int]],
+	undoStack: List[HistoricalState[Int]],
+	redoStack: List[HistoricalState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: AdjMatrixDimensions,
 	copyToClipboard: Boolean = false,
@@ -96,9 +97,9 @@ case class State(
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
-		val newUndoState = GraphUndoState(graph, keyToData)
-		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
-		this.copy(undoStack = newStack)
+		val newUndoState = HistoricalState(graph, keyToData)
+		val newStack = (newUndoState :: undoStack).take(HistoricalState.UNDO_SIZE_LIMIT)
+		this.copy(undoStack = newStack, redoStack = List.empty)
 	}
 
 	def clearGraph(): State = {
@@ -122,6 +123,7 @@ object State {
 		graph = new DirectedMapGraph[Int](),
 		keyToData = Map.empty,
 		undoStack = List.empty,
+		redoStack = List.empty,
 		adjMatrixState = NoSelection,
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
 		exportFormat = ExportFormat.DOT,

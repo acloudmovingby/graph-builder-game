@@ -1,12 +1,12 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, ToggleLabelsVisibility, UndoRequested}
+import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, RedoRequested, ToggleLabelsVisibility, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.buildpane.BuildPaneRenderOp
 import graphcontroller.components.RenderOp
 import graphcontroller.components.exportpane.ExportFormat.Python
 import graphcontroller.components.exportpane.ExportPaneRenderData
 import graphcontroller.components.ops.{RemoveAttribute, SetAttribute}
-import graphcontroller.components.undobutton.UndoViewData
+import graphcontroller.components.undobutton.UndoRedoViewData
 import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
 import graphcontroller.shared.GraphRepresentation
@@ -21,13 +21,35 @@ object ControllerTests extends TestSuite {
 			val (stateAfterUndo, renderOps) = Controller.handleEventWithState(UndoRequested, stateWithNode)
 			assert(stateAfterUndo.graph.nodeCount == 0)
 			assert(stateAfterUndo.undoStack.isEmpty)
+			assert(stateAfterUndo.redoStack.size == 1)
 
 			// Check that the undo button is disabled
 			val undoOp = renderOps.collectFirst {
-				case op: UndoViewData => op
+				case op: UndoRedoViewData => op
 			}
 			assert(undoOp.isDefined)
 			assert(!undoOp.get.canUndo)
+			assert(undoOp.get.canRedo)
+		}
+
+		test("Redo") {
+			val stateWithNode = State.init.addNode(Vector2D(10, 10))
+			val (stateAfterUndo, _) = Controller.handleEventWithState(UndoRequested, stateWithNode)
+			assert(stateAfterUndo.graph.nodeCount == 0)
+			assert(stateAfterUndo.redoStack.size == 1)
+
+			val (stateAfterRedo, renderOps) = Controller.handleEventWithState(RedoRequested, stateAfterUndo)
+			assert(stateAfterRedo.graph.nodeCount == 1)
+			assert(stateAfterRedo.redoStack.isEmpty)
+			assert(stateAfterRedo.undoStack.size == 1)
+
+			// Check button states
+			val undoOp = renderOps.collectFirst {
+				case op: UndoRedoViewData => op
+			}
+			assert(undoOp.isDefined)
+			assert(undoOp.get.canUndo)
+			assert(!undoOp.get.canRedo)
 		}
 
 		test("Undo button enablement") {
@@ -36,10 +58,11 @@ object ControllerTests extends TestSuite {
 			
 			// Check that the undo button is enabled
 			val undoOp = renderOps.collectFirst {
-				case op: UndoViewData => op
+				case op: UndoRedoViewData => op
 			}
 			assert(undoOp.isDefined)
 			assert(undoOp.get.canUndo)
+			assert(!undoOp.get.canRedo)
 		}
 
 		test("Initialization") {

@@ -8,7 +8,7 @@ import graphcontroller.components.exportpane.ExportPane
 import graphcontroller.components.maincanvas.MainCanvasComponent
 import graphcontroller.components.resizing.ResizingComponent
 import graphcontroller.components.toolbar.ToolBarComponent
-import graphcontroller.components.undobutton.UndoComponent
+import graphcontroller.components.undobutton.UndoRedoComponent
 import graphcontroller.model.State
 
 /**
@@ -27,7 +27,7 @@ object Controller {
 		ResizingComponent,
 		ToolBarComponent,
 		BuildPaneComponent,
-		UndoComponent
+		UndoRedoComponent
 	)
 
 	/** Side-effectful function that handles the event, mutates state, and re-renders the UI */
