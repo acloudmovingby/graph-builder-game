@@ -10,8 +10,8 @@ import graphcontroller.shared.{BasicTool, GraphRepresentation, Tool}
 case class State(
 	graph: MapGraph[Int],
 	keyToData: Map[Int, NodeData],
-	undoStack: List[GraphUndoState[Int]],
-	redoStack: List[GraphUndoState[Int]],
+	undoStack: List[HistoricalState[Int]],
+	redoStack: List[HistoricalState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: AdjMatrixDimensions,
 	copyToClipboard: Boolean = false,
@@ -97,8 +97,8 @@ case class State(
 		// but because of the stack's limited size, we end up traversing it (O(n)) to drop the oldest state when the limit
 		// is reached, which will pretty much happen all the time once a user has been clicking around for a bit ... so
 		// maybe a different data structure would be better
-		val newUndoState = GraphUndoState(graph, keyToData)
-		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
+		val newUndoState = HistoricalState(graph, keyToData)
+		val newStack = (newUndoState :: undoStack).take(HistoricalState.UNDO_SIZE_LIMIT)
 		this.copy(undoStack = newStack, redoStack = List.empty)
 	}
 
