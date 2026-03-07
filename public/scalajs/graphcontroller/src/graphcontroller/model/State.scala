@@ -11,6 +11,7 @@ case class State(
 	graph: MapGraph[Int],
 	keyToData: Map[Int, NodeData],
 	undoStack: List[GraphUndoState[Int]],
+	redoStack: List[GraphUndoState[Int]],
 	adjMatrixState: AdjMatrixInteractionState,
 	adjMatrixDimensions: AdjMatrixDimensions,
 	copyToClipboard: Boolean = false,
@@ -98,7 +99,7 @@ case class State(
 		// maybe a different data structure would be better
 		val newUndoState = GraphUndoState(graph, keyToData)
 		val newStack = (newUndoState :: undoStack).take(GraphUndoState.UNDO_SIZE_LIMIT)
-		this.copy(undoStack = newStack)
+		this.copy(undoStack = newStack, redoStack = List.empty)
 	}
 
 	def clearGraph(): State = {
@@ -122,6 +123,7 @@ object State {
 		graph = new DirectedMapGraph[Int](),
 		keyToData = Map.empty,
 		undoStack = List.empty,
+		redoStack = List.empty,
 		adjMatrixState = NoSelection,
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
 		exportFormat = ExportFormat.DOT,

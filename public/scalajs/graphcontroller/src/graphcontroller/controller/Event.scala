@@ -13,6 +13,7 @@ sealed trait Event
 case object NoOp extends Event
 
 case object UndoRequested extends Event
+case object RedoRequested extends Event
 
 case object ClearButtonClicked extends Event
 /** The button in the export pane is clicked, to copy the graph to the clipboard */

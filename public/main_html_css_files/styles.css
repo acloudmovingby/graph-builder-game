@@ -283,9 +283,15 @@ p, a,
   background-repeat: no-repeat;
   background-position: center;
 }
-
 #undo {
   background-image: url("../images/undo-icon.svg");
+}
+
+#redo {
+  background-image: url("../images/redo-icon.svg");
+}
+
+.tool-btn {
   background-repeat: no-repeat;
   background-position: center;
   background-size: 1.2rem;
