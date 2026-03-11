@@ -32,7 +32,7 @@ RUN rm -rf out && ./mill graphcontroller.fullLinkJS
 RUN ./mill graphcontroller.test
 
 # Stage 2: Build the final, lightweight production image
-FROM node:18-slim
+FROM node:25.8-slim
 
 WORKDIR /app
 
