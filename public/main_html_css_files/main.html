@@ -43,13 +43,13 @@
     <div class="right-pane">
         <!-- selector at the top of the right pane       -->
         <div class="right-pane-section">
-            <p id="info-pane-select" class="info-pane-header">Info</p>
+            <p id="info-pane-select" class="info-pane-header">Build</p>
             <p id="export-pane-select" class="info-pane-header">Export</p>
         </div>
         <div class="right-pane-scrollable-content">
             <!-- info pane sections, anything named info-pane-only starts visible -->
             <div class="right-pane-section info-pane-only">
-                <p class="header">Graph Info</p>
+                <p class="header">Info</p>
                 <div class="info-area">
                     <p class="info-name">Nodes:</p>
                     <p id="node-count">0</p>
@@ -60,6 +60,11 @@
                     <p class="info-name">Components:</p>
                     <p id="component-count"></p>
                     <br>
+                </div>
+            </div>
+            <div class="right-pane-section info-pane-only">
+                <p class="header">Global Toggles</p>
+                <div class="info-area">
                     <p class="info-name">Directed</p>
                     <div id="directed-btn" class="visible-btn">
                         <img id="directed-icon" class="visible-icon" src="images/arrow-small-1-blue.svg">
@@ -72,15 +77,10 @@
                 </div>
             </div>
             <div class="right-pane-section info-pane-only">
-                <p class="header">Adjacency List</p>
-                <div class="info-area adj-list-area">
-                    <ul id="adjacency-list"></ul>
-                </div>
-            </div>
-            <div class="right-pane-section info-pane-only">
-                <p class="header">Adjacency Matrix</p>
+                <p class="header">Edge Matrix</p>
                 <div class="info-area">
                     <canvas id="adj-matrix"></canvas>
+                    <p id="edge-matrix-description"></p>
                 </div>
             </div>
             <!-- export pane sections, defaults to being hidden       -->

@@ -327,12 +327,6 @@ p, a,
   margin-top: 0rem;
 }
 
-.adj-list-area {
-  height: 110px;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
 #adj-matrix {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -465,4 +459,12 @@ an SVG all on its own, but I don't fully understand what it is. But whatever, wh
     overflow-x: auto;
     overflow-y: auto;
     min-height: 400px;
+}
+
+#edge-matrix-description {
+  color: gray;
+  display: block;
+  line-height: 1.3rem;
+  text-align: center;
+  margin: 0 auto;
 }
