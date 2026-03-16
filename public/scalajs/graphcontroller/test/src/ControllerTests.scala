@@ -1,5 +1,5 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, RedoRequested, ToggleLabelsVisibility, UndoRequested}
+import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, RedoRequested, ToggleLabelsVisibility, ToolSelected, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.buildpane.BuildPaneRenderOp
 import graphcontroller.components.RenderOp
@@ -9,10 +9,21 @@ import graphcontroller.components.ops.{RemoveAttribute, SetAttribute}
 import graphcontroller.components.undobutton.UndoRedoViewData
 import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
-import graphcontroller.shared.GraphRepresentation
+import graphcontroller.shared.{BasicTool, GraphRepresentation, SelectTool}
 
 object ControllerTests extends TestSuite {
 	def tests = Tests {
+		test("Tool selection") {
+			val initialState = State.init
+			assert(initialState.toolState.isInstanceOf[BasicTool])
+
+			val (stateWithSelectTool, _) = Controller.handleEventWithState(ToolSelected("select"), initialState)
+			assert(stateWithSelectTool.toolState.isInstanceOf[SelectTool])
+
+			val (stateWithBasicTool, _) = Controller.handleEventWithState(ToolSelected("basic"), stateWithSelectTool)
+			assert(stateWithBasicTool.toolState.isInstanceOf[BasicTool])
+		}
+
 		test("Undo") {
 			val stateWithNode = State.init.addNode(Vector2D(10, 10))
 			assert(stateWithNode.graph.nodeCount == 1)

@@ -3,14 +3,30 @@ package graphcontroller.components.toolbar
 import org.scalajs.dom
 import org.scalajs.dom.html
 import graphcontroller.components.RenderOp
-
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool, Tool}
 
 case class ToolBarRenderData(
 	selectedTool: Tool,
-	hoveringOnTool: Option[String]
+	hoveringOnTool: Option[String],
+	selectToolVisible: Boolean
 ) extends RenderOp {
+
+	/** Right now, this is feature-flagged so hide if feature flag is disabled */
+	def handleSelectTool(): Unit = {
+		// TODO get this html id from the Tool class itself (maybe put in companion object)
+		val selectTool = dom.document.getElementById("select").asInstanceOf[html.Button]
+		if (selectTool != null) {
+			if (selectToolVisible) {
+				selectTool.style.display = "block"
+			} else {
+				selectTool.style.display = "none"
+			}
+		}
+	}
+
 	def render(): Unit = {
+		handleSelectTool()
+
 		val toolBar = dom.document.querySelector(".toolbar")
 		val buttons = toolBar.querySelectorAll("button")
 		buttons.foreach {
@@ -44,6 +60,7 @@ case class ToolBarRenderData(
 
 object AllTools {
 	val tools: Map[String, Tool] = Map(
+		"select" -> SelectTool(),
 		"basic" -> BasicTool(None),
 		"area-complete" -> AreaCompleteTool(false, Nil),
 		"magic-path" -> MagicPathTool(None),

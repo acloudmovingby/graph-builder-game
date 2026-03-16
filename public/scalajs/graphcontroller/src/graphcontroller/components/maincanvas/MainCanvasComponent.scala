@@ -5,7 +5,7 @@ import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool}
 
 object MainCanvasComponent extends Component {
 
@@ -44,9 +44,15 @@ object MainCanvasComponent extends Component {
 			case tool: MagicPathTool => handleMagicPathTool(state, event, tool, maybeHoveredNode)
 			case tool: AreaCompleteTool => handleAreaCompleteTool(state, event, tool, maybeHoveredNode)
 			case tool: MoveTool => handleMoveTool(state, event, tool, maybeHoveredNode)
+			case tool: SelectTool => handleSelectTool(state, event , tool, maybeHoveredNode)
 		}
 
 		newState.copy(lastMainCanvasMousePosition = event.coords)
+	}
+
+	private def handleSelectTool(state: State, event: MainCanvasMouseEvent, tool: SelectTool, maybeHoveredNode: Option[Int]): State = {
+		// TODO uh, actually implement this...
+		state
 	}
 
 	private def handleBasicTool(state: State, event: MainCanvasMouseEvent, tool: BasicTool, maybeHoveredNode: Option[Int]): State = {

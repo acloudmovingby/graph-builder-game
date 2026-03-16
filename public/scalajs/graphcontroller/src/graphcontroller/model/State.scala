@@ -22,7 +22,8 @@ case class State(
 	hoveringOnTool: Option[String],
 	labelsVisible: Boolean = true,
 	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0),
-	hoverDirectedIcon: Boolean = false
+	hoverDirectedIcon: Boolean = false,
+	featureFlags: FeatureFlags
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -130,11 +131,16 @@ object State {
 		adjacencyExportType = GraphRepresentation.List,
 		toolState = BasicTool(None),
 		hoveringOnNode = None,
-		hoveringOnTool = None
+		hoveringOnTool = None,
+		featureFlags = FeatureFlags(selectTool = false)
 	)
 }
 
 case class HoveredNode(
 	nodeIndex: Int,
 	justAdded: Boolean // use this flag so that when we add a new node the hover effect doesn't immediately appear (not necessary but seems to look nicer)
+)
+
+case class FeatureFlags(
+	selectTool: Boolean
 )
