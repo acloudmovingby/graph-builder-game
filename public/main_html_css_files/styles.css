@@ -267,6 +267,11 @@ p, a,
   background-color: #32BFE3;
 }
 
+#select {
+  background-image: url("../images/select-tool-cursor.svg");
+  background-size: 20px;
+}
+
 #basic {
   background-image: url("../images/pointer_white.svg");
 }
