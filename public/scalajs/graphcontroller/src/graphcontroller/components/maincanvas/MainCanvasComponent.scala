@@ -2,7 +2,7 @@ package graphcontroller.components.maincanvas
 
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{Event, MainCanvasMouseEvent}
-import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
+import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool}
