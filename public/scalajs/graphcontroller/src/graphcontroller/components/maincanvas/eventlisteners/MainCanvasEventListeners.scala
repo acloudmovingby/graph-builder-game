@@ -1,7 +1,7 @@
 package graphcontroller.components.maincanvas.eventlisteners
 
 import graphcontroller.controller.*
-import graphcontroller.controller.MouseEventType.{Down, Leave, Move, Up}
+import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.shared.CanvasEventListeners
 import org.scalajs.dom

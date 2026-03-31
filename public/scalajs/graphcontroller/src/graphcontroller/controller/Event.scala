@@ -22,7 +22,7 @@ case class ExportFormatChanged(format: ExportFormat) extends Event
 case class ExportAdjacencyTypeChanged(adjType: GraphRepresentation) extends Event
 
 /** TODO: if we like using this for main canvas events, use for adjacency matrix events as well */
-enum MouseEventType {
+enum MouseEvent {
 	// corresponds to JS `mousedown`, `mouseup`, etc. event handlers 
 	case Move, Up, Down, Leave
 }
@@ -48,7 +48,7 @@ case class AdjMatrixMouseUp(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEve
 
 case class AdjMatrixMouseLeave(mouseX: Int, mouseY: Int) extends AdjacencyMatrixEvent
 
-case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEventType) extends Event
+case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEvent) extends Event
 
 case class ToolSelected(tool: String) extends Event
 case class ToolBarMouseOver(tool: String) extends Event

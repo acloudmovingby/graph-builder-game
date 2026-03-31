@@ -1,8 +1,5 @@
 package graphcontroller.components.exportpane
 
-import scala.scalajs.js.Thenable.Implicits.*
-import org.scalajs.dom
-import org.scalajs.dom.html
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{CopyButtonClicked, Event, ExportAdjacencyTypeChanged, ExportFormatChanged}
 import graphcontroller.model.State
@@ -32,9 +29,6 @@ object ExportPane extends Component {
 		  |""".stripMargin
 
 	import ExportFormat.*
-
-	// Needed for writing to clipboard which is done with a Future
-	implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
 	private val MAX_LINES_PREVIEW = 20
 
@@ -74,13 +68,6 @@ object ExportPane extends Component {
 			}
 		}
 
-		def writeToClipboard(text: String): Unit = {
-			dom.window.navigator.clipboard.writeText(text).recover {
-				// TODO, later once I start using Try or an effect type at top-level we can hrow exception here or return effect
-				_ => println("Clipboard write failed.")
-			}
-		}
-
 		def renderPreview(text: String): String = {
 			val lines = text.linesIterator.toSeq
 			if (lines.length > MAX_LINES_PREVIEW) {
@@ -89,8 +76,6 @@ object ExportPane extends Component {
 		}
 
 		val exportString = ExportStringGenerator.generate(state.graph, state.exportFormat, state.adjacencyExportType)
-		
-		if (state.copyToClipboard) writeToClipboard(exportString)
 
 		// TODO profile this and if it's an issue, then we can cache/memoize it,
 		// if re-rendering the dom is the expensive part, we can perhaps simply cache it with some local state here, and compare the Strings
