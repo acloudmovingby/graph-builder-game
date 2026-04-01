@@ -8,7 +8,7 @@ import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddE
 import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, TriangleCanvas}
 import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Rectangle, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool, Tool}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -226,10 +226,22 @@ object MainCanvasView {
 		// we want to draw the shapes in the correct order, e.g. with arrows on top of lines
 		lines ++ arrows
 	}
+	
+	def selectionBox(toolState: Tool, lastMousePosition: Vector2D): Seq[CanvasRenderOp] = {
+		toolState match {
+			case SelectTool(Some(start)) =>
+				val width = lastMousePosition.x - start.x
+				val height = lastMousePosition.y - start.y
+				val rect = Rectangle(start, width, height)
+				val alpha = "33" // transparency (alpha) to append to the hex color
+				Seq(RectangleCanvas(rect, NodeRender.color1 + alpha, borderColor = Some(NodeRender.color1)))
+			case _ => Seq.empty
+		}
+	}
 
 	def render(state: State): MainCanvasViewData = {
 		MainCanvasViewData(
-			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state),
+			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state) ++ selectionBox(state.toolState, state.canvasInteraction.lastMousePosition),
 			magicPathTargetCircle(state),
 			state.toolState,
 			state.graph.nodeCount == 0
