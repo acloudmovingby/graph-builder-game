@@ -37,7 +37,7 @@ object UndoRedoComponent extends Component {
 	 * */
 	private def applyHistoryState(state: State, historyState: HistoricalState[Int]): State = {
 		// (1) Clear hovered node state if that node index no longer exists
-		val hoveredNode = state.hoveringOnNode match {
+		val hoveredNode = state.canvasInteraction.hoveredNode match {
 			case Some(HoveredNode(nodeIndex, _)) if !historyState.graph.nodes.contains(nodeIndex) =>
 				None
 			case other => other
@@ -49,12 +49,13 @@ object UndoRedoComponent extends Component {
 			case _ => state.toolState
 		}
 
-		state.copy(
-			graph = historyState.graph,
-			keyToData = historyState.keyToData,
-			toolState = newToolState,
-			hoveringOnNode = hoveredNode
-		)
+		state
+			.copy(
+				graph = historyState.graph,
+				keyToData = historyState.keyToData,
+				toolState = newToolState
+			)
+			.setHoveredNode(hoveredNode)
 	}
 
 	override def view(state: State): RenderOp = {

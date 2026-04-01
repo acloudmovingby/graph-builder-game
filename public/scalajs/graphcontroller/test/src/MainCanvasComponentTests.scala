@@ -18,7 +18,7 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(stateAfterDown.graph.nodeCount == 1)
 			assert(stateAfterDown.keyToData(0).x == 100)
 			assert(stateAfterDown.keyToData(0).y == 100)
-			assert(stateAfterDown.hoveringOnNode.contains(HoveredNode(0, true)))
+			assert(stateAfterDown.canvasInteraction.hoveredNode.contains(HoveredNode(0, true)))
 		}
 
 		test("BasicTool - hover over node") {
@@ -26,7 +26,7 @@ object MainCanvasComponentTests extends TestSuite {
 			val event = MainCanvasMouseEvent(Vector2D(105, 105), MouseEvent.Move)
 			val stateAfterMove = MainCanvasComponent.update(stateWithNode, event)
 
-			assert(stateAfterMove.hoveringOnNode.contains(HoveredNode(0, false)))
+			assert(stateAfterMove.canvasInteraction.hoveredNode.contains(HoveredNode(0, false)))
 		}
 
 		test("BasicTool - start edge") {
