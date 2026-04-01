@@ -95,7 +95,7 @@ object AdjMatrixViewTests extends TestSuite {
 
 			val highlightWithEdge = AdjacencyMatrixView.hoveredCellHighlight(state, hoveredCellWithEdge, grid)
 			assert(highlightWithEdge.nonEmpty)
-			assert(highlightWithEdge.head.color == AdjacencyMatrixView.hoverEdgePresentColor)
+			assert(highlightWithEdge.head.fillColor == AdjacencyMatrixView.hoverEdgePresentColor)
 			assert(highlightWithEdge.head.rect == Rectangle(
 				topLeft = Vector2D(x = grid.getX(1), y = grid.getY(0)),
 				width = grid.getWidth(1),
@@ -104,7 +104,7 @@ object AdjMatrixViewTests extends TestSuite {
 
 			val highlightWithoutEdge = AdjacencyMatrixView.hoveredCellHighlight(state, hoveredCellWithoutEdge, grid)
 			assert(highlightWithoutEdge.nonEmpty)
-			assert(highlightWithoutEdge.head.color == AdjacencyMatrixView.hoverNoEdgeColor)
+			assert(highlightWithoutEdge.head.fillColor == AdjacencyMatrixView.hoverNoEdgeColor)
 		}
 
 		test("row/column numbers") {

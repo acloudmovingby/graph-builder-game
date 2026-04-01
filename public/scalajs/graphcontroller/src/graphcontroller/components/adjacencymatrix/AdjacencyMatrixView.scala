@@ -129,7 +129,7 @@ object AdjacencyMatrixView {
                 width = grid.getWidth(cell.col),
                 height = grid.getHeight(cell.row)
               ),
-              color = color
+              fillColor = color
             )
         }
 
@@ -149,7 +149,7 @@ object AdjacencyMatrixView {
         val color = if (isAdd) clickedNoEdgeColor else clickedEdgePresentColor
         RectangleCanvas(
           AdjMatrixCoordinateConverter.convertZoneToShape(cell, grid, nodeCount).get,
-          color = color
+          fillColor = color
         )
     }
 
@@ -165,7 +165,7 @@ object AdjacencyMatrixView {
                 // An undirected (simple) graph returns only one edge per pair of nodes but we want both directions
                 (from, to) <- if (state.isDirected) Seq(edge) else Seq(edge, (edge._2, edge._1))
                 rectangle <- AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
-            } yield RectangleCanvas(rectangle, color = edgePresentColor)
+            } yield RectangleCanvas(rectangle, fillColor = edgePresentColor)
         }
     }
 
