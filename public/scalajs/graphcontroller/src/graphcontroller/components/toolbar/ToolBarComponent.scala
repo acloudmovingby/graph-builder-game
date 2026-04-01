@@ -10,7 +10,7 @@ object ToolBarComponent extends Component {
 		event match {
 			case ToolSelected(tool) =>
 				val newTool = tool match {
-					case "select" => SelectTool()
+					case "select" => SelectTool(mousePressedStartPoint = None)
 					case "basic" => BasicTool(None)
 					case "area-complete" => AreaCompleteTool(false, Nil)
 					case "magic-path" => MagicPathTool(None)

@@ -54,7 +54,7 @@ case class MoveTool(
 	override val description: String = "Click and drag it around."
 }
 
-case class SelectTool() extends Tool {
+case class SelectTool(mousePressedStartPoint: Option[Vector2D]) extends Tool {
 	override val htmlId: String = "select"
 	override val header: String = "Select Tool"
 	override val cursorIconPath: String = "url('images/select-tool-cursor.svg'), pointer"
