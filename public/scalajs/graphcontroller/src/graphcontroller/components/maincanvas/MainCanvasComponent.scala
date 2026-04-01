@@ -51,8 +51,28 @@ object MainCanvasComponent extends Component {
 	}
 
 	private def handleSelectTool(state: State, event: MainCanvasMouseEvent, tool: SelectTool, maybeHoveredNode: Option[Int]): State = {
-		// TODO uh, actually implement this...
-		state
+
+		// dragging node(s) around
+		// 		- data: node(s) you're dragging?
+		//		- event:
+		// dragging a select box - data: start point, current location
+		// mouse not pressed
+
+		// modes:
+		// 		1. not pressed down
+		// 		2. pressed down
+		//
+
+		(event, state.toolState) match {
+			case (MainCanvasMouseEvent(coords, Up), _) =>
+				state.copy(toolState = SelectTool(mousePressedStartPoint = None))
+			case (MainCanvasMouseEvent(coords, Down), _) =>
+				state.copy(toolState = SelectTool(mousePressedStartPoint = Some(coords)))
+			case (MainCanvasMouseEvent(coords, Move), SelectTool(Some(_))) =>
+				println("Moving while holding down Select tool")
+				state
+			case _ => state
+		}
 	}
 
 	private def handleBasicTool(state: State, event: MainCanvasMouseEvent, tool: BasicTool, maybeHoveredNode: Option[Int]): State = {

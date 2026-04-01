@@ -5,8 +5,8 @@ import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.EdgeRender.{simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
-import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, TriangleCanvas}
-import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Row, Vector2D}
+import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, TriangleCanvas}
+import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Rectangle, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, Tool}
 import org.scalajs.dom
@@ -93,11 +93,14 @@ object MainCanvasView {
 				(nodes.filter(_ != nodeIndex), Some(nodeIndex), justAdded)
 		}
 
+		def default = {
+			val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
+			val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
+			nonHoveredStyles ++ hoveredStyle
+		}
+
 		toolState match {
-			case BasicTool(None) | MoveTool(_) =>
-				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
-				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
-				nonHoveredStyles ++ hoveredStyle
+			case BasicTool(None) => default
 			case BasicTool(Some(edgeStart)) => // in edge adding mode
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
 				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = withoutEdgeStart.map(n => (n, AddEdgeNotStart))
@@ -107,11 +110,6 @@ object MainCanvasView {
 						.filter(_ != edgeStart) // ignore if it's the start node, since we already created the style for that above
 						.map(n => (n, AddEdgeHover))
 				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
-			case MagicPathTool(None) =>
-				// same as BasicPath(None)
-				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
-				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
-				nonHoveredStyles ++ hoveredStyle
 			case MagicPathTool(Some(edgeStart)) => // in edge adding mode
 				// also almost the same as BasicPath(Some(...))
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
@@ -123,12 +121,7 @@ object MainCanvasView {
 					case _ => None
 				}
 				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
-			case _: AreaCompleteTool =>
-				// leave same as Basic
-				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
-				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, if (justAdded) Basic else BasicHover))
-				nonHoveredStyles ++ hoveredStyle
-			case _ => Seq.empty
+			case _ => default
 		}
 	}
 
