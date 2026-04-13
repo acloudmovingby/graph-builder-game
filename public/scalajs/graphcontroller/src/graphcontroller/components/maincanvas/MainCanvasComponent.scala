@@ -69,7 +69,6 @@ object MainCanvasComponent extends Component {
 			case (MainCanvasMouseEvent(coords, Down), _) =>
 				state.copy(toolState = SelectTool(mousePressedStartPoint = Some(coords)))
 			case (MainCanvasMouseEvent(coords, Move), SelectTool(Some(_))) =>
-				println("Moving while holding down Select tool")
 				state
 			case _ => state
 		}

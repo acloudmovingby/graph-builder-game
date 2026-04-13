@@ -57,7 +57,7 @@ case class MoveTool(
 case class SelectTool(mousePressedStartPoint: Option[Vector2D]) extends Tool {
 	override val htmlId: String = "select"
 	override val header: String = "Select Tool"
-	override val cursorIconPath: String = "url('images/select-tool-cursor.svg'), pointer"
+	override val cursorIconPath: String = "url('images/apple_pointer_cursor_white_outline.svg'), pointer"
 	override val animationImgPath: String = "images/move-tool-tooltip-example.gif"
 	override val description: String = "Select nodes (or edges, if you click on them directly). Move or delete (with delete key)."
 }
