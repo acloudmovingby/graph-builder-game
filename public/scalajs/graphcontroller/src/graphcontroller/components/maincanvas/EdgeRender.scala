@@ -1,6 +1,6 @@
 package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{CanvasLine, CanvasRenderOp, ShapeStyle, TriangleCanvas}
 import graphcontroller.dataobject.{Line, Vector2D}
 import ArrowTipRender.getArrowTriangle
 
@@ -74,22 +74,22 @@ object EdgeRender {
 	def getDirectedEdgesForRendering(edges: Seq[Line]): Seq[CanvasLine] = {
 		val dirEdges = decideDirectionality(edges)
 		val trimmed = trimEdgesBasedOnDirectionality(dirEdges)
-		trimmed.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
+		trimmed.map(e => CanvasLine(e.from, e.to, ShapeStyle.stroked(simpleEdgeStrokeColor, simpleEdgeStrokeWidth)))
 	}
 
 	def getSimpleEdgesForRendering(edges: Seq[Line]): Seq[CanvasLine] = {
-		edges.map(e => CanvasLine(e.from, e.to, simpleEdgeStrokeWidth, simpleEdgeStrokeColor))
+		edges.map(e => CanvasLine(e.from, e.to, ShapeStyle.stroked(simpleEdgeStrokeColor, simpleEdgeStrokeWidth)))
 	}
 
 	def simpleEdge(e: Line, strokeWidth: Int, color: String): CanvasLine = {
-		CanvasLine(e.from, e.to, strokeWidth, color)
+		CanvasLine(e.from, e.to, ShapeStyle.stroked(color, strokeWidth))
 	}
 
 	/** 
 	 * When in basic tool or magic path tool, this is the line going from the edge start to the current
 	 * cursor location (at time of writing, a thin yellow line). 
 	 * */
-	def edgeAddingIndicatorLine(from: Vector2D, to: Vector2D): CanvasLine = CanvasLine(from, to, width = 8, color = "#ffdc7a")
+	def edgeAddingIndicatorLine(from: Vector2D, to: Vector2D): CanvasLine = CanvasLine(from, to, style = ShapeStyle.stroked("#ffdc7a", 8))
 
 	/** Takes all the information needed to render the directed edge. Returns tuple of (line, arrows) */
 	def directedEdge(
@@ -107,7 +107,7 @@ object EdgeRender {
 		shortenedEdge = if (!shortenFromSrc) shortenedEdge else trimEdge(trimStart = true, shortenedEdge, shortenAmount)
 		shortenedEdge = if (!shortenFromDest) shortenedEdge else trimEdge(trimStart = false, shortenedEdge, shortenAmount)
 		// create the line
-		val line = CanvasLine(shortenedEdge.from, shortenedEdge.to, lineWidth, lineColor)
+		val line = CanvasLine(shortenedEdge.from, shortenedEdge.to, ShapeStyle.stroked(lineColor, lineWidth))
 
 		// create the arrows as needed
 		val s2dArrow = srcToDestArrow.map { props => getArrowTriangle(e, props) }

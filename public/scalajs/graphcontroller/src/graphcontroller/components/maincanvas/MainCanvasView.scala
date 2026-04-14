@@ -5,7 +5,7 @@ import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.EdgeRender.{simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
 import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover, Selected}
-import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, TriangleCanvas}
+import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, ShapeStyle, TriangleCanvas}
 import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Rectangle, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool, Tool}
@@ -165,10 +165,7 @@ object MainCanvasView {
 			case MagicPathTool(Some(_)) =>
 				val cc = CircleCanvas(
 					Circle(state.canvasInteraction.lastMousePosition, 30),
-					fillColor = None,
-					borderColor = Some("black"),
-					borderWidth = Some(2),
-					lineDashSegments = Seq(5, 5)
+					style = ShapeStyle(border = Some(Border("black", 2, Seq(5, 5))))
 				)
 				Some(cc)
 			case _ => None
@@ -180,12 +177,14 @@ object MainCanvasView {
 			case AreaCompleteTool(true, points) =>
 				Some(CanvasPolyLine(
 					points = points.reverse, // if you don't reverse, it makes the dotted line move in a weird way as you draw since the dash pattern starts at the first point
-					fillColor = Some("rgba(255, 130, 172, 0.15)"), // a bit transparent
-					border = Some(Border(
-						color = "red", // Hex string, e.g. "#FF0000" // TODO this correlates to ctx.strokeStyle ... can the "style" be something other than a color?
-						width = 1.5,
-						lineDashSegments = Seq(5, 5)
-					))
+					style = ShapeStyle(
+						fillColor = Some("rgba(255, 130, 172, 0.15)"), // a bit transparent
+						border = Some(Border(
+							color = "red",
+							width = 1.5,
+							lineDashSegments = Seq(5, 5)
+						))
+					)
 				))
 			case _ => None
 		}
@@ -249,10 +248,10 @@ object MainCanvasView {
 		val rect = Rectangle(Vector2D(minX, minY), maxX - minX, maxY - minY)
 		Seq(RectangleCanvas(
 			rect,
-			fillColor = "rgba(0, 0, 0, 0)",
-			borderColor = Some(NodeRender.color1),
-			borderWidth = Some(1.5),
-			lineDashSegments = Seq(6, 4)
+			style = ShapeStyle(
+				fillColor = Some("rgba(0, 0, 0, 0)"),
+				border = Some(Border(NodeRender.color1, 1.5, Seq(6, 4)))
+			)
 		))
 	}
 
@@ -263,7 +262,7 @@ object MainCanvasView {
 				val height = lastMousePosition.y - start.y
 				val rect = Rectangle(start, width, height)
 				val alpha = "33" // transparency (alpha) to append to the hex color
-				Seq(RectangleCanvas(rect, NodeRender.color1 + alpha, borderColor = Some(NodeRender.color1)))
+				Seq(RectangleCanvas(rect, style = ShapeStyle.filledAndStroked(NodeRender.color1 + alpha, NodeRender.color1, 1.0)))
 			case _ => Seq.empty
 		}
 	}

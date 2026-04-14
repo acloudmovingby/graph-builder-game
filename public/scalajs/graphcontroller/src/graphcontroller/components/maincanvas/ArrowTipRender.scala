@@ -1,6 +1,6 @@
 package graphcontroller.components.maincanvas
 
-import graphcontroller.dataobject.canvas.TriangleCanvas
+import graphcontroller.dataobject.canvas.{ShapeStyle, TriangleCanvas}
 import graphcontroller.dataobject.{Line, Vector2D}
 
 object ArrowTipRender {
@@ -31,7 +31,7 @@ object ArrowTipRender {
 
 		TriangleCanvas(
 			tri = finalTriangle,
-			color = props.color
+			style = ShapeStyle.filled(props.color)
 		)
 	}
 
