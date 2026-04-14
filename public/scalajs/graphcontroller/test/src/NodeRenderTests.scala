@@ -1,4 +1,6 @@
 import graphcontroller.dataobject.*
+import graphcontroller.dataobject.canvas.RectangleCanvas
+import graphcontroller.dataobject.NodeData
 import graphcontroller.model.HoveredNode
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, SelectTool}
 import utest.*
@@ -70,6 +72,37 @@ class NodeRenderTests extends TestSuite {
 			val withSel = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), BasicTool(None), selectedNodes = Set.empty)
 			val withoutSel = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), BasicTool(None))
 			assert(withSel == withoutSel)
+		}
+
+		// Step 6: bounding box
+		test("selectionBoundingBox - empty for 0 selected nodes") {
+			val result = MainCanvasView.selectionBoundingBox(Set.empty, Map.empty)
+			assert(result.isEmpty)
+		}
+
+		test("selectionBoundingBox - empty for 1 selected node") {
+			val keyToData = Map(0 -> NodeData(0, 100, 100))
+			val result = MainCanvasView.selectionBoundingBox(Set(0), keyToData)
+			assert(result.isEmpty)
+		}
+
+		test("selectionBoundingBox - encloses all selected nodes with padding") {
+			val keyToData = Map(
+				0 -> NodeData(0, 10, 10),
+				1 -> NodeData(0, 50, 80),
+				2 -> NodeData(0, 200, 200) // not selected
+			)
+			val result = MainCanvasView.selectionBoundingBox(Set(0, 1), keyToData)
+			assert(result.size == 1)
+			result.head match {
+				case rc: RectangleCanvas =>
+					assert(rc.rect.topLeft.x < 10)  // left of leftmost node (with padding)
+					assert(rc.rect.topLeft.y < 10)  // above topmost node (with padding)
+					assert(rc.rect.topLeft.x + rc.rect.width > 50)  // right of rightmost selected node
+					assert(rc.rect.topLeft.y + rc.rect.height > 80) // below bottommost selected node
+					assert(rc.rect.topLeft.x + rc.rect.width < 200) // node 2 not enclosed
+				case _ => assert(false)
+			}
 		}
 
 		// TODO: basic tool but in edge adding mode

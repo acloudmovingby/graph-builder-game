@@ -4,6 +4,7 @@ import utest.*
 import graphcontroller.model.State
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
+import graphcontroller.controller.{CanvasDoubleClick, DeleteSelectedNodes}
 import graphcontroller.shared.{BasicTool, MagicPathTool, MoveTool, AreaCompleteTool, SelectTool, SelectMode}
 import graphcontroller.model.HoveredNode
 
@@ -168,6 +169,133 @@ object MainCanvasComponentTests extends TestSuite {
 			val downEvent = MainCanvasMouseEvent(Vector2D(500, 500), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(stateWithSelection, downEvent)
 			assert(stateAfterDown.selectedNodes.isEmpty)
+		}
+
+		// Step 5: live preview
+		test("SelectTool - live preview updates selectedNodes on Move during DraggingBox") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(30, 30)) // 0 - will be inside small rect
+				.addNode(Vector2D(200, 200)) // 1 - outside
+				.copy(toolState = SelectTool(SelectMode.DraggingBox(Vector2D(0, 0))))
+
+			val moveEvent = MainCanvasMouseEvent(Vector2D(80, 80), MouseEvent.Move)
+			val stateAfterMove = MainCanvasComponent.update(stateWithNodes, moveEvent)
+			assert(stateAfterMove.selectedNodes == Set(0))
+			assert(!stateAfterMove.selectedNodes.contains(1))
+		}
+
+		test("SelectTool - live preview shrinks when box shrinks") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(30, 30))   // 0
+				.addNode(Vector2D(150, 150)) // 1
+				.copy(toolState = SelectTool(SelectMode.DraggingBox(Vector2D(0, 0))))
+
+			// First move: both nodes inside
+			val move1 = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Move)
+			val stateAfterMove1 = MainCanvasComponent.update(stateWithNodes, move1)
+			assert(stateAfterMove1.selectedNodes == Set(0, 1))
+
+			// Second move: box shrinks, only node 0 inside
+			val stateForMove2 = stateAfterMove1.copy(toolState = SelectTool(SelectMode.DraggingBox(Vector2D(0, 0))))
+			val move2 = MainCanvasMouseEvent(Vector2D(80, 80), MouseEvent.Move)
+			val stateAfterMove2 = MainCanvasComponent.update(stateForMove2, move2)
+			assert(stateAfterMove2.selectedNodes == Set(0))
+		}
+
+		test("SelectTool - shift+drag adds newly boxed nodes to existing selection") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(50, 50))   // 0 - already selected
+				.addNode(Vector2D(300, 300)) // 1 - will be drag-selected with shift
+				.addNode(Vector2D(400, 400)) // 2 - outside both selections
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+
+			// Shift+mousedown on empty canvas far from node 0 — should keep node 0 selected
+			val downEvent = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Down, shiftKey = true)
+			val stateAfterDown = MainCanvasComponent.update(stateWithSelection, downEvent)
+			assert(stateAfterDown.selectedNodes == Set(0)) // existing selection preserved
+
+			// Move to include node 1 in the box
+			val moveEvent = MainCanvasMouseEvent(Vector2D(380, 380), MouseEvent.Move, shiftKey = true)
+			val stateAfterMove = MainCanvasComponent.update(stateAfterDown, moveEvent)
+			assert(stateAfterMove.selectedNodes == Set(0, 1)) // node 0 still selected + node 1 previewed
+
+			// Release — finalise: both 0 and 1 should be selected
+			val upEvent = MainCanvasMouseEvent(Vector2D(380, 380), MouseEvent.Up, shiftKey = true)
+			val stateAfterUp = MainCanvasComponent.update(stateAfterMove, upEvent)
+			assert(stateAfterUp.selectedNodes == Set(0, 1))
+			assert(!stateAfterUp.selectedNodes.contains(2))
+		}
+
+		// Step 7: delete
+		test("DeleteSelectedNodes clears selectedNodes (placeholder)") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+			val newState = MainCanvasComponent.update(stateWithSelection, DeleteSelectedNodes)
+			assert(newState.selectedNodes.isEmpty)
+		}
+
+		test("DeleteSelectedNodes with empty selection is a no-op") {
+			val state = initState.addNode(Vector2D(100, 100)).copy(toolState = SelectTool())
+			val newState = MainCanvasComponent.update(state, DeleteSelectedNodes)
+			assert(newState.selectedNodes.isEmpty)
+			assert(newState.graph.nodeCount == 1) // graph unchanged
+		}
+
+		// Step 8: shift+click
+		test("SelectTool - shift+click adds unselected node to selection") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+
+			val shiftClick = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Down, shiftKey = true)
+			val newState = MainCanvasComponent.update(stateWithSelection, shiftClick)
+			assert(newState.selectedNodes == Set(0, 1))
+		}
+
+		test("SelectTool - shift+click removes already-selected node from selection") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+
+			val shiftClick = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Down, shiftKey = true)
+			val newState = MainCanvasComponent.update(stateWithSelection, shiftClick)
+			assert(newState.selectedNodes == Set(0))
+		}
+
+		test("SelectTool - normal click still replaces selection") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+
+			val normalClick = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Down, shiftKey = false)
+			val newState = MainCanvasComponent.update(stateWithSelection, normalClick)
+			assert(newState.selectedNodes == Set(1))
+		}
+
+		// Step 9: double-click
+		test("SelectTool - double-click on empty canvas adds node") {
+			val state = initState.copy(toolState = SelectTool())
+			val newState = MainCanvasComponent.update(state, CanvasDoubleClick(Vector2D(150, 150)))
+			assert(newState.graph.nodeCount == 1)
+			assert(newState.keyToData(0).x == 150)
+			assert(newState.keyToData(0).y == 150)
+			assert(newState.toolState.isInstanceOf[SelectTool]) // stays in SelectTool
+		}
+
+		test("SelectTool - double-click on existing node is a no-op") {
+			val stateWithNode = initState.addNode(Vector2D(100, 100)).copy(toolState = SelectTool())
+			val newState = MainCanvasComponent.update(stateWithNode, CanvasDoubleClick(Vector2D(100, 100)))
+			assert(newState.graph.nodeCount == 1) // unchanged
+		}
+
+		test("Double-click in BasicTool is a no-op") {
+			val state = initState.copy(toolState = BasicTool(None))
+			val newState = MainCanvasComponent.update(state, CanvasDoubleClick(Vector2D(100, 100)))
+			assert(newState.graph.nodeCount == 0) // unchanged
 		}
 
 		test("Leave event resets tool state") {

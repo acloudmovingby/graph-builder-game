@@ -233,9 +233,32 @@ object MainCanvasView {
 		lines ++ arrows
 	}
 	
+	/** A dashed bounding rectangle around all selected nodes, drawn when 2+ nodes are selected.
+	 *  Separate from the drag-selection box — this one persists after the mouse is released. */
+	def selectionBoundingBox(selectedNodes: Set[Int], keyToData: Map[Int, NodeData]): Seq[CanvasRenderOp] = {
+		if (selectedNodes.size < 2) return Seq.empty
+		val selectedData = selectedNodes.flatMap(keyToData.get)
+		if (selectedData.isEmpty) return Seq.empty
+
+		val padding = NodeRender.baseNodeRadius + 10
+		val minX = selectedData.map(_.x).min - padding
+		val minY = selectedData.map(_.y).min - padding
+		val maxX = selectedData.map(_.x).max + padding
+		val maxY = selectedData.map(_.y).max + padding
+
+		val rect = Rectangle(Vector2D(minX, minY), maxX - minX, maxY - minY)
+		Seq(RectangleCanvas(
+			rect,
+			fillColor = "rgba(0, 0, 0, 0)",
+			borderColor = Some(NodeRender.color1),
+			borderWidth = Some(1.5),
+			lineDashSegments = Seq(6, 4)
+		))
+	}
+
 	def selectionBox(toolState: Tool, lastMousePosition: Vector2D): Seq[CanvasRenderOp] = {
 		toolState match {
-			case SelectTool(SelectMode.DraggingBox(start)) =>
+			case SelectTool(SelectMode.DraggingBox(start, _)) =>
 				val width = lastMousePosition.x - start.x
 				val height = lastMousePosition.y - start.y
 				val rect = Rectangle(start, width, height)
@@ -247,7 +270,7 @@ object MainCanvasView {
 
 	def render(state: State): MainCanvasViewData = {
 		MainCanvasViewData(
-			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ nodes(state) ++ areaComplete(state) ++ selectionBox(state.toolState, state.canvasInteraction.lastMousePosition),
+			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ selectionBoundingBox(state.selectedNodes, state.keyToData) ++ nodes(state) ++ areaComplete(state) ++ selectionBox(state.toolState, state.canvasInteraction.lastMousePosition),
 			magicPathTargetCircle(state),
 			state.toolState,
 			state.graph.nodeCount == 0
