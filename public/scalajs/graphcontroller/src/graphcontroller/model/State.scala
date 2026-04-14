@@ -135,7 +135,7 @@ object State {
 		toolState = BasicTool(None),
 		hoveringOnTool = None,
 		canvasInteraction = MainCanvasInteractionState(hoveredNode = None, lastMousePosition = Vector2D(0, 0)),
-		featureFlags = FeatureFlags(selectTool = false)
+		featureFlags = FeatureFlags(selectTool = true)
 	)
 }
 

@@ -4,7 +4,8 @@ import graphcontroller.controller.Event
 import graphcontroller.model.State
 
 trait Component {
-	/** Pure function that takes current state and input event and produces new state */
+	/** Pure function that takes current state and input event and produces new state
+	 * Default: */
 	def update(state: State, event: Event): State = state
 
 	/**
