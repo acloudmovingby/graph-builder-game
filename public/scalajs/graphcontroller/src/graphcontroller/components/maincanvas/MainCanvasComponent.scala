@@ -55,17 +55,19 @@ object MainCanvasComponent extends Component {
 		event.eventType match {
 			case Down =>
 				maybeHoveredNode match {
+					case Some(node) if event.shiftKey =>
+						// Shift+click: toggle this node in/out of selection — do NOT start a drag
+						val newSelection =
+							if (state.selectedNodes.contains(node)) state.selectedNodes - node
+							else state.selectedNodes + node
+						state.copy(toolState = SelectTool(Idle), selectedNodes = newSelection)
 					case Some(node) =>
-						if (event.shiftKey) {
-							// Shift+click: toggle this node in/out of selection without clearing others
-							val newSelection =
-								if (state.selectedNodes.contains(node)) state.selectedNodes - node
-								else state.selectedNodes + node
-							state.copy(toolState = SelectTool(Idle), selectedNodes = newSelection)
-						} else {
-							// Normal click on a node: select just this one, clear others
-							state.copy(toolState = SelectTool(Idle), selectedNodes = Set(node))
-						}
+						// Normal click/drag on a node: if already selected keep selection, otherwise select just this node.
+						// Either way, enter DraggingNodes so the user can immediately start moving.
+						val newSelection =
+							if (state.selectedNodes.contains(node)) state.selectedNodes
+							else Set(node)
+						state.pushUndoState.copy(toolState = SelectTool(DraggingNodes(event.coords)), selectedNodes = newSelection)
 					case None =>
 						if (event.shiftKey) {
 							// Shift+drag on empty canvas: keep existing selection, new box will ADD to it
@@ -89,6 +91,17 @@ object MainCanvasComponent extends Component {
 						// Live preview: merge existing (pre-drag) selection with nodes currently inside the box
 						val potentialSelection = state.nodesInRect(startPoint, event.coords)
 						state.copy(selectedNodes = existingSelection ++ potentialSelection)
+					case DraggingNodes(lastPoint) =>
+						// Move all selected nodes by the delta since the last mouse position
+						val dx = event.coords.x - lastPoint.x
+						val dy = event.coords.y - lastPoint.y
+						val updatedKeyToData = state.selectedNodes.foldLeft(state.keyToData) { (ktd, nodeIdx) =>
+							ktd.get(nodeIdx) match {
+								case Some(data) => ktd.updated(nodeIdx, data.copy(x = (data.x + dx).toInt, y = (data.y + dy).toInt))
+								case None => ktd
+							}
+						}
+						state.copy(keyToData = updatedKeyToData, toolState = SelectTool(DraggingNodes(event.coords)))
 					case _ => state
 				}
 			case Leave => state.copy(toolState = SelectTool(Idle))

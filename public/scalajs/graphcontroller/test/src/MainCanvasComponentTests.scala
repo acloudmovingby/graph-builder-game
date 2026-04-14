@@ -148,7 +148,7 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(stateAfterUp.selectedNodes == Set(0))
 		}
 
-		test("SelectTool - clicking a node selects just that node") {
+		test("SelectTool - clicking a node selects it and enters DraggingNodes") {
 			val stateWithNodes = initState
 				.addNode(Vector2D(100, 100)) // 0
 				.addNode(Vector2D(200, 200)) // 1
@@ -157,7 +157,13 @@ object MainCanvasComponentTests extends TestSuite {
 			val downEvent = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(stateWithNodes, downEvent)
 			assert(stateAfterDown.selectedNodes == Set(0))
-			assert(stateAfterDown.toolState == SelectTool(SelectMode.Idle))
+			assert(stateAfterDown.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(100, 100))))
+
+			// On release without movement, returns to Idle
+			val upEvent = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Up)
+			val stateAfterUp = MainCanvasComponent.update(stateAfterDown, upEvent)
+			assert(stateAfterUp.toolState == SelectTool(SelectMode.Idle))
+			assert(stateAfterUp.selectedNodes == Set(0)) // selection preserved
 		}
 
 		test("SelectTool - clicking empty canvas clears selection") {
@@ -169,6 +175,75 @@ object MainCanvasComponentTests extends TestSuite {
 			val downEvent = MainCanvasMouseEvent(Vector2D(500, 500), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(stateWithSelection, downEvent)
 			assert(stateAfterDown.selectedNodes.isEmpty)
+		}
+
+		// Node dragging
+		test("SelectTool - click and drag a single node moves it") {
+			val stateWithNode = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.copy(toolState = SelectTool())
+
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(stateWithNode, down)
+			assert(s1.selectedNodes == Set(0))
+			assert(s1.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(100, 100))))
+
+			val move = MainCanvasMouseEvent(Vector2D(150, 120), MouseEvent.Move)
+			val s2 = MainCanvasComponent.update(s1, move)
+			assert(s2.keyToData(0).x == 150)
+			assert(s2.keyToData(0).y == 120)
+			assert(s2.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(150, 120))))
+
+			val up = MainCanvasMouseEvent(Vector2D(150, 120), MouseEvent.Up)
+			val s3 = MainCanvasComponent.update(s2, up)
+			assert(s3.toolState == SelectTool(SelectMode.Idle))
+			assert(s3.keyToData(0).x == 150) // position kept
+		}
+
+		test("SelectTool - dragging a selected node moves all selected nodes together") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(100, 100)) // 0 - selected
+				.addNode(Vector2D(200, 200)) // 1 - selected
+				.addNode(Vector2D(400, 400)) // 2 - NOT selected
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+
+			// Down on node 0 (already selected) — should keep both selected and start drag
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(stateWithNodes, down)
+			assert(s1.selectedNodes == Set(0, 1))
+			assert(s1.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(100, 100))))
+
+			// Move by +50, +30
+			val move = MainCanvasMouseEvent(Vector2D(150, 130), MouseEvent.Move)
+			val s2 = MainCanvasComponent.update(s1, move)
+			assert(s2.keyToData(0).x == 150)
+			assert(s2.keyToData(0).y == 130)
+			assert(s2.keyToData(1).x == 250)
+			assert(s2.keyToData(1).y == 230)
+			assert(s2.keyToData(2).x == 400) // unselected node unchanged
+			assert(s2.keyToData(2).y == 400)
+		}
+
+		test("SelectTool - clicking an unselected node while others are selected replaces selection and drags") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(100, 100)) // 0 - was selected
+				.addNode(Vector2D(300, 300)) // 1 - will be clicked
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+
+			val down = MainCanvasMouseEvent(Vector2D(300, 300), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(stateWithNodes, down)
+			// Should deselect node 0 and select/drag node 1
+			assert(s1.selectedNodes == Set(1))
+			assert(s1.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(300, 300))))
+		}
+
+		test("SelectTool - drag is undoable (pushes undo state on Down)") {
+			val stateWithNode = initState.addNode(Vector2D(100, 100)).copy(toolState = SelectTool())
+			val undoStackSizeBefore = stateWithNode.undoStack.size
+
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(stateWithNode, down)
+			assert(s1.undoStack.size == undoStackSizeBefore + 1)
 		}
 
 		// Step 5: live preview
