@@ -57,6 +57,7 @@ case class ToolBarMouseOver(tool: String) extends Event
 case object ToolBarMouseOut extends Event
 case object EscapePressed extends Event
 case object DeleteSelectedNodes extends Event
+case object CompleteSelectedEdges extends Event
 case class CanvasDoubleClick(coords: Vector2D) extends Event
 case object ToggleLabelsVisibility extends Event
 case object ToggleDirectedness extends Event

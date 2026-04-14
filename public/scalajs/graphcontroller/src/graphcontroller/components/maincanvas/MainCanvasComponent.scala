@@ -1,7 +1,7 @@
 package graphcontroller.components.maincanvas
 
 import graphcontroller.components.{Component, RenderOp}
-import graphcontroller.controller.{CanvasDoubleClick, DeleteSelectedNodes, Event, MainCanvasMouseEvent}
+import graphcontroller.controller.{CanvasDoubleClick, CompleteSelectedEdges, DeleteSelectedNodes, Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
@@ -64,10 +64,11 @@ object MainCanvasComponent extends Component {
 					case Some(node) =>
 						// Normal click/drag on a node: if already selected keep selection, otherwise select just this node.
 						// Either way, enter DraggingNodes so the user can immediately start moving.
+						// Undo state is pushed on the first Move (not here) so a bare click doesn't litter the undo stack.
 						val newSelection =
 							if (state.selectedNodes.contains(node)) state.selectedNodes
 							else Set(node)
-						state.pushUndoState.copy(toolState = SelectTool(DraggingNodes(event.coords)), selectedNodes = newSelection)
+						state.copy(toolState = SelectTool(DraggingNodes(event.coords)), selectedNodes = newSelection)
 					case None =>
 						if (event.shiftKey) {
 							// Shift+drag on empty canvas: keep existing selection, new box will ADD to it
@@ -82,6 +83,13 @@ object MainCanvasComponent extends Component {
 					case DraggingBox(startPoint, existingSelection) =>
 						val newlySelected = state.nodesInRect(startPoint, event.coords)
 						state.copy(toolState = SelectTool(Idle), selectedNodes = existingSelection ++ newlySelected)
+					case DraggingNodes(_, hasMoved) if !hasMoved =>
+						// Click without drag: narrow selection to just the clicked node
+						val clickedNode = hoveredNode(event.coords, state.keyToData)
+						clickedNode match {
+							case Some(node) => state.copy(toolState = SelectTool(Idle), selectedNodes = Set(node))
+							case None => state.copy(toolState = SelectTool(Idle))
+						}
 					case _ =>
 						state.copy(toolState = SelectTool(Idle))
 				}
@@ -91,8 +99,9 @@ object MainCanvasComponent extends Component {
 						// Live preview: merge existing (pre-drag) selection with nodes currently inside the box
 						val potentialSelection = state.nodesInRect(startPoint, event.coords)
 						state.copy(selectedNodes = existingSelection ++ potentialSelection)
-					case DraggingNodes(lastPoint) =>
-						// Move all selected nodes by the delta since the last mouse position
+					case DraggingNodes(lastPoint, hasMoved) =>
+						// Move all selected nodes by the delta since the last mouse position.
+						// Push undo state on the first Move so that bare clicks don't litter the undo stack.
 						val dx = event.coords.x - lastPoint.x
 						val dy = event.coords.y - lastPoint.y
 						val updatedKeyToData = state.selectedNodes.foldLeft(state.keyToData) { (ktd, nodeIdx) =>
@@ -101,7 +110,8 @@ object MainCanvasComponent extends Component {
 								case None => ktd
 							}
 						}
-						state.copy(keyToData = updatedKeyToData, toolState = SelectTool(DraggingNodes(event.coords)))
+						val stateBeforeMove = if (!hasMoved) state.pushUndoState else state
+						stateBeforeMove.copy(keyToData = updatedKeyToData, toolState = SelectTool(DraggingNodes(event.coords, hasMoved = true)))
 					case _ => state
 				}
 			case Leave => state.copy(toolState = SelectTool(Idle))
@@ -252,6 +262,14 @@ object MainCanvasComponent extends Component {
 				// TODO: Actually remove nodes from graph once graphi library supports node removal
 				println(s"Deleting nodes: ${state.selectedNodes.toSeq.sorted.mkString(", ")}")
 				state.copy(selectedNodes = Set.empty)
+			case CompleteSelectedEdges if state.selectedNodes.size >= 2 =>
+				val nodes = state.selectedNodes.toSeq
+				val edges = for {
+					a <- nodes
+					b <- nodes
+					if a != b
+				} yield (a, b)
+				state.pushUndoState.bulkUpdateEdges(edges, isAdd = true)
 			case CanvasDoubleClick(coords) =>
 				state.toolState match {
 					case _: SelectTool =>
