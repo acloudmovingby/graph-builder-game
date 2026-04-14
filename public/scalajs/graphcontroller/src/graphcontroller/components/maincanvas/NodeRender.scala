@@ -2,7 +2,7 @@ package graphcontroller.components.maincanvas
 
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.dataobject.Circle
-import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas, TextCanvas}
+import graphcontroller.dataobject.canvas.{Border, CanvasRenderOp, CircleCanvas, ShapeStyle, TextCanvas}
 
 enum NodeRenderStyle {
 	case Basic, // The default look of a node, like your cursor is off the canvas or using the basic edge adding tool
@@ -29,28 +29,20 @@ object NodeRender {
 			// creates a simple filled in circle of the specified color
 			CircleCanvas(
 				circ = Circle(center = center, radius = baseNodeRadius),
-				fillColor = Some(color),
-				borderColor = None, // Some(color1), // I don't know why but the vanilla JS code had stuff about borders but for some reason doesn't use them
-				borderWidth = None // Some(8.0)
+				style = ShapeStyle.filled(color)
 			)
 		}
 
 		def ringCircle(center: Vector2D) = CircleCanvas(
 			circ = Circle(center, baseNodeRadius - 2),
-			fillColor = Some("white"),
-			borderColor = Some(color2),
-			borderWidth = Some(4.0)
+			style = ShapeStyle.filledAndStroked("white", color2, 4.0)
 		)
 
 		def basicHover(center: Vector2D, color: String = color1) = {
-			val ringAroundNode = {
-				CircleCanvas(
-					circ = Circle(center = center, radius = baseNodeRadius + 6),
-					fillColor = None,
-					borderColor = Some(color),
-					borderWidth = Some(4.0) // Some(8.0)
-				)
-			}
+			val ringAroundNode = CircleCanvas(
+				circ = Circle(center = center, radius = baseNodeRadius + 6),
+				style = ShapeStyle.stroked(color, 4.0)
+			)
 			Seq(basicNodeCircle(center, color), ringAroundNode)
 		}
 
@@ -67,7 +59,7 @@ object NodeRender {
 			case Basic => Seq(basicNodeCircle(center)) ++ basicText
 			case BasicHover => basicHover(center) ++ basicText
 			case AddEdgeStart =>
-				val node = basicNodeCircle(center).copy(fillColor = Some(color2))
+				val node = basicNodeCircle(center).copy(style = ShapeStyle.filled(color2))
 				Seq(node) ++ basicText
 			case AddEdgeNotStart =>
 				val node = ringCircle(center)
@@ -77,9 +69,7 @@ object NodeRender {
 				val node = ringCircle(center)
 				val innerCircle = CircleCanvas(
 					circ = Circle(center, radius = addEdgeInnerCircleRadius),
-					fillColor = Some(color2),
-					borderColor = None,
-					borderWidth = None
+					style = ShapeStyle.filled(color2)
 				)
 				Seq(node, innerCircle) ++ basicText
 			case AddEdgeHoverStart =>
@@ -87,10 +77,7 @@ object NodeRender {
 			case Selected =>
 				val selectionRing = CircleCanvas(
 					circ = Circle(center = center, radius = baseNodeRadius + 6),
-					fillColor = None,
-					borderColor = Some(color1),
-					borderWidth = Some(2.5),
-					lineDashSegments = Seq(4, 4)
+					style = ShapeStyle(border = Some(Border(color1, 2.5, Seq(4, 4))))
 				)
 				Seq(basicNodeCircle(center), selectionRing) ++ basicText
 		}
