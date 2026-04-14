@@ -1,6 +1,6 @@
 package graphcontroller.components.toolbar.eventlisteners
 
-import graphcontroller.controller.{EscapePressed, Event, ToolSelected}
+import graphcontroller.controller.{DeleteSelectedNodes, EscapePressed, Event, ToolSelected}
 import graphcontroller.shared.EventListener
 import org.scalajs.dom
 
@@ -18,8 +18,9 @@ object KeyboardShortcutListeners extends EventListener {
             e.key match {
               case "v" | "V" => dispatch(ToolSelected("select"))
               case "b" | "B" => dispatch(ToolSelected("basic"))
-              case "Escape"  => dispatch(EscapePressed)
-              case _         => ()
+              case "Escape"            => dispatch(EscapePressed)
+              case "Delete" | "Backspace" => dispatch(DeleteSelectedNodes)
+              case _                   => ()
             }
           }
       }

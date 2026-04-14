@@ -4,7 +4,9 @@ import graphcontroller.dataobject.Vector2D
 
 enum SelectMode {
 	case Idle
-	case DraggingBox(startPoint: Vector2D)
+	// existingSelection holds the nodes that were already selected before this drag started,
+	// so shift+drag can merge with them rather than replacing the whole selection.
+	case DraggingBox(startPoint: Vector2D, existingSelection: Set[Int] = Set.empty)
 }
 
 /** This is all the information each Tool needs to appear in the top nav bar (including the animation, description, etc.)

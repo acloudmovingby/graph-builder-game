@@ -7,7 +7,7 @@ import org.scalajs.dom
 
 /** Represents data necessary to draw a Circle with the HTML Canvas API */
 case class CircleCanvas(
-	 circ: Circle,
+	circ: Circle,
 	fillColor: Option[String], // Hex string, e.g. "#FF0000"
 	borderColor: Option[String], // Hex string, e.g. "#FF0000"
 	borderWidth: Option[Double],

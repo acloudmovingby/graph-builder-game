@@ -1,7 +1,7 @@
 package graphcontroller.components.maincanvas
 
 import graphcontroller.components.{Component, RenderOp}
-import graphcontroller.controller.{Event, MainCanvasMouseEvent}
+import graphcontroller.controller.{CanvasDoubleClick, DeleteSelectedNodes, Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
@@ -56,21 +56,41 @@ object MainCanvasComponent extends Component {
 			case Down =>
 				maybeHoveredNode match {
 					case Some(node) =>
-						// Clicking directly on a node: select just that node, stay Idle (no box drag)
-						state.copy(toolState = SelectTool(Idle), selectedNodes = Set(node))
+						if (event.shiftKey) {
+							// Shift+click: toggle this node in/out of selection without clearing others
+							val newSelection =
+								if (state.selectedNodes.contains(node)) state.selectedNodes - node
+								else state.selectedNodes + node
+							state.copy(toolState = SelectTool(Idle), selectedNodes = newSelection)
+						} else {
+							// Normal click on a node: select just this one, clear others
+							state.copy(toolState = SelectTool(Idle), selectedNodes = Set(node))
+						}
 					case None =>
-						// Clicking empty canvas: clear selection and start drawing a selection box
-						state.copy(toolState = SelectTool(DraggingBox(event.coords)), selectedNodes = Set.empty)
+						if (event.shiftKey) {
+							// Shift+drag on empty canvas: keep existing selection, new box will ADD to it
+							state.copy(toolState = SelectTool(DraggingBox(event.coords, state.selectedNodes)))
+						} else {
+							// Normal drag on empty canvas: clear selection and start a fresh box
+							state.copy(toolState = SelectTool(DraggingBox(event.coords, Set.empty)), selectedNodes = Set.empty)
+						}
 				}
 			case Up =>
 				tool.mode match {
-					case DraggingBox(startPoint) =>
-						val selected = state.nodesInRect(startPoint, event.coords)
-						state.copy(toolState = SelectTool(Idle), selectedNodes = selected)
+					case DraggingBox(startPoint, existingSelection) =>
+						val newlySelected = state.nodesInRect(startPoint, event.coords)
+						state.copy(toolState = SelectTool(Idle), selectedNodes = existingSelection ++ newlySelected)
 					case _ =>
 						state.copy(toolState = SelectTool(Idle))
 				}
-			case Move => state // view reads lastMousePosition for the live box corner
+			case Move =>
+				tool.mode match {
+					case DraggingBox(startPoint, existingSelection) =>
+						// Live preview: merge existing (pre-drag) selection with nodes currently inside the box
+						val potentialSelection = state.nodesInRect(startPoint, event.coords)
+						state.copy(selectedNodes = existingSelection ++ potentialSelection)
+					case _ => state
+				}
 			case Leave => state.copy(toolState = SelectTool(Idle))
 		}
 	}
@@ -215,6 +235,25 @@ object MainCanvasComponent extends Component {
 	override def update(state: State, event: Event): State = {
 		event match {
 			case m: MainCanvasMouseEvent => mouseMoveHandling(state, m)
+			case DeleteSelectedNodes if state.selectedNodes.nonEmpty =>
+				// TODO: Actually remove nodes from graph once graphi library supports node removal
+				println(s"Deleting nodes: ${state.selectedNodes.toSeq.sorted.mkString(", ")}")
+				state.copy(selectedNodes = Set.empty)
+			case CanvasDoubleClick(coords) =>
+				state.toolState match {
+					case _: SelectTool =>
+						val maybeNode = hoveredNode(coords, state.keyToData)
+						maybeNode match {
+							case None =>
+								// Double-click on empty space: add a node, stay in SelectTool
+								state.addNode(coords)
+							case Some(_) =>
+								// Double-click on existing node: no-op for now
+								// TODO: future — could open label editing
+								state
+						}
+					case _ => state // double-click does nothing in other tools
+				}
 			case _ => state
 		}
 	}
