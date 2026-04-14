@@ -1,9 +1,9 @@
 import graphcontroller.dataobject.*
 import graphcontroller.model.HoveredNode
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, SelectTool}
 import utest.*
 import graphcontroller.components.maincanvas.MainCanvasView
-import graphcontroller.components.maincanvas.NodeRenderStyle.{Basic, BasicHover}
+import graphcontroller.components.maincanvas.NodeRenderStyle.{Basic, BasicHover, Selected}
 
 class NodeRenderTests extends TestSuite {
 	override def tests = Tests {
@@ -46,6 +46,30 @@ class NodeRenderTests extends TestSuite {
 		test("Basic tool: multiple nodes but no hover") {
 			val nodes = Seq(0, 1, 2, 3)
 			val result = MainCanvasView.nodesWithStyles(nodes, None, BasicTool(None))
+		}
+
+		test("Selected nodes get Selected style regardless of tool state") {
+			val nodes = Seq(0, 1, 2)
+			val result = MainCanvasView.nodesWithStyles(nodes, None, BasicTool(None), selectedNodes = Set(0, 1)).toMap
+			assert(result(0) == Selected)
+			assert(result(1) == Selected)
+			assert(result(2) == Basic)
+		}
+
+		test("Selected style overrides hover") {
+			val nodes = Seq(0, 1)
+			val hoveredNode = HoveredNode(0, false) // node 0 is hovered...
+			val result = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), BasicTool(None), selectedNodes = Set(0)).toMap // ...and also selected
+			assert(result(0) == Selected) // Selected wins
+			assert(result(1) == Basic)
+		}
+
+		test("Empty selectedNodes leaves styles unchanged") {
+			val nodes = Seq(0, 1)
+			val hoveredNode = HoveredNode(0, false)
+			val withSel = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), BasicTool(None), selectedNodes = Set.empty)
+			val withoutSel = MainCanvasView.nodesWithStyles(nodes, Some(hoveredNode), BasicTool(None))
+			assert(withSel == withoutSel)
 		}
 
 		// TODO: basic tool but in edge adding mode

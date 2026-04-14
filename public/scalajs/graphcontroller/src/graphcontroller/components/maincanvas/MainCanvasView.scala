@@ -4,11 +4,11 @@ import graphi.{DirectedMapGraph, SimpleMapGraph}
 import graphcontroller.components.RenderOp
 import graphcontroller.components.adjacencymatrix.{CellClicked, Hover}
 import graphcontroller.components.maincanvas.EdgeRender.{simpleEdgeStrokeColor, simpleEdgeStrokeWidth}
-import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover}
+import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddEdgeHoverStart, AddEdgeNotStart, AddEdgeStart, Basic, BasicHover, Selected}
 import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, TriangleCanvas}
 import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Rectangle, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool, Tool}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -86,7 +86,7 @@ object MainCanvasView {
 	 * than writing unit tests for the final thing that produces the CanvasRenderOp because maybe we will change how each
 	 * style is rendered and the NodeRenderStyle is a simple enum)
 	 */
-	def nodesWithStyles(nodes: Seq[Int], hoveringOnNode: Option[HoveredNode], toolState: Tool): Seq[(Int, NodeRenderStyle)] = {
+	def nodesWithStyles(nodes: Seq[Int], hoveringOnNode: Option[HoveredNode], toolState: Tool, selectedNodes: Set[Int] = Set.empty): Seq[(Int, NodeRenderStyle)] = {
 		val (nonHoveredNodes, hoveredNode, justAdded) = hoveringOnNode match {
 			case None => (nodes, None, false)
 			case Some(HoveredNode(nodeIndex, justAdded)) =>
@@ -99,7 +99,7 @@ object MainCanvasView {
 			nonHoveredStyles ++ hoveredStyle
 		}
 
-		toolState match {
+		val baseStyles = toolState match {
 			case BasicTool(None) => default
 			case BasicTool(Some(edgeStart)) => // in edge adding mode
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
@@ -123,10 +123,16 @@ object MainCanvasView {
 				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
 			case _ => default
 		}
+
+		if (selectedNodes.isEmpty) baseStyles
+		else baseStyles.map {
+			case (node, _) if selectedNodes.contains(node) => (node, Selected)
+			case other => other
+		}
 	}
 
 	def nodes(state: State): Seq[CanvasRenderOp] = {
-		nodesWithStyles(state.graph.nodes, state.canvasInteraction.hoveredNode, state.toolState)
+		nodesWithStyles(state.graph.nodes, state.canvasInteraction.hoveredNode, state.toolState, state.selectedNodes)
 			.flatMap { case (node, style) =>
 				state.keyToData.get(node) match {
 					case None =>
@@ -229,7 +235,7 @@ object MainCanvasView {
 	
 	def selectionBox(toolState: Tool, lastMousePosition: Vector2D): Seq[CanvasRenderOp] = {
 		toolState match {
-			case SelectTool(Some(start)) =>
+			case SelectTool(SelectMode.DraggingBox(start)) =>
 				val width = lastMousePosition.x - start.x
 				val height = lastMousePosition.y - start.y
 				val rect = Rectangle(start, width, height)

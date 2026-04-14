@@ -1,5 +1,5 @@
 import utest.*
-import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, RedoRequested, ToggleLabelsVisibility, ToolSelected, UndoRequested}
+import graphcontroller.controller.{AdjMatrixMouseMove, ClearButtonClicked, Controller, EscapePressed, ExportAdjacencyTypeChanged, ExportFormatChanged, Initialization, NoOp, RedoRequested, ToggleLabelsVisibility, ToolSelected, UndoRequested}
 import graphcontroller.components.adjacencymatrix.{Hover, NoSelection}
 import graphcontroller.components.buildpane.BuildPaneRenderOp
 import graphcontroller.components.RenderOp
@@ -9,7 +9,7 @@ import graphcontroller.components.ops.{RemoveAttribute, SetAttribute}
 import graphcontroller.components.undobutton.UndoRedoViewData
 import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
-import graphcontroller.shared.{BasicTool, GraphRepresentation, SelectTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, GraphRepresentation, MagicPathTool, SelectTool}
 
 object ControllerTests extends TestSuite {
 	def tests = Tests {
@@ -198,6 +198,44 @@ object ControllerTests extends TestSuite {
 
 			val (stateAfterUndo, _) = Controller.handleEventWithState(UndoRequested, stateAfterClear)
 			assert(stateAfterUndo.graph.nodeCount == 2)
+		}
+
+		test("EscapePressed from non-SelectTool switches to BasicTool") {
+			for {
+				initialTool <- Seq(
+					MagicPathTool(Some(0)),
+					AreaCompleteTool(true, List(Vector2D(0,0))),
+					MagicPathTool(None)
+				)
+			} yield {
+				val state = State.init.copy(toolState = initialTool)
+				val (newState, _) = Controller.handleEventWithState(EscapePressed, state)
+				assert(newState.toolState == BasicTool(None))
+			}
+		}
+
+		test("EscapePressed with selection clears selection, stays in SelectTool") {
+			val stateWithSelection = State.init
+				.addNode(Vector2D(10, 10))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+			val (newState, _) = Controller.handleEventWithState(EscapePressed, stateWithSelection)
+			assert(newState.toolState.isInstanceOf[SelectTool])
+			assert(newState.selectedNodes.isEmpty)
+		}
+
+		test("EscapePressed with empty selection exits SelectTool to BasicTool") {
+			val stateInSelect = State.init.copy(toolState = SelectTool(), selectedNodes = Set.empty)
+			val (newState, _) = Controller.handleEventWithState(EscapePressed, stateInSelect)
+			assert(newState.toolState == BasicTool(None))
+		}
+
+		test("Switching from SelectTool to BasicTool clears selectedNodes") {
+			val stateWithSelection = State.init
+				.addNode(Vector2D(10, 10))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+			val (newState, _) = Controller.handleEventWithState(ToolSelected("basic"), stateWithSelection)
+			assert(newState.toolState == BasicTool(None))
+			assert(newState.selectedNodes.isEmpty)
 		}
 
 		test("bulkUpdateEdges pushes single undo state only if changed") {

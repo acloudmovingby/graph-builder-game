@@ -2,6 +2,11 @@ package graphcontroller.shared
 
 import graphcontroller.dataobject.Vector2D
 
+enum SelectMode {
+	case Idle
+	case DraggingBox(startPoint: Vector2D)
+}
+
 /** This is all the information each Tool needs to appear in the top nav bar (including the animation, description, etc.)
  * Each individual tool case that inherits from this contains the state information that it uses for its own purposes (e.g.
  * the starting node when in the middle of adding an edge) */
@@ -54,7 +59,7 @@ case class MoveTool(
 	override val description: String = "Click and drag it around."
 }
 
-case class SelectTool(mousePressedStartPoint: Option[Vector2D]) extends Tool {
+case class SelectTool(mode: SelectMode = SelectMode.Idle) extends Tool {
 	override val htmlId: String = "select"
 	override val header: String = "Select Tool"
 	override val cursorIconPath: String = "url('images/apple_pointer_cursor_white_outline.svg'), pointer"

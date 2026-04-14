@@ -5,13 +5,14 @@ import graphcontroller.dataobject.Circle
 import graphcontroller.dataobject.canvas.{CanvasRenderOp, CircleCanvas, TextCanvas}
 
 enum NodeRenderStyle {
-	case Basic, // The default look of a node, like your cursor is off the canvsa or using the basic edge adding tool
+	case Basic, // The default look of a node, like your cursor is off the canvas or using the basic edge adding tool
 	BasicHover, // If you hover over a node when using the basic edge adding tool
 	AddEdgeStart, // When you clicked on a node and enter basic edge adding mode
 	AddEdgeNotStart, // All the other nodes that are waiting to be connected to
 	AddEdgeHover, // When you are in edge adding mode and hovering over another target node
-	AddEdgeHoverStart // For some reason in the initial implementation, we show hover effect on start node when using magic path tool
-	                  // I'm not sure if it's necessary, but it does look okay so keeping it.
+	AddEdgeHoverStart, // For some reason in the initial implementation, we show hover effect on start node when using magic path tool
+	                   // I'm not sure if it's necessary, but it does look okay so keeping it.
+	Selected // Node is part of the current selection in SelectTool; shown with a dashed ring
 }
 
 object NodeRender {
@@ -83,6 +84,15 @@ object NodeRender {
 				Seq(node, innerCircle) ++ basicText
 			case AddEdgeHoverStart =>
 					basicHover(center, color2) ++ basicText.map(_.copy(color = "white"))
+			case Selected =>
+				val selectionRing = CircleCanvas(
+					circ = Circle(center = center, radius = baseNodeRadius + 6),
+					fillColor = None,
+					borderColor = Some(color1),
+					borderWidth = Some(2.5),
+					lineDashSegments = Seq(4, 4)
+				)
+				Seq(basicNodeCircle(center), selectionRing) ++ basicText
 		}
 		circles
 	}

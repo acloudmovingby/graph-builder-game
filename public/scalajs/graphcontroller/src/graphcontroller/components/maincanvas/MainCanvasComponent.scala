@@ -5,7 +5,7 @@ import graphcontroller.controller.{Event, MainCanvasMouseEvent}
 import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool}
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
 
 object MainCanvasComponent extends Component {
 
@@ -51,26 +51,27 @@ object MainCanvasComponent extends Component {
 	}
 
 	private def handleSelectTool(state: State, event: MainCanvasMouseEvent, tool: SelectTool, maybeHoveredNode: Option[Int]): State = {
-
-		// dragging node(s) around
-		// 		- data: node(s) you're dragging?
-		//		- event:
-		// dragging a select box - data: start point, current location
-		// mouse not pressed
-
-		// modes:
-		// 		1. not pressed down
-		// 		2. pressed down
-		//
-
-		(event, state.toolState) match {
-			case (MainCanvasMouseEvent(coords, Up), _) =>
-				state.copy(toolState = SelectTool(mousePressedStartPoint = None))
-			case (MainCanvasMouseEvent(coords, Down), _) =>
-				state.copy(toolState = SelectTool(mousePressedStartPoint = Some(coords)))
-			case (MainCanvasMouseEvent(coords, Move), SelectTool(Some(_))) =>
-				state
-			case _ => state
+		import SelectMode.*
+		event.eventType match {
+			case Down =>
+				maybeHoveredNode match {
+					case Some(node) =>
+						// Clicking directly on a node: select just that node, stay Idle (no box drag)
+						state.copy(toolState = SelectTool(Idle), selectedNodes = Set(node))
+					case None =>
+						// Clicking empty canvas: clear selection and start drawing a selection box
+						state.copy(toolState = SelectTool(DraggingBox(event.coords)), selectedNodes = Set.empty)
+				}
+			case Up =>
+				tool.mode match {
+					case DraggingBox(startPoint) =>
+						val selected = state.nodesInRect(startPoint, event.coords)
+						state.copy(toolState = SelectTool(Idle), selectedNodes = selected)
+					case _ =>
+						state.copy(toolState = SelectTool(Idle))
+				}
+			case Move => state // view reads lastMousePosition for the live box corner
+			case Leave => state.copy(toolState = SelectTool(Idle))
 		}
 	}
 

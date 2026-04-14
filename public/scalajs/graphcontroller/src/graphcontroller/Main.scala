@@ -7,7 +7,7 @@ import graphcontroller.components.cleargraphbutton.eventlisteners.ClearGraphButt
 import graphcontroller.components.exportpane.eventlisteners.ExportPaneEventListeners
 import graphcontroller.components.maincanvas.MainCanvas
 import graphcontroller.components.maincanvas.eventlisteners.MainCanvasEventListeners
-import graphcontroller.components.toolbar.eventlisteners.ToolBarEventListeners
+import graphcontroller.components.toolbar.eventlisteners.{KeyboardShortcutListeners, ToolBarEventListeners}
 import graphcontroller.components.undobutton.eventlisteners.UndoEventListeners
 
 import scala.scalajs.js.annotation.*
@@ -26,7 +26,8 @@ object Main {
 		AdjMatrixEventListeners,
 		ToolBarEventListeners,
 		BuildPaneEventListeners,
-		UndoEventListeners
+		UndoEventListeners,
+		KeyboardShortcutListeners
 	)
 
 	/** Pass in parameters that are available at web page load (so we can program our code in a functional way,
