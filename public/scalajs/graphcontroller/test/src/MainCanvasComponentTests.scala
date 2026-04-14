@@ -4,7 +4,8 @@ import utest.*
 import graphcontroller.model.State
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
-import graphcontroller.controller.{CanvasDoubleClick, DeleteSelectedNodes}
+import graphcontroller.controller.{CanvasDoubleClick, CompleteSelectedEdges, DeleteSelectedNodes}
+import graphcontroller.controller.{UndoRequested}
 import graphcontroller.shared.{BasicTool, MagicPathTool, MoveTool, AreaCompleteTool, SelectTool, SelectMode}
 import graphcontroller.model.HoveredNode
 
@@ -192,7 +193,7 @@ object MainCanvasComponentTests extends TestSuite {
 			val s2 = MainCanvasComponent.update(s1, move)
 			assert(s2.keyToData(0).x == 150)
 			assert(s2.keyToData(0).y == 120)
-			assert(s2.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(150, 120))))
+			assert(s2.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(150, 120), hasMoved = true)))
 
 			val up = MainCanvasMouseEvent(Vector2D(150, 120), MouseEvent.Up)
 			val s3 = MainCanvasComponent.update(s2, up)
@@ -237,13 +238,24 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(s1.toolState == SelectTool(SelectMode.DraggingNodes(Vector2D(300, 300))))
 		}
 
-		test("SelectTool - drag is undoable (pushes undo state on Down)") {
+		test("SelectTool - drag is undoable (pushes undo state on first Move)") {
 			val stateWithNode = initState.addNode(Vector2D(100, 100)).copy(toolState = SelectTool())
 			val undoStackSizeBefore = stateWithNode.undoStack.size
 
+			// Down alone should NOT push undo
 			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
 			val s1 = MainCanvasComponent.update(stateWithNode, down)
-			assert(s1.undoStack.size == undoStackSizeBefore + 1)
+			assert(s1.undoStack.size == undoStackSizeBefore)
+
+			// First Move pushes undo
+			val move = MainCanvasMouseEvent(Vector2D(110, 110), MouseEvent.Move)
+			val s2 = MainCanvasComponent.update(s1, move)
+			assert(s2.undoStack.size == undoStackSizeBefore + 1)
+
+			// Second Move does NOT push undo again
+			val move2 = MainCanvasMouseEvent(Vector2D(120, 120), MouseEvent.Move)
+			val s3 = MainCanvasComponent.update(s2, move2)
+			assert(s3.undoStack.size == undoStackSizeBefore + 1)
 		}
 
 		// Step 5: live preview
@@ -379,6 +391,112 @@ object MainCanvasComponentTests extends TestSuite {
 			val stateAfterLeave = MainCanvasComponent.update(stateStartEdge, leaveEvent)
 
 			assert(stateAfterLeave.toolState == BasicTool(None))
+		}
+
+		// Feature 1: CompleteSelectedEdges
+		test("CompleteSelectedEdges with 3 selected nodes adds all edges between them") {
+			val state = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.addNode(Vector2D(300, 300)) // 2
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1, 2))
+			val newState = MainCanvasComponent.update(state, CompleteSelectedEdges)
+			assert(newState.graph.getEdges.contains((0, 1)))
+			assert(newState.graph.getEdges.contains((1, 0)))
+			assert(newState.graph.getEdges.contains((0, 2)))
+			assert(newState.graph.getEdges.contains((2, 0)))
+			assert(newState.graph.getEdges.contains((1, 2)))
+			assert(newState.graph.getEdges.contains((2, 1)))
+		}
+
+		test("CompleteSelectedEdges with 1 selected node is a no-op") {
+			val state = initState
+				.addNode(Vector2D(100, 100))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+			val newState = MainCanvasComponent.update(state, CompleteSelectedEdges)
+			assert(newState.graph.edgeCount == 0)
+			assert(newState.undoStack == state.undoStack)
+		}
+
+		test("CompleteSelectedEdges with 0 selected nodes is a no-op") {
+			val state = initState
+				.addNode(Vector2D(100, 100))
+				.copy(toolState = SelectTool(), selectedNodes = Set.empty)
+			val newState = MainCanvasComponent.update(state, CompleteSelectedEdges)
+			assert(newState.graph.edgeCount == 0)
+			assert(newState.undoStack == state.undoStack)
+		}
+
+		test("CompleteSelectedEdges is undoable") {
+			import graphcontroller.controller.{Controller, UndoRequested}
+			val state = initState
+				.addNode(Vector2D(100, 100))
+				.addNode(Vector2D(200, 200))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+			val stateAfterComplete = MainCanvasComponent.update(state, CompleteSelectedEdges)
+			assert(stateAfterComplete.graph.edgeCount > 0)
+			val (stateAfterUndo, _) = Controller.handleEventWithState(UndoRequested, stateAfterComplete)
+			assert(stateAfterUndo.graph.edgeCount == 0)
+		}
+
+		test("CompleteSelectedEdges is idempotent") {
+			val state = initState
+				.addNode(Vector2D(100, 100))
+				.addNode(Vector2D(200, 200))
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+			val s1 = MainCanvasComponent.update(state, CompleteSelectedEdges)
+			val s2 = MainCanvasComponent.update(s1, CompleteSelectedEdges)
+			assert(s1.graph.edgeCount == s2.graph.edgeCount)
+		}
+
+		// Feature 2: Click-to-narrow selection
+		test("SelectTool - click (no move) on node in multi-selection narrows to that node") {
+			val state = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.addNode(Vector2D(300, 300)) // 2
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1, 2))
+
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(state, down)
+			assert(s1.selectedNodes == Set(0, 1, 2)) // selection unchanged during Down
+
+			val up = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Up)
+			val s2 = MainCanvasComponent.update(s1, up)
+			assert(s2.selectedNodes == Set(0)) // narrowed to clicked node
+			assert(s2.toolState == SelectTool(SelectMode.Idle))
+		}
+
+		test("SelectTool - drag (Down+Move+Up) on node in multi-selection preserves full selection") {
+			val state = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.addNode(Vector2D(300, 300)) // 2
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1, 2))
+
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val s1 = MainCanvasComponent.update(state, down)
+
+			val move = MainCanvasMouseEvent(Vector2D(110, 110), MouseEvent.Move)
+			val s2 = MainCanvasComponent.update(s1, move)
+
+			val up = MainCanvasMouseEvent(Vector2D(110, 110), MouseEvent.Up)
+			val s3 = MainCanvasComponent.update(s2, up)
+			assert(s3.selectedNodes == Set(0, 1, 2)) // all three still selected
+		}
+
+		test("SelectTool - click-to-narrow does NOT push undo state") {
+			val state = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+			val undoStackSizeBefore = state.undoStack.size
+
+			val down = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val up = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Up)
+			val s1 = MainCanvasComponent.update(state, down)
+			val s2 = MainCanvasComponent.update(s1, up)
+			assert(s2.undoStack.size == undoStackSizeBefore)
 		}
 	}
 }
