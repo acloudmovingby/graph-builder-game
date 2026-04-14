@@ -4,7 +4,7 @@ import utest.*
 import graphcontroller.model.State
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
-import graphcontroller.shared.{BasicTool, MagicPathTool, MoveTool, AreaCompleteTool}
+import graphcontroller.shared.{BasicTool, MagicPathTool, MoveTool, AreaCompleteTool, SelectTool, SelectMode}
 import graphcontroller.model.HoveredNode
 
 object MainCanvasComponentTests extends TestSuite {
@@ -106,6 +106,68 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(stateAfterUp.graph.getEdges.contains((0, 1)))
 			assert(stateAfterUp.graph.getEdges.contains((1, 0)))
 			assert(!stateAfterUp.graph.getEdges.contains((0, 2)))
+		}
+
+		test("SelectTool - drag box lifecycle") {
+			val state = initState.copy(toolState = SelectTool())
+
+			// Down on empty canvas starts dragging a box
+			val downEvent = MainCanvasMouseEvent(Vector2D(10, 10), MouseEvent.Down)
+			val stateAfterDown = MainCanvasComponent.update(state, downEvent)
+			assert(stateAfterDown.toolState == SelectTool(SelectMode.DraggingBox(Vector2D(10, 10))))
+			assert(stateAfterDown.selectedNodes.isEmpty)
+
+			// Up finalises the selection (no nodes, so empty set)
+			val upEvent = MainCanvasMouseEvent(Vector2D(50, 50), MouseEvent.Up)
+			val stateAfterUp = MainCanvasComponent.update(stateAfterDown, upEvent)
+			assert(stateAfterUp.toolState == SelectTool(SelectMode.Idle))
+			assert(stateAfterUp.selectedNodes.isEmpty)
+		}
+
+		test("SelectTool - rectangle selects nodes inside") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(20, 20)) // 0 - inside rect
+				.addNode(Vector2D(40, 40)) // 1 - inside rect
+				.addNode(Vector2D(200, 200)) // 2 - outside rect
+				.copy(toolState = SelectTool(SelectMode.DraggingBox(Vector2D(0, 0))))
+
+			val upEvent = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Up)
+			val stateAfterUp = MainCanvasComponent.update(stateWithNodes, upEvent)
+			assert(stateAfterUp.selectedNodes == Set(0, 1))
+			assert(!stateAfterUp.selectedNodes.contains(2))
+		}
+
+		test("SelectTool - rectangle works when dragged in reverse direction") {
+			val stateWithNode = initState
+				.addNode(Vector2D(50, 50)) // 0 - inside rect
+				.copy(toolState = SelectTool(SelectMode.DraggingBox(Vector2D(100, 100)))) // drag started bottom-right
+
+			val upEvent = MainCanvasMouseEvent(Vector2D(0, 0), MouseEvent.Up) // released top-left
+			val stateAfterUp = MainCanvasComponent.update(stateWithNode, upEvent)
+			assert(stateAfterUp.selectedNodes == Set(0))
+		}
+
+		test("SelectTool - clicking a node selects just that node") {
+			val stateWithNodes = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.addNode(Vector2D(200, 200)) // 1
+				.copy(toolState = SelectTool())
+
+			val downEvent = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
+			val stateAfterDown = MainCanvasComponent.update(stateWithNodes, downEvent)
+			assert(stateAfterDown.selectedNodes == Set(0))
+			assert(stateAfterDown.toolState == SelectTool(SelectMode.Idle))
+		}
+
+		test("SelectTool - clicking empty canvas clears selection") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100)) // 0
+				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+
+			// Click far away from any node
+			val downEvent = MainCanvasMouseEvent(Vector2D(500, 500), MouseEvent.Down)
+			val stateAfterDown = MainCanvasComponent.update(stateWithSelection, downEvent)
+			assert(stateAfterDown.selectedNodes.isEmpty)
 		}
 
 		test("Leave event resets tool state") {

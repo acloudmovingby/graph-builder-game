@@ -22,7 +22,8 @@ case class State(
 	labelsVisible: Boolean = true,
 	hoverDirectedIcon: Boolean = false,
 	canvasInteraction: MainCanvasInteractionState,
-	featureFlags: FeatureFlags
+	featureFlags: FeatureFlags,
+	selectedNodes: Set[Int] = Set.empty // not part of HistoricalState; selection is not undoable
 ) {
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
@@ -120,6 +121,17 @@ case class State(
 	def setHoveredNode(h: Option[HoveredNode]): State = this.copy(
 		canvasInteraction = this.canvasInteraction.copy(hoveredNode = h)
 	)
+
+	/** Find all nodes whose centres fall within the rectangle defined by two corners (order-independent). */
+	def nodesInRect(corner1: Vector2D, corner2: Vector2D): Set[Int] = {
+		val minX = math.min(corner1.x, corner2.x)
+		val maxX = math.max(corner1.x, corner2.x)
+		val minY = math.min(corner1.y, corner2.y)
+		val maxY = math.max(corner1.y, corner2.y)
+		keyToData.collect {
+			case (key, data) if data.x >= minX && data.x <= maxX && data.y >= minY && data.y <= maxY => key
+		}.toSet
+	}
 }
 
 object State {
