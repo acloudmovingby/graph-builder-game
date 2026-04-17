@@ -41,7 +41,7 @@ object AdjacencyMatrixComponent extends Component {
 		newAdjMatrixState match {
 			// if the state changed to a ReleaseSelection, the selection was released and therefore we need to update the graph accordingly
 			case ReleaseSelection(cells, isAdd) =>
-				state.bulkUpdateEdges(cells.toSeq.map(_.toEdgeTuple), isAdd).copy(
+				state.bulkUpdateEdges(cells.toSeq.map(c => state.cellToNodeTuple(c)), isAdd).copy(
 					adjMatrixState = newAdjMatrixState
 				)
 			case _ => state.copy(adjMatrixState = newAdjMatrixState)

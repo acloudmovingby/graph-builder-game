@@ -108,15 +108,18 @@ object AdjMatrixViewTests extends TestSuite {
 		}
 
 		test("row/column numbers") {
-			val nodeCount = 4 // choose number divisible into matrix width/height for easier calculation
-			val grid = GridUtils(matrixWidth, matrixHeight, nodeCount)
-			val rowNumbers = AdjacencyMatrixView.rowColNumbers(nodeCount, dimensions, Hover(Cell(0, 0)), grid)
-			assert(rowNumbers.length == nodeCount * 2)
+			// Two choices here: 
+			// (1) making number of nodes divisible into matrix width/height for easier calculation
+			// (2) not making nodes 0, 1, 2, etc. because I want to simulate labels as they'd appear after nodes are deleted
+			val nodes = Seq(0, 2, 5, 7)
+			val grid = GridUtils(matrixWidth, matrixHeight, nodes.length)
+			val rowColTextLabels = AdjacencyMatrixView.rowColLabels(nodes, dimensions, Hover(Cell(0, 0)), grid)
+			assert(rowColTextLabels.length == nodes.length * 2)
 
 			// assert that there are nodeCOunt number of row numbers where the x position is padding-numberPadding
 			// and y position is padding + row * cellHeight + cellHeight/2
-			for (i <- 0 until nodeCount) {
-				val rowNumber = rowNumbers.find(rn => rn.text == i.toString && rn.coords.x == padding - dimensions.numberPadding).get
+			for (i <- nodes.indices) {
+				val rowNumber = rowColTextLabels.find(rn => rn.text == nodes(i).toString && rn.coords.x == padding - dimensions.numberPadding).get
 				val expectedY = grid.getY(i) + grid.getHeight(i) / 2 + padding
 				assert(rowNumber.coords.y == expectedY)
 			}

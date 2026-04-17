@@ -24,8 +24,8 @@ object AdjacencyMatrixView {
     val highlightNumberColor = "orange" // to highlight the specific number of the row/column being hovered over
     val numberFontSize = 13
 
-    def rowColNumbers(
-        nodeCount: Int,
+    def rowColLabels(
+        nodes: Seq[Int],
         dimensions: AdjMatrixDimensions,
         adjMatrixState: AdjMatrixInteractionState,
         grid: GridUtils
@@ -52,25 +52,25 @@ object AdjacencyMatrixView {
                 }
 
                 // row numbers (going down left side of matrix)
-                val rowNumbers = (0 until nodeCount).map { i =>
+                val rowNumbers = nodes.zipWithIndex.map { (node, ix) =>
                     val x = dimensions.padding - dimensions.numberPadding
-                    val y = grid.getY(i) + grid.getHeight(i) / 2 + dimensions.padding
-                    val color = generateColor(i, isRow = true)
+                    val y = grid.getY(ix) + grid.getHeight(ix) / 2 + dimensions.padding
+                    val color = generateColor(ix, isRow = true)
                     TextCanvas(
                       coords = Vector2D(x, y),
-                      text = i.toString,
+                      text = node.toString,
                       color = color,
                       font = s"${numberFontSize}px sans-serif"
                     )
                 }
 
-                val colNumbers = (0 until nodeCount).map { i =>
-                    val x = grid.getX(i) + grid.getWidth(i) / 2 + dimensions.padding
+                val colNumbers = nodes.zipWithIndex.map { (node, ix) =>
+                    val x = grid.getX(ix) + grid.getWidth(ix) / 2 + dimensions.padding
                     val y = dimensions.padding - dimensions.numberPadding
-                    val color = generateColor(i, isRow = false)
+                    val color = generateColor(ix, isRow = false)
                     TextCanvas(
                       coords = Vector2D(x, y),
-                      text = i.toString,
+                      text = node.toString,
                       color = color,
                       font = s"${numberFontSize}px sans-serif"
                     )
@@ -118,7 +118,7 @@ object AdjacencyMatrixView {
         val nodeCount = state.graph.nodeCount
 
         def hoveredCell(cell: Cell): RectangleCanvas = {
-            val color = if (state.graph.getEdges.contains(cell.toEdgeTuple)) hoverEdgePresentColor else hoverNoEdgeColor
+            val color = if (state.graph.getEdges.contains(cell.toTuple)) hoverEdgePresentColor else hoverNoEdgeColor
             RectangleCanvas(
               Rectangle(
                 topLeft = Vector2D(
@@ -163,7 +163,8 @@ object AdjacencyMatrixView {
                 edge <- state.graph.getEdges.toSeq
                 // An undirected (simple) graph returns only one edge per pair of nodes but we want both directions
                 (from, to) <- if (state.isDirected) Seq(edge) else Seq(edge, (edge._2, edge._1))
-                rectangle <- AdjMatrixCoordinateConverter.convertZoneToShape(Cell(from, to), grid, nodeCount)
+                (fromIndex, toIndex) = (state.nodeIndex(from), state.nodeIndex(to))
+                rectangle <- AdjMatrixCoordinateConverter.convertZoneToShape(Cell(fromIndex, toIndex), grid, nodeCount)
             } yield RectangleCanvas(rectangle, style = ShapeStyle.filled(edgePresentColor))
         }
     }
@@ -186,7 +187,7 @@ object AdjacencyMatrixView {
                 val selectedCells = d.selectedCells
                     .filter { c =>
                         // we only highlight cells that would change when we apply the selection
-                        (d.isAdd, state.graph.getEdges.contains(c.toEdgeTuple)) match {
+                        (d.isAdd, state.graph.getEdges.contains(c.toTuple)) match {
                             case (true, false) => true // adding an edge that doesn't exist
                             case (false, true) => true // removing an edge that does exist
                             case _             => false // otherwise don't change what's drawn
@@ -207,8 +208,9 @@ object AdjacencyMatrixView {
           )
         )
 
-        val numbers = rowColNumbers(nodeCount, dimensions, state.adjMatrixState, grid)
+		// The node labels that appear on the left and top of the matrix
+        val labels = rowColLabels(state.sortedNodes, dimensions, state.adjMatrixState, grid)
 
-        AdjacencyMatrixViewData(adjustedForPadding ++ numbers)
+        AdjacencyMatrixViewData(adjustedForPadding ++ labels)
     }
 }

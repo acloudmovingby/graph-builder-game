@@ -1,13 +1,12 @@
 package graphcontroller.components.maincanvas
 
 import utest.*
-import graphcontroller.model.State
+import graphcontroller.model.{HoveredNode, MainCanvasInteractionState, State}
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.controller.{CanvasDoubleClick, CompleteSelectedEdges, DeleteSelectedNodes}
-import graphcontroller.controller.{UndoRequested}
-import graphcontroller.shared.{BasicTool, MagicPathTool, MoveTool, AreaCompleteTool, SelectTool, SelectMode}
-import graphcontroller.model.HoveredNode
+import graphcontroller.controller.UndoRequested
+import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
 
 object MainCanvasComponentTests extends TestSuite {
 	def tests = Tests {
@@ -314,12 +313,14 @@ object MainCanvasComponentTests extends TestSuite {
 		}
 
 		// Step 7: delete
-		test("DeleteSelectedNodes clears selectedNodes (placeholder)") {
+		test("DeleteSelectedNodes clears selectedNodes") {
 			val stateWithSelection = initState
 				.addNode(Vector2D(100, 100))
 				.copy(toolState = SelectTool(), selectedNodes = Set(0))
+			assert(stateWithSelection.selectedNodes.nonEmpty)
 			val newState = MainCanvasComponent.update(stateWithSelection, DeleteSelectedNodes)
 			assert(newState.selectedNodes.isEmpty)
+			assert(newState.graph.nodeCount == 0)
 		}
 
 		test("DeleteSelectedNodes with empty selection is a no-op") {
@@ -327,6 +328,28 @@ object MainCanvasComponentTests extends TestSuite {
 			val newState = MainCanvasComponent.update(state, DeleteSelectedNodes)
 			assert(newState.selectedNodes.isEmpty)
 			assert(newState.graph.nodeCount == 1) // graph unchanged
+		}
+
+		test("DeleteSelectedNodes clears multiple selectedNodes") {
+			val stateWithSelection = initState
+				.addNode(Vector2D(100, 100))
+				.addNode(Vector2D(200, 200))
+				.addNode(Vector2D(300, 300))
+				.addNode(Vector2D(400, 400))
+				.copy(
+					toolState = SelectTool(),
+					selectedNodes = Set(1, 2),
+					canvasInteraction = MainCanvasInteractionState(Some(HoveredNode(1, false)), Vector2D(0, 0))
+				)
+			assert(stateWithSelection.selectedNodes.nonEmpty)
+			val newState = MainCanvasComponent.update(stateWithSelection, DeleteSelectedNodes)
+			assert(newState.selectedNodes.isEmpty)
+			assert(newState.graph.nodeCount == 2)
+			assert(newState.graph.nodes.toSet == Set(0, 3))
+			println(s"OLD KEYTODATA: ${stateWithSelection.keyToData}")
+			println(s"NEW KEYTODATA: ${newState.keyToData}")
+			assert(newState.keyToData.keys.toSet == Set(0,3))
+			assert(newState.canvasInteraction.hoveredNode.isEmpty)
 		}
 
 		// Step 8: shift+click
