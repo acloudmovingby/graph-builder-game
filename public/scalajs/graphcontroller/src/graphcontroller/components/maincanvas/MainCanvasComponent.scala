@@ -269,7 +269,7 @@ object MainCanvasComponent extends Component {
 					b <- nodes
 					if a != b
 				} yield (a, b)
-				state.pushUndoState.bulkUpdateEdges(edges, isAdd = true)
+				state.bulkUpdateEdges(edges, isAdd = true)
 			case CanvasDoubleClick(coords) =>
 				state.toolState match {
 					case _: SelectTool =>

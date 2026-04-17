@@ -433,10 +433,13 @@ object MainCanvasComponentTests extends TestSuite {
 				.addNode(Vector2D(100, 100))
 				.addNode(Vector2D(200, 200))
 				.copy(toolState = SelectTool(), selectedNodes = Set(0, 1))
+			val initUndoStackSize = state.undoStack.size
 			val stateAfterComplete = MainCanvasComponent.update(state, CompleteSelectedEdges)
-			assert(stateAfterComplete.graph.edgeCount > 0)
+			assert(stateAfterComplete.graph.edgeCount == 2)
+			assert(stateAfterComplete.undoStack.size == initUndoStackSize + 1)
 			val (stateAfterUndo, _) = Controller.handleEventWithState(UndoRequested, stateAfterComplete)
 			assert(stateAfterUndo.graph.edgeCount == 0)
+			assert(stateAfterUndo.undoStack.size == initUndoStackSize)
 		}
 
 		test("CompleteSelectedEdges is idempotent") {
