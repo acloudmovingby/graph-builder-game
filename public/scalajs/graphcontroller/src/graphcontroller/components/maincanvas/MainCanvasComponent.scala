@@ -261,7 +261,7 @@ object MainCanvasComponent extends Component {
 			case DeleteSelectedNodes if state.selectedNodes.nonEmpty =>
 				// TODO: Actually remove nodes from graph once graphi library supports node removal
 				println(s"Deleting nodes: ${state.selectedNodes.toSeq.sorted.mkString(", ")}")
-				state.copy(selectedNodes = Set.empty)
+				state.bulkRemoveNodes(state.selectedNodes.toSeq)
 			case CompleteSelectedEdges if state.selectedNodes.size >= 2 =>
 				val nodes = state.selectedNodes.toSeq
 				val edges = for {

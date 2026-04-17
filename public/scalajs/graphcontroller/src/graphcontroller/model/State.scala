@@ -25,6 +25,16 @@ case class State(
 	featureFlags: FeatureFlags,
 	selectedNodes: Set[Int] = Set.empty // not part of HistoricalState; selection is not undoable
 ) {
+	/** Memoized */
+	lazy val sortedNodes = this.graph.nodes.sorted
+	private lazy val indicesToNodes: Map[Int, Int] = sortedNodes.zipWithIndex.map((node, ix) => (ix, node)).toMap
+
+	/**
+	 * For things like the adjacency matrix we want to know the 0-based index of the node (every node will be in a continuous
+	 * range of 0 up to nodeCount). We want this because initially nodes are added with contiguous numbers but later the user
+	 * can delete nodes which means their int label no longer aligns with their index */
+	def nodeIndex(node: Int): Int = sortedNodes.indexOf(node)
+
 	/**
 	 * Convenience method to get the filled-in cells in the adjacency matrix representation. Putting here with State because
 	 * it's used by both Model and View code, but it depends on the graph stored in State.
@@ -34,7 +44,11 @@ case class State(
 	 * that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
 	 * or drag vertically to add/remove edges to a single node from multiple nodes.
 	 */
-	def filledInCells: Seq[Cell] = graph.getEdges.map { (from, to) => Cell.fromEdge(from, to) }
+	def filledInCells: Seq[Cell] = graph.getEdges.map { (from, to) =>
+		Cell.fromEdge(nodeIndex(from), nodeIndex(to))
+	}
+	
+	def cellToNodeTuple(c: Cell): (Int, Int) = (indicesToNodes(c.row), indicesToNodes(c.col)) 
 
 	def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
 		fromData <- keyToData.get(fromIndex)
@@ -44,10 +58,21 @@ case class State(
 		to = Vector2D(toData.x, toData.y)
 	)
 
-	/** Adds node with label as next highest index */
-	def addNode(coords: Vector2D): State = {
-		val nextIndex = graph.nodeCount
-		this.pushUndoState.copy(graph = graph.addNode(nextIndex), keyToData = keyToData + (nextIndex -> NodeData(0, coords.x, coords.y)))
+	/**
+	 * Adds node with label as next highest index. For convenience (this is used many times in unit tests) it assumes you
+	 * want to store this change on the undo stack and defaults that to true.
+	 * */
+	def addNode(coords: Vector2D, pushUndoState: Boolean = true): State = {
+		// So I'm making it so that if you delete a node and then add a new one, the new one will have an index one higher
+		// than the current max. You could do it by filling in the missing indices but I find that strange? You could also
+		// make an absolutely incrementing number so it's always higher than any other node ever created but I find that weird too
+		// I dunno...there's not a single good solution
+		val nextNodeLabel = graph.nodes.maxOption.getOrElse(-1) + 1
+		val state = if (pushUndoState) this.pushUndoState else this
+		state.copy(
+			graph = graph.addNode(nextNodeLabel),
+			keyToData = keyToData + (nextNodeLabel -> NodeData(0, coords.x, coords.y))
+		)
 	}
 
 	def addEdge(from: Int, to: Int): State = {
@@ -77,19 +102,36 @@ case class State(
 	 * Adds multiple nodes in a single operation, pushing only one undo state.
 	 */
 	def bulkAddNodes(coords: Seq[Vector2D]): State = {
-		if (coords.isEmpty) this
+		if (coords.isEmpty) this // if empty, don't add to undo state, just return
 		else {
-			var currentGraph = this.graph
-			var currentKeyToData = this.keyToData
-			var nextIndex = currentGraph.nodeCount
-
-			coords.foreach { coord =>
-				currentGraph = currentGraph.addNode(nextIndex)
-				currentKeyToData = currentKeyToData + (nextIndex -> NodeData(0, coord.x, coord.y))
-				nextIndex += 1
+			// add to undo state _once_ and then call addNode repeatedly
+			coords.foldLeft(this.pushUndoState) { case (state, coord) =>
+				state.addNode(coord, pushUndoState = false) // don't add undo state every time
 			}
+		}
+	}
 
-			this.pushUndoState.copy(graph = currentGraph, keyToData = currentKeyToData)
+	def removeNode(node: Int, pushUndoState: Boolean = true): State = {
+		val newHoveredNode = this.canvasInteraction.hoveredNode match {
+			case Some(node) => None
+			case other => other
+		}
+		val state = if (pushUndoState) this.pushUndoState else this
+		state.copy(
+			graph = state.graph.removeNode(node),
+			keyToData = state.keyToData.removed(node),
+			selectedNodes = state.selectedNodes.filterNot(_ == node),
+			canvasInteraction = state.canvasInteraction.copy(hoveredNode = newHoveredNode),
+		)
+	}
+
+	def bulkRemoveNodes(nodes: Seq[Int]): State = {
+		if (nodes.isEmpty) this // if empty, don't add to undo state, just return
+		else {
+			// add to undo state _once_ and then call removeNode repeatedly
+			nodes.foldLeft(this.pushUndoState) { case (state, node) =>
+				state.removeNode(node, pushUndoState = false) // don't add undo state every time
+			}
 		}
 	}
 
