@@ -18,11 +18,10 @@ case class State(
 	exportFormat: ExportFormat, // DOT, Python, etc.
 	adjacencyExportType: GraphRepresentation, // whether exporting as list, matrix, etc. (for formats where that's applicable)
 	toolState: Tool,
-	hoveringOnNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
 	hoveringOnTool: Option[String],
 	labelsVisible: Boolean = true,
-	lastMainCanvasMousePosition: Vector2D = Vector2D(0, 0),
 	hoverDirectedIcon: Boolean = false,
+	canvasInteraction: MainCanvasInteractionState,
 	featureFlags: FeatureFlags
 ) {
 	/**
@@ -108,7 +107,7 @@ case class State(
 			graph = graph.empty,
 			keyToData = Map.empty,
 			toolState = BasicTool(None),
-			hoveringOnNode = None,
+			canvasInteraction = this.canvasInteraction.copy(None, this.canvasInteraction.lastMousePosition),
 			hoveringOnTool = None
 		)
 	}
@@ -117,6 +116,10 @@ case class State(
 		case _: DirectedMapGraph[Int] => true
 		case _: SimpleMapGraph[Int] => false
 	}
+
+	def setHoveredNode(h: Option[HoveredNode]): State = this.copy(
+		canvasInteraction = this.canvasInteraction.copy(hoveredNode = h)
+	)
 }
 
 object State {
@@ -130,8 +133,8 @@ object State {
 		exportFormat = ExportFormat.DOT,
 		adjacencyExportType = GraphRepresentation.List,
 		toolState = BasicTool(None),
-		hoveringOnNode = None,
 		hoveringOnTool = None,
+		canvasInteraction = MainCanvasInteractionState(hoveredNode = None, lastMousePosition = Vector2D(0, 0)),
 		featureFlags = FeatureFlags(selectTool = false)
 	)
 }
@@ -143,4 +146,9 @@ case class HoveredNode(
 
 case class FeatureFlags(
 	selectTool: Boolean
+)
+
+case class MainCanvasInteractionState(
+	hoveredNode: Option[HoveredNode], // whichever node the cursor is hovering over on the main canvas (if any),
+	lastMousePosition: Vector2D
 )

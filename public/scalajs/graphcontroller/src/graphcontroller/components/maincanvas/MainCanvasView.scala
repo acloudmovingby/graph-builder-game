@@ -133,7 +133,7 @@ object MainCanvasView {
 	}
 
 	def nodes(state: State): Seq[CanvasRenderOp] = {
-		nodesWithStyles(state.graph.nodes, state.hoveringOnNode, state.toolState)
+		nodesWithStyles(state.graph.nodes, state.canvasInteraction.hoveredNode, state.toolState)
 			.flatMap { case (node, style) =>
 				state.keyToData.get(node) match {
 					case None =>
@@ -155,7 +155,7 @@ object MainCanvasView {
 			edgeStart <- maybeEdgeStart
 			data <- state.keyToData.get(edgeStart)
 		} yield {
-			EdgeRender.edgeAddingIndicatorLine(Vector2D(data.x, data.y), state.lastMainCanvasMousePosition)
+			EdgeRender.edgeAddingIndicatorLine(Vector2D(data.x, data.y), state.canvasInteraction.lastMousePosition)
 		}
 	}
 
@@ -165,7 +165,7 @@ object MainCanvasView {
 		state.toolState match {
 			case MagicPathTool(Some(_)) =>
 				val cc = CircleCanvas(
-					Circle(state.lastMainCanvasMousePosition, 30),
+					Circle(state.canvasInteraction.lastMousePosition, 30),
 					fillColor = None,
 					borderColor = Some("black"),
 					borderWidth = Some(2),

@@ -37,7 +37,7 @@ object MainCanvasComponent extends Component {
 	}
 
 	private def mouseMoveHandling(state: State, event: MainCanvasMouseEvent): State = {
-		val maybeHoveredNode = hoveringOnNode(event.coords, state.keyToData)
+		val maybeHoveredNode = hoveredNode(event.coords, state.keyToData)
 
 		val newState = state.toolState match {
 			case tool: BasicTool => handleBasicTool(state, event, tool, maybeHoveredNode)
@@ -47,7 +47,7 @@ object MainCanvasComponent extends Component {
 			case tool: SelectTool => handleSelectTool(state, event , tool, maybeHoveredNode)
 		}
 
-		newState.copy(lastMainCanvasMousePosition = event.coords)
+		newState.copy(canvasInteraction = newState.canvasInteraction.copy(lastMousePosition = event.coords))
 	}
 
 	private def handleSelectTool(state: State, event: MainCanvasMouseEvent, tool: SelectTool, maybeHoveredNode: Option[Int]): State = {
@@ -58,22 +58,22 @@ object MainCanvasComponent extends Component {
 	private def handleBasicTool(state: State, event: MainCanvasMouseEvent, tool: BasicTool, maybeHoveredNode: Option[Int]): State = {
 		event.eventType match {
 			case Move =>
-				(state.hoveringOnNode, maybeHoveredNode) match {
+				(state.canvasInteraction.hoveredNode, maybeHoveredNode) match {
 					case (Some(HoveredNode(prev, _)), Some(current)) if current == prev =>
 						// It looks nicer if we don't immediately create hover effect right after clicking, so don't change HoveredNode's justAdded flag here
 						state
 					case _ =>
-						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+						state.copy(canvasInteraction = state.canvasInteraction.copy(hoveredNode = maybeHoveredNode.map(n => HoveredNode(n, false))))
 				}
 			case Down =>
 				(maybeHoveredNode, tool.edgeStart) match {
 					case (None, None) =>
 						// Add new node!
 						// Make the new node the hovered node, and set the justAdded flag to true (to avoid hover effect)
-						state.addNode(event.coords).copy(
-							toolState = BasicTool(None),
-							hoveringOnNode = Some(HoveredNode(state.graph.nodeCount, true))
-						)
+						state
+							.addNode(event.coords)
+							.copy(toolState = BasicTool(None))
+							.setHoveredNode(Some(HoveredNode(state.graph.nodeCount, true)))
 					case (None, Some(_)) =>
 						// When clicking on the blank canvas, exit edge-adding mode
 						state.copy(toolState = BasicTool(None))
@@ -103,7 +103,7 @@ object MainCanvasComponent extends Component {
 						state.addEdge(edgeStart, currentlyHoveredNode)
 							.copy(toolState = MagicPathTool(Some(currentlyHoveredNode)))
 					case _ =>
-						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+						state.setHoveredNode(maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
 				(maybeHoveredNode, tool.edgeStart) match {
@@ -128,7 +128,7 @@ object MainCanvasComponent extends Component {
 				if (tool.mousePressed) {
 					state.copy(toolState = tool.copy(drawPoints = event.coords :: tool.drawPoints))
 				} else {
-					state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+					state.setHoveredNode(maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
 				state.copy(toolState = AreaCompleteTool(true, event.coords :: Nil))
@@ -174,7 +174,7 @@ object MainCanvasComponent extends Component {
 						state.copy(keyToData = state.keyToData.updated(nodeBeingMoved, newData))
 					case None =>
 						// Uh, I'm not 100% sure what this is about...I asked AI to refactor and only noticed this way later
-						state.copy(hoveringOnNode = maybeHoveredNode.map(n => HoveredNode(n, false)))
+						state.setHoveredNode(maybeHoveredNode.map(n => HoveredNode(n, false)))
 				}
 			case Down =>
 				maybeHoveredNode match {
@@ -201,13 +201,12 @@ object MainCanvasComponent extends Component {
 
 	override def view(state: State): RenderOp = MainCanvasView.render(state)
 
-	private def hoveringOnNode(coords: Vector2D, keyToData: Map[Int, NodeData]): Option[Int] = {
-		val hoveringOnNode = keyToData.find { (key, data) =>
+	private def hoveredNode(coords: Vector2D, keyToData: Map[Int, NodeData]): Option[Int] = {
+		keyToData.find { (key, data) =>
 			val dx = coords.x - data.x
 			val dy = coords.y - data.y
 			val distFromCent = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
 			distFromCent < NodeRender.baseNodeRadius * 2
 		}.map(_._1)
-		hoveringOnNode
 	}
 }
