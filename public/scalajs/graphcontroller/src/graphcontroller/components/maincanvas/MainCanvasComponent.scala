@@ -5,7 +5,7 @@ import graphcontroller.controller.{CompleteSelectedEdges, DeleteSelectedNodes, E
 import graphcontroller.controller.MouseEvent.{DoubleClick, Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
 
 object MainCanvasComponent extends Component {
 
@@ -40,7 +40,7 @@ object MainCanvasComponent extends Component {
 		val maybeHoveredNode = hoveredNode(event.coords, state.keyToData)
 
 		val newState = state.toolState match {
-			case tool: BasicTool => handleBasicTool(state, event, tool, maybeHoveredNode)
+			case tool: BuildTool => handleBuildTool(state, event, tool, maybeHoveredNode)
 			case tool: MagicPathTool => handleMagicPathTool(state, event, tool, maybeHoveredNode)
 			case tool: AreaCompleteTool => handleAreaCompleteTool(state, event, tool, maybeHoveredNode)
 			case tool: MoveTool => handleMoveTool(state, event, tool, maybeHoveredNode)
@@ -128,7 +128,7 @@ object MainCanvasComponent extends Component {
 		}
 	}
 
-	private def handleBasicTool(state: State, event: MainCanvasMouseEvent, tool: BasicTool, maybeHoveredNode: Option[Int]): State = {
+	private def handleBuildTool(state: State, event: MainCanvasMouseEvent, tool: BuildTool, maybeHoveredNode: Option[Int]): State = {
 		event.eventType match {
 			case Move =>
 				(state.canvasInteraction.hoveredNode, maybeHoveredNode) match {
@@ -145,25 +145,25 @@ object MainCanvasComponent extends Component {
 						// Make the new node the hovered node, and set the justAdded flag to true (to avoid hover effect)
 						state
 							.addNode(event.coords)
-							.copy(toolState = BasicTool(None))
+							.copy(toolState = BuildTool(None))
 							.setHoveredNode(Some(HoveredNode(state.graph.nodeCount, true)))
 					case (None, Some(_)) =>
 						// When clicking on the blank canvas, exit edge-adding mode
-						state.copy(toolState = BasicTool(None))
+						state.copy(toolState = BuildTool(None))
 					case (Some(hoveredNode), None) =>
 						// Enter edge-adding mode
-						state.copy(toolState = BasicTool(Some(hoveredNode)))
+						state.copy(toolState = BuildTool(Some(hoveredNode)))
 					case (Some(hoveredNode), Some(edgeStart)) =>
 						if (hoveredNode == edgeStart) {
 							// Exit edge adding mode
-							state.copy(toolState = BasicTool(None))
+							state.copy(toolState = BuildTool(None))
 						} else {
 							// Add edge and reset start node to node just clicked
-							state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
+							state.addEdge(edgeStart, hoveredNode).copy(toolState = BuildTool(Some(hoveredNode)))
 						}
 				}
 			case Up | DoubleClick => state
-			case Leave => state.copy(toolState = BasicTool(None))
+			case Leave => state.copy(toolState = BuildTool(None))
 		}
 	}
 

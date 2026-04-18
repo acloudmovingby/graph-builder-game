@@ -13,7 +13,7 @@ import graphcontroller.components.ops.SetInnerHTML
 import graphcontroller.components.undobutton.UndoRedoViewData
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.model.State
-import graphcontroller.shared.BasicTool
+import graphcontroller.shared.BuildTool
 
 /**
  * End-to-end happy path tests that simulate a realistic sequence of user actions,
@@ -107,7 +107,7 @@ object HappyPathTests extends TestSuite {
       // -----------------------------------------------------------------------
       // Click node 0 to enter edge-adding mode
       val (s4, _) = step(s3, canvas(node0, MouseEvent.Down))
-      assert(s4.toolState == BasicTool(Some(0)))
+      assert(s4.toolState == BuildTool(Some(0)))
 
       val (s5, _)    = step(s4, canvas(node1, MouseEvent.Down)) // 0→1; edgeStart becomes Some(1)
       val (s6, _)    = step(s5, canvas(node2, MouseEvent.Down)) // 1→2; edgeStart becomes Some(2)
@@ -122,7 +122,7 @@ object HappyPathTests extends TestSuite {
 
       // Click the empty canvas to exit edge-adding mode
       val (s8, _) = step(s7, canvas(emptySpot, MouseEvent.Down))
-      assert(s8.toolState == BasicTool(None))
+      assert(s8.toolState == BuildTool(None))
 
       // -----------------------------------------------------------------------
       // Phase 3 — Switch to undirected

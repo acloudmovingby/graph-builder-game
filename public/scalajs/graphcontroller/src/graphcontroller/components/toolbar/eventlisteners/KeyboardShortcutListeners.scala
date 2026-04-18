@@ -17,7 +17,7 @@ object KeyboardShortcutListeners extends EventListener {
 					if (!e.metaKey && !e.ctrlKey && !e.altKey) {
 						e.key match {
 							case "v" | "V" => dispatch(ToolSelected("select"))
-							case "b" | "B" => dispatch(ToolSelected("basic"))
+							case "b" | "B" => dispatch(ToolSelected("build"))
 							case "a" | "A" => dispatch(ToolSelected("area-complete"))
 							case "p" | "P" => dispatch(ToolSelected("magic-path"))
 							case "m" | "M" => dispatch(ToolSelected("move"))

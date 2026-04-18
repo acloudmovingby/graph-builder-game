@@ -6,13 +6,13 @@ import graphcontroller.model.{HoveredNode, MainCanvasInteractionState, State}
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
 import graphcontroller.controller.{CompleteSelectedEdges, DeleteSelectedNodes}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
 
 object MainCanvasComponentTests extends TestSuite {
 	def tests = Tests {
 		val initState = State.init
 
-		test("BasicTool - add node") {
+		test("BuildTool - add node") {
 			val event = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(initState, event)
 
@@ -22,7 +22,7 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(stateAfterDown.canvasInteraction.hoveredNode.contains(HoveredNode(0, true)))
 		}
 
-		test("BasicTool - hover over node") {
+		test("BuildTool - hover over node") {
 			val stateWithNode = initState.addNode(Vector2D(100, 100))
 			val event = MainCanvasMouseEvent(Vector2D(105, 105), MouseEvent.Move)
 			val stateAfterMove = MainCanvasComponent.update(stateWithNode, event)
@@ -30,24 +30,24 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(stateAfterMove.canvasInteraction.hoveredNode.contains(HoveredNode(0, false)))
 		}
 
-		test("BasicTool - start edge") {
+		test("BuildTool - start edge") {
 			val stateWithNode = initState.addNode(Vector2D(100, 100))
 			val event = MainCanvasMouseEvent(Vector2D(100, 100), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(stateWithNode, event)
 
-			assert(stateAfterDown.toolState == BasicTool(Some(0)))
+			assert(stateAfterDown.toolState == BuildTool(Some(0)))
 		}
 
-		test("BasicTool - add edge") {
+		test("BuildTool - add edge") {
 			val stateWithNodes = initState.addNode(Vector2D(100, 100)).addNode(Vector2D(200, 200))
-			val stateStartEdge = stateWithNodes.copy(toolState = BasicTool(Some(0)))
+			val stateStartEdge = stateWithNodes.copy(toolState = BuildTool(Some(0)))
 
 			val event = MainCanvasMouseEvent(Vector2D(200, 200), MouseEvent.Down)
 			val stateAfterDown = MainCanvasComponent.update(stateStartEdge, event)
 
 			assert(stateAfterDown.graph.edgeCount == 1)
 			assert(stateAfterDown.graph.getEdges.contains((0, 1)))
-			assert(stateAfterDown.toolState == BasicTool(Some(1)))
+			assert(stateAfterDown.toolState == BuildTool(Some(1)))
 		}
 
 		test("MoveTool - drag node") {
@@ -404,19 +404,19 @@ object MainCanvasComponentTests extends TestSuite {
 			assert(newState.graph.nodeCount == 1) // unchanged
 		}
 
-		test("Double-click in BasicTool is a no-op") {
-			val state = initState.copy(toolState = BasicTool(None))
+		test("Double-click in BuildTool is a no-op") {
+			val state = initState.copy(toolState = BuildTool(None))
 			val dblClick = MainCanvasMouseEvent(Vector2D(100, 100), DoubleClick)
 			val newState = MainCanvasComponent.update(state, dblClick)
 			assert(newState.graph.nodeCount == 0) // unchanged
 		}
 
 		test("Leave event resets tool state") {
-			val stateStartEdge = initState.addNode(Vector2D(100, 100)).copy(toolState = BasicTool(Some(0)))
+			val stateStartEdge = initState.addNode(Vector2D(100, 100)).copy(toolState = BuildTool(Some(0)))
 			val leaveEvent = MainCanvasMouseEvent(Vector2D(500, 500), MouseEvent.Leave)
 			val stateAfterLeave = MainCanvasComponent.update(stateStartEdge, leaveEvent)
 
-			assert(stateAfterLeave.toolState == BasicTool(None))
+			assert(stateAfterLeave.toolState == BuildTool(None))
 		}
 
 		// Feature 1: CompleteSelectedEdges

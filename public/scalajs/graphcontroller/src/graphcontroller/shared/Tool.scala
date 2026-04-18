@@ -23,12 +23,12 @@ sealed trait Tool {
 	val description: String
 }
 
-case class BasicTool(
+case class BuildTool(
 	edgeStart: Option[Int], // Indicates we're in edge adding mode (and this Int is the edge's start node)
 ) extends Tool {
 	override val header: String = "Build Tool"
-	override val animationImgPath: String = "images/basic-tool-tooltip-example.gif"
-	override val htmlId: String = "basic"
+	override val animationImgPath: String = "images/build-tool-tooltip-example.gif"
+	override val htmlId: String = "build"
 	override val hotkey: Option[Char] = Some('B')
 	override val cursorIconPath: String = "url('images/pointer.svg'), pointer"
 	override val description: String = "Adds nodes/edges. Click on the empty canvas to make nodes, or on a node to add edges. To switch back, click again on empty canvas."
