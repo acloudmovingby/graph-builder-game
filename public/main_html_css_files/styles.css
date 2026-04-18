@@ -328,6 +328,15 @@ p, a,
   background-color: grey;
 }
 
+#hover-info-header-area {
+    display: flex;
+    gap: 10px;
+}
+
+#hover-info-hotkey {
+    color: gray
+}
+
 .hover-info-text > .header {
   margin-top: 0rem;
 }

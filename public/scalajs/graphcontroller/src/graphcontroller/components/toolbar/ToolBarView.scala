@@ -39,6 +39,7 @@ case class ToolBarRenderData(
 		}
 
 		val hoverInfoElement = dom.document.getElementById("hover-info-pane").asInstanceOf[html.Div]
+		val hotkeyElement = dom.document.getElementById("hover-info-hotkey").asInstanceOf[html.Paragraph]
 		hoveringOnTool match {
 			case Some(toolId) =>
 				val tool = AllTools.tools(toolId)
@@ -52,8 +53,15 @@ case class ToolBarRenderData(
 				dom.document.getElementById("hover-header").innerHTML = tool.header
 				dom.document.getElementById("hover-description").innerHTML = tool.description
 				dom.document.getElementById("hover-info-img").asInstanceOf[html.Image].src = tool.animationImgPath
+				tool.hotkey match {
+					case Some(char) =>
+						hotkeyElement.style.visibility = "visible"
+						hotkeyElement.innerHTML = char.toString
+					case None => hotkeyElement.style.visibility = "hidden"
+				}
 			case None =>
 				hoverInfoElement.style.visibility = "hidden"
+				hotkeyElement.style.visibility = "hidden"
 		}
 	}
 }
