@@ -1,8 +1,8 @@
 package graphcontroller.components.maincanvas
 
 import graphcontroller.components.{Component, RenderOp}
-import graphcontroller.controller.{CanvasDoubleClick, CompleteSelectedEdges, DeleteSelectedNodes, Event, MainCanvasMouseEvent}
-import graphcontroller.controller.MouseEvent.{Down, Leave, Move, Up}
+import graphcontroller.controller.{CompleteSelectedEdges, DeleteSelectedNodes, Event, MainCanvasMouseEvent}
+import graphcontroller.controller.MouseEvent.{DoubleClick, Down, Leave, Move, Up}
 import graphcontroller.dataobject.{Cell, NodeData, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
@@ -115,6 +115,16 @@ object MainCanvasComponent extends Component {
 					case _ => state
 				}
 			case Leave => state.copy(toolState = SelectTool(Idle))
+			case DoubleClick =>
+				maybeHoveredNode match {
+					case None =>
+						// Double-click on empty space: add a node, stay in SelectTool
+						state.addNode(event.coords)
+					case Some(_) =>
+						// Double-click on existing node: no-op for now
+						// TODO: future — could open label editing
+						state
+				}
 		}
 	}
 
@@ -152,7 +162,7 @@ object MainCanvasComponent extends Component {
 							state.addEdge(edgeStart, hoveredNode).copy(toolState = BasicTool(Some(hoveredNode)))
 						}
 				}
-			case Up => state
+			case Up | DoubleClick => state
 			case Leave => state.copy(toolState = BasicTool(None))
 		}
 	}
@@ -178,7 +188,7 @@ object MainCanvasComponent extends Component {
 						state.copy(toolState = MagicPathTool(None))
 					case _ => state
 				}
-			case Up => state
+			case Up | DoubleClick => state
 			case Leave =>
 				// exit edge-adding mode
 				state.copy(toolState = MagicPathTool(None))
@@ -223,6 +233,7 @@ object MainCanvasComponent extends Component {
 				}
 			case Leave =>
 				state.copy(toolState = AreaCompleteTool(false, Nil))
+			case DoubleClick => state
 		}
 	}
 
@@ -251,7 +262,7 @@ object MainCanvasComponent extends Component {
 			case Up =>
 				// When we release the mouse, forget any node that's being dragged (set it to None)
 				state.copy(toolState = MoveTool(None))
-			case Leave => state
+			case Leave | DoubleClick => state
 		}
 	}
 
@@ -270,21 +281,6 @@ object MainCanvasComponent extends Component {
 					if a != b
 				} yield (a, b)
 				state.bulkUpdateEdges(edges, isAdd = true)
-			case CanvasDoubleClick(coords) =>
-				state.toolState match {
-					case _: SelectTool =>
-						val maybeNode = hoveredNode(coords, state.keyToData)
-						maybeNode match {
-							case None =>
-								// Double-click on empty space: add a node, stay in SelectTool
-								state.addNode(coords)
-							case Some(_) =>
-								// Double-click on existing node: no-op for now
-								// TODO: future — could open label editing
-								state
-						}
-					case _ => state // double-click does nothing in other tools
-				}
 			case _ => state
 		}
 	}

@@ -27,7 +27,7 @@ case class ExportAdjacencyTypeChanged(adjType: GraphRepresentation) extends Even
  * */
 enum MouseEvent {
 	// corresponds to JS `mousedown`, `mouseup`, etc. event handlers 
-	case Move, Up, Down, Leave
+	case Move, Up, Down, Leave, DoubleClick
 }
 case class MainCanvasMouseEvent(coords: Vector2D, eventType: MouseEvent, shiftKey: Boolean = false) extends Event
 
@@ -58,7 +58,6 @@ case object ToolBarMouseOut extends Event
 case object EscapePressed extends Event
 case object DeleteSelectedNodes extends Event
 case object CompleteSelectedEdges extends Event
-case class CanvasDoubleClick(coords: Vector2D) extends Event
 case object ToggleLabelsVisibility extends Event
 case object ToggleDirectedness extends Event
 case class HoverDirectednessIcon(isHover: Boolean) extends Event
