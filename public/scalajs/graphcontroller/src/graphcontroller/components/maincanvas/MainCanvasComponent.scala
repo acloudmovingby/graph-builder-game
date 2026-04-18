@@ -112,7 +112,10 @@ object MainCanvasComponent extends Component {
 						}
 						val stateBeforeMove = if (!hasMoved) state.pushUndoState else state
 						stateBeforeMove.copy(keyToData = updatedKeyToData, toolState = SelectTool(DraggingNodes(event.coords, hasMoved = true)))
-					case _ => state
+					case _ =>
+						state.copy(canvasInteraction = state.canvasInteraction.copy(
+							hoveredNode = maybeHoveredNode.map(n => HoveredNode(n, false))
+						))
 				}
 			case Leave => state.copy(toolState = SelectTool(Idle))
 			case DoubleClick =>
