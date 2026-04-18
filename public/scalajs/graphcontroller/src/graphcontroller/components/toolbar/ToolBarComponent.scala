@@ -22,7 +22,8 @@ object ToolBarComponent extends Component {
 					case _: SelectTool => state.selectedNodes
 					case _ => Set.empty[Int]
 				}
-				state.copy(toolState = newTool, selectedNodes = newSelectedNodes)
+				state.copy(toolState = newTool, selectedNodes = newSelectedNodes,
+				canvasInteraction = state.canvasInteraction.copy(hoveredNode = None))
 			case ToolBarMouseOver(tool) =>
 				state.copy(hoveringOnTool = Some(tool))
 			case ToolBarMouseOut =>

@@ -97,6 +97,10 @@ object MainCanvasView {
 		}
 
 		val baseStyles = toolState match {
+			case _: SelectTool =>
+				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = nonHoveredNodes.map(n => (n, Basic))
+				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode.map(n => (n, Selected))
+				nonHoveredStyles ++ hoveredStyle
 			case BuildTool(Some(edgeStart)) => // in edge adding mode
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
 				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = withoutEdgeStart.map(n => (n, AddEdgeNotStart))
