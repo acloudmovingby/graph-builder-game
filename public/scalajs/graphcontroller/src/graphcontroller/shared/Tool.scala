@@ -25,11 +25,11 @@ sealed trait Tool {
 case class BasicTool(
 	edgeStart: Option[Int], // Indicates we're in edge adding mode (and this Int is the edge's start node)
 ) extends Tool {
-	override val header: String = "Basic Node/Edge Adding Tool"
+	override val header: String = "Build Tool"
 	override val animationImgPath: String = "images/basic-tool-tooltip-example.gif"
 	override val htmlId: String = "basic"
 	override val cursorIconPath: String = "url('images/pointer.svg'), pointer"
-	override val description: String = "Click to make nodes, then click on a node to begin adding edges. To exit edge making mode, simply click on the gray canvas."
+	override val description: String = "Click on empty canvas to make nodes, then click on nodes to begin adding edges. To exit edge making, simply click on empty canvas."
 }
 
 case class AreaCompleteTool(
@@ -67,6 +67,6 @@ case class SelectTool(mode: SelectMode = SelectMode.Idle) extends Tool {
 	override val htmlId: String = "select"
 	override val header: String = "Select Tool"
 	override val cursorIconPath: String = "url('images/apple_pointer_cursor_white_outline.svg'), pointer"
-	override val animationImgPath: String = "images/move-tool-tooltip-example.gif"
-	override val description: String = "Select nodes (or edges, if you click on them directly). Move or delete (with delete key)."
+	override val animationImgPath: String = "images/select-tool-example-animation.gif"
+	override val description: String = "Select nodes and move around. Press 'delete' to remove or 'return' to connect all edges."
 }
