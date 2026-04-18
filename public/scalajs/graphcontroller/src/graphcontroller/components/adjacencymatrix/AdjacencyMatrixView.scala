@@ -23,6 +23,7 @@ object AdjacencyMatrixView {
     // TODO make this match the arrow color (it's close right now but not same)
     val highlightNumberColor = "orange" // to highlight the specific number of the row/column being hovered over
     val numberFontSize = 13
+    val gridLineStyle = ShapeStyle.stroked("lightgray", 1)
 
     def rowColLabels(
         nodes: Seq[Int],
@@ -51,7 +52,7 @@ object AdjacencyMatrixView {
                     }
                 }
 
-                // row numbers (going down left side of matrix)
+                // row labels (going down left side of matrix)
                 val rowNumbers = nodes.zipWithIndex.map { (node, ix) =>
                     val x = dimensions.padding - dimensions.numberPadding
                     val y = grid.getY(ix) + grid.getHeight(ix) / 2 + dimensions.padding
@@ -88,7 +89,6 @@ object AdjacencyMatrixView {
         // check this first to avoid division by zero
         if (nodeCount == 0) Seq.empty
         else {
-            val gridLineStyle = ShapeStyle.stroked("lightgray", 1)
             val verticalLines = grid.colCoords.map { x =>
                 CanvasLine(
                   from = Vector2D(x = x, y = 0),
@@ -178,8 +178,17 @@ object AdjacencyMatrixView {
         val gridLines = calculateGridLines(nodeCount, dimensions, grid)
 
         val shapes: Seq[CanvasRenderOp] = state.adjMatrixState match {
-            case NoSelection => // fill in cells only, no grid lines
-                cells
+            case NoSelection => // fill in cells only, no grid lines but show matrix bounding box
+				// TODO after we have proper tutorial on edge-adding, just always show grid lines...
+                val boundingBox = RectangleCanvas(
+					rect = Rectangle(
+						topLeft = Vector2D(0, 0),
+						width = grid.width,
+						height = grid.height
+					),
+					style = gridLineStyle
+				)
+                cells ++ Seq(boundingBox)
             case Hover(cell) => // fill in cells + hovered cell highlight + grid lines
                 val hoveredCell = hoveredCellHighlight(state, cell, grid)
                 cells ++ hoveredCell ++ gridLines
