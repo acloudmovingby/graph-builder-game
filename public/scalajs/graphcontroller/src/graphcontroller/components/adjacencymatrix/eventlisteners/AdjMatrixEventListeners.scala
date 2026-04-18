@@ -33,4 +33,9 @@ object AdjMatrixEventListeners extends CanvasEventListeners {
 		val (x, y) = relativeCoordinates(e)
 		AdjMatrixMouseLeave(x, y)
 	}
+
+	def mouseDoubleClick(e: dom.MouseEvent): Event = {
+		val coords = relativeCoordinates(e)
+		NoOp // currently right now we don't do anything when double-clicking on Adjacency Matrix
+	}
 }

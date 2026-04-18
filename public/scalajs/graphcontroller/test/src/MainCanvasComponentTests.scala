@@ -1,11 +1,11 @@
 package graphcontroller.components.maincanvas
 
+import graphcontroller.controller.MouseEvent.DoubleClick
 import utest.*
 import graphcontroller.model.{HoveredNode, MainCanvasInteractionState, State}
 import graphcontroller.controller.{MainCanvasMouseEvent, MouseEvent}
 import graphcontroller.dataobject.Vector2D
-import graphcontroller.controller.{CanvasDoubleClick, CompleteSelectedEdges, DeleteSelectedNodes}
-import graphcontroller.controller.UndoRequested
+import graphcontroller.controller.{CompleteSelectedEdges, DeleteSelectedNodes}
 import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool}
 
 object MainCanvasComponentTests extends TestSuite {
@@ -389,7 +389,8 @@ object MainCanvasComponentTests extends TestSuite {
 		// Step 9: double-click
 		test("SelectTool - double-click on empty canvas adds node") {
 			val state = initState.copy(toolState = SelectTool())
-			val newState = MainCanvasComponent.update(state, CanvasDoubleClick(Vector2D(150, 150)))
+			val dblClick = MainCanvasMouseEvent(Vector2D(150, 150), DoubleClick)
+			val newState = MainCanvasComponent.update(state, dblClick)
 			assert(newState.graph.nodeCount == 1)
 			assert(newState.keyToData(0).x == 150)
 			assert(newState.keyToData(0).y == 150)
@@ -398,13 +399,15 @@ object MainCanvasComponentTests extends TestSuite {
 
 		test("SelectTool - double-click on existing node is a no-op") {
 			val stateWithNode = initState.addNode(Vector2D(100, 100)).copy(toolState = SelectTool())
-			val newState = MainCanvasComponent.update(stateWithNode, CanvasDoubleClick(Vector2D(100, 100)))
+			val dblClick = MainCanvasMouseEvent(Vector2D(100, 100), DoubleClick)
+			val newState = MainCanvasComponent.update(stateWithNode, dblClick)
 			assert(newState.graph.nodeCount == 1) // unchanged
 		}
 
 		test("Double-click in BasicTool is a no-op") {
 			val state = initState.copy(toolState = BasicTool(None))
-			val newState = MainCanvasComponent.update(state, CanvasDoubleClick(Vector2D(100, 100)))
+			val dblClick = MainCanvasMouseEvent(Vector2D(100, 100), DoubleClick)
+			val newState = MainCanvasComponent.update(state, dblClick)
 			assert(newState.graph.nodeCount == 0) // unchanged
 		}
 

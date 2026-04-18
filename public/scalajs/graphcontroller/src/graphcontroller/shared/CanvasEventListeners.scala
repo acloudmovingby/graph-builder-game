@@ -50,6 +50,7 @@ trait CanvasEventListeners extends EventListener {
 		canvasElement.addEventListener("mouseleave", (e: dom.Event) => passEventToController(e)(mouseLeave))
 		canvasElement.addEventListener("mouseup", (e: dom.Event) => passEventToController(e)(mouseUp))
 		canvasElement.addEventListener("mousedown", (e: dom.Event) => passEventToController(e)(mouseDown))
+		canvasElement.addEventListener("dblclick", (e: dom.Event) => passEventToController(e)(mouseDoubleClick))
 	}
 
 	def mouseMove(e: dom.MouseEvent): Event
@@ -59,4 +60,6 @@ trait CanvasEventListeners extends EventListener {
 	def mouseUp(e: dom.MouseEvent): Event
 
 	def mouseLeave(e: dom.MouseEvent): Event
+	
+	def mouseDoubleClick(e: dom.MouseEvent): Event
 }
