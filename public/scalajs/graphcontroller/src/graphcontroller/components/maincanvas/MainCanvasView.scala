@@ -21,11 +21,8 @@ object MainCanvasView {
 
 		// converts Cell class to a (from, to) edge tuple, but disallowing self-loops
 		def getEdgeFromCell(cell: Cell): Option[(Int, Int)] = {
-			val from = cell.row
-			val to = cell.col
-			if (from != to) { // disallow self-loops
-				Some((from, to))
-			} else None
+			if (cell.col == cell.row) None // don't show self-edges (as of now)
+			else Some(state.cellToNodeTuple(cell))
 		}
 
 		val edges = state.adjMatrixState match {
@@ -267,9 +264,19 @@ object MainCanvasView {
 		}
 	}
 
+
 	def render(state: State): MainCanvasViewData = {
+		// This is all the shapes drawn to canvas, and is essentially the Z-order of the canvas
+		val ops = edges(state) ++
+			potentialEdges(state) ++
+			edgeAddingIndicatorLine(state) ++
+			selectionBoundingBox(state.selectedNodes, state.keyToData) ++
+			nodes(state) ++
+			areaComplete(state) ++
+			selectionBox(state.toolState, state.canvasInteraction.lastMousePosition)
+
 		MainCanvasViewData(
-			edges(state) ++ potentialEdges(state) ++ edgeAddingIndicatorLine(state) ++ selectionBoundingBox(state.selectedNodes, state.keyToData) ++ nodes(state) ++ areaComplete(state) ++ selectionBox(state.toolState, state.canvasInteraction.lastMousePosition),
+			ops,
 			magicPathTargetCircle(state),
 			state.toolState,
 			state.graph.nodeCount == 0
