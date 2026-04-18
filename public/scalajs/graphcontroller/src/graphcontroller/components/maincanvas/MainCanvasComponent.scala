@@ -270,8 +270,6 @@ object MainCanvasComponent extends Component {
 		event match {
 			case m: MainCanvasMouseEvent => mouseMoveHandling(state, m)
 			case DeleteSelectedNodes if state.selectedNodes.nonEmpty =>
-				// TODO: Actually remove nodes from graph once graphi library supports node removal
-				println(s"Deleting nodes: ${state.selectedNodes.toSeq.sorted.mkString(", ")}")
 				state.bulkRemoveNodes(state.selectedNodes.toSeq)
 			case CompleteSelectedEdges if state.selectedNodes.size >= 2 =>
 				val nodes = state.selectedNodes.toSeq

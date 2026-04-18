@@ -10,10 +10,6 @@ import org.scalajs.dom.html
 object MainCanvasEventListeners extends CanvasEventListeners {
 	protected val elementId: String = "main-canvas-upper"
 
-	override def init(dispatch: Event => Unit): Unit = {
-		super.init(dispatch)
-	}
-
 	// TODO this is obvious duplication here, if we can do similar to AdjacencyMatrix event listeners, centralize there
 	//		maybe even make a common trait for mouse events that main canvas / adjacency matrix types inherit from
 	def mouseMove(e: dom.MouseEvent): Event = {

@@ -44,11 +44,14 @@ case class State(
 	 * that way you can drag horizontally to add/remove edges from a single node to multiple nodes,
 	 * or drag vertically to add/remove edges to a single node from multiple nodes.
 	 */
-	def filledInCells: Seq[Cell] = graph.getEdges.map { (from, to) =>
-		Cell.fromEdge(nodeIndex(from), nodeIndex(to))
-	}
-	
-	def cellToNodeTuple(c: Cell): (Int, Int) = (indicesToNodes(c.row), indicesToNodes(c.col)) 
+	def filledInCells: Seq[Cell] =
+		graph.getEdges.flatMap { (from, to) =>
+			val cellFromTo = Cell.fromEdge(nodeIndex(from), nodeIndex(to))
+			val cellToFrom = if (isDirected) None else Some(Cell.fromEdge(nodeIndex(to), nodeIndex(from)))
+			Seq(cellFromTo) ++ cellToFrom
+		}
+
+	def cellToNodeTuple(c: Cell): (Int, Int) = (indicesToNodes(c.row), indicesToNodes(c.col))
 
 	def getEdgeCoordinates(fromIndex: Int, toIndex: Int): Option[Line] = for {
 		fromData <- keyToData.get(fromIndex)
