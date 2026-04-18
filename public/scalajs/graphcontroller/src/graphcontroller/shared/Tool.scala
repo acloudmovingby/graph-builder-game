@@ -17,6 +17,7 @@ enum SelectMode {
 sealed trait Tool {
 	val htmlId: String
 	val header: String
+	val hotkey: Option[Char] = None
 	val cursorIconPath: String
 	val animationImgPath: String
 	val description: String
@@ -28,8 +29,9 @@ case class BasicTool(
 	override val header: String = "Build Tool"
 	override val animationImgPath: String = "images/basic-tool-tooltip-example.gif"
 	override val htmlId: String = "basic"
+	override val hotkey: Option[Char] = Some('B')
 	override val cursorIconPath: String = "url('images/pointer.svg'), pointer"
-	override val description: String = "Click on empty canvas to make nodes, then click on nodes to begin adding edges. To exit edge making, simply click on empty canvas."
+	override val description: String = "Adds nodes/edges. Click on the empty canvas to make nodes, or on a node to add edges. To switch back, click again on empty canvas."
 }
 
 case class AreaCompleteTool(
@@ -37,6 +39,7 @@ case class AreaCompleteTool(
 	drawPoints: List[Vector2D]
 ) extends Tool {
 	override val header: String = "Area Complete Tool"
+	override val hotkey: Option[Char] = Some('A')
 	override val animationImgPath: String = "images/area-complete-tool-tooltip-example.gif"
 	override val htmlId: String = "area-complete"
 	override val cursorIconPath: String = "url('images/area-complete-cursor.svg'), pointer"
@@ -48,9 +51,10 @@ case class MagicPathTool(
 ) extends Tool {
 	override val htmlId: String = "magic-path"
 	override val header: String = "Magic Path Tool"
+	override val hotkey: Option[Char] = Some('P')
 	override val cursorIconPath: String = "url('images/magic-path-cursor-2.svg'), pointer"
 	override val animationImgPath: String = "images/magic-path-tool-tooltip-example.gif"
-	override val description: String = "Click on a node then simply move the mouse to other nodes to automatically build a path! No need to drag or click. Magic!"
+	override val description: String = "Click on a node once, then simply move the target circle over other nodes to build a path! No need to drag or click (magic!)"
 }
 
 case class MoveTool(
@@ -58,6 +62,7 @@ case class MoveTool(
 ) extends Tool {
 	override val htmlId: String = "move"
 	override val header: String = "Move Tool"
+	override val hotkey: Option[Char] = Some('M')
 	override val cursorIconPath: String = "url('images/move-tool-cursor.svg'), pointer"
 	override val animationImgPath: String = "images/move-tool-tooltip-example.gif"
 	override val description: String = "Click and drag it around."
@@ -66,7 +71,8 @@ case class MoveTool(
 case class SelectTool(mode: SelectMode = SelectMode.Idle) extends Tool {
 	override val htmlId: String = "select"
 	override val header: String = "Select Tool"
+	override val hotkey: Option[Char] = Some('V')
 	override val cursorIconPath: String = "url('images/apple_pointer_cursor_white_outline.svg'), pointer"
 	override val animationImgPath: String = "images/select-tool-example-animation.gif"
-	override val description: String = "Select nodes and move around. Press 'delete' to remove or 'return' to connect all edges."
+	override val description: String = "Once selected, you can drag around, use 'delete' key, or hit 'enter'/'return' to connect all nodes."
 }
