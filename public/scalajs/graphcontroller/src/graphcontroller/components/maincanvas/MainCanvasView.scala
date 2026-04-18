@@ -97,7 +97,6 @@ object MainCanvasView {
 		}
 
 		val baseStyles = toolState match {
-			case BasicTool(None) => default
 			case BasicTool(Some(edgeStart)) => // in edge adding mode
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
 				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = withoutEdgeStart.map(n => (n, AddEdgeNotStart))
