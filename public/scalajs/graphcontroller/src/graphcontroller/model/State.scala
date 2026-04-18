@@ -4,7 +4,7 @@ import graphcontroller.components.adjacencymatrix.{AdjMatrixInteractionState, No
 import graphcontroller.components.exportpane.ExportFormat
 import graphi.{DirectedMapGraph, MapGraph, SimpleMapGraph}
 import graphcontroller.dataobject.{AdjMatrixDimensions, Cell, Line, NodeData, Vector2D}
-import graphcontroller.shared.{BasicTool, GraphRepresentation, Tool}
+import graphcontroller.shared.{BuildTool, GraphRepresentation, Tool}
 
 /** State of the whole program!! Well, not really, but like mostly... */
 case class State(
@@ -152,7 +152,7 @@ case class State(
 		this.pushUndoState.copy(
 			graph = graph.empty,
 			keyToData = Map.empty,
-			toolState = BasicTool(None),
+			toolState = BuildTool(None),
 			canvasInteraction = this.canvasInteraction.copy(None, this.canvasInteraction.lastMousePosition),
 			hoveringOnTool = None
 		)
@@ -189,7 +189,7 @@ object State {
 		adjMatrixDimensions = AdjMatrixDimensions(100, 100, 10, 5), // override in Controller.init after loading settings
 		exportFormat = ExportFormat.DOT,
 		adjacencyExportType = GraphRepresentation.List,
-		toolState = BasicTool(None),
+		toolState = BuildTool(None),
 		hoveringOnTool = None,
 		canvasInteraction = MainCanvasInteractionState(hoveredNode = None, lastMousePosition = Vector2D(0, 0)),
 		featureFlags = FeatureFlags(selectTool = true)

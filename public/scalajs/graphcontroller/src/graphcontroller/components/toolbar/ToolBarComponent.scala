@@ -3,7 +3,7 @@ package graphcontroller.components.toolbar
 import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.controller.{EscapePressed, Event, ToolBarMouseOut, ToolBarMouseOver, ToolSelected}
 import graphcontroller.model.State
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool, SelectMode}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, MagicPathTool, MoveTool, SelectTool, SelectMode}
 
 object ToolBarComponent extends Component {
 	override def update(state: State, event: Event): State = {
@@ -11,7 +11,7 @@ object ToolBarComponent extends Component {
 			case ToolSelected(tool) =>
 				val newTool = tool match {
 					case "select" => SelectTool()
-					case "basic" => BasicTool(None)
+					case "build" => BuildTool(None)
 					case "area-complete" => AreaCompleteTool(false, Nil)
 					case "magic-path" => MagicPathTool(None)
 					case "move" => MoveTool(None)
@@ -33,8 +33,8 @@ object ToolBarComponent extends Component {
 						// First press: clear selection, stay in SelectTool
 						state.copy(selectedNodes = Set.empty)
 					case _ =>
-						// Not in SelectTool, or selection already empty: go to BasicTool
-						state.copy(toolState = BasicTool(None), selectedNodes = Set.empty)
+						// Not in SelectTool, or selection already empty: go to BuildTool
+						state.copy(toolState = BuildTool(None), selectedNodes = Set.empty)
 				}
 			case _ => state
 		}

@@ -8,7 +8,7 @@ import graphcontroller.components.maincanvas.NodeRenderStyle.{AddEdgeHover, AddE
 import graphcontroller.dataobject.canvas.{Border, CanvasLine, CanvasPolyLine, CanvasRenderOp, CircleCanvas, RectangleCanvas, ShapeStyle, TriangleCanvas}
 import graphcontroller.dataobject.{Cell, Circle, Column, Line, NodeData, Rectangle, Row, Vector2D}
 import graphcontroller.model.{HoveredNode, State}
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectMode, SelectTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, MagicPathTool, MoveTool, SelectMode, SelectTool, Tool}
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -97,7 +97,7 @@ object MainCanvasView {
 		}
 
 		val baseStyles = toolState match {
-			case BasicTool(Some(edgeStart)) => // in edge adding mode
+			case BuildTool(Some(edgeStart)) => // in edge adding mode
 				val withoutEdgeStart = nonHoveredNodes.filter(_ != edgeStart)
 				val nonHoveredStyles: Seq[(Int, NodeRenderStyle)] = withoutEdgeStart.map(n => (n, AddEdgeNotStart))
 				val edgeStartStyle: Option[(Int, NodeRenderStyle)] = Some((edgeStart, AddEdgeStart))
@@ -113,7 +113,7 @@ object MainCanvasView {
 				val edgeStartStyle: Option[(Int, NodeRenderStyle)] = Some((edgeStart, AddEdgeStart))
 				// this part is different since hovering over a node actually causes an edge to be added
 				val hoveredStyle: Option[(Int, NodeRenderStyle)] = hoveredNode match {
-					case Some(n) if n == edgeStart => Some((n, AddEdgeHoverStart)) // slightly different than BasicTool
+					case Some(n) if n == edgeStart => Some((n, AddEdgeHoverStart)) // slightly different than BuildTool
 					case _ => None
 				}
 				nonHoveredStyles ++ edgeStartStyle ++ hoveredStyle
@@ -142,7 +142,7 @@ object MainCanvasView {
 
 	private def edgeAddingIndicatorLine(state: State): Option[CanvasLine] = {
 		val maybeEdgeStart = state.toolState match {
-			case BasicTool(maybeEdgeStart) => maybeEdgeStart
+			case BuildTool(maybeEdgeStart) => maybeEdgeStart
 			case MagicPathTool(maybeEdgeStart) => maybeEdgeStart
 			case _ => None
 		}

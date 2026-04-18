@@ -4,7 +4,7 @@ import graphcontroller.components.{Component, RenderOp}
 import graphcontroller.components.ops.{NoOp, RemoveAttribute, SetAttribute}
 import graphcontroller.controller.{Event, RedoRequested, UndoRequested}
 import graphcontroller.model.{HistoricalState, HoveredNode, State}
-import graphcontroller.shared.{BasicTool, MagicPathTool}
+import graphcontroller.shared.{BuildTool, MagicPathTool}
 
 object UndoRedoComponent extends Component {
 	override def update(state: State, event: Event): State = {
@@ -44,7 +44,7 @@ object UndoRedoComponent extends Component {
 		}
 		// (2) Clear tool state if in the middle of edge-adding mode, since it's weird to keep doing that during undo/redo
 		val newToolState = state.toolState match {
-			case BasicTool(Some(_)) => BasicTool(None)
+			case BuildTool(Some(_)) => BuildTool(None)
 			case MagicPathTool(Some(_)) => MagicPathTool(None)
 			case _ => state.toolState
 		}

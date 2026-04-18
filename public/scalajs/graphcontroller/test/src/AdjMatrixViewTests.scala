@@ -1,7 +1,7 @@
 import graphcontroller.components.adjacencymatrix.{AdjacencyMatrixView, Hover, NoSelection}
 import graphcontroller.dataobject.*
 import graphcontroller.model.State
-import graphcontroller.shared.{BasicTool, GraphRepresentation, GridUtils}
+import graphcontroller.shared.{BuildTool, GraphRepresentation, GridUtils}
 import graphi.DirectedMapGraph
 import utest.*
 import graphcontroller.components.exportpane.ExportFormat

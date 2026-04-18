@@ -9,19 +9,19 @@ import graphcontroller.components.ops.{RemoveAttribute, SetAttribute}
 import graphcontroller.components.undobutton.UndoRedoViewData
 import graphcontroller.dataobject.{Cell, Vector2D}
 import graphcontroller.model.State
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, GraphRepresentation, MagicPathTool, SelectTool}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, GraphRepresentation, MagicPathTool, SelectTool}
 
 object ControllerTests extends TestSuite {
 	def tests = Tests {
 		test("Tool selection") {
 			val initialState = State.init
-			assert(initialState.toolState.isInstanceOf[BasicTool])
+			assert(initialState.toolState.isInstanceOf[BuildTool])
 
 			val (stateWithSelectTool, _) = Controller.handleEventWithState(ToolSelected("select"), initialState)
 			assert(stateWithSelectTool.toolState.isInstanceOf[SelectTool])
 
-			val (stateWithBasicTool, _) = Controller.handleEventWithState(ToolSelected("basic"), stateWithSelectTool)
-			assert(stateWithBasicTool.toolState.isInstanceOf[BasicTool])
+			val (stateWithBuildTool, _) = Controller.handleEventWithState(ToolSelected("build"), stateWithSelectTool)
+			assert(stateWithBuildTool.toolState.isInstanceOf[BuildTool])
 		}
 
 		test("Undo") {
@@ -200,7 +200,7 @@ object ControllerTests extends TestSuite {
 			assert(stateAfterUndo.graph.nodeCount == 2)
 		}
 
-		test("EscapePressed from non-SelectTool switches to BasicTool") {
+		test("EscapePressed from non-SelectTool switches to BuildTool") {
 			for {
 				initialTool <- Seq(
 					MagicPathTool(Some(0)),
@@ -210,7 +210,7 @@ object ControllerTests extends TestSuite {
 			} yield {
 				val state = State.init.copy(toolState = initialTool)
 				val (newState, _) = Controller.handleEventWithState(EscapePressed, state)
-				assert(newState.toolState == BasicTool(None))
+				assert(newState.toolState == BuildTool(None))
 			}
 		}
 
@@ -223,18 +223,18 @@ object ControllerTests extends TestSuite {
 			assert(newState.selectedNodes.isEmpty)
 		}
 
-		test("EscapePressed with empty selection exits SelectTool to BasicTool") {
+		test("EscapePressed with empty selection exits SelectTool to BuildTool") {
 			val stateInSelect = State.init.copy(toolState = SelectTool(), selectedNodes = Set.empty)
 			val (newState, _) = Controller.handleEventWithState(EscapePressed, stateInSelect)
-			assert(newState.toolState == BasicTool(None))
+			assert(newState.toolState == BuildTool(None))
 		}
 
-		test("Switching from SelectTool to BasicTool clears selectedNodes") {
+		test("Switching from SelectTool to BuildTool clears selectedNodes") {
 			val stateWithSelection = State.init
 				.addNode(Vector2D(10, 10))
 				.copy(toolState = SelectTool(), selectedNodes = Set(0))
-			val (newState, _) = Controller.handleEventWithState(ToolSelected("basic"), stateWithSelection)
-			assert(newState.toolState == BasicTool(None))
+			val (newState, _) = Controller.handleEventWithState(ToolSelected("build"), stateWithSelection)
+			assert(newState.toolState == BuildTool(None))
 			assert(newState.selectedNodes.isEmpty)
 		}
 

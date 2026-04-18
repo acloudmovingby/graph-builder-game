@@ -3,7 +3,7 @@ package graphcontroller.components.toolbar
 import org.scalajs.dom
 import org.scalajs.dom.html
 import graphcontroller.components.RenderOp
-import graphcontroller.shared.{AreaCompleteTool, BasicTool, MagicPathTool, MoveTool, SelectTool, Tool}
+import graphcontroller.shared.{AreaCompleteTool, BuildTool, MagicPathTool, MoveTool, SelectTool, Tool}
 
 case class ToolBarRenderData(
 	selectedTool: Tool,
@@ -69,7 +69,7 @@ case class ToolBarRenderData(
 object AllTools {
 	val tools: Map[String, Tool] = Map(
 		"select" -> SelectTool(),
-		"basic" -> BasicTool(None),
+		"build" -> BuildTool(None),
 		"area-complete" -> AreaCompleteTool(false, Nil),
 		"magic-path" -> MagicPathTool(None),
 		"move" -> MoveTool(None)
